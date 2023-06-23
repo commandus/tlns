@@ -1,10 +1,10 @@
 # tlns
 
-Tiny LoRaWAN network server project
+Tiny LoRaWAN Network Server
 
-Goal is make a small footprint running on ESP32 board.
+The goal of the project is to make a network server running on the ESP32 board.
 
-Working release [https://github.com/commandus/lorawan-network-server](https://github.com/commandus/lorawan-network-server) runs on Raspberry. It requires much more resources.
+The working release of [https://github.com/commandus/lorawan-network-server](https://github.com/commandus/lorawan-network-server) runs on Raspberry. This requires much more resources.
 
 ## Tools
 
@@ -97,9 +97,22 @@ Receiver.receive(Packet -> message queue) return accepted or declined
 
 ### Message queue
 
+Message queue is a main structure.
+
 Message queue object provide
 
 - put accepted message (used by Receiver)
 - list of messages need to reply to the gateway
 - list of messages ready to send to the app server
 - list of messages 
+
+### Main event loop procedure
+
+```
+loop
+  wait for event or timeout
+  if timeout
+  then run sheduler
+  else Receiver.receive
+end loop
+```

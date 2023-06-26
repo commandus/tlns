@@ -10,6 +10,7 @@ The working release of [https://github.com/commandus/lorawan-network-server](htt
 
 - Visual Code
   - Draw.io Integration Visual Code plugin
+  - For ESP32 install Visual Code "Espressif IDF" plugin and configure ESP-IDF 
 
 ## Library
 
@@ -38,11 +39,15 @@ There is 4 operations on the queue:
 Receiver object adds a new messages to the queue, receive network and app keys over program interfaces and update received keys in the task descriptor.
 
 If receiver successfully receives key for address, it access message in the queue by the address and set key in the task descriptor. 
-Then it increment task stage to the "got key" 
+Then it increment task stage to the "got key"
 
-Scheduler object iterates messages in the queue.
+Sender object iterates messages in the queue with "got key" and initiate decipher packet. Decipher can be run in the main thread or runt in another thread, when it done, the Receiver must be receive result.
 
-Scheduler looks what stage is and initiates tasks to obtain keys, decipher packet by program interfaces.
+Sender looks what stage is and initiates tasks to obtain keys by initiaite sending requiests.
+
+Sender initiate send response to the gateway. When response is successfully sent or sent with errors task descriptor must indicates response success or failure. 
+
+MAC processor can create a message to be send to the end-device over best gateway.
 
 ### Task descriptor
 
@@ -76,7 +81,14 @@ Task scheduler
 
 ### Receiver
 
-Receiver object try to parse received packet.
+Receiver object read
+
+- packets from gateways and try to parse received packet
+- network and app keys from
+
+from the socket or file and then update message stage in the queue.
+
+Receiver wait until socket or file descriptor indicates data arrived using select() call.
 
 Implementation of Receiver class must override receive() method.
 

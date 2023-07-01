@@ -69,6 +69,7 @@ Task descriptor consists of
 - network key
 - app key
 - stage process error code
+- radio metadata sent by the gateway such as signal power
 
 At any stage task can be cancelled on stage process error such as
 - no network or app key available (device is not registered)
@@ -77,16 +78,24 @@ At any stage task can be cancelled on stage process error such as
 
 ### Scheduler
 
-Task scheduler 
+Scheduler serves message queue. 
+Each time scheduler has been called it get one or more task descriptor ready to serve.
+Then scheduler start one or more tasks:
+- send keys requests
+- decipher message
+- collect radio statistics and select best gateway for each end-device
+- send reply to the best gateway  
+- send MAC commands to the end-device
+- send messages initiated by the app server
 
 ### Receiver
 
 Receiver object read
 
 - packets from gateways and try to parse received packet
-- network and app keys from
-
-from the socket or file and then update message stage in the queue.
+- network and app keys from the socket or file and then update message stage in the queue.
+- end-device recomendation what gateway it the best for end-device, last received sequence number
+- receives message to be send to the end-device from the app server
 
 Receiver wait until socket or file descriptor indicates data arrived using select() call.
 

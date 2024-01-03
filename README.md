@@ -6,6 +6,12 @@ The goal of the project is to make a network server running on the ESP32 board.
 
 The working release of [https://github.com/commandus/lorawan-network-server](https://github.com/commandus/lorawan-network-server) runs on Raspberry. This requires much more resources.
 
+Network server can serve 1, 2 or more gateways.
+
+If there 2 or more gateways, message can recieved twice or more. 
+
+Network server collects metadata sent by gateways to choose gateway with the best signal/noise ratio to send response. 
+
 ## Tools
 
 - Visual Code
@@ -13,6 +19,29 @@ The working release of [https://github.com/commandus/lorawan-network-server](htt
   - For ESP32 install Visual Code "Espressif IDF" plugin and configure ESP-IDF 
 
 ## Library
+
+Library operates with two high-level class of objects:
+
+- Messages stored in the message queue
+- Tasks
+
+Task is a glue to make asynchronius requests.
+Task associated with the message in the message queue.
+Task contains process stage and last operation result and intermediate data such as keys to decipher payload.
+
+Two object classes
+
+- Dispatcher
+- Services
+
+operates with tasks. For instance, the "Receiver" service create a new task and move it to the dispatcher.
+
+Then Dispatcher put task to the "Get device identity" service. 
+"Get device identity" service after receiving keys return keys back tro the Dispatcher.
+
+Dispatcher get one task from the queue and move it to the appropriate service. 
+
+Service must put task in internal queue. When task is complete, service move task to the dispacher queue.
 
 ### Message queue
 
@@ -22,10 +51,10 @@ Each element is an vector or map accessed by message sequence number.
 
 Each element consist of
 
-- message sequence number (if container is vector)
-- network server metadata such as receiving time
+- message sequence number (if container is a vector)
+- network server metadata such as receiving time of the first received packet (no matter which gateway is first)
 - radio packet itself
-- metadata sent by the gateway- map of gateway identifier
+- metadata sent by the gateway. Metadata stored in the map of gateway identifier
 
 Each element of the message queue has an associated task descriptor.
 
@@ -55,32 +84,32 @@ Task has stages:
 
 - just received
 - merged or unique. If packet received by two or more gateways, identical messages merged into the one. Metadata specific to the gateway added to the array of metadatas.
-- got network key
-- got app key
+- got device identifier: network / app keys
 - deciphered
 - MAC command process initiated
 - accepted or declined (sent to app server or to error log)
 
-After message is in the last stage, message deleted from the queue.
+After message is in the last stage, message waits to expire and after expiration time is deleted from the queue.
 
 Task descriptor consists of
 
 - stage
-- network key
-- app key
+- device identifer: network key / app key
 - stage process error code
-- radio metadata sent by the gateway such as signal power
+- radio metadata sent by the gateway such as signal power, signal/noise ratio etc.
 
 At any stage task can be cancelled on stage process error such as
 - no network or app key available (device is not registered)
 - CRC error after decipher
 - queue is full (no memory to process new message)
 
-### Scheduler
+### Dispatcher
 
-Scheduler serves message queue. 
-Each time scheduler has been called it get one or more task descriptor ready to serve.
-Then scheduler start one or more tasks:
+Dispatcher serves message queue. 
+Each time dispatcher has been called it get one or more task descriptor ready to serve.
+
+Then dispatcher start one or more tasks:
+
 - send keys requests
 - decipher message
 - collect radio statistics and select best gateway for each end-device

@@ -83,8 +83,7 @@ MAC processor can create a message to be send to the end-device over best gatewa
 Task has stages:
 
 - just received
-- merged or unique. If packet received by two or more gateways, identical messages merged into the one. Metadata specific to the gateway added to the array of metadatas.
-- got device identifier: network / app keys
+- got device identifier: network/app keys
 - deciphered
 - MAC command process initiated
 - accepted or declined (sent to app server or to error log)
@@ -94,9 +93,12 @@ After message is in the last stage, message waits to expire and after expiration
 Task descriptor consists of
 
 - stage
-- device identifer: network key / app key
+- device identifer: network key/app key
 - stage process error code
-- radio metadata sent by the gateway such as signal power, signal/noise ratio etc.
+- radio metadata array sent by the gateway such as signal power, signal/noise ratio etc.
+
+If packet received by two or more gateways, identical messages merged into the one. Metadata specific to the gateway added to the array of metadatas.
+Radio metadata array have at least 1 element.
 
 At any stage task can be cancelled on stage process error such as
 - no network or app key available (device is not registered)

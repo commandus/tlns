@@ -52,7 +52,7 @@ Each element is an vector or map accessed by message sequence number.
 Each element consist of
 
 - message sequence number (if container is a vector)
-- network server metadata such as receiving time of the first received packet (no matter which gateway is first)
+- receiving time of the first received packet (no matter which gateway is first)
 - radio packet itself
 - metadata sent by the gateway. Metadata stored in the map of gateway identifier
 

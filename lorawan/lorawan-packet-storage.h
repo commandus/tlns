@@ -43,4 +43,5 @@ typedef PACK( struct {
 PACK( class LorawanPacketStorage {
 public:
     LORAWAN_MESSAGE_STORAGE msg;
+    LorawanPacketStorage();
 } );

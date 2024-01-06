@@ -12,6 +12,14 @@ MessageQueueItem::MessageQueueItem(
 
 }
 
+MessageQueueItem::MessageQueueItem(
+    const MessageQueueItem& value
+)
+    : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived)
+{
+
+}
+
 bool MessageQueueItem::expired(
     const TASK_TIME &since
 )

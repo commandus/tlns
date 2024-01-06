@@ -16,7 +16,8 @@ public:
     
     TaskDescriptor task;                    ///< corresponding task
 
-    MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
+    explicit MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
+    MessageQueueItem(const MessageQueueItem& value);
 
     bool expired(const TASK_TIME &since);
 };

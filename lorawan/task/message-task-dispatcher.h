@@ -3,11 +3,14 @@
 
 #include "message-queue.h"
 
-class TaskDispatcher {
+class MessageTaskDispatcher {
+protected:
+    MessageQueue *queue;
 public:
-
-
+    MessageTaskDispatcher();
+    MessageTaskDispatcher(const MessageTaskDispatcher &value);
+    void setQueue(MessageQueue *queue);
+    void response(MessageQueueItem *item);
 };
-
 
 #endif

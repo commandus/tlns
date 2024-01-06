@@ -1,11 +1,10 @@
 #include <string>
 #include <vector>
 
-class DeviceId {};
-class GatewayId {};
-class GatewayMetadata {};
+#include "lorawan/storage/network-identity.h"
+#include "lorawan/storage/gateway-identity.h"
 
-typedef enum TaskStage {
+typedef enum {
     TASK_STAGE_RECEIVED = 0,                // just received
     TASK_STAGE_IDENTIFIED,                  // got device identifier: network / app keys
     TASK_STAGE_DECIPHERED,                  // deciphered
@@ -21,25 +20,22 @@ typedef enum TaskStage {
     TASK_STAGE_PAYLOAD_SENT,                // payload sent to the app service
 
     TASK_STAGE_FINISHED                     // accepted or declined (sent to app server or to error log)
-};
+} TaskStage;
 
-/*
-typedef enum TaskState {
-    TASK_STATE_SUCCESS = 0,                 // no errors
-    TASK_STATE_ABORT,                       // critical errors occured, abort entire task
-    TASK_STATE_RETRY                        // critical errors occured, try again
-};
-*/
+typedef enum {
+    TASK_STATE_RETURNED = 0,                // returned to the Dispatcher
+    TASK_STATE_IN_PROGRESS                  // task execution in progress
+} TaskState;
 
 class TaskDescriptor {
 public:
     TaskStage stage;
-    // TaskState state;
+    TaskState state;
     int errorCode;
     int repeats;
 
-    DeviceId deviceId;                      // device keys
-    GatewayId gatewayId;                    // best gateway address
+    NetworkIdentity deviceId;               // device keys
+    GatewayIdentity gatewayId;              // best gateway address
 
     TaskDescriptor();
     virtual ~TaskDescriptor();

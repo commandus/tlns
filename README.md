@@ -8,7 +8,7 @@ The working release of [https://github.com/commandus/lorawan-network-server](htt
 
 Network server can serve 1, 2 or more gateways.
 
-If there 2 or more gateways, message can recieved twice or more. 
+If there 2 or more gateways, message can received twice or more. 
 
 Network server collects metadata sent by gateways to choose gateway with the best signal/noise ratio to send response. 
 
@@ -25,7 +25,7 @@ Library operates with two high-level class of objects:
 - Messages stored in the message queue
 - Tasks
 
-Task is a glue to make asynchronius requests.
+Task is a glue to make asynchronous requests.
 Task associated with the message in the message queue.
 Task contains process stage and last operation result and intermediate data such as keys to decipher payload.
 
@@ -34,14 +34,14 @@ Two object classes
 - Dispatcher
 - Services
 
-operates with tasks. For instance, the "Receiver" service create a new task and move it to the dispatcher.
+operates with tasks. For instance, the "Receiver" service create a new task and move it to the MessageTaskDispatcher.
 
 Then Dispatcher put task to the "Get device identity" service. 
 "Get device identity" service after receiving keys return keys back tro the Dispatcher.
 
 Dispatcher get one task from the queue and move it to the appropriate service. 
 
-Service must put task in internal queue. When task is complete, service move task to the dispacher queue.
+Service must put task in internal queue. When task is complete, service move task to the dispatcher queue.
 
 ### Message queue
 
@@ -54,9 +54,9 @@ Each element consist of
 - message sequence number (if container is a vector)
 - receiving time of the first received packet (no matter which gateway is first)
 - radio packet itself
-- radio metadatas sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc. Metadata stored in the map of gateway identifier.
+- radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc. Metadata stored in the map of gateway identifier.
 
-If packet received by two or more gateways, identical messages merged into the one. Metadata specific to the gateway added to the array of metadatas.
+If packet received by two or more gateways, identical messages merged into the one. Metadata specific to the gateway added to the array of metadata.
 Radio metadata array have at least 1 element.
 
 Each element of the message queue has an associated task descriptor.
@@ -64,7 +64,7 @@ Each element of the message queue has an associated task descriptor.
 There is 4 operations on the queue:
 
 - add a new message to the queue
-- iterate messages in the queue - get messge fron the queue one by one
+- iterate messages in the queue - get message from the queue one by one
 - update message in the queue, message accessed by the address and the sequence number. It updates task descriptor stage
 - remove cancelled or completed tasks from the queue
 
@@ -75,7 +75,7 @@ Then it increment task stage to the "got key"
 
 Sender object iterates messages in the queue with "got key" and initiate decipher packet. Decipher can be run in the main thread or runt in another thread, when it done, the Receiver must be receive result.
 
-Sender looks what stage is and initiates tasks to obtain keys by initiaite sending requiests.
+Sender looks what stage is and initiates tasks to obtain keys by initiate sending requests.
 
 Sender initiate send response to the gateway. When response is successfully sent or sent with errors task descriptor must indicates response success or failure. 
 
@@ -96,9 +96,8 @@ After message is in the last stage, message waits to expire and after expiration
 Task descriptor consists of
 
 - stage
-- device identifer: network key/app key
+- device identifier: network key/app key
 - stage process error code
-
 
 At any stage task can be cancelled on stage process error such as
 - no network or app key available (device is not registered)
@@ -108,9 +107,9 @@ At any stage task can be cancelled on stage process error such as
 ### Dispatcher
 
 Dispatcher serves message queue. 
-Each time dispatcher has been called it get one or more task descriptor ready to serve.
+Each time MessageTaskDispatcher has been called it get one or more task descriptor ready to serve.
 
-Then dispatcher start one or more tasks:
+Then MessageTaskDispatcher start one or more tasks:
 
 - send keys requests
 - decipher message
@@ -125,7 +124,7 @@ Receiver object read
 
 - packets from gateways and try to parse received packet
 - network and app keys from the socket or file and then update message stage in the queue.
-- end-device recomendation what gateway it the best for end-device, last received sequence number
+- end-device recommendation what gateway it the best for end-device, last received sequence number
 - receives message to be send to the end-device from the app server
 
 Receiver wait until socket or file descriptor indicates data arrived using select() call.

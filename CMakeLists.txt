@@ -113,7 +113,7 @@ else()
 		lorawan/helper/ip-address.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
-		lorawan/task/message-task-dispatcher.cpp
+		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
 		third-party/strptime.cpp
 		${AES_SRC}
 	)
@@ -168,6 +168,7 @@ else()
 		cli-main-check.cpp
 		${SRC_LIBLORAWAN}
 		${ARGTABLE}
+		receiver-simulator-threaded.cpp
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC})
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})

@@ -1,4 +1,5 @@
 #include "message-queue.h"
+#include "message-task-dispatcher.h"
 
 #define DEF_MESSAGE_QUEUE_PRE_ALLOC 16
 #define DEF_MESSAGE_QUEUE_MAX       128
@@ -23,4 +24,10 @@ MessageQueue::~MessageQueue() = default;
 void MessageQueue::step()
 {
 
+}
+
+void MessageQueue::setDispatcher(
+    MessageTaskDispatcher *aDispatcher
+) {
+    dispatcher = aDispatcher;
 }

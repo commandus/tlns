@@ -1,3 +1,6 @@
+#ifndef TASK_DESCRIPTOR_H_
+#define TASK_DESCRIPTOR_H_	1
+
 #include <string>
 #include <vector>
 
@@ -40,3 +43,5 @@ public:
     TaskDescriptor();
     virtual ~TaskDescriptor();
 };
+
+#endif

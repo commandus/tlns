@@ -1,3 +1,6 @@
+#ifndef LORAWAN_PACKET_STORAGE_H_
+#define LORAWAN_PACKET_STORAGE_H_
+
 #include "lorawan-types.h"
 
 typedef PACK( struct {
@@ -45,3 +48,5 @@ public:
     LORAWAN_MESSAGE_STORAGE msg;
     LorawanPacketStorage();
 } );
+
+#endif

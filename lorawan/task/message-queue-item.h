@@ -1,8 +1,11 @@
+#ifndef MESSAGE_QUEUE_ITEM_H_
+#define MESSAGE_QUEUE_ITEM_H_
+
 #include <map>
+
 #include "task-platform.h"
 #include "task-descriptor.h"
 #include "lorawan/lorawan-packet-storage.h"
-
 
 class MessageQueue;
 
@@ -21,3 +24,5 @@ public:
 
     bool expired(const TASK_TIME &since);
 };
+
+#endif

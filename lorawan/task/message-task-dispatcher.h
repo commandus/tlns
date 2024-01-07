@@ -1,5 +1,5 @@
-#ifndef TASK_DISPATCHER_H
-#define TASK_DISPATCHER_H
+#ifndef MESSAGE_TASK_DISPATCHER_H
+#define MESSAGE_TASK_DISPATCHER_H
 
 #include "message-queue.h"
 
@@ -9,6 +9,7 @@ protected:
 public:
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
+    void setReceiver();
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
 };

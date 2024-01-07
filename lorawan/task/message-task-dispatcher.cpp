@@ -18,6 +18,7 @@ void MessageTaskDispatcher::setQueue(
 )
 {
     queue = aQueue;
+    queue->setDispatcher(this);
 }
 
 void MessageTaskDispatcher::response(

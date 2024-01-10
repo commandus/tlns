@@ -12,9 +12,10 @@
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
+#include "lorawan/task/message-task-dispatcher.h"
+#include "receiver-simulator-threaded.h"
 
 const char *programName = "tlns-check";
-#define DEF_PORT 4244
 
 // global parameters
 class CheckParams {
@@ -37,10 +38,19 @@ public:
 
 static CheckParams params;
 
-static void run()
-{
+static void run() {
     MessageQueue q;
     q.setSize(1, 10);
+    MessageTaskDispatcher dispatcher;
+    dispatcher.setQueue(&q);
+
+    ReceiverSimulatorThreaded receiver;
+    dispatcher.setReceiver(&receiver);
+
+    std::string l;
+    std::cout << "Enter to stop" << std::endl;
+    getline(std::cin, l);
+    receiver.stop();
 }
 
 int main(int argc, char **argv) {

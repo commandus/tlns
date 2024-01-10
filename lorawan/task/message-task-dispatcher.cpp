@@ -27,3 +27,10 @@ void MessageTaskDispatcher::response(
 {
 
 }
+
+void MessageTaskDispatcher::setReceiver(
+    TaskResponse *aReceiver
+)
+{
+    receiver = aReceiver;
+}

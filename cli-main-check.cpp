@@ -13,7 +13,7 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
-#include "receiver-simulator-threaded.h"
+#include "task-response-threaded.h"
 
 const char *programName = "tlns-check";
 
@@ -43,14 +43,17 @@ static void run() {
     q.setSize(1, 10);
     MessageTaskDispatcher dispatcher;
     dispatcher.setQueue(&q);
+    dispatcher.start();
 
-    ReceiverSimulatorThreaded receiver;
-    dispatcher.setReceiver(&receiver);
+    // TaskResponseThreaded response;
+    // dispatcher.setResponse(&response);
 
+    std::cout << "Press <Enter> to stop" << std::endl;
     std::string l;
-    std::cout << "Enter to stop" << std::endl;
     getline(std::cin, l);
-    receiver.stop();
+
+    // response.stop();
+    dispatcher.stop();
 }
 
 int main(int argc, char **argv) {

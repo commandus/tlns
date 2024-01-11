@@ -107,9 +107,9 @@ At any stage task can be cancelled on stage process error such as
 ### Dispatcher
 
 Dispatcher serves message queue. 
-Each time MessageTaskDispatcher has been called it get one or more task descriptor ready to serve.
+Each time Dispatcher has been called it get one or more task descriptor ready to serve.
 
-Then MessageTaskDispatcher start one or more tasks:
+Then Dispatcher start one or more tasks:
 
 - send keys requests
 - decipher message
@@ -135,7 +135,7 @@ Receiver has interfaces to access external storages:
 
 - get network key(address)
 - get app key(address)
-- get gateway(gwid)
+- get gateway(gateway id)
 - put MAC command
 - put declined message
 - put accepted message
@@ -163,7 +163,7 @@ Message queue object provide
 loop
   wait for event or timeout
   if timeout
-  then run sheduler
+  then run dispatcher
   else Receiver.receive
 end loop
 ```

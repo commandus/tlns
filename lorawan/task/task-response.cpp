@@ -1,19 +1,34 @@
 #include <algorithm>
 #include "task-response.h"
 
-TaskResponse::TaskResponse() {
+TaskResponse::TaskResponse()
+    : running(false)
+{
 
 }
 
 TaskResponse::TaskResponse(
     const TaskResponse &value
 )
-    : queue(value.queue)
+    : running(value.running), queue(value.queue)
 {
 
 }
 
 TaskResponse::~TaskResponse() = default;
+
+bool TaskResponse::start()
+{
+    running = true;
+    return true;
+}
+
+void TaskResponse::stop()
+{
+    if (!running)
+        return;
+    running = false;
+}
 
 void TaskResponse::onReceive(
     MessageQueueItem *value
@@ -28,4 +43,3 @@ void TaskResponse::onResponse(
     if (it != queue.end())
         queue.erase(it);
 }
-

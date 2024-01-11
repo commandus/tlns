@@ -9,14 +9,18 @@
  * Interface class
  */
 class TaskResponse {
-protected:
-    std::vector<MessageQueueItem *> queue;
 public:
+    bool running;
+    std::vector<MessageQueueItem *> queue;
+
     TaskResponse();
     TaskResponse(const TaskResponse &value);
     virtual ~TaskResponse();
     virtual void onReceive(MessageQueueItem* value);
     virtual void onResponse(MessageQueueItem* value);
+    virtual bool start();
+    virtual void stop();
+
 };
 
 #endif

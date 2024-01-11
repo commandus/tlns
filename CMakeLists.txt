@@ -168,7 +168,7 @@ else()
 		cli-main-check.cpp
 		${SRC_LIBLORAWAN}
 		${ARGTABLE}
-		receiver-simulator-threaded.cpp
+		task-response-threaded.cpp
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC})
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})

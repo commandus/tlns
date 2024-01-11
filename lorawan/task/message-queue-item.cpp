@@ -1,7 +1,16 @@
 #include <chrono>
+#include <sstream>
 #include "message-queue-item.h"
+#include "lorawan/lorawan-date.h"
+#include "lorawan/lorawan-string.h"
 
 #define DEF_MESSAGE_EXPIRATION_SEC  60
+
+MessageQueueItem::MessageQueueItem()
+    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now())
+{
+
+}
 
 MessageQueueItem::MessageQueueItem(
     MessageQueue * ownerQueue,
@@ -20,9 +29,28 @@ MessageQueueItem::MessageQueueItem(
 
 }
 
+void MessageQueueItem::setQueue(
+    MessageQueue *value
+)
+{
+    queue = value;
+}
+
 bool MessageQueueItem::expired(
     const TASK_TIME &since
 )
 {
     return (std::chrono::duration_cast<std::chrono::seconds>(since - firstGatewayReceived).count() > DEF_MESSAGE_EXPIRATION_SEC);
+}
+
+std::string MessageQueueItem::toString() const
+{
+    std::stringstream ss;
+    std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
+    ss << time2string(t) << " " << radioPacket.toString();
+    for (auto it : metadata) {
+        ss << " " <<  gatewayId2str(it.first)
+            << ": " << BANDWIDTH2String(it.second.bandwith);
+    }
+    return ss.str();
 }

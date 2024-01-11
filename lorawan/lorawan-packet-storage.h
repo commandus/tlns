@@ -77,6 +77,7 @@ PACK( class LorawanPacketStorage {
 public:
     LORAWAN_MESSAGE_STORAGE msg;
     LorawanPacketStorage();
+    std::string toString() const;
 } );
 
 #endif

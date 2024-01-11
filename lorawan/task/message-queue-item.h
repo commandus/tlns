@@ -15,14 +15,19 @@ public:
 
     TASK_TIME firstGatewayReceived;         ///< receiving time of the first received packet (no matter which gateway is first)
     LorawanPacketStorage radioPacket;       ///< radio packet
-    std::map <uint64_t, SEMTECH_PROTOCOL_METADATA> metadatas;   ///< radio metadatas sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
+    std::map <uint64_t, SEMTECH_PROTOCOL_METADATA> metadata;   ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
     
     TaskDescriptor task;                    ///< corresponding task
 
-    explicit MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
+    MessageQueueItem();
+    MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
     MessageQueueItem(const MessageQueueItem& value);
 
+    void setQueue(MessageQueue *value);
+
     bool expired(const TASK_TIME &since);
+
+    std::string toString() const;
 };
 
 #endif

@@ -84,8 +84,6 @@ void MessageTaskDispatcher::stop()
 {
     if (!running)
         return;
-    running = false;
-
     // wake-up select()
     sendControl("exit");
 
@@ -184,5 +182,6 @@ int MessageTaskDispatcher::runner()
     }
     close(fdControl);
     fdControl = -1;
+    running = false;
     loopExit.notify_all();
 }

@@ -86,13 +86,17 @@ void MessageTaskDispatcher::stop()
         return;
     running = false;
 
+    // wake-up select()
     sendControl("exit");
+
+    // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    while (loopExit.wait_for(lock, std::chrono::seconds(1)) == std::cv_status::timeout) {
-        std::cerr << "ssdsd" << std::endl;
+    while (running && loopExit.wait_for(lock, std::chrono::seconds(1)) == std::cv_status::timeout) {
+        // try wake-up select() if UDP packet is missed
         sendControl("exit");
     }
+    // free up resources
     delete thread;
 }
 

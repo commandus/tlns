@@ -28,7 +28,7 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
-    bool sendControl(const std::string &cmd);
+    bool sendControl(const std::string &cmd) const;
 
     bool start();
     void stop();

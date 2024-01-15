@@ -1,19 +1,18 @@
-#include <functional>
-#include <csignal>
 #include "message-task-dispatcher.h"
 
-#include "lorawan/lorawan-error.h"
-
+#include <functional>
+#include <csignal>
 #include <sys/select.h>
-#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <cstring>
 #include <iostream>
 
+#include "lorawan/lorawan-error.h"
+
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
+    : fdControl(0), queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
 {
 
 }
@@ -21,7 +20,7 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : queue(value.queue), taskResponse(value.taskResponse), thread(value.thread), running(value.running)
+    : fdControl(0), queue(value.queue), taskResponse(value.taskResponse), thread(value.thread), running(value.running)
 {
 }
 
@@ -56,7 +55,7 @@ void MessageTaskDispatcher::setResponse(
 
 bool MessageTaskDispatcher::sendControl(
     const std::string &cmd
-)
+) const
 {
     SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
@@ -67,7 +66,6 @@ bool MessageTaskDispatcher::sendControl(
     destination.sin_port = htons(CONTROL_PORT);
     size_t sz = cmd.size();
     ssize_t ssz = sendto(sock, cmd.c_str(), sz, 0, (const sockaddr *) &destination, sizeof(destination));
-    send(fdControl, cmd.c_str(), sz, 0);
     close(sock);
     return (ssz == sz);
 }
@@ -88,13 +86,13 @@ void MessageTaskDispatcher::stop()
         return;
     running = false;
 
+    sendControl("exit");
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-
-    sendControl("exit");
-
-    loopExit.wait(lock);
-
+    while (loopExit.wait_for(lock, std::chrono::seconds(1)) == std::cv_status::timeout) {
+        std::cerr << "ssdsd" << std::endl;
+        sendControl("exit");
+    }
     delete thread;
 }
 
@@ -105,7 +103,7 @@ int MessageTaskDispatcher::runner()
         running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
-    struct timeval timeout;
+    struct timeval timeout {};
 
     // Allow socket descriptor to be reuseable
     int on = 1;
@@ -125,7 +123,7 @@ int MessageTaskDispatcher::runner()
     }
 
     // Bind the socket
-    struct sockaddr_in addr;
+    struct sockaddr_in addr {};
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // INADDR_ANY;
@@ -167,11 +165,9 @@ int MessageTaskDispatcher::runner()
         for (int i = minFD; i <= maxFD; i++) {
             if (FD_ISSET(i, &working_set)) {
                 if (i == fdControl) {
-                    rc = recv(i, buffer, sizeof(buffer), 0);
-                    if (rc < 0) {
-                    } else {
-                        std::string s(buffer, rc);
-                        std::cout << s << std::endl;
+                    ssize_t sz = recv(i, buffer, sizeof(buffer), 0);
+                    if (sz > 0) {
+                        std::string s(buffer, sz);
                         if (s == "exit") {
                             running = false;
                             break;

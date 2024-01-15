@@ -3,10 +3,14 @@
 
 #include <thread>
 #include <condition_variable>
-#include "message-queue.h"
-#include "task-response.h"
+
+#include "lorawan/task/message-queue.h"
+#include "lorawan/task/task-response.h"
+#include "lorawan/helper/ip-address.h"
 
 class MessageTaskDispatcher {
+private:
+    SOCKET fdControl;
 protected:
     MessageQueue *queue;
     TaskResponse *taskResponse;
@@ -15,7 +19,7 @@ protected:
 public:
     bool running;
 
-    void runner();
+    int runner();
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
@@ -24,6 +28,7 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
+    bool sendControl(const std::string &cmd);
 
     bool start();
     void stop();

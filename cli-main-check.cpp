@@ -51,8 +51,6 @@ static void run() {
     std::cout << "Press <Enter> to stop" << std::endl;
     std::string l;
     getline(std::cin, l);
-
-    // response.stop();
     dispatcher.stop();
 }
 

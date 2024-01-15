@@ -2,6 +2,16 @@
 #include <csignal>
 #include "message-task-dispatcher.h"
 
+#include "lorawan/lorawan-error.h"
+
+#include <sys/select.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <cstring>
+#include <iostream>
+
 MessageTaskDispatcher::MessageTaskDispatcher()
     : queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
 {
@@ -42,6 +52,26 @@ void MessageTaskDispatcher::setResponse(
     taskResponse = value;
 }
 
+#define CONTROL_PORT 4242
+
+bool MessageTaskDispatcher::sendControl(
+    const std::string &cmd
+)
+{
+    SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+        return false;
+    sockaddr_in destination;
+    destination.sin_family = AF_INET;
+    destination.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    destination.sin_port = htons(CONTROL_PORT);
+    size_t sz = cmd.size();
+    ssize_t ssz = sendto(sock, cmd.c_str(), sz, 0, (const sockaddr *) &destination, sizeof(destination));
+    send(fdControl, cmd.c_str(), sz, 0);
+    close(sock);
+    return (ssz == sz);
+}
+
 bool MessageTaskDispatcher::start()
 {
     if (running)
@@ -49,7 +79,7 @@ bool MessageTaskDispatcher::start()
     running = true;
     thread = new std::thread(std::bind(&MessageTaskDispatcher::runner, this));
     thread->detach();
-    return true;
+    return running;
 }
 
 void MessageTaskDispatcher::stop()
@@ -57,19 +87,102 @@ void MessageTaskDispatcher::stop()
     if (!running)
         return;
     running = false;
+
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    loopExit.wait(lock);
-    delete thread;
 
+    sendControl("exit");
+
+    loopExit.wait(lock);
+
+    delete thread;
 }
 
-void MessageTaskDispatcher::runner()
+int MessageTaskDispatcher::runner()
 {
+    fdControl = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (fdControl < 0) {
+        running = false;
+        return ERR_CODE_SOCKET_CREATE;
+    }
+    struct timeval timeout;
+
+    // Allow socket descriptor to be reuseable
+    int on = 1;
+    int rc = setsockopt(fdControl, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (rc < 0) {
+        close(fdControl);
+        running = false;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+
+    // Set socket to be nonblocking
+    rc = ioctl(fdControl, FIONBIO, (char *)&on);
+    if (rc < 0) {
+        close(fdControl);
+        running = false;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+
+    // Bind the socket
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // INADDR_ANY;
+    addr.sin_port = htons(CONTROL_PORT);
+    rc = bind(fdControl, (struct sockaddr *) &addr, sizeof(addr));
+    if (rc < 0) {
+        close(fdControl);
+        running = false;
+        return ERR_CODE_SOCKET_BIND;
+    }
+
+    // Initialize the master fd_set
+    fd_set master_set;
+    // , working_set;
+    FD_ZERO(&master_set);
+    SOCKET minFD = fdControl;
+    SOCKET maxFD = fdControl;
+    FD_SET(fdControl, &master_set);
+    // Initialize the timeval struct
+    timeout.tv_sec  = 3 * 60;
+    timeout.tv_usec = 0;
+
+    char buffer[10];
+
     while (running) {
-        // receive
+        fd_set working_set;
+        // Copy the master fd_set over to the working fd_set
+        memcpy(&working_set, &master_set, sizeof(master_set));
+        rc = select(maxFD + 1, &working_set, nullptr, nullptr, &timeout);
+        if (rc < 0) {
+            // select error
+            break;
+        }
+        if (rc == 0) {
+            // select() timed out.
+            std::cerr << "timed out" << std::endl;
+            continue;
+        }
+        for (int i = minFD; i <= maxFD; i++) {
+            if (FD_ISSET(i, &working_set)) {
+                if (i == fdControl) {
+                    rc = recv(i, buffer, sizeof(buffer), 0);
+                    if (rc < 0) {
+                    } else {
+                        std::string s(buffer, rc);
+                        std::cout << s << std::endl;
+                        if (s == "exit") {
+                            running = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         sleep(1);
     }
+    close(fdControl);
+    fdControl = -1;
     loopExit.notify_all();
 }
-

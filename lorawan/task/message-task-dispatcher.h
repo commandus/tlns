@@ -8,9 +8,37 @@
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
 
+typedef int(*TaskProc)(
+    void *env,
+    const char *buffer,
+    size_t size
+);
+
+class TaskSocket {
+public:
+    SOCKET sock;
+    std::string addr;
+    uint16_t port;
+    int lastError;
+    TaskProc cb;
+    /**
+     * @param addr ""- any interface, "localhost"- localhost otherwise- address
+     * @param port port number
+     */
+    TaskSocket(const std::string &addr, uint16_t port, TaskProc cb);
+    /**
+     * Open UDP socket for listen
+     * @return -1 if fail
+     */
+    SOCKET openUDPSocket();
+    void closeSocket();
+    // virtual int onData(const char *buffer, size_t size) = 0;
+    virtual ~TaskSocket();
+};
+
 class MessageTaskDispatcher {
 private:
-    SOCKET fdControl;
+    std::vector<SOCKET> sockets;
 protected:
     MessageQueue *queue;
     TaskResponse *taskResponse;
@@ -23,6 +51,7 @@ public:
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
+    void setPorts(uint16_t control);
     virtual ~MessageTaskDispatcher();
 
     void setQueue(MessageQueue *queue);

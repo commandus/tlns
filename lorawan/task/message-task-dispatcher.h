@@ -63,6 +63,9 @@ public:
 
     bool start();
     void stop();
+
+    virtual bool createSockets();
+
 };
 
 #endif

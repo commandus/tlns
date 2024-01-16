@@ -173,27 +173,30 @@ void MessageTaskDispatcher::stop()
     delete thread;
 }
 
-int MessageTaskDispatcher::runner()
+bool MessageTaskDispatcher::createSockets()
 {
-    TaskSocket tsControl("localhost", CONTROL_PORT, [](
-        MessageTaskDispatcher *dispatcher,
-        const char *buffer,
-        size_t size
+    TaskSocket *tsControl = new TaskSocket ("localhost", CONTROL_PORT, [](
+            MessageTaskDispatcher *dispatcher,
+            const char *buffer,
+            size_t size
     ) {
-        std::cerr << "***" << std::endl;
         if (strncmp(buffer, "exit", size) == 0) {
-            std::cerr << "*** exit ***" << std::endl;
             dispatcher->running = false;
             return -1;
         }
         return 0;
     });
 
-    if (tsControl.openUDPSocket() < 0) {
+    if (tsControl->openUDPSocket() < 0) {
         running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
-    sockets.push_back(&tsControl);
+    sockets.push_back(tsControl);
+}
+
+int MessageTaskDispatcher::runner()
+{
+    createSockets();
 
     struct timeval timeout {};
 
@@ -243,7 +246,12 @@ int MessageTaskDispatcher::runner()
         }
         sleep(1);
     }
-    tsControl.closeSocket();
+
+    // close all sockets
+    for (auto s : sockets) {
+        // s->closeSocket();
+        delete s;
+    }
     running = false;
     loopExit.notify_all();
 }

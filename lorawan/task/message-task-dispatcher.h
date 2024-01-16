@@ -49,6 +49,10 @@ protected:
 
     virtual bool createSockets();
     bool openSockets();
+    /**
+     * close all sockets
+     */
+    void closeSockets();
 public:
     bool running;
 
@@ -66,7 +70,6 @@ public:
 
     bool start();
     void stop();
-
 };
 
 #endif

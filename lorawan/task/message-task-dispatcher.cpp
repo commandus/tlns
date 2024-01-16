@@ -170,9 +170,9 @@ void MessageTaskDispatcher::stop()
 bool MessageTaskDispatcher::createSockets()
 {
     auto *tsControl = new TaskSocket (INADDR_LOOPBACK, CONTROL_PORT, [](
-            MessageTaskDispatcher *dispatcher,
-            const char *buffer,
-            size_t size
+        MessageTaskDispatcher *dispatcher,
+        const char *buffer,
+        size_t size
     ) {
         if (strncmp(buffer, "exit", size) == 0) {
             dispatcher->running = false;
@@ -181,7 +181,7 @@ bool MessageTaskDispatcher::createSockets()
         return 0;
     });
     sockets.push_back(tsControl);
-    return tsControl->lastError == CODE_OK;
+    return true;
 }
 
 bool MessageTaskDispatcher::openSockets()
@@ -193,20 +193,24 @@ bool MessageTaskDispatcher::openSockets()
             break;
         }
     }
-    if (!r) {
-        // close all sockets
-        for (auto s : sockets) {
-            delete s;
-        }
-        sockets.clear();
-    }
     return r;
+}
+
+void MessageTaskDispatcher::closeSockets() {
+    // close all sockets
+    for (auto s : sockets) {
+        delete s;
+    }
+    // clear container
+    sockets.clear();
 }
 
 int MessageTaskDispatcher::runner()
 {
-    if (!createSockets() || !openSockets())
+    if (!createSockets() || !openSockets()) {
+        closeSockets();
         return ERR_CODE_SOCKET_CREATE;
+    }
 
     struct timeval timeout {};
 
@@ -254,11 +258,7 @@ int MessageTaskDispatcher::runner()
         }
     }
 
-    // close all sockets
-    for (auto s : sockets) {
-        // s->closeSocket();
-        delete s;
-    }
+    closeSockets();
     running = false;
     loopExit.notify_all();
     return CODE_OK;

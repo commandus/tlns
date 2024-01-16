@@ -19,7 +19,7 @@ typedef int(*TaskProc)(
 class TaskSocket {
 public:
     SOCKET sock;
-    std::string addr;
+    in_addr_t intfType;
     uint16_t port;
     int lastError;
     TaskProc cb;
@@ -27,7 +27,7 @@ public:
      * @param addr ""- any interface, "localhost"- localhost otherwise- address
      * @param port port number
      */
-    TaskSocket(const std::string &addr, uint16_t port, TaskProc cb);
+    TaskSocket(in_addr_t intfType, uint16_t port, TaskProc cb);
     /**
      * Open UDP socket for listen
      * @return -1 if fail
@@ -46,6 +46,9 @@ protected:
     TaskResponse *taskResponse;
     std::thread *thread;
     mutable std::condition_variable loopExit;
+
+    virtual bool createSockets();
+    bool openSockets();
 public:
     bool running;
 
@@ -59,12 +62,10 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
-    bool sendControl(const std::string &cmd) const;
+    static bool sendControl(const std::string &cmd);
 
     bool start();
     void stop();
-
-    virtual bool createSockets();
 
 };
 

@@ -9,18 +9,18 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <iostream>
-#include <arpa/inet.h>
 
 #include "lorawan/lorawan-error.h"
 
-#define CONTROL_PORT 4242
+#define CONTROL_PORT    4242
+#define DEF_TIMEOUT_SEC 3
 
 TaskSocket::TaskSocket(
-    const std::string &aAddr,
-    uint16_t port,
+    in_addr_t aIntfType,
+    uint16_t aPort,
     TaskProc aCb
 )
-    : sock(-1), addr(aAddr), port(0), lastError(CODE_OK), cb(aCb)
+    : sock(-1), intfType(aIntfType), port(aPort), lastError(CODE_OK), cb(aCb)
 {
 
 }
@@ -59,14 +59,7 @@ SOCKET TaskSocket::openUDPSocket()
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
-    if (addr.empty())
-        saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    else {
-        if (addr == "localhost")
-            saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // INADDR_ANY;
-        else
-            inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
-    }
+    saddr.sin_addr.s_addr = htonl(intfType); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
     saddr.sin_port = htons(CONTROL_PORT);
     rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
@@ -130,15 +123,16 @@ void MessageTaskDispatcher::setResponse(
 
 bool MessageTaskDispatcher::sendControl(
     const std::string &cmd
-) const
+)
 {
     SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
         return false;
-    sockaddr_in destination;
-    destination.sin_family = AF_INET;
+    sockaddr_in destination {
+        .sin_family = AF_INET,
+        .sin_port = htons(CONTROL_PORT)
+    };
     destination.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    destination.sin_port = htons(CONTROL_PORT);
     size_t sz = cmd.size();
     ssize_t ssz = sendto(sock, cmd.c_str(), sz, 0, (const sockaddr *) &destination, sizeof(destination));
     close(sock);
@@ -175,7 +169,7 @@ void MessageTaskDispatcher::stop()
 
 bool MessageTaskDispatcher::createSockets()
 {
-    TaskSocket *tsControl = new TaskSocket ("localhost", CONTROL_PORT, [](
+    auto *tsControl = new TaskSocket (INADDR_LOOPBACK, CONTROL_PORT, [](
             MessageTaskDispatcher *dispatcher,
             const char *buffer,
             size_t size
@@ -186,17 +180,33 @@ bool MessageTaskDispatcher::createSockets()
         }
         return 0;
     });
-
-    if (tsControl->openUDPSocket() < 0) {
-        running = false;
-        return ERR_CODE_SOCKET_CREATE;
-    }
     sockets.push_back(tsControl);
+    return tsControl->lastError == CODE_OK;
+}
+
+bool MessageTaskDispatcher::openSockets()
+{
+    bool r = true;
+    for (auto s : sockets) {
+        if (s->lastError || s->openUDPSocket() < 0) {
+            r = false;
+            break;
+        }
+    }
+    if (!r) {
+        // close all sockets
+        for (auto s : sockets) {
+            delete s;
+        }
+        sockets.clear();
+    }
+    return r;
 }
 
 int MessageTaskDispatcher::runner()
 {
-    createSockets();
+    if (!createSockets() || !openSockets())
+        return ERR_CODE_SOCKET_CREATE;
 
     struct timeval timeout {};
 
@@ -217,18 +227,16 @@ int MessageTaskDispatcher::runner()
         FD_SET(s->sock, &master_set);
     }
 
-    char buffer[10];
+    char buffer[300];
 
     while (running) {
         fd_set working_set;
         // Copy the master fd_set over to the working fd_set
         memcpy(&working_set, &master_set, sizeof(master_set));
         // Initialize the timeval struct
-        timeout.tv_sec  = 3;
-        timeout.tv_usec = 0;
+        timeout = { .tv_sec = DEF_TIMEOUT_SEC, .tv_usec = 0 };
         int rc = select(maxFD1, &working_set, nullptr, nullptr, &timeout);
-        if (rc < 0) {
-            // select error
+        if (rc < 0) { // select error
             break;
         }
         if (rc == 0) { // select() timed out.
@@ -244,7 +252,6 @@ int MessageTaskDispatcher::runner()
                 }
             }
         }
-        sleep(1);
     }
 
     // close all sockets
@@ -254,4 +261,5 @@ int MessageTaskDispatcher::runner()
     }
     running = false;
     loopExit.notify_all();
+    return CODE_OK;
 }

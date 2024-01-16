@@ -1,5 +1,6 @@
 #include "message-task-dispatcher.h"
 
+#include <algorithm>
 #include <functional>
 #include <csignal>
 #include <sys/select.h>
@@ -75,6 +76,7 @@ SOCKET TaskSocket::openUDPSocket()
         return -1;
     }
     lastError = CODE_OK;
+    return sock;
 }
 
 void TaskSocket::closeSocket()
@@ -174,10 +176,16 @@ void MessageTaskDispatcher::stop()
 int MessageTaskDispatcher::runner()
 {
     TaskSocket tsControl("localhost", CONTROL_PORT, [](
-        void *env,
+        MessageTaskDispatcher *dispatcher,
         const char *buffer,
         size_t size
     ) {
+        std::cerr << "***" << std::endl;
+        if (strncmp(buffer, "exit", size) == 0) {
+            std::cerr << "*** exit ***" << std::endl;
+            dispatcher->running = false;
+            return -1;
+        }
         return 0;
     });
 
@@ -185,15 +193,26 @@ int MessageTaskDispatcher::runner()
         running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
+    sockets.push_back(&tsControl);
+
     struct timeval timeout {};
 
     // Initialize the master fd_set
     fd_set master_set;
     // , working_set;
     FD_ZERO(&master_set);
-    SOCKET minFD = tsControl.sock;
-    SOCKET maxFD = tsControl.sock;
-    FD_SET(tsControl.sock, &master_set);
+
+    // sort sockets ascendant
+    std::sort(sockets.begin(), sockets.end(),
+        [] (TaskSocket* a, TaskSocket* b) {
+        return a->sock < b->sock;
+    });
+    //
+    SOCKET maxFD1 = sockets.back()->sock + 1;
+
+    for (auto s : sockets) {
+        FD_SET(s->sock, &master_set);
+    }
 
     char buffer[10];
 
@@ -204,7 +223,7 @@ int MessageTaskDispatcher::runner()
         // Initialize the timeval struct
         timeout.tv_sec  = 3;
         timeout.tv_usec = 0;
-        int rc = select(maxFD + 1, &working_set, nullptr, nullptr, &timeout);
+        int rc = select(maxFD1, &working_set, nullptr, nullptr, &timeout);
         if (rc < 0) {
             // select error
             break;
@@ -212,17 +231,13 @@ int MessageTaskDispatcher::runner()
         if (rc == 0) { // select() timed out.
             continue;
         }
-        for (int i = minFD; i <= maxFD; i++) {
-            if (FD_ISSET(i, &working_set)) {
-                if (i == tsControl.sock) {
-                    ssize_t sz = recv(i, buffer, sizeof(buffer), 0);
-                    if (sz > 0) {
-                        std::string s(buffer, sz);
-                        if (s == "exit") {
-                            running = false;
-                            break;
-                        }
-                    }
+        for (auto s : sockets) {
+            if (FD_ISSET(s->sock, &working_set)) {
+                ssize_t sz = recv(s->sock, buffer, sizeof(buffer), 0);
+                if (sz > 0) {
+                    int r = s->cb(this, buffer, sz);
+                    if (r < 0)
+                        break;
                 }
             }
         }

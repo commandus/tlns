@@ -8,8 +8,10 @@
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
 
+class MessageTaskDispatcher;
+
 typedef int(*TaskProc)(
-    void *env,
+    MessageTaskDispatcher *env,
     const char *buffer,
     size_t size
 );
@@ -38,7 +40,7 @@ public:
 
 class MessageTaskDispatcher {
 private:
-    std::vector<SOCKET> sockets;
+    std::vector<TaskSocket*> sockets;
 protected:
     MessageQueue *queue;
     TaskResponse *taskResponse;

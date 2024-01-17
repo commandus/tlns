@@ -19,7 +19,7 @@ typedef int(*TaskProc)(
 class TaskSocket {
 public:
     SOCKET sock;
-    in_addr_t intfType;
+    in_addr_t addr;
     uint16_t port;
     int lastError;
     TaskProc cb;
@@ -39,21 +39,21 @@ public:
 };
 
 class MessageTaskDispatcher {
-private:
-    std::vector<TaskSocket*> sockets;
 protected:
     MessageQueue *queue;
     TaskResponse *taskResponse;
     std::thread *thread;
     mutable std::condition_variable loopExit;
 
-    virtual bool createSockets();
     bool openSockets();
     /**
      * close all sockets
      */
     void closeSockets();
+    void clearSockets();
 public:
+    TaskSocket* controlSocket;
+    std::vector<TaskSocket*> sockets;
     bool running;
 
     int runner();
@@ -66,10 +66,23 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
-    static bool sendControl(const std::string &cmd);
+    bool sendControl(const std::string &cmd);
 
     bool start();
     void stop();
 };
+
+/**
+ * Create control socket
+ * @param dispatcher owner
+ * @param addr socket address
+ * @param port port number
+ * @return socket, -1 if fail
+ */
+SOCKET addControlSocket(
+    MessageTaskDispatcher *dispatcher,
+    in_addr_t addr,
+    uint16_t port
+);
 
 #endif

@@ -43,6 +43,7 @@ static void run() {
     q.setSize(1, 10);
     MessageTaskDispatcher dispatcher;
     dispatcher.setQueue(&q);
+    addControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
     dispatcher.start();
 
     // TaskResponseThreaded response;
@@ -50,6 +51,11 @@ static void run() {
 
     std::cout << "Press <Enter> to stop" << std::endl;
     std::string l;
+    getline(std::cin, l);
+    dispatcher.stop();
+
+    dispatcher.start();
+    std::cout << "Press <Enter> to stop again" << std::endl;
     getline(std::cin, l);
     dispatcher.stop();
 }

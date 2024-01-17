@@ -12,15 +12,18 @@
 
 #include "lorawan/lorawan-error.h"
 
-#define CONTROL_PORT    4242
-#define DEF_TIMEOUT_SEC 3
+#define DEF_CONTROL_PORT    4242
+#define DEF_TIMEOUT_SECONDS 3
+#define DEF_WAIT_QUIT_SECONDS 1
+
+static const std::string STR_CONTROL_QUIT("quit");
 
 TaskSocket::TaskSocket(
     in_addr_t aIntfType,
     uint16_t aPort,
     TaskProc aCb
 )
-    : sock(-1), intfType(aIntfType), port(aPort), lastError(CODE_OK), cb(aCb)
+    : sock(-1), addr(aIntfType), port(aPort), lastError(CODE_OK), cb(aCb)
 {
 
 }
@@ -59,8 +62,8 @@ SOCKET TaskSocket::openUDPSocket()
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
-    saddr.sin_addr.s_addr = htonl(intfType); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
-    saddr.sin_port = htons(CONTROL_PORT);
+    saddr.sin_addr.s_addr = htonl(addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
+    saddr.sin_port = htons(port);
     rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
         close(sock);
@@ -82,7 +85,7 @@ void TaskSocket::closeSocket()
 //----------------------------------------------------------------------------------
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
+    : controlSocket(nullptr), queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
 {
 
 }
@@ -90,13 +93,15 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : queue(value.queue), taskResponse(value.taskResponse), thread(value.thread), running(value.running)
+    : controlSocket(nullptr), queue(value.queue), taskResponse(value.taskResponse), thread(value.thread),
+    running(value.running)
 {
 }
 
 MessageTaskDispatcher::~MessageTaskDispatcher()
 {
     stop();
+    clearSockets();
 }
 
 void MessageTaskDispatcher::setQueue(
@@ -125,14 +130,17 @@ bool MessageTaskDispatcher::sendControl(
     const std::string &cmd
 )
 {
+    if (!controlSocket)
+        return false;
+
     SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
         return false;
     sockaddr_in destination {
         .sin_family = AF_INET,
-        .sin_port = htons(CONTROL_PORT)
+        .sin_port = htons(controlSocket->port)
     };
-    destination.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    destination.sin_addr.s_addr = htonl(controlSocket->addr);
     size_t sz = cmd.size();
     ssize_t ssz = sendto(sock, cmd.c_str(), sz, 0, (const sockaddr *) &destination, sizeof(destination));
     close(sock);
@@ -143,10 +151,9 @@ bool MessageTaskDispatcher::start()
 {
     if (running)
         return true;
-    running = true;
     thread = new std::thread(std::bind(&MessageTaskDispatcher::runner, this));
     thread->detach();
-    return running;
+    return true;
 }
 
 void MessageTaskDispatcher::stop()
@@ -154,34 +161,17 @@ void MessageTaskDispatcher::stop()
     if (!running)
         return;
     // wake-up select()
-    sendControl("exit");
+    sendControl(STR_CONTROL_QUIT);
 
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    while (running && loopExit.wait_for(lock, std::chrono::seconds(1)) == std::cv_status::timeout) {
+    while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
         // try wake-up select() if UDP packet is missed
-        sendControl("exit");
+        sendControl(STR_CONTROL_QUIT);
     }
     // free up resources
     delete thread;
-}
-
-bool MessageTaskDispatcher::createSockets()
-{
-    auto *tsControl = new TaskSocket (INADDR_LOOPBACK, CONTROL_PORT, [](
-        MessageTaskDispatcher *dispatcher,
-        const char *buffer,
-        size_t size
-    ) {
-        if (strncmp(buffer, "exit", size) == 0) {
-            dispatcher->running = false;
-            return -1;
-        }
-        return 0;
-    });
-    sockets.push_back(tsControl);
-    return true;
 }
 
 bool MessageTaskDispatcher::openSockets()
@@ -196,8 +186,16 @@ bool MessageTaskDispatcher::openSockets()
     return r;
 }
 
-void MessageTaskDispatcher::closeSockets() {
+void MessageTaskDispatcher::closeSockets()
+{
     // close all sockets
+    for (auto s : sockets) {
+        s->closeSocket();
+    }
+}
+
+void MessageTaskDispatcher::clearSockets()
+{
     for (auto s : sockets) {
         delete s;
     }
@@ -207,7 +205,9 @@ void MessageTaskDispatcher::closeSockets() {
 
 int MessageTaskDispatcher::runner()
 {
-    if (!createSockets() || !openSockets()) {
+    if (sockets.empty())
+        return ERR_CODE_PARAM_INVALID;
+    if (!openSockets()) {
         closeSockets();
         return ERR_CODE_SOCKET_CREATE;
     }
@@ -233,12 +233,14 @@ int MessageTaskDispatcher::runner()
 
     char buffer[300];
 
+    running = true;
+
     while (running) {
         fd_set working_set;
         // Copy the master fd_set over to the working fd_set
         memcpy(&working_set, &master_set, sizeof(master_set));
         // Initialize the timeval struct
-        timeout = { .tv_sec = DEF_TIMEOUT_SEC, .tv_usec = 0 };
+        timeout = { .tv_sec = DEF_TIMEOUT_SECONDS, .tv_usec = 0 };
         int rc = select(maxFD1, &working_set, nullptr, nullptr, &timeout);
         if (rc < 0) { // select error
             break;
@@ -262,4 +264,34 @@ int MessageTaskDispatcher::runner()
     running = false;
     loopExit.notify_all();
     return CODE_OK;
+}
+
+// --------------------------------------------------------------
+
+/**
+ * Create control socket
+ * @param dispatcher owner
+ * @param addr socket address
+ * @param port port number
+ * @return socket, -1 if fail
+ */
+SOCKET addControlSocket(
+    MessageTaskDispatcher *dispatcher,
+    in_addr_t addr,
+    uint16_t port
+)
+{
+    dispatcher->controlSocket = new TaskSocket(addr, port, [] (
+        MessageTaskDispatcher *dispatcher,
+        const char *buffer,
+        size_t size
+    ) {
+        if (strncmp(buffer, STR_CONTROL_QUIT.c_str(), size) == 0) {
+            dispatcher->running = false;
+            return -1;
+        }
+        return 0;
+    });
+    dispatcher->sockets.push_back(dispatcher->controlSocket);
+    return dispatcher->controlSocket->sock;
 }

@@ -39,10 +39,14 @@ public:
 };
 
 class MessageTaskDispatcher {
+private:
+    // socket to send 'commands'
+    SOCKET clientControlSocket;
 protected:
-    MessageQueue *queue;
     TaskResponse *taskResponse;
+    // main loop thread
     std::thread *thread;
+    // wait for thread loop done
     mutable std::condition_variable loopExit;
 
     bool openSockets();
@@ -50,10 +54,18 @@ protected:
      * close all sockets
      */
     void closeSockets();
+    /**
+     * erase all sockets
+     */
     void clearSockets();
 public:
+    // message queue
+    MessageQueue *queue;
+    // wake up main loop's select(). It is first element in the sockets array
     TaskSocket* controlSocket;
+    // task socket array
     std::vector<TaskSocket*> sockets;
+    // it loop thread is running
     bool running;
 
     int runner();
@@ -66,7 +78,8 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
-    bool sendControl(const std::string &cmd);
+    void send(const char *buffer, size_t size);
+    void send(char cmd);
 
     bool start();
     void stop();
@@ -79,7 +92,7 @@ public:
  * @param port port number
  * @return socket, -1 if fail
  */
-SOCKET addControlSocket(
+SOCKET addDumbControlSocket(
     MessageTaskDispatcher *dispatcher,
     in_addr_t addr,
     uint16_t port

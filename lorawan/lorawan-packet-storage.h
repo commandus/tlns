@@ -78,6 +78,7 @@ public:
     LORAWAN_MESSAGE_STORAGE msg;
     LorawanPacketStorage();
     std::string toString() const;
+    const DEVADDR* getAddr() const;
 } );
 
 #endif

@@ -28,6 +28,11 @@ public:
     bool expired(const TASK_TIME &since);
 
     std::string toString() const;
+    /**
+     * Return NULL if no address is provided
+     * @return
+     */
+    const DEVADDR *getAddr() const;
 };
 
 #endif

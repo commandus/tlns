@@ -15,7 +15,7 @@ typedef enum {
     TASK_STAGE_MAC_PROCESS,                 // MAC command process initiated
     TASK_STAGE_MAC_RESPONSE_SEND,           // MAC command response require to be send
     TASK_STAGE_MAC_RESPONSE_GW_SELECT,      // Select best gateway and get adress
-    TASK_STAGE_MAC_RESPONSE_GW_SELECTED,    // Best gatewsy seleted
+    TASK_STAGE_MAC_RESPONSE_GW_SELECTED,    // Best gateway seleted
     TASK_STAGE_MAC_RESPONSE_SENT,           // MAC command response sent
 
     TASK_STAGE_PAYLOAD_PROCESS,             // MAC command process initiated

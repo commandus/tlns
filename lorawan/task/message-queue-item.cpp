@@ -54,3 +54,12 @@ std::string MessageQueueItem::toString() const
     }
     return ss.str();
 }
+
+const DEVADDR * MessageQueueItem::getAddr() const
+{
+    if (radioPacket.msg.mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP
+        && radioPacket.msg.mhdr.f.mtype <= MTYPE_CONFIRMED_DATA_DOWN) {
+        return &radioPacket.msg.data.downlink.devaddr;
+    }
+    return nullptr;
+}

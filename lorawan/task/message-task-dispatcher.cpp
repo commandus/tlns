@@ -16,7 +16,7 @@
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
 
-static const std::string STR_CONTROL_QUIT("quit");
+static const char CHAR_CONTROL_QUIT('q');
 
 TaskSocket::TaskSocket(
     in_addr_t aIntfType,
@@ -85,7 +85,8 @@ void TaskSocket::closeSocket()
 //----------------------------------------------------------------------------------
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : controlSocket(nullptr), queue(nullptr), taskResponse(nullptr), thread(nullptr), running(false)
+    : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
+      queue(nullptr), controlSocket(nullptr), running(false)
 {
 
 }
@@ -93,8 +94,8 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : controlSocket(nullptr), queue(value.queue), taskResponse(value.taskResponse), thread(value.thread),
-    running(value.running)
+    : clientControlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
+      queue(value.queue), controlSocket(nullptr), running(value.running)
 {
 }
 
@@ -126,25 +127,27 @@ void MessageTaskDispatcher::setResponse(
     taskResponse = value;
 }
 
-bool MessageTaskDispatcher::sendControl(
-    const std::string &cmd
+void MessageTaskDispatcher::send(
+    const char *cmd,
+    size_t size
 )
 {
-    if (!controlSocket)
-        return false;
-
-    SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0)
-        return false;
+    if (clientControlSocket < 0 || !controlSocket)
+        return;
     sockaddr_in destination {
         .sin_family = AF_INET,
         .sin_port = htons(controlSocket->port)
     };
     destination.sin_addr.s_addr = htonl(controlSocket->addr);
-    size_t sz = cmd.size();
-    ssize_t ssz = sendto(sock, cmd.c_str(), sz, 0, (const sockaddr *) &destination, sizeof(destination));
-    close(sock);
-    return (ssz == sz);
+    sendto(clientControlSocket, cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
+}
+
+void MessageTaskDispatcher::send(
+    char cmd
+)
+{
+    char c = 'q';
+    send(&c, 1);
 }
 
 bool MessageTaskDispatcher::start()
@@ -161,14 +164,14 @@ void MessageTaskDispatcher::stop()
     if (!running)
         return;
     // wake-up select()
-    sendControl(STR_CONTROL_QUIT);
+    send(CHAR_CONTROL_QUIT);
 
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
     while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
         // try wake-up select() if UDP packet is missed
-        sendControl(STR_CONTROL_QUIT);
+        send(CHAR_CONTROL_QUIT);
     }
     // free up resources
     delete thread;
@@ -234,6 +237,9 @@ int MessageTaskDispatcher::runner()
     char buffer[300];
 
     running = true;
+    clientControlSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (clientControlSocket < 0)
+        return ERR_CODE_PARAM_INVALID;
 
     while (running) {
         fd_set working_set;
@@ -259,8 +265,8 @@ int MessageTaskDispatcher::runner()
             }
         }
     }
-
     closeSockets();
+    close(clientControlSocket);
     running = false;
     loopExit.notify_all();
     return CODE_OK;
@@ -275,7 +281,7 @@ int MessageTaskDispatcher::runner()
  * @param port port number
  * @return socket, -1 if fail
  */
-SOCKET addControlSocket(
+SOCKET addDumbControlSocket(
     MessageTaskDispatcher *dispatcher,
     in_addr_t addr,
     uint16_t port
@@ -286,9 +292,20 @@ SOCKET addControlSocket(
         const char *buffer,
         size_t size
     ) {
-        if (strncmp(buffer, STR_CONTROL_QUIT.c_str(), size) == 0) {
-            dispatcher->running = false;
-            return -1;
+        if (size == 1) {
+            switch (*buffer) {
+                case CHAR_CONTROL_QUIT:
+                    dispatcher->running = false;
+                    return -1;
+                default:
+                    break;
+            }
+        } else {
+            if (size == sizeof(DEVADDR)) {
+                DEVADDR *a = (DEVADDR *) buffer;
+                // process message queue
+                MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
+            }
         }
         return 0;
     });

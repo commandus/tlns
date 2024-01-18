@@ -38,26 +38,48 @@ public:
 
 static CheckParams params;
 
+SOCKET addExampleControlSocket(
+    MessageTaskDispatcher *dispatcher,
+    in_addr_t addr,
+    uint16_t port
+)
+{
+    dispatcher->controlSocket = new TaskSocket(addr, port, [] (
+            MessageTaskDispatcher *dispatcher,
+            const char *buffer,
+            size_t size
+    ) {
+        if (size == 1 && *buffer == 'q') {
+            dispatcher->running = false;
+            return -1;
+        }
+        // add a new "received" packet
+        std::cerr << "** Received " << std::endl;
+        return 0;
+    });
+    dispatcher->sockets.push_back(dispatcher->controlSocket);
+    return dispatcher->controlSocket->sock;
+}
+
 static void run() {
     MessageQueue q;
-    q.setSize(1, 10);
     MessageTaskDispatcher dispatcher;
     dispatcher.setQueue(&q);
-    addControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
+    // addDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
+    addExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244);
     dispatcher.start();
 
     // TaskResponseThreaded response;
     // dispatcher.setResponse(&response);
 
-    std::cout << "Press <Enter> to stop" << std::endl;
-    std::string l;
-    getline(std::cin, l);
-    dispatcher.stop();
-
-    dispatcher.start();
-    std::cout << "Press <Enter> to stop again" << std::endl;
-    getline(std::cin, l);
-    dispatcher.stop();
+    std::cout << "Enter 'q' to stop" << std::endl;
+    while (true) {
+        std::string l;
+        getline(std::cin, l);
+        if (!dispatcher.running)
+            break;
+    }
+    // dispatcher.stop();
 }
 
 int main(int argc, char **argv) {

@@ -1,7 +1,7 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
-#include <vector>
+#include <map>
 
 #include "message-queue-item.h"
 
@@ -9,17 +9,24 @@ class MessageTaskDispatcher;
 
 class MessageQueue {
 protected:
-    size_t messageLimit;
     MessageTaskDispatcher *dispatcher;
 public:
-    std::vector <MessageQueueItem> items;
+    std::map <DEVADDR, MessageQueueItem> items;
     MessageQueue();
-    void setSize(size_t queuePreAlloc, size_t queueMax);
     virtual ~MessageQueue();
     void step();
     void setDispatcher(
         MessageTaskDispatcher *aDispatcher
     );
+
+    MessageQueueItem *get(const DEVADDR &addr);
+    void put(
+        const LorawanPacketStorage &radioPacket,
+        uint64_t gwId,
+        const SEMTECH_PROTOCOL_METADATA &metadata
+    );
+    void rm(const DEVADDR &addr);
+    MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
 };
 
 #endif

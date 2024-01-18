@@ -1739,3 +1739,68 @@ std::string NETWORKIDENTITY::toJsonString() const
 {
 	return devid.toJsonString(devaddr);
 }
+
+bool JOIN_REQUEST_FRAME::operator==(const JOIN_REQUEST_FRAME &rhs) const
+{
+    return rhs.joinEUI.u == joinEUI.u && rhs.devEUI.u == devEUI.u;
+}
+
+bool JOIN_REQUEST_FRAME::operator<(const JOIN_REQUEST_FRAME &rhs) const
+{
+    if (joinEUI.u < rhs.joinEUI.u)
+        return true;
+    if (joinEUI.u == rhs.joinEUI.u) {
+        if (devEUI.u < rhs.devEUI.u)
+            return true;
+        if (devEUI.u == rhs.devEUI.u)
+            return devNonce.u < rhs.devNonce.u;
+    }
+    return false;
+}
+
+bool JOIN_REQUEST_FRAME::operator>(const JOIN_REQUEST_FRAME &rhs) const
+{
+    if (joinEUI.u > rhs.joinEUI.u)
+        return true;
+    if (joinEUI.u == rhs.joinEUI.u) {
+        if (devEUI.u > rhs.devEUI.u)
+            return true;
+        if (devEUI.u == rhs.devEUI.u)
+            return devNonce.u > rhs.devNonce.u;
+    }
+    return false;
+}
+
+bool JOIN_REQUEST_FRAME::operator<=(const JOIN_REQUEST_FRAME &rhs) const
+{
+    if (joinEUI.u <= rhs.joinEUI.u)
+        return true;
+    if (joinEUI.u == rhs.joinEUI.u) {
+        if (devEUI.u <= rhs.devEUI.u)
+            return true;
+        if (devEUI.u == rhs.devEUI.u)
+            return devNonce.u <= rhs.devNonce.u;
+    }
+    return false;
+}
+
+bool JOIN_REQUEST_FRAME::operator>=(const JOIN_REQUEST_FRAME &rhs) const
+{
+    if (joinEUI.u >= rhs.joinEUI.u)
+        return true;
+    if (joinEUI.u == rhs.joinEUI.u) {
+        if (devEUI.u >= rhs.devEUI.u)
+            return true;
+        if (devEUI.u == rhs.devEUI.u)
+            return devNonce.u >= rhs.devNonce.u;
+    }
+    return false;
+}
+
+bool JOIN_REQUEST_FRAME::operator!=(const JOIN_REQUEST_FRAME &rhs) const
+{
+    return (joinEUI.u != rhs.joinEUI.u
+        || devEUI.u != rhs.devEUI.u
+        || devNonce.u != rhs.devNonce.u
+    );
+}

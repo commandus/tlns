@@ -12,6 +12,7 @@ protected:
     MessageTaskDispatcher *dispatcher;
 public:
     std::map <DEVADDR, MessageQueueItem> items;
+    std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;
     MessageQueue();
     virtual ~MessageQueue();
     void step();

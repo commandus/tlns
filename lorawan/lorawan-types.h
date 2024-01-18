@@ -406,11 +406,19 @@ typedef PACK( struct {
 
 #define SIZE_RFM_HEADER 8
 
- typedef PACK( struct {
-	DEVEUI joinEUI;			    // JoinEUI
+PACK(
+class JOIN_REQUEST_FRAME {
+public:
+	DEVEUI joinEUI;			    // AppEUI, JoinEUI
 	DEVEUI devEUI;			    // DevEUI
 	DEVNONCE devNonce;
-} ) JOIN_REQUEST_FRAME;	// 8 + 8 + 2 = 18 bytes
+    bool operator==(const JOIN_REQUEST_FRAME &rhs) const;
+    bool operator<(const JOIN_REQUEST_FRAME &rhs) const;
+    bool operator>(const JOIN_REQUEST_FRAME &rhs) const;
+    bool operator<=(const JOIN_REQUEST_FRAME &rhs) const;
+    bool operator>=(const JOIN_REQUEST_FRAME &rhs) const;
+    bool operator!=(const JOIN_REQUEST_FRAME &rhs) const;
+} ) ;	// 8 + 8 + 2 = 18 bytes
 
 #define SIZE_JOIN_REQUEST_FRAME 18
 

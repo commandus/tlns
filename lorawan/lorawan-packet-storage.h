@@ -4,20 +4,6 @@
 #include "lorawan-types.h"
 
 PACK(
-    class JOIN_REQUEST_STORAGE {
-    public:
-        uint8_t reserved;
-    }
-);
-
-PACK(
-    class JOIN_RESPONSE_STORAGE {
-    public:
-        uint8_t reserved;
-    }
-);
-
-PACK(
     class DOWNLINK_STORAGE {
     public:
         DEVADDR devaddr;			// MAC address
@@ -60,9 +46,9 @@ PACK(
         MHDR mhdr;
         PACK( union {
             // Join request
-            JOIN_REQUEST_STORAGE joinRequest;
+            JOIN_REQUEST_FRAME joinRequest;
             // Join response
-            JOIN_RESPONSE_STORAGE joinResponse;
+            JOIN_ACCEPT_FRAME joinResponse;
             // data downlink
             DOWNLINK_STORAGE downlink;
             // data uplink
@@ -79,6 +65,7 @@ public:
     LorawanPacketStorage();
     std::string toString() const;
     const DEVADDR* getAddr() const;
+    const JOIN_REQUEST_FRAME *getJoinRequest() const;
 } );
 
 #endif

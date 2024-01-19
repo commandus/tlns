@@ -28,6 +28,8 @@ public:
     );
     void rm(const DEVADDR &addr);
     MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
+
+    MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);
 };
 
 #endif

@@ -19,3 +19,10 @@ const DEVADDR* LorawanPacketStorage::getAddr() const
     }
     return nullptr;
 }
+
+const JOIN_REQUEST_FRAME *LorawanPacketStorage::getJoinRequest() const
+{
+    if (msg.mhdr.f.mtype == MTYPE_JOIN_REQUEST)
+        return &msg.data.joinRequest;
+    return nullptr;
+}

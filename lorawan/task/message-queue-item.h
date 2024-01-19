@@ -29,10 +29,18 @@ public:
 
     std::string toString() const;
     /**
-     * Return NULL if no address is provided
-     * @return
+     * Return network address
+     * Return NULL if no address is provided (radio packet is JOIN)
+     * @return pointer to device address
      */
     const DEVADDR *getAddr() const;
+
+    /**
+     * Return JOIN request frame (used as an identifier)
+     * Return NULL radio packet is data packet (not Join request)
+     * @return pointer to Join request frame
+     */
+    const JOIN_REQUEST_FRAME * getJoinRequestFrame() const;
 };
 
 #endif

@@ -63,3 +63,10 @@ const DEVADDR * MessageQueueItem::getAddr() const
     }
     return nullptr;
 }
+
+const JOIN_REQUEST_FRAME * MessageQueueItem::getJoinRequestFrame() const {
+    if (radioPacket.msg.mhdr.f.mtype >= MTYPE_JOIN_REQUEST) {
+        return &radioPacket.msg.data.joinRequest;
+    }
+    return nullptr;
+}

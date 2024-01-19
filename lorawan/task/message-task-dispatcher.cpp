@@ -292,20 +292,28 @@ SOCKET addDumbControlSocket(
         const char *buffer,
         size_t size
     ) {
-        if (size == 1) {
-            switch (*buffer) {
-                case CHAR_CONTROL_QUIT:
-                    dispatcher->running = false;
-                    return -1;
-                default:
-                    break;
-            }
-        } else {
-            if (size == sizeof(DEVADDR)) {
+        switch (size) {
+            case 1:
+                switch (*buffer) {
+                    case CHAR_CONTROL_QUIT:
+                        dispatcher->running = false;
+                        return -1;
+                    default:
+                        break;
+                }
+                break;
+            case SIZE_DEVADDR: {
                 DEVADDR *a = (DEVADDR *) buffer;
                 // process message queue
                 MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
             }
+                break;
+            case SIZE_JOIN_REQUEST_FRAME: {
+                JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
+                // process message queue
+                MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
+            }
+                break;
         }
         return 0;
     });

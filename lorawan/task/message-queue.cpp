@@ -48,6 +48,12 @@ void MessageQueue::put(
             qi.metadata[gwId] = metadata;
             auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
         }
+    } else {
+        // Join request
+        const JOIN_REQUEST_FRAME *jr = radioPacket.getJoinRequest();
+        if (jr) {
+
+        }
     }
 }
 
@@ -71,6 +77,21 @@ MessageQueueItem *MessageQueue::findByDevAddr(
         return *a == *devAddr;
     } );
     if (f == items.end())
+        return nullptr;
+    else
+        return &f->second;
+}
+
+MessageQueueItem *MessageQueue::findByJoinRequest(
+    const JOIN_REQUEST_FRAME *joinRequestFrame
+) {
+    auto f = std::find_if(joins.begin(), joins.end(), [joinRequestFrame] (const std::pair<JOIN_REQUEST_FRAME, MessageQueueItem> &v) {
+        auto a = v.second.getJoinRequestFrame();
+        if (!a)
+            return false;
+        return *a == *joinRequestFrame;
+    } );
+    if (f == joins.end())
         return nullptr;
     else
         return &f->second;

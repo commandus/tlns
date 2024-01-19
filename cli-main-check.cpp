@@ -65,7 +65,7 @@ static void run() {
     MessageQueue q;
     MessageTaskDispatcher dispatcher;
     dispatcher.setQueue(&q);
-    // addDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
+    addDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
     addExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244);
     dispatcher.start();
 

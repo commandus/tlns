@@ -31,6 +31,17 @@ MessageQueueItem *MessageQueue::get (
     return nullptr;
 }
 
+MessageQueueItem *MessageQueue::get (
+    const JOIN_REQUEST_FRAME &join
+)
+{
+    auto f = joins.find(join);
+    if (f != joins.end()) {
+        return &f->second;
+    }
+    return nullptr;
+}
+
 void MessageQueue::put(
     const LorawanPacketStorage &radioPacket,
     uint64_t gwId,

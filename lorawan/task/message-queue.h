@@ -21,6 +21,7 @@ public:
     );
 
     MessageQueueItem *get(const DEVADDR &addr);
+    MessageQueueItem *get(const JOIN_REQUEST_FRAME &addr);
     void put(
         const LorawanPacketStorage &radioPacket,
         uint64_t gwId,
@@ -28,7 +29,6 @@ public:
     );
     void rm(const DEVADDR &addr);
     MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
-
     MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);
 };
 

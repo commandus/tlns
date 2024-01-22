@@ -9,9 +9,12 @@
 #include "lorawan/helper/ip-address.h"
 
 class MessageTaskDispatcher;
+class TaskSocket;
 
 typedef int(*TaskProc)(
     MessageTaskDispatcher *env,
+    TaskSocket *socket,
+    const struct sockaddr *src,
     const char *buffer,
     size_t size
 );
@@ -27,7 +30,7 @@ public:
      * @param addr ""- any interface, "localhost"- localhost otherwise- address
      * @param port port number
      */
-    TaskSocket(in_addr_t intfType, uint16_t port, TaskProc cb);
+    TaskSocket(in_addr_t aAddr, uint16_t port, TaskProc cb);
     /**
      * Open UDP socket for listen
      * @return -1 if fail

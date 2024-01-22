@@ -269,9 +269,9 @@ enum ERR_CODE_TX {
 #define SEMTECH_GW_PUSH_DATA	0
 // network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
 #define SEMTECH_GW_PUSH_ACK		1
-// gateway initiate receiving packates from the metwork server (because of NAT)
+// gateway initiate receiving packets from the network server (because of NAT)
 #define SEMTECH_GW_PULL_DATA	2
-// network server send packet to the gateway afrer PULL_DATA - PULL_ACK sequence
+// network server send packet to the gateway after PULL_DATA - PULL_ACK sequence
 #define SEMTECH_GW_PULL_RESP	3
 // network server responds on PULL_DATA
 #define SEMTECH_GW_PULL_ACK		4
@@ -282,7 +282,9 @@ typedef PACK( struct {
 	uint8_t version;			// protocol version = 2
 	uint16_t token;				// random token
 	uint8_t tag;				// PUSH_DATA 0x00 PULL_DATA 0x02
-} ) SEMTECH_PREFIX;		// 4 bytes
+} ) SEMTECH_PREFIX;		        // 4 bytes
+
+#define SIZE_SEMTECH_PREFIX  4
 
 typedef PACK( struct {
     uint64_t gatewayId;

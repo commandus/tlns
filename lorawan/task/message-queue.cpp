@@ -68,6 +68,20 @@ void MessageQueue::put(
     }
 }
 
+bool MessageQueue::put(
+    TaskSocket *taskSocket,
+    const struct sockaddr *gwAddr,
+    const char *buffer,
+    size_t size
+) {
+    MessageQueueItem qi;
+    qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
+    const DEVADDR *a = qi.getAddr();
+    // TODO parse buffer
+    auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
+    return true;
+}
+
 void MessageQueue::rm(
     const DEVADDR &addr
 )
@@ -107,3 +121,4 @@ MessageQueueItem *MessageQueue::findByJoinRequest(
     else
         return &f->second;
 }
+

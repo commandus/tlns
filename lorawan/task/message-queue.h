@@ -5,6 +5,7 @@
 
 #include "message-queue-item.h"
 
+class TaskSocket;
 class MessageTaskDispatcher;
 
 class MessageQueue {
@@ -27,6 +28,21 @@ public:
         uint64_t gwId,
         const SEMTECH_PROTOCOL_METADATA &metadata
     );
+    /**
+     * Packet received from gateway
+     * @param taskSocket addr gateway address port gateway port
+     * @param gwAddr gateway socket address
+     * @param buffer radio packet buffer and JSON metadata
+     * @param size buffer size
+     * @return false if packet is invalid
+     */
+    bool put(
+        TaskSocket *taskSocket,
+        const struct sockaddr *gwAddr,
+        const char *buffer,
+        size_t size
+    );
+
     void rm(const DEVADDR &addr);
     MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
     MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);

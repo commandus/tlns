@@ -9,6 +9,8 @@
 
 typedef enum {
     TASK_STAGE_RECEIVED = 0,                // just received
+    TASK_STAGE_GATEWAY_REQUEST,             // Request gateway identifier
+    TASK_STAGE_GATEWAY_RESPONSE,            // Gateway identifier received
     TASK_STAGE_IDENTIFIED,                  // got device identifier: network / app keys
     TASK_STAGE_DECIPHERED,                  // deciphered
 

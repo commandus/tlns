@@ -1,7 +1,7 @@
 #ifndef LORAWAN_PACKET_STORAGE_H_
 #define LORAWAN_PACKET_STORAGE_H_
 
-#include "lorawan-types.h"
+#include "lorawan/lorawan-types.h"
 
 PACK(
     class DOWNLINK_STORAGE {

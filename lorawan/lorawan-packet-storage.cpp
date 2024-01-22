@@ -1,4 +1,4 @@
-#include "lorawan-packet-storage.h"
+#include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/lorawan-string.h"
 
 LorawanPacketStorage::LorawanPacketStorage()

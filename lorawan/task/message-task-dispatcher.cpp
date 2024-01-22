@@ -12,18 +12,17 @@
 
 #include "lorawan/lorawan-error.h"
 
-#define DEF_CONTROL_PORT    4242
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
 
 static const char CHAR_CONTROL_QUIT('q');
 
 TaskSocket::TaskSocket(
-    in_addr_t aIntfType,
+    in_addr_t aAddr,
     uint16_t aPort,
     TaskProc aCb
 )
-    : sock(-1), addr(aIntfType), port(aPort), lastError(CODE_OK), cb(aCb)
+    : sock(-1), addr(aAddr), port(aPort), lastError(CODE_OK), cb(aCb)
 {
 
 }
@@ -256,9 +255,11 @@ int MessageTaskDispatcher::runner()
         }
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &working_set)) {
-                ssize_t sz = recv(s->sock, buffer, sizeof(buffer), 0);
+                struct sockaddr srcAddr;
+                socklen_t srcAddrLen = sizeof(srcAddr);
+                ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 if (sz > 0) {
-                    int r = s->cb(this, buffer, sz);
+                    int r = s->cb(this, s, &srcAddr, buffer, sz);
                     if (r < 0)
                         break;
                 }
@@ -289,6 +290,8 @@ SOCKET addDumbControlSocket(
 {
     dispatcher->controlSocket = new TaskSocket(addr, port, [] (
         MessageTaskDispatcher *dispatcher,
+        TaskSocket *taskSocket,
+        const struct sockaddr *gwAddr,
         const char *buffer,
         size_t size
     ) {
@@ -312,6 +315,11 @@ SOCKET addDumbControlSocket(
                 JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
                 // process message queue
                 MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
+            }
+                break;
+            default: {
+                // get gateway identifier first
+                dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
             }
                 break;
         }

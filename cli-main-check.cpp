@@ -45,9 +45,11 @@ SOCKET addExampleControlSocket(
 )
 {
     dispatcher->controlSocket = new TaskSocket(addr, port, [] (
-            MessageTaskDispatcher *dispatcher,
-            const char *buffer,
-            size_t size
+        MessageTaskDispatcher *dispatcher,
+        TaskSocket *socket,
+        const struct sockaddr * srcAddr,
+        const char *buffer,
+        size_t size
     ) {
         if (size == 1 && *buffer == 'q') {
             dispatcher->running = false;

@@ -251,17 +251,17 @@ public:
 #define SIZE_DEVICENAME 8
 
 enum ERR_CODE_TX {
-	JIT_TX_OK = 0,                 	// Packet ok to be sent
-	JIT_TX_ERROR_TOO_LATE = 1,     	// Too late to send this packet
-	JIT_TX_ERROR_TOO_EARLY = 2,    	// Too early to queue this packet
+	JIT_TX_OK = 0,                 	// Packet ok to be sent {"txpk_ack":{"error":"NONE"}}"
+	JIT_TX_ERROR_TOO_LATE = 1,     	// Too late to send this packet {"txpk_ack":{"error":"TOO_LATE"}}
+	JIT_TX_ERROR_TOO_EARLY = 2,    	// Too early to queue this packet {"txpk_ack":{"error":"TOO_EARLY"}}
 	JIT_TX_ERROR_FULL = 3,         	// Downlink queue is full
 	JIT_TX_ERROR_EMPTY = 4,        	// Downlink queue is empty
-	JIT_TX_ERROR_COLLISION_PACKET = 5, // A packet is already enqueued for this timeframe
-	JIT_TX_ERROR_COLLISION_BEACON = 6, // A beacon is planned for this timeframe
-	JIT_TX_ERROR_TX_FREQ = 7,      	// The required frequency for downlink is not supported
-	JIT_TX_ERROR_TX_POWER = 8,     	// The required power for downlink is not supported
-	JIT_TX_ERROR_GPS_UNLOCKED = 9, 	// GPS timestamp could not be used as GPS is unlocked
-	JIT_TX_ERROR_INVALID = 10       	// Packet is invalid
+	JIT_TX_ERROR_COLLISION_PACKET = 5, // A packet is already enqueued for this timeframe {"txpk_ack":{"error":"COLLISION_PACKET"}}
+	JIT_TX_ERROR_COLLISION_BEACON = 6, // A beacon is planned for this timeframe {"txpk_ack":{"error":"COLLISION_BEACON"}}
+	JIT_TX_ERROR_TX_FREQ = 7,      	// The required frequency for downlink is not supported {"txpk_ack":{"error":"TX_FREQ"}}
+	JIT_TX_ERROR_TX_POWER = 8,     	// The required power for downlink is not supported {"txpk_ack":{"error":"TX_POWER"}}
+	JIT_TX_ERROR_GPS_UNLOCKED = 9, 	// GPS timestamp could not be used as GPS is unlocked {"txpk_ack":{"error":"GPS_UNLOCKED"}}
+	JIT_TX_ERROR_INVALID = 10       // Packet is invalid
 };
 
 // network server receives SEMTECH_GW_PUSH_DATA, SEMTECH_GW_PULL_DATA, SEMTECH_GW_TX_ACK

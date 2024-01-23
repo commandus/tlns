@@ -70,4 +70,5 @@ void string2JOINNONCE(JOINNONCE &retval, const char *value);
 void string2APPNONCE(APPNONCE& retval, const std::string& value);
 uint64_t string2gatewayId(const std::string& value);
 bool string2NETWORKIDENTITY(NETWORKIDENTITY &retVal, const char *identityString);
-
+const std::string& ERR_CODE_TX2string(ERR_CODE_TX code);
+ERR_CODE_TX string2ERR_CODE_TX(const std::string &value);

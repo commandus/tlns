@@ -762,3 +762,27 @@ bool string2NETWORKIDENTITY(
     setIdentity(retVal, c, start, p);
     return true;
 }
+
+const std::string ERR_CODE_TX_STR[] {
+    "NONE", "TOO_LATE", "TOO_EARLY", "FULL", "EMPTY", "COLLISION_PACKET", "COLLISION_BEACON", "TX_FREQ", "TX_POWER", "GPS_UNLOCKED"
+};
+
+const std::string& ERR_CODE_TX2string(
+    ERR_CODE_TX code
+)
+{
+    if (code > JIT_TX_ERROR_INVALID)
+        code = JIT_TX_ERROR_INVALID;
+    return ERR_CODE_TX_STR[code];
+}
+
+ERR_CODE_TX string2ERR_CODE_TX(
+    const std::string &value
+)
+{
+    for (int c = 0; c <= JIT_TX_ERROR_INVALID; c++) {
+        if (ERR_CODE_TX_STR[c[] == value)
+            return (ERR_CODE_TX) c;
+    }
+    return JIT_TX_ERROR_INVALID;
+}

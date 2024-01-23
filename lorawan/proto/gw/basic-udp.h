@@ -4,31 +4,54 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
 
-class GwRxItem {
+class GwPushData {
 public:
     uint64_t gwId;
     LorawanPacketStorage rxData;
     SEMTECH_PROTOCOL_METADATA rxMetadata;
 };
 
-typedef void(*PutGwRxItemProc)(
-    GwRxItem &item
+class GwPullResp {
+public:
+    uint64_t gwId;
+    LorawanPacketStorage txData;
+    SEMTECH_PROTOCOL_METADATA txMetadata;
+};
+
+typedef void(*OnPushDataProc)(
+    GwPushData &item
+);
+
+typedef void(*OnPullRespProc)(
+    GwPullResp &item
+);
+
+typedef void(*OnTxpkAckProc)(
+    ERR_CODE_TX code
 );
 
 class GatewayBasicUdpProtocol {
-protected:
-    static int parsePrefixGw(
-        SEMTECH_PREFIX_GW &retprefix,
-        const void *packetForwarderPacket,
-        size_t size
+private:
+    // upstream {"rxpk": {}}
+    static bool parsePushData(
+        const char *json,
+        size_t size,
+        OnPushDataProc cb
     );
-    static char *getMetadataJSONPtr(
-        const void *packet,
-        size_t size
+    // downstream {"txpk": {}}
+    static bool parsePullResp(
+        const char *json,
+        size_t size,
+        OnPullRespProc cb
     );
-
+    // downstream {"txpk_ack": {}}
+    static bool parseTxAck(
+        const char *json,
+        size_t size,
+        OnTxpkAckProc cb
+    );
 public:
-    /** array of packets from Basic communication protocol packet
+    /** Upstream only. array of packets from Basic communication protocol packet
      * @param packetForwarderPacket
      * @param size
      * @param cb put gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
@@ -37,7 +60,9 @@ public:
     static int parse(
         const char *packetForwarderPacket,
         size_t size,
-        PutGwRxItemProc cb
+        OnPushDataProc onPushData,
+        OnPullRespProc onPullResp,
+        OnTxpkAckProc onTxpkAckProc
     );
 };
 

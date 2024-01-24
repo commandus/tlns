@@ -295,7 +295,7 @@ typedef PACK( struct {
     uint32_t freq;				// RX central frequency in Hz, not Mhz. MHz (unsigned float, Hz precision) 868.900000
     int8_t stat;				// CRC status: 1 = OK, -1 = fail, 0 = no CRC
     MODULATION modu;			// LORA, FSK
-    BANDWIDTH bandwith;
+    BANDWIDTH bandwidth;
     SPREADING_FACTOR spreadingFactor;
     CODING_RATE codingRate;
     uint32_t bps;				// FSK bits per second

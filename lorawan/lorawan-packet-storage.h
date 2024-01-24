@@ -57,12 +57,15 @@ PACK(
             PROPRIETARY_STORAGE proprietary;
         }) data;
     }
-);			// 8 bytes
+);
+
+bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(LORAWAN_MESSAGE_STORAGE &retVal, const std::string &base64string);
 
 PACK( class LorawanPacketStorage {
 public:
     LORAWAN_MESSAGE_STORAGE msg;
     LorawanPacketStorage();
+    LorawanPacketStorage(const std::string &base64string);
     std::string toString() const;
     const DEVADDR* getAddr() const;
     const JOIN_REQUEST_FRAME *getJoinRequest() const;

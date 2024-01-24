@@ -116,6 +116,7 @@ else()
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
 		third-party/strptime.cpp
+		third-party/base64/base64.cpp
 		${AES_SRC}
 	)
 

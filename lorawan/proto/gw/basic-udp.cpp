@@ -59,17 +59,14 @@ public:
     }
 
     bool number_integer(number_integer_t val) override {
-        events.push_back("number_integer(val=" + std::to_string(val) + ")");
         return true;
     }
 
     bool number_unsigned(number_unsigned_t val) override {
-        events.push_back("number_unsigned(val=" + std::to_string(val) + ")");
         return true;
     }
 
     bool number_float(number_float_t val, const string_t &s) override {
-        events.push_back("number_float(val=" + std::to_string(val) + ", s=" + s + ")");
         return true;
     }
 
@@ -82,11 +79,17 @@ public:
                 item.rxMetadata.modu = string2MODULATION(val.c_str());
                 break;
             case 9: // datr string
-                item.rxMetadata. = string2datr(val.c_str());
+            {
+                BANDWIDTH b;
+                item.rxMetadata.spreadingFactor = string2datr(b, val);
+                item.rxMetadata.bandwidth = b;
+            }
                 break;
             case 10: // codr
+                item.rxMetadata.codingRate = string2codingRate(val);
                 break;
             case 14: // data
+                decodeBase64ToLORAWAN_MESSAGE_STORAGE(item.rxData.msg, val);
                 break;
         }
         return true;
@@ -98,6 +101,9 @@ public:
     }
 
     bool end_object() override {
+        if (startItem == 2) // time to add next packet
+            if (cb)
+                cb(item);
         startItem--;
         return true;
     }
@@ -119,7 +125,7 @@ public:
         return true;
     }
 
-    bool parse_error(std::size_t position, const std::string &last_token, const json::exception &ex) override {
+    bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override {
         return false;
     }
 };
@@ -151,7 +157,6 @@ int GatewayBasicUdpProtocol::parse(
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
             parseTxAck((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW, onTxpkAckProc); // +12 bytes
             break;
-        default:
     }
     return r;
 }

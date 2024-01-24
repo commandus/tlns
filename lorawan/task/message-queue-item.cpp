@@ -50,7 +50,7 @@ std::string MessageQueueItem::toString() const
     ss << time2string(t) << " " << radioPacket.toString();
     for (auto it : metadata) {
         ss << " " <<  gatewayId2str(it.first)
-            << ": " << BANDWIDTH2String(it.second.bandwith);
+            << ": " << BANDWIDTH2String(it.second.bandwidth);
     }
     return ss.str();
 }

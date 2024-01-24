@@ -72,3 +72,25 @@ uint64_t string2gatewayId(const std::string& value);
 bool string2NETWORKIDENTITY(NETWORKIDENTITY &retVal, const char *identityString);
 const std::string& ERR_CODE_TX2string(ERR_CODE_TX code);
 ERR_CODE_TX string2ERR_CODE_TX(const std::string &value);
+/**
+ * Parse data rate identifier e.g."SF7BW125" into bandwidth & spreading factor variables
+ * @param bandwidth return bandwidth index
+ * @param value LoRa datarate identifier e.g. "SF7BW125"
+ * @return spreading factor
+ */
+SPREADING_FACTOR string2datr(BANDWIDTH &bandwidth, const std::string &value);
+/**
+ * Return data rate identifier
+ * @return LoRa datarate identifier e.g. "SF7BW125"
+ */
+std::string datr2string(SPREADING_FACTOR spreadingFactor, BANDWIDTH &bandwidth);
+/**
+ * @param LoRa LoRa ECC coding rate identifier e.g. "4/6"
+ */
+CODING_RATE string2codingRate(const std::string &value);
+/**
+ * Return LoRa ECC coding rate identifier e.g. "4/6"
+ * @param codingRate index
+ * @return LoRa ECC coding rate identifier e.g. "4/6"
+ */
+std::string codingRate2string(CODING_RATE codingRate);

@@ -294,14 +294,14 @@ typedef PACK( struct {
     uint8_t rfch;				// Concentrator "RF chain" used for RX (unsigned integer)
     uint32_t freq;				// RX central frequency in Hz, not Mhz. MHz (unsigned float, Hz precision) 868.900000
     int8_t stat;				// CRC status: 1 = OK, -1 = fail, 0 = no CRC
-    MODULATION modu;			// LORA, FSK
+    MODULATION modu;			// MODULATION_LORA, MODULATION_FSK
     BANDWIDTH bandwidth;
     SPREADING_FACTOR spreadingFactor;
     CODING_RATE codingRate;
-    uint32_t bps;				// FSK bits per second
+    uint32_t bps;				// MODULATION_FSK bits per second
     int16_t rssi;				// RSSI in dBm (signed integer, 1 dB precision) e.g. -35
     float lsnr; 				// Lora SNR ratio in dB (signed float, 0.1 dB precision) e.g. 5.1
-} ) SEMTECH_PROTOCOL_METADATA;
+} ) SEMTECH_PROTOCOL_METADATA_RX;
 
 /**
  * Semtech PUSH DATA packet described in section 3.2
@@ -315,6 +315,29 @@ typedef PACK( struct {
 	uint8_t tag;				// PUSH_DATA 0x00 PULL_DATA 0x02
 	DEVEUI mac;					// 4-11	Gateway unique identifier (MAC address). For example : 00:0c:29:19:b2:37
 } ) SEMTECH_PREFIX_GW;	        // 12 bytes
+
+/**
+@struct lgw_pkt_tx_s
+@brief Structure containing the configuration of a packet to send and a pointer to the payload
+*/
+typedef PACK( struct {
+    uint32_t    freq_hz;        ///> center frequency of
+    uint8_t     tx_mode;        ///> select on what event/time the TX is triggered IMMEDIATE 0, TIMESTAMPED 1, ON_GPS 2
+    uint32_t    count_us;       ///> timestamp or delay in microseconds for TX trigger
+    uint8_t     rf_chain;       ///> through which RF chain will the packet be sent
+    int8_t      rf_power;       ///> TX power, in dBm
+    uint8_t     modulation;     ///> modulation to use for the packet
+    uint8_t     bandwidth;      ///> modulation bandwidth (LoRa only)
+    uint32_t    datarate;       ///> TX datarate (baudrate for MODULATION_FSK, SF for LoRa)
+    uint8_t     coderate;       ///> error-correcting code of the packet (LoRa only)
+    bool        invert_pol;     ///> invert signal polarity, for orthogonal downlinks (LoRa only)
+    uint8_t     f_dev;          ///> frequency deviation, in kHz (MODULATION_FSK only)
+    uint16_t    preamble;       ///> set the preamble length, 0 for default
+    bool        no_crc;         ///> if true, do not send a CRC in the packet
+    bool        no_header;      ///> if true, enable implicit header mode (LoRa), fixed length (MODULATION_FSK)
+    uint16_t    size;           ///> payload size in bytes
+    // uint8_t     payload[256];   ///> buffer containing the payload
+} ) SEMTECH_PROTOCOL_METADATA_TX;
 
 #define SIZE_SEMTECH_PREFIX_GW 12
 

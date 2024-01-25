@@ -26,7 +26,7 @@ public:
     void put(
         const LorawanPacketStorage &radioPacket,
         uint64_t gwId,
-        const SEMTECH_PROTOCOL_METADATA &metadata
+        const SEMTECH_PROTOCOL_METADATA_RX &metadata
     );
     /**
      * Packet received from gateway

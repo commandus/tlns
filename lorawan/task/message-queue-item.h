@@ -15,7 +15,7 @@ public:
 
     TASK_TIME firstGatewayReceived;         ///< receiving time of the first received packet (no matter which gateway is first)
     LorawanPacketStorage radioPacket;       ///< radio packet
-    std::map <uint64_t, SEMTECH_PROTOCOL_METADATA> metadata;   ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
+    std::map <uint64_t, SEMTECH_PROTOCOL_METADATA_RX> metadata;   ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
     
     TaskDescriptor task;                    ///< corresponding task
 

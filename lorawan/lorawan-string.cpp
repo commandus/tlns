@@ -281,12 +281,13 @@ std::string MODULATION2String(
     MODULATION value
 )
 {
-    switch (value)
-    {
-        case FSK:
+    switch (value) {
+        case MODULATION_LORA:
+            return "LORA";
+        case MODULATION_FSK:
             return "FSK";
         default:
-            return "LORA";
+            return "UNDEFINED";
     }
 }
 
@@ -515,9 +516,11 @@ MODULATION string2MODULATION(
 )
 {
     if (strcmp(value, "FSK") == 0)
-        return FSK;
+        return MODULATION_FSK;
     else
-        return LORA;
+        if (strcmp(value, "LORA") == 0)
+            return MODULATION_LORA;
+    return MODULATION_UNDEFINED;
 }
 
 BANDWIDTH string2BANDWIDTH(

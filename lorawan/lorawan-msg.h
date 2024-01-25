@@ -167,7 +167,7 @@
 #define ERR_LORA_GATEWAY_CONFIGURE_DEMODULATION       "Invalid configuration for demodulation parameters"
 #define ERR_LORA_GATEWAY_CONFIGURE_MULTI_SF_CHANNEL   "Invalid configuration for Lora multi-SF channel"
 #define ERR_LORA_GATEWAY_CONFIGURE_STD_CHANNEL        "Invalid configuration for Lora standard channel"
-#define ERR_LORA_GATEWAY_CONFIGURE_FSK_CHANNEL        "Invalid configuration for Lora FSK channel"
+#define ERR_LORA_GATEWAY_CONFIGURE_FSK_CHANNEL        "Invalid configuration for Lora MODULATION_FSK channel"
 #define ERR_LORA_GATEWAY_CONFIGURE_DEBUG              "Failed to configure debug"
 
 #define ERR_LORA_GATEWAY_CONFIGURE_GPS_FAILED          "Failed to configure GPS"

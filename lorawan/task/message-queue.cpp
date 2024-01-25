@@ -45,7 +45,7 @@ MessageQueueItem *MessageQueue::get (
 void MessageQueue::put(
     const LorawanPacketStorage &radioPacket,
     uint64_t gwId,
-    const SEMTECH_PROTOCOL_METADATA &metadata
+    const SEMTECH_PROTOCOL_METADATA_RX &metadata
 )
 {
     auto addr = radioPacket.getAddr();

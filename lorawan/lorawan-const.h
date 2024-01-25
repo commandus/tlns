@@ -2,8 +2,9 @@
 #define LORA_RADIO_CONST_H_	1
 
 typedef enum {
-	LORA = 0,
-	FSK = 1
+    MODULATION_UNDEFINED = 0,
+    MODULATION_LORA = 0x10,
+    MODULATION_FSK = 0x20
 } MODULATION;
 
 /**

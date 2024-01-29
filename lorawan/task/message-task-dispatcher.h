@@ -86,6 +86,14 @@ public:
 
     bool start();
     void stop();
+
+    ssize_t sendACK(
+        const TaskSocket *taskSocket,
+        const sockaddr &destAddr,
+        socklen_t destAddrLen,
+        const char *packet,
+        ssize_t packetSize
+    );
 };
 
 /**
@@ -95,7 +103,7 @@ public:
  * @param port port number
  * @return socket, -1 if fail
  */
-SOCKET addDumbControlSocket(
+TaskSocket* createDumbControlSocket(
     MessageTaskDispatcher *dispatcher,
     in_addr_t addr,
     uint16_t port

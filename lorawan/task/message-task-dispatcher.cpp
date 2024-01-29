@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "lorawan/lorawan-error.h"
+#include "lorawan/proto/gw/basic-udp.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -259,9 +260,12 @@ int MessageTaskDispatcher::runner()
                 socklen_t srcAddrLen = sizeof(srcAddr);
                 ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 if (sz > 0) {
-                    int r = s->cb(this, s, &srcAddr, buffer, sz);
-                    if (r < 0)
-                        break;
+                    // send ACK
+                    if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
+                        int r = s->cb(this, s, &srcAddr, buffer, sz);
+                        if (r < 0)
+                            break;
+                    }
                 }
             }
         }
@@ -273,6 +277,23 @@ int MessageTaskDispatcher::runner()
     return CODE_OK;
 }
 
+ssize_t MessageTaskDispatcher::sendACK(
+    const TaskSocket *taskSocket,
+    const sockaddr &destAddr,
+    socklen_t destAddrLen,
+    const char *packet,
+    ssize_t packetSize
+) {
+    if (packetSize < SIZE_SEMTECH_ACK)
+        return ERR_CODE_SEND_ACK;
+    SEMTECH_ACK ack;
+    memmove(&ack, packet, SIZE_SEMTECH_ACK);
+    if (ack.version != 2)
+        return ERR_CODE_SEND_ACK;
+    ack.tag++;
+    return sendto(taskSocket->sock, &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
+}
+
 // --------------------------------------------------------------
 
 /**
@@ -282,13 +303,13 @@ int MessageTaskDispatcher::runner()
  * @param port port number
  * @return socket, -1 if fail
  */
-SOCKET addDumbControlSocket(
+TaskSocket* createDumbControlSocket(
     MessageTaskDispatcher *dispatcher,
     in_addr_t addr,
     uint16_t port
 )
 {
-    dispatcher->controlSocket = new TaskSocket(addr, port, [] (
+    return new TaskSocket(addr, port, [] (
         MessageTaskDispatcher *dispatcher,
         TaskSocket *taskSocket,
         const struct sockaddr *gwAddr,
@@ -311,20 +332,19 @@ SOCKET addDumbControlSocket(
                 MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
             }
                 break;
-            case SIZE_JOIN_REQUEST_FRAME: {
-                JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
-                // process message queue
-                MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
-            }
-                break;
             default: {
+                // Join request
+                // JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
+                // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
+
                 // get gateway identifier first
-                dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
+                ProtoGwParser* parser = new GatewayBasicUdpProtocol;
+                if (parser->parse(buffer, size, nullptr, nullptr, nullptr))
+                    dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
+                delete parser;
             }
                 break;
         }
         return 0;
     });
-    dispatcher->sockets.push_back(dispatcher->controlSocket);
-    return dispatcher->controlSocket->sock;
 }

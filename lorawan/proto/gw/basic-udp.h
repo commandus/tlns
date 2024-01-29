@@ -3,34 +3,9 @@
 
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
+#include "lorawan/proto/gw/proto-gw-parser.h"
 
-class GwPushData {
-public:
-    uint64_t gwId;
-    LorawanPacketStorage rxData;
-    SEMTECH_PROTOCOL_METADATA_RX rxMetadata;
-};
-
-class GwPullResp {
-public:
-    uint64_t gwId;
-    LorawanPacketStorage txData;
-    SEMTECH_PROTOCOL_METADATA_TX txMetadata;
-};
-
-typedef void(*OnPushDataProc)(
-    GwPushData &item
-);
-
-typedef void(*OnPullRespProc)(
-    GwPullResp &item
-);
-
-typedef void(*OnTxpkAckProc)(
-    ERR_CODE_TX code
-);
-
-class GatewayBasicUdpProtocol {
+class GatewayBasicUdpProtocol : public ProtoGwParser {
 private:
     // upstream {"rxpk": {}}
     static bool parsePushData(
@@ -57,13 +32,13 @@ public:
      * @param cb put gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
      * @return Return tag number 0-5 or error code (<0)
      */
-    static int parse(
+    int parse(
         const char *packetForwarderPacket,
         size_t size,
         OnPushDataProc onPushData,
         OnPullRespProc onPullResp,
         OnTxpkAckProc onTxpkAckProc
-    );
+    ) override;
 };
 
 #endif

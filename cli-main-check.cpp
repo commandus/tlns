@@ -38,13 +38,13 @@ public:
 
 static CheckParams params;
 
-SOCKET addExampleControlSocket(
+static TaskSocket* createExampleControlSocket(
     MessageTaskDispatcher *dispatcher,
     in_addr_t addr,
     uint16_t port
 )
 {
-    dispatcher->controlSocket = new TaskSocket(addr, port, [] (
+    return new TaskSocket(addr, port, [] (
         MessageTaskDispatcher *dispatcher,
         TaskSocket *socket,
         const struct sockaddr * srcAddr,
@@ -59,16 +59,19 @@ SOCKET addExampleControlSocket(
         std::cerr << "** Received " << std::endl;
         return 0;
     });
-    dispatcher->sockets.push_back(dispatcher->controlSocket);
-    return dispatcher->controlSocket->sock;
 }
 
 static void run() {
     MessageQueue q;
     MessageTaskDispatcher dispatcher;
     dispatcher.setQueue(&q);
-    addDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
-    addExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244);
+
+    dispatcher.controlSocket = createDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
+    dispatcher.sockets.push_back(dispatcher.controlSocket);
+
+    // dispatcher.controlSocket = createExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244);
+    // dispatcher.sockets.push_back(dispatcher.controlSocket);
+
     dispatcher.start();
 
     // TaskResponseThreaded response;
@@ -78,6 +81,7 @@ static void run() {
     while (true) {
         std::string l;
         getline(std::cin, l);
+        dispatcher.send(l.c_str(), l.size());
         if (!dispatcher.running)
             break;
     }

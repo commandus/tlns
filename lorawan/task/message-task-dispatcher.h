@@ -81,7 +81,7 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
-    void send(const char *buffer, size_t size);
+    void send(const void *buffer, size_t size);
     void send(char cmd);
 
     bool start();

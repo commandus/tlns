@@ -81,6 +81,10 @@ static void run() {
     while (true) {
         std::string l;
         getline(std::cin, l);
+        if (l == "q") {
+            dispatcher.stop();
+            break;
+        }
         dispatcher.send(l.c_str(), l.size());
         if (!dispatcher.running)
             break;

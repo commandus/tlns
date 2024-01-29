@@ -16,8 +16,6 @@
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
 
-static const char CHAR_CONTROL_QUIT('q');
-
 TaskSocket::TaskSocket(
     in_addr_t aAddr,
     uint16_t aPort,
@@ -128,7 +126,7 @@ void MessageTaskDispatcher::setResponse(
 }
 
 void MessageTaskDispatcher::send(
-    const char *cmd,
+    const void *cmd,
     size_t size
 )
 {
@@ -164,14 +162,15 @@ void MessageTaskDispatcher::stop()
     if (!running)
         return;
     // wake-up select()
-    send(CHAR_CONTROL_QUIT);
+    SEMTECH_ACK q { 2, 0, 'q'};
+    send(&q, SIZE_SEMTECH_ACK);
 
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
     while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
         // try wake-up select() if UDP packet is missed
-        send(CHAR_CONTROL_QUIT);
+        send(&q, SIZE_SEMTECH_ACK);
     }
     // free up resources
     delete thread;
@@ -317,20 +316,17 @@ TaskSocket* createDumbControlSocket(
         size_t size
     ) {
         switch (size) {
-            case 1:
-                switch (*buffer) {
-                    case CHAR_CONTROL_QUIT:
+            case SIZE_SEMTECH_ACK:
+                switch (((SEMTECH_ACK *) buffer)->tag) {
+                    case 'q':
                         dispatcher->running = false;
                         return -1;
                     default:
+                        DEVADDR *a = (DEVADDR *) buffer;
+                        // process message queue
+                        MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
                         break;
                 }
-                break;
-            case SIZE_DEVADDR: {
-                DEVADDR *a = (DEVADDR *) buffer;
-                // process message queue
-                MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
-            }
                 break;
             default: {
                 // Join request

@@ -991,7 +991,7 @@ std::string SEMTECH_PROTOCOL_METADATA_TX2string(
 )
 {
     std::stringstream ss;
-    ss  << "{\"freq_hz\": " << value.freq_hz
+    ss  << "{\"freq_hz\": " << std::fixed << std::setprecision(6) << value.freq_hz
         << ", \"tx_mode\": " << (int) value.tx_mode
         << ", \"count_us\": " << value.count_us
         << ", \"rf_chain\": " << (int) value.rf_chain

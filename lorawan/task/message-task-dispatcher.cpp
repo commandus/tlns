@@ -85,7 +85,7 @@ void TaskSocket::closeSocket()
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
-      queue(nullptr), controlSocket(nullptr), running(false)
+      parser(new GatewayBasicUdpProtocol), queue(nullptr), controlSocket(nullptr), running(false)
 {
 
 }
@@ -94,7 +94,7 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : clientControlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
-      queue(value.queue), controlSocket(nullptr), running(value.running)
+      parser(value.parser), queue(value.queue), controlSocket(nullptr), running(value.running)
 {
 }
 
@@ -102,6 +102,7 @@ MessageTaskDispatcher::~MessageTaskDispatcher()
 {
     stop();
     clearSockets();
+    delete parser;
 }
 
 void MessageTaskDispatcher::setQueue(
@@ -269,12 +270,14 @@ int MessageTaskDispatcher::runner()
                 socklen_t srcAddrLen = sizeof(srcAddr);
                 ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 if (sz > 0) {
-                    // send ACK
+                    // send ACK immediately
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
                         int r = s->cb(this, s, &srcAddr, receivedTime, buffer, sz);
-                        if (r < 0)
-                            break;
+                        if (r < 0) {
+                            // inform
+                        }
                     }
+                    //
                 }
             }
         }
@@ -345,13 +348,11 @@ TaskSocket* createDumbControlSocket(
                 // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
 
                 // get gateway identifier first
-                ProtoGwParser* parser = new GatewayBasicUdpProtocol;
-                if (parser->parse(buffer, size, receivedTime,
+                if (dispatcher->parser->parse(buffer, size, receivedTime,
                     [](GwPushData &item) {
                         std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
                     }, nullptr, nullptr))
                     dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
-                delete parser;
             }
                 break;
         }

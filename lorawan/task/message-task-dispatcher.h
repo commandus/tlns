@@ -7,6 +7,7 @@
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
+#include "lorawan/proto/gw/proto-gw-parser.h"
 
 class MessageTaskDispatcher;
 class TaskSocket;
@@ -63,6 +64,7 @@ protected:
      */
     void clearSockets();
 public:
+    ProtoGwParser* parser;
     // message queue
     MessageQueue *queue;
     // wake up main loop's select(). It is first element in the sockets array

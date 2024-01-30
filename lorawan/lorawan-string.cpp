@@ -2,9 +2,10 @@
 #include <iomanip>
 #include <sstream>
 
-#include "lorawan-conv.h"
-#include "lorawan-string.h"
-#include "lorawan-mac.h"
+#include "lorawan/lorawan-conv.h"
+#include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-date.h"
+#include "lorawan/lorawan-mac.h"
 
 #define DEF_CODING_RATE CRLORA_4_6
 
@@ -857,7 +858,7 @@ SPREADING_FACTOR string2datr(
  */
 std::string datr2string(
     SPREADING_FACTOR spreadingFactor,
-    BANDWIDTH &bandwidth
+    BANDWIDTH bandwidth
 )
 {
     int bandwidthValue = 125;
@@ -961,4 +962,49 @@ std::string codingRate2string(
             return "4/8LI";
     }
     return "4/6";
+}
+
+std::string SEMTECH_PROTOCOL_METADATA_RX2string(
+    const SEMTECH_PROTOCOL_METADATA_RX &value
+)
+{
+    std::stringstream ss;
+    ss << "{\"gatewayId\": " << gatewayId2str(value.gatewayId)
+        << ", \"t\": " << time2string(value.t)
+        << ", \"tmst\": " << value.tmst
+        << ", \"chan\": " << (int) value.chan
+        << ", \"rfch\": " << (int) value.rfch
+        << ", \"freq\": " << value.freq
+        << ", \"stat\": " << (int) value.stat
+        << ", \"modu\": \"" << MODULATION2String(value.modu)
+        << "\", \"datr\": \"" <<  datr2string(value.spreadingFactor, value.bandwidth)
+        << "\", \"codingRate\": \"" << codingRate2string(value.codingRate)
+        << "\", \"bps\": " << value.bps
+        << ", \"rssi\": " << value.rssi
+        << ", \"lsnr\": " << std::fixed << std::setprecision(2) << value.lsnr
+        << "}";
+    return ss.str();
+}
+
+std::string SEMTECH_PROTOCOL_METADATA_TX2string(
+    const SEMTECH_PROTOCOL_METADATA_TX &value
+)
+{
+    std::stringstream ss;
+    ss  << "{\"freq_hz\": " << value.freq_hz
+        << ", \"tx_mode\": " << (int) value.tx_mode
+        << ", \"count_us\": " << value.count_us
+        << ", \"rf_chain\": " << (int) value.rf_chain
+        << ", \"rf_power\": " << (int) value.rf_power
+        << ", \"modulation\": \"" << MODULATION2String((MODULATION) value.modulation)
+        << "\", \"bandwidth\": " << BANDWIDTH2String((BANDWIDTH) value.bandwidth)
+        << ", \"coderate\": \"" << codingRate2string((CODING_RATE) value.coderate)
+        << "\", \"invert_pol\": " << (value.invert_pol? "true" : "false")
+        << ", \"f_dev\": " << (int) value.f_dev
+        << ", \"preamble\": " << value.preamble
+        << ", \"no_crc\": " << (value.no_crc? "true" : "false")
+        << ", \"no_header\": " << (value.no_header? "true" : "false")
+        << ", \"size\": " << value.size
+       << "}";
+    return ss.str();
 }

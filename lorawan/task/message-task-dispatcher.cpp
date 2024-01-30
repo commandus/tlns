@@ -12,6 +12,7 @@
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/proto/gw/basic-udp.h"
+#include "lorawan/lorawan-string.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -141,6 +142,13 @@ void MessageTaskDispatcher::send(
 }
 
 void MessageTaskDispatcher::send(
+    const std::string & cmd
+)
+{
+    send(cmd.c_str(), cmd.size());
+}
+
+void MessageTaskDispatcher::send(
     char cmd
 )
 {
@@ -233,7 +241,7 @@ int MessageTaskDispatcher::runner()
         FD_SET(s->sock, &master_set);
     }
 
-    char buffer[300];
+    char buffer[4096];
 
     running = true;
     clientControlSocket = socket(AF_INET, SOCK_DGRAM, 0);
@@ -253,6 +261,8 @@ int MessageTaskDispatcher::runner()
         if (rc == 0) { // select() timed out.
             continue;
         }
+        // get timestamp
+        TASK_TIME receivedTime = std::chrono::system_clock::now();
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &working_set)) {
                 struct sockaddr srcAddr;
@@ -261,7 +271,7 @@ int MessageTaskDispatcher::runner()
                 if (sz > 0) {
                     // send ACK
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
-                        int r = s->cb(this, s, &srcAddr, buffer, sz);
+                        int r = s->cb(this, s, &srcAddr, receivedTime, buffer, sz);
                         if (r < 0)
                             break;
                     }
@@ -312,6 +322,7 @@ TaskSocket* createDumbControlSocket(
         MessageTaskDispatcher *dispatcher,
         TaskSocket *taskSocket,
         const struct sockaddr *gwAddr,
+        TASK_TIME receivedTime,
         const char *buffer,
         size_t size
     ) {
@@ -335,7 +346,10 @@ TaskSocket* createDumbControlSocket(
 
                 // get gateway identifier first
                 ProtoGwParser* parser = new GatewayBasicUdpProtocol;
-                if (parser->parse(buffer, size, nullptr, nullptr, nullptr))
+                if (parser->parse(buffer, size, receivedTime,
+                    [](GwPushData &item) {
+                        std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
+                    }, nullptr, nullptr))
                     dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
                 delete parser;
             }

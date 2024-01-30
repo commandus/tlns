@@ -15,6 +15,7 @@ typedef int(*TaskProc)(
     MessageTaskDispatcher *env,
     TaskSocket *socket,
     const struct sockaddr *src,
+    TASK_TIME receivedTime,
     const char *buffer,
     size_t size
 );
@@ -81,8 +82,10 @@ public:
     void setQueue(MessageQueue *queue);
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
+
     void send(const void *buffer, size_t size);
     void send(char cmd);
+    void send(const std::string& cmd);
 
     bool start();
     void stop();

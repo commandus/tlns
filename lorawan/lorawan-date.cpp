@@ -237,6 +237,8 @@ std::string time2string(
 {
 	char buf[64];
 	struct tm *tm = localtime(&val);
+    if (!tm)
+        return "0";
 	strftime(buf, sizeof(buf), dateformat1, tm);
 	return std::string(buf);
 }

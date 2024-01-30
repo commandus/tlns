@@ -8,21 +8,24 @@
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 private:
     // upstream {"rxpk": {}}
-    static bool parsePushData(
+    static int parsePushData(
         const char *json,
         size_t size,
+        TASK_TIME receivedTime,
         OnPushDataProc cb
     );
     // downstream {"txpk": {}}
-    static bool parsePullResp(
+    static int parsePullResp(
         const char *json,
         size_t size,
+        TASK_TIME receivedTime,
         OnPullRespProc cb
     );
     // downstream {"txpk_ack": {}}
-    static bool parseTxAck(
+    static int parseTxAck(
         const char *json,
         size_t size,
+        TASK_TIME receivedTime,
         OnTxpkAckProc cb
     );
 public:
@@ -35,6 +38,7 @@ public:
     int parse(
         const char *packetForwarderPacket,
         size_t size,
+        TASK_TIME receivedTime,
         OnPushDataProc onPushData,
         OnPullRespProc onPullResp,
         OnTxpkAckProc onTxpkAckProc

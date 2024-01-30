@@ -1,6 +1,8 @@
 #ifndef TLNS_PROTO_GW_PARSER_H
 #define TLNS_PROTO_GW_PARSER_H
 
+#include "lorawan/task/task-platform.h"
+
 class GwPushData {
 public:
     uint64_t gwId;
@@ -38,6 +40,7 @@ public:
     virtual int parse(
         const char *packetForwarderPacket,
         size_t size,
+        TASK_TIME receivedTime,
         OnPushDataProc onPushData,
         OnPullRespProc onPullResp,
         OnTxpkAckProc onTxPkAckProc

@@ -83,14 +83,22 @@ SPREADING_FACTOR string2datr(BANDWIDTH &bandwidth, const std::string &value);
  * Return data rate identifier
  * @return LoRa datarate identifier e.g. "SF7BW125"
  */
-std::string datr2string(SPREADING_FACTOR spreadingFactor, BANDWIDTH &bandwidth);
+std::string datr2string(
+    SPREADING_FACTOR spreadingFactor,
+    BANDWIDTH bandwidth
+);
+
 /**
  * @param LoRa LoRa ECC coding rate identifier e.g. "4/6"
  */
 CODING_RATE string2codingRate(const std::string &value);
+
 /**
  * Return LoRa ECC coding rate identifier e.g. "4/6"
  * @param codingRate index
  * @return LoRa ECC coding rate identifier e.g. "4/6"
  */
 std::string codingRate2string(CODING_RATE codingRate);
+
+std::string SEMTECH_PROTOCOL_METADATA_RX2string(const SEMTECH_PROTOCOL_METADATA_RX &value);
+std::string SEMTECH_PROTOCOL_METADATA_TX2string(const SEMTECH_PROTOCOL_METADATA_TX &value);

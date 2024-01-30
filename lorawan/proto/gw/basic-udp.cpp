@@ -1,3 +1,4 @@
+#include <iostream>
 #include "nlohmann/json.hpp"
 
 #include "lorawan/proto/gw/basic-udp.h"
@@ -52,10 +53,12 @@ private:
     GwPushData item;
     OnPushDataProc cb;
 public:
-    explicit SaxPushData(OnPushDataProc aCb)
-        : nameIndex(0), startItem(0), cb(aCb)
-    {
+    int parseError;
 
+    explicit SaxPushData(TASK_TIME receivedTime, OnPushDataProc aCb)
+        : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
+    {
+        item.rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
     }
 
     bool null() override {
@@ -181,6 +184,8 @@ public:
     }
 
     bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override {
+        parseError = - ex.id;
+        std::cerr << ex.what() << std::endl;
         return false;
     }
 };
@@ -229,10 +234,10 @@ private:
     GwPullResp item;
     OnPullRespProc cb;
 public:
-    explicit SaxPullResp(OnPullRespProc aCb)
-        : nameIndex(0), startItem(0), cb(aCb)
+    int parseError;
+    explicit SaxPullResp(TASK_TIME receivedTime, OnPullRespProc aCb)
+        : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
     {
-
     }
 
     bool null() override {
@@ -355,6 +360,8 @@ public:
     }
 
     bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override {
+        parseError = - ex.id;
+        std::cerr << ex.what() << std::endl;
         return false;
     }
 };
@@ -362,6 +369,7 @@ public:
 int GatewayBasicUdpProtocol::parse(
     const char *packetForwarderPacket,
     size_t size,
+    TASK_TIME receivedTime,
     OnPushDataProc onPushData,
     OnPullRespProc onPullResp,
     OnTxpkAckProc onTxpkAckProc
@@ -378,58 +386,67 @@ int GatewayBasicUdpProtocol::parse(
 
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
-            parsePushData((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, size - SIZE_SEMTECH_PREFIX_GW, onPushData); // +12 bytes
+            r = parsePushData((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, size - SIZE_SEMTECH_PREFIX_GW,
+                receivedTime, onPushData); // +12 bytes
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
-            parsePullResp((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX, onPullResp); // +4 bytes
+            r = parsePullResp((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
+                receivedTime, onPullResp); // +4 bytes
             break;
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
-            parseTxAck((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW, onTxpkAckProc); // +12 bytes
+            r = parseTxAck((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW,
+                receivedTime, onTxpkAckProc); // +12 bytes
             break;
     }
     return r;
 }
 
-bool GatewayBasicUdpProtocol::parsePushData(
+int GatewayBasicUdpProtocol::parsePushData(
     const char *json,
     size_t size,
+    TASK_TIME receivedTime,
     OnPushDataProc cb
 ) {
-    SaxPushData consumer(cb);
-    return nlohmann::json::sax_parse(json, json + size, &consumer);
+    std::cerr << json << std::endl;
+    SaxPushData consumer(receivedTime, cb);
+    nlohmann::json::sax_parse(json, json + size, &consumer);
+    return consumer.parseError;
 }
 
-bool GatewayBasicUdpProtocol::parsePullResp(
+int GatewayBasicUdpProtocol::parsePullResp(
     const char *json,
     size_t size,
+    TASK_TIME receivedTime,
     OnPullRespProc cb
 ) {
-    SaxPullResp consumer(cb);
-    return nlohmann::json::sax_parse(json, json + size, &consumer);
+    SaxPullResp consumer(receivedTime, cb);
+    nlohmann::json::sax_parse(json, json + size, &consumer);
+    return consumer.parseError;
 }
 
-bool GatewayBasicUdpProtocol::parseTxAck(
+int GatewayBasicUdpProtocol::parseTxAck(
     const char *json,
     size_t size,
+    TASK_TIME receivedTime,
     OnTxpkAckProc cb
 ) {
     ERR_CODE_TX code;
 
     nlohmann::json js = nlohmann::json::parse(json, json + size);
     if (!js.is_object())
-        return false;
+        return ERR_CODE_INVALID_JSON;
     if (!js.contains(SAX_METADATA_TXPK_ACK_NAMES[0]))
-        return false;
+        return ERR_CODE_INVALID_JSON;
     auto jAck = js[SAX_METADATA_TXPK_ACK_NAMES[0]];
     if (!jAck.is_object())
-        return false;
+        return ERR_CODE_INVALID_JSON;
     if (!js.contains(SAX_METADATA_TXPK_ACK_NAMES[1]))
-        return false;
+        return ERR_CODE_INVALID_JSON;
     auto jError = js[SAX_METADATA_TXPK_ACK_NAMES[1]];
     if (!jError.is_string())
-        return false;
+        return ERR_CODE_INVALID_JSON;
     code = string2ERR_CODE_TX(jError);
     if (cb)
         cb(code);
-    return true;
+    return CODE_OK;
 }

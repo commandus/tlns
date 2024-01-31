@@ -171,15 +171,15 @@ void MessageTaskDispatcher::stop()
     if (!running)
         return;
     // wake-up select()
-    SEMTECH_ACK q { 2, 0, 'q'};
-    send(&q, SIZE_SEMTECH_ACK);
+    char q = 'q';
+    send(&q, 1);
 
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
     while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
         // try wake-up select() if UDP packet is missed
-        send(&q, SIZE_SEMTECH_ACK);
+        send(&q, 1);
     }
     // free up resources
     delete thread;
@@ -272,12 +272,35 @@ int MessageTaskDispatcher::runner()
                 if (sz > 0) {
                     // send ACK immediately
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
-                        int r = s->cb(this, s, &srcAddr, receivedTime, buffer, sz);
-                        if (r < 0) {
-                            // inform
+                        // inform
+                    }
+                    switch (sz) {
+                        case 1:
+                        {
+                            char *a = (char *) buffer;
+                            switch (*a) {
+                                case 'q':
+                                    running = false;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                            break;
+                        case SIZE_DEVADDR:
+                        {
+                            DEVADDR *a = (DEVADDR *) buffer;
+                            // process message queue
+                            MessageQueueItem *item = queue->findByDevAddr(a);
+                        }
+                            break;
+                        default: {
+                            int r = s->cb(this, s, &srcAddr, receivedTime, buffer, sz);
+                            if (r < 0) {
+                                // inform
+                            }
                         }
                     }
-                    //
                 }
             }
         }
@@ -329,33 +352,16 @@ TaskSocket* createDumbControlSocket(
         const char *buffer,
         size_t size
     ) {
-        switch (size) {
-            case SIZE_SEMTECH_ACK:
-                switch (((SEMTECH_ACK *) buffer)->tag) {
-                    case 'q':
-                        dispatcher->running = false;
-                        return -1;
-                    default:
-                        DEVADDR *a = (DEVADDR *) buffer;
-                        // process message queue
-                        MessageQueueItem *item = dispatcher->queue->findByDevAddr(a);
-                        break;
-                }
-                break;
-            default: {
-                // Join request
-                // JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
-                // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
+        // Join request
+        // JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
+        // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
 
-                // get gateway identifier first
-                if (dispatcher->parser->parse(buffer, size, receivedTime,
-                    [](GwPushData &item) {
-                        std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
-                    }, nullptr, nullptr))
-                    dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
-            }
-                break;
-        }
+        // get gateway identifier first
+        if (dispatcher->parser->parse(buffer, size, receivedTime,
+            [](GwPushData &item) {
+                std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
+            }, nullptr, nullptr))
+            dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
         return 0;
     });
 }

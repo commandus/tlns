@@ -11,6 +11,7 @@ private:
     static int parsePushData(
         const char *json,
         size_t size,
+        const DEVEUI &gwId,
         TASK_TIME receivedTime,
         OnPushDataProc cb
     );
@@ -18,6 +19,7 @@ private:
     static int parsePullResp(
         const char *json,
         size_t size,
+        const DEVEUI &gwId,
         TASK_TIME receivedTime,
         OnPullRespProc cb
     );

@@ -118,6 +118,21 @@ void ntoh_DEVADDR(
     *((uint32_t*) &value.u) = NTOH4(*((uint32_t*) &value.u));
 }
 
+void ntoh_DEVEUI(
+    DEVEUI &value
+)
+{
+    *((uint64_t*) &value.u) = NTOH8(*((uint64_t*) &value.u));
+}
+
+void ntoh_SEMTECH_PREFIX_GW(
+    SEMTECH_PREFIX_GW &value
+)
+{
+    *((uint16_t*) &value.token) = NTOH2(*((uint16_t*) &value.token));
+    *((uint64_t*) &value.mac.u) = NTOH8(*((uint64_t*) &value.mac.u));
+}
+
 void ntoh_RFM_HEADER(
     RFM_HEADER *value
 )

@@ -55,9 +55,14 @@ private:
 public:
     int parseError;
 
-    explicit SaxPushData(TASK_TIME receivedTime, OnPushDataProc aCb)
+    explicit SaxPushData(
+        const DEVEUI &gwId,
+        TASK_TIME receivedTime,
+        OnPushDataProc aCb
+    )
         : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
     {
+        item.rxMetadata.gatewayId = gwId.u;
         item.rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
     }
 
@@ -235,9 +240,14 @@ private:
     OnPullRespProc cb;
 public:
     int parseError;
-    explicit SaxPullResp(TASK_TIME receivedTime, OnPullRespProc aCb)
+    explicit SaxPullResp(
+        const DEVEUI &gwId,
+        TASK_TIME receivedTime,
+        OnPullRespProc aCb
+    )
         : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
     {
+        item.gwId = gwId;
     }
 
     bool null() override {
@@ -381,22 +391,30 @@ int GatewayBasicUdpProtocol::parse(
     if (p->version != 2)
         return ERR_CODE_INVALID_PACKET;
     int r = p->tag;
-    if (r > 5)
-        return ERR_CODE_INVALID_PACKET;
 
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
+        {
+            SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            ntoh_SEMTECH_PREFIX_GW(*pGw);
             r = parsePushData((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, size - SIZE_SEMTECH_PREFIX_GW,
-                receivedTime, onPushData); // +12 bytes
+                pGw->mac, receivedTime, onPushData); // +12 bytes
+        }
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
+        {
+            SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            ntoh_SEMTECH_PREFIX_GW(*pGw);
             r = parsePullResp((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
-                receivedTime, onPullResp); // +4 bytes
+                pGw->mac, receivedTime, onPullResp); // +4 bytes
+        }
             break;
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
             r = parseTxAck((char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW,
                 receivedTime, onTxpkAckProc); // +12 bytes
             break;
+        default:
+            r = ERR_CODE_INVALID_PACKET;
     }
     return r;
 }
@@ -404,11 +422,12 @@ int GatewayBasicUdpProtocol::parse(
 int GatewayBasicUdpProtocol::parsePushData(
     const char *json,
     size_t size,
+    const DEVEUI &gwId,
     TASK_TIME receivedTime,
     OnPushDataProc cb
 ) {
     std::cerr << json << std::endl;
-    SaxPushData consumer(receivedTime, cb);
+    SaxPushData consumer(gwId, receivedTime, cb);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }
@@ -416,10 +435,11 @@ int GatewayBasicUdpProtocol::parsePushData(
 int GatewayBasicUdpProtocol::parsePullResp(
     const char *json,
     size_t size,
+    const DEVEUI &gwId,
     TASK_TIME receivedTime,
     OnPullRespProc cb
 ) {
-    SaxPullResp consumer(receivedTime, cb);
+    SaxPullResp consumer(gwId, receivedTime, cb);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }

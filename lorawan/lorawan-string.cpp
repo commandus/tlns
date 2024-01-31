@@ -970,8 +970,8 @@ std::string SEMTECH_PROTOCOL_METADATA_RX2string(
 {
     std::stringstream ss;
     ss << "{\"gatewayId\": \"" << gatewayId2str(value.gatewayId)
-        << "\", \"t\": " << time2string(value.t)
-        << ", \"tmst\": " << value.tmst
+        << "\", \"t\": \"" << time2string(value.t)
+        << "\", \"tmst\": " << value.tmst
         << ", \"chan\": " << (int) value.chan
         << ", \"rfch\": " << (int) value.rfch
         << ", \"freq\": " << value.freq

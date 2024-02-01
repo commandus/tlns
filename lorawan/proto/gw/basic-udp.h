@@ -8,7 +8,7 @@
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 private:
     // upstream {"rxpk": {}}
-    static int parsePushData(
+    int parsePushData(
         const char *json,
         size_t size,
         const DEVEUI &gwId,
@@ -16,7 +16,7 @@ private:
         OnPushDataProc cb
     );
     // downstream {"txpk": {}}
-    static int parsePullResp(
+    int parsePullResp(
         const char *json,
         size_t size,
         const DEVEUI &gwId,
@@ -24,7 +24,7 @@ private:
         OnPullRespProc cb
     );
     // downstream {"txpk_ack": {}}
-    static int parseTxAck(
+    int parseTxAck(
         const char *json,
         size_t size,
         TASK_TIME receivedTime,
@@ -45,6 +45,9 @@ public:
         OnPullRespProc onPullResp,
         OnTxpkAckProc onTxpkAckProc
     ) override;
+
+    GatewayBasicUdpProtocol(MessageTaskDispatcher *pDispatcher);
+
 };
 
 #endif

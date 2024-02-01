@@ -4,6 +4,7 @@
 #include <map>
 
 #include "message-queue-item.h"
+#include "lorawan/proto/gw/gw.h"
 
 class TaskSocket;
 class MessageTaskDispatcher;
@@ -43,6 +44,9 @@ public:
         size_t size
     );
 
+    bool put(
+        GwPushData & pushData
+    );
     void rm(const DEVADDR &addr);
     MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
     MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);

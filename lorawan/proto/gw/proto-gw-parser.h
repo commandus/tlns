@@ -2,34 +2,32 @@
 #define TLNS_PROTO_GW_PARSER_H
 
 #include "lorawan/task/task-platform.h"
-
-class GwPushData {
-public:
-    LorawanPacketStorage rxData;
-    SEMTECH_PROTOCOL_METADATA_RX rxMetadata;
-};
-
-class GwPullResp {
-public:
-    DEVEUI gwId;
-    LorawanPacketStorage txData;
-    SEMTECH_PROTOCOL_METADATA_TX txMetadata;
-};
+#include "lorawan/task/message-task-dispatcher.h"
+#include "lorawan/proto/gw/gw.h"
 
 typedef void(*OnPushDataProc)(
+    MessageTaskDispatcher* dispatcher,
     GwPushData &item
 );
 
 typedef void(*OnPullRespProc)(
+    MessageTaskDispatcher* dispatcher,
     GwPullResp &item
 );
 
 typedef void(*OnTxpkAckProc)(
+    MessageTaskDispatcher* dispatcher,
     ERR_CODE_TX code
 );
 
+/**
+ * @see GatewayBasicUdpProtocol
+ * @file basic-udp.h
+ */
 class ProtoGwParser {
 public:
+    MessageTaskDispatcher *dispatcher;
+    explicit ProtoGwParser(MessageTaskDispatcher *dispatcher);
     /** Upstream only. array of packets from Basic communication protocol packet
      * @param packetForwarderPacket
      * @param size

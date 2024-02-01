@@ -82,6 +82,17 @@ bool MessageQueue::put(
     return true;
 }
 
+bool MessageQueue::put(
+    GwPushData & pushData
+)
+{
+    MessageQueueItem qi;
+    qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
+    const DEVADDR *a = pushData.rxData.getAddr();
+    auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
+    return true;
+}
+
 void MessageQueue::rm(
     const DEVADDR &addr
 )

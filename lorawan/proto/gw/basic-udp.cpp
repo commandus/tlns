@@ -48,6 +48,7 @@ static inline int getMetadataRxNameIndex(
 
 class SaxPushData : public nlohmann::json::json_sax_t {
 private:
+    MessageTaskDispatcher *dispatcher;
     int nameIndex;
     int startItem;  // object enter/exit counter
     GwPushData item;
@@ -56,11 +57,12 @@ public:
     int parseError;
 
     explicit SaxPushData(
+        MessageTaskDispatcher *aDispatcher,
         const DEVEUI &gwId,
         TASK_TIME receivedTime,
         OnPushDataProc aCb
     )
-        : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
+        : dispatcher(aDispatcher), nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
     {
         item.rxMetadata.gatewayId = gwId.u;
         item.rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
@@ -166,7 +168,7 @@ public:
     bool end_object() override {
         if (startItem == 2) // time to add next packet
             if (cb)
-                cb(item);
+                cb(dispatcher, item);
         startItem--;
         return true;
     }
@@ -234,6 +236,7 @@ static inline int getMetadataTxNameIndex(
 
 class SaxPullResp : public nlohmann::json::json_sax_t {
 private:
+    MessageTaskDispatcher *dispatcher;
     int nameIndex;
     int startItem;  // object enter/exit counter
     GwPullResp item;
@@ -241,11 +244,12 @@ private:
 public:
     int parseError;
     explicit SaxPullResp(
+        MessageTaskDispatcher *aDispatcher,
         const DEVEUI &gwId,
         TASK_TIME receivedTime,
         OnPullRespProc aCb
     )
-        : nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
+        : dispatcher(aDispatcher), nameIndex(0), startItem(0), cb(aCb), parseError(CODE_OK)
     {
         item.gwId = gwId;
     }
@@ -347,7 +351,7 @@ public:
     bool end_object() override {
         if (startItem == 2) // time to add next packet
             if (cb)
-                cb(item);
+                cb(dispatcher, item);
         startItem--;
         return true;
     }
@@ -427,7 +431,7 @@ int GatewayBasicUdpProtocol::parsePushData(
     OnPushDataProc cb
 ) {
     std::cerr << json << std::endl;
-    SaxPushData consumer(gwId, receivedTime, cb);
+    SaxPushData consumer(dispatcher, gwId, receivedTime, cb);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }
@@ -439,7 +443,7 @@ int GatewayBasicUdpProtocol::parsePullResp(
     TASK_TIME receivedTime,
     OnPullRespProc cb
 ) {
-    SaxPullResp consumer(gwId, receivedTime, cb);
+    SaxPullResp consumer(dispatcher, gwId, receivedTime, cb);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }
@@ -467,6 +471,14 @@ int GatewayBasicUdpProtocol::parseTxAck(
         return ERR_CODE_INVALID_JSON;
     code = string2ERR_CODE_TX(jError);
     if (cb)
-        cb(code);
+        cb(dispatcher, code);
     return CODE_OK;
+}
+
+GatewayBasicUdpProtocol::GatewayBasicUdpProtocol(
+    MessageTaskDispatcher *aDispatcher
+)
+    : ProtoGwParser(aDispatcher)
+{
+
 }

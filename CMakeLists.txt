@@ -111,7 +111,7 @@ else()
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp
 		lorawan/lorawan-packet-storage.cpp
 		lorawan/helper/ip-address.cpp
-		lorawan/proto/gw/basic-udp.cpp
+		lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
@@ -171,6 +171,7 @@ else()
 		${SRC_LIBLORAWAN}
 		${ARGTABLE}
 		task-response-threaded.cpp
+			lorawan/proto/gw/gw.h
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC})
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})

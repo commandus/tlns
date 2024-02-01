@@ -85,7 +85,7 @@ void TaskSocket::closeSocket()
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
-      parser(new GatewayBasicUdpProtocol), queue(nullptr), controlSocket(nullptr), running(false)
+      parser(new GatewayBasicUdpProtocol(this)), queue(nullptr), controlSocket(nullptr), running(false)
 {
 
 }
@@ -357,11 +357,11 @@ TaskSocket* createDumbControlSocket(
         // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
 
         // get gateway identifier first
-        if (dispatcher->parser->parse(buffer, size, receivedTime,
-            [](GwPushData &item) {
+        int r = dispatcher->parser->parse(buffer, size, receivedTime,
+            [](MessageTaskDispatcher*dispatcher,  GwPushData &item) {
                 std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
-            }, nullptr, nullptr))
-            dispatcher->queue->put(taskSocket, gwAddr, buffer, size);
-        return 0;
+                dispatcher->queue->put(item);
+            }, nullptr, nullptr);
+        return r;
     });
 }

@@ -7,7 +7,8 @@
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
-#include "lorawan/proto/gw/proto-gw-parser.h"
+
+#include "lorawan/proto/gw/gw.h"
 
 class MessageTaskDispatcher;
 class TaskSocket;
@@ -42,6 +43,8 @@ public:
     // virtual int onData(const char *buffer, size_t size) = 0;
     virtual ~TaskSocket();
 };
+
+class ProtoGwParser;
 
 class MessageTaskDispatcher {
 private:

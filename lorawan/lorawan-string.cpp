@@ -214,9 +214,9 @@ std::string JOIN_ACCEPT_FRAME2string(
     const JOIN_ACCEPT_FRAME &value
 ) {
     std::stringstream ss;
-    ss << "{\"mhdr\": " << MHDR2String(value.mhdr)
-        << ", \"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr)
+    ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr)
         << R"(, "mic": ")" << MIC2String(value.mic) << "\"}";
+    return ss.str();
     return ss.str();
 }
 
@@ -247,8 +247,7 @@ std::string JOIN_ACCEPT_FRAME_CFLIST2string(
     const JOIN_ACCEPT_FRAME_CFLIST &value
 ) {
     std::stringstream ss;
-    ss << "{\"mhdr\": " << MHDR2String(value.mhdr)
-       << ", \"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr) << ", "
+    ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr) << ", "
        << ", \"cflist\": " << CFLIST2string(value.cflist) << ", "
        << R"(, "mic": ")" << MIC2String(value.mic) << "\"}";
     return ss.str();

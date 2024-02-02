@@ -43,7 +43,7 @@ MessageQueueItem *MessageQueue::get (
 }
 
 void MessageQueue::put(
-    const LorawanPacketStorage &radioPacket,
+    const LORAWAN_MESSAGE_STORAGE &radioPacket,
     uint64_t gwId,
     const SEMTECH_PROTOCOL_METADATA_RX &metadata
 )
@@ -88,8 +88,15 @@ bool MessageQueue::put(
 {
     MessageQueueItem qi;
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
-    const DEVADDR *a = pushData.rxData.getAddr();
-    auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
+    const DEVADDR *addr = pushData.rxData.getAddr();
+    auto f = items.find(*addr);
+    bool isSame = (f != items.end()) && (f->second.radioPacket == pushData.rxData);
+    if (isSame) {
+        // update metadata
+        f->second.metadata[pushData.rxMetadata.gatewayId] = pushData.rxMetadata;
+    } else {
+        auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
+    }
     return true;
 }
 

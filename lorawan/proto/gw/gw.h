@@ -9,14 +9,14 @@
 
 class GwPushData {
 public:
-    LorawanPacketStorage rxData;
+    LORAWAN_MESSAGE_STORAGE rxData;
     SEMTECH_PROTOCOL_METADATA_RX rxMetadata;
 };
 
 class GwPullResp {
 public:
     DEVEUI gwId;
-    LorawanPacketStorage txData;
+    LORAWAN_MESSAGE_STORAGE txData;
     SEMTECH_PROTOCOL_METADATA_TX txMetadata;
 };
 

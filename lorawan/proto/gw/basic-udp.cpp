@@ -154,7 +154,7 @@ public:
                 item.rxMetadata.codingRate = string2codingRate(val);
                 break;
             case 14: // data
-                decodeBase64ToLORAWAN_MESSAGE_STORAGE(item.rxData.msg, val);
+                decodeBase64ToLORAWAN_MESSAGE_STORAGE(item.rxData, val);
                 break;
         }
         return true;
@@ -337,7 +337,7 @@ public:
             }
                 break;
             case 14: // data
-                decodeBase64ToLORAWAN_MESSAGE_STORAGE(item.txData.msg, val);
+                decodeBase64ToLORAWAN_MESSAGE_STORAGE(item.txData, val);
                 break;
         }
         return true;

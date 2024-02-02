@@ -1804,3 +1804,25 @@ bool JOIN_REQUEST_FRAME::operator!=(const JOIN_REQUEST_FRAME &rhs) const
         || devNonce.u != rhs.devNonce.u
     );
 }
+
+bool JOIN_ACCEPT_FRAME::operator==(
+    const JOIN_ACCEPT_FRAME &rhs) const
+{
+    return memcmp(&hdr, &rhs.hdr, SIZE_JOIN_ACCEPT_FRAME) == 0;
+}
+
+bool JOIN_ACCEPT_FRAME::operator==(
+    const JOIN_ACCEPT_FRAME_HEADER &rhs) const
+{
+    return memcmp(&hdr, &rhs, SIZE_JOIN_ACCEPT_FRAME) == 0;
+}
+
+bool MHDR::operator==(const MHDR &rhs) const
+{
+    return i == rhs.i;
+}
+
+bool MHDR::operator!=(const MHDR &rhs) const
+{
+    return i != rhs.i;
+}

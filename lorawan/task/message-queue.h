@@ -25,7 +25,7 @@ public:
     MessageQueueItem *get(const DEVADDR &addr);
     MessageQueueItem *get(const JOIN_REQUEST_FRAME &addr);
     void put(
-        const LorawanPacketStorage &radioPacket,
+        const LORAWAN_MESSAGE_STORAGE &radioPacket,
         uint64_t gwId,
         const SEMTECH_PROTOCOL_METADATA_RX &metadata
     );

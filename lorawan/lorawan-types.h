@@ -386,7 +386,8 @@ typedef enum {
 	REJOINREQUEST2 = 2
  } JOINREQUESTTYPE;
 
-typedef PACK( struct {
+PACK( class MHDR {
+public:
 	union {
 		uint8_t i;
 		struct {
@@ -395,7 +396,9 @@ typedef PACK( struct {
 			uint8_t mtype: 3;   ///< enum MTYPE
 		} f;
 	};
-} ) MHDR;			// 1 byte
+    bool operator==(const MHDR &rhs) const;
+    bool operator!=(const MHDR &rhs) const;
+} );			// 1 byte
 
 #define SIZE_MHDR 1
 /**
@@ -478,13 +481,16 @@ typedef PACK( struct {
 
 #define SIZE_JOIN_ACCEPT_FRAME_HEADER 12
 
-typedef PACK( struct {
-    MHDR mhdr;  			        // 0x00 Join request. MAC header byte: message type, RFU, Major
+// MHDR mhdr;  			            // 0x00 Join request. MAC header byte: message type, RFU, Major
+PACK( class JOIN_ACCEPT_FRAME {
+public:
     JOIN_ACCEPT_FRAME_HEADER hdr;   //
     uint32_t mic;			        // MIC
-} ) JOIN_ACCEPT_FRAME;	            // 1 12 4 = 17 bytes
+    bool operator==(const JOIN_ACCEPT_FRAME &rhs) const;
+    bool operator==(const JOIN_ACCEPT_FRAME_HEADER &rhs) const;
+} );	            // 12 4 = 16 bytes
 
-#define SIZE_JOIN_ACCEPT_FRAME 17
+#define SIZE_JOIN_ACCEPT_FRAME 16
 
 // Channel frequency list
 typedef PACK( struct {
@@ -494,14 +500,14 @@ typedef PACK( struct {
 
 #define SIZE_CFLIST 16
 
+//  MHDR mhdr;  			        // 0x00 Join request. MAC header byte: message type, RFU, Major
 typedef PACK( struct {
-    MHDR mhdr;  			        // 0x00 Join request. MAC header byte: message type, RFU, Major
     JOIN_ACCEPT_FRAME_HEADER hdr;   // 12
     CFLIST cflist;
     uint32_t mic;			        // MIC
-} ) JOIN_ACCEPT_FRAME_CFLIST;	// 1 12 16 4 = 33 bytes
+} ) JOIN_ACCEPT_FRAME_CFLIST;	    // 12 16 4 = 32 bytes
 
-#define SIZE_JOIN_ACCEPT_FRAME_CFLIST 33
+#define SIZE_JOIN_ACCEPT_FRAME_CFLIST 32
 
 typedef PACK( struct {
 	uint8_t fopts[15];

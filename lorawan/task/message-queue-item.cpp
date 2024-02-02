@@ -57,16 +57,16 @@ std::string MessageQueueItem::toString() const
 
 const DEVADDR * MessageQueueItem::getAddr() const
 {
-    if (radioPacket.msg.mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP
-        && radioPacket.msg.mhdr.f.mtype <= MTYPE_CONFIRMED_DATA_DOWN) {
-        return &radioPacket.msg.data.downlink.devaddr;
+    if (radioPacket.mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP
+        && radioPacket.mhdr.f.mtype <= MTYPE_CONFIRMED_DATA_DOWN) {
+        return &radioPacket.data.downlink.devaddr;
     }
     return nullptr;
 }
 
 const JOIN_REQUEST_FRAME * MessageQueueItem::getJoinRequestFrame() const {
-    if (radioPacket.msg.mhdr.f.mtype >= MTYPE_JOIN_REQUEST) {
-        return &radioPacket.msg.data.joinRequest;
+    if (radioPacket.mhdr.f.mtype >= MTYPE_JOIN_REQUEST) {
+        return &radioPacket.data.joinRequest;
     }
     return nullptr;
 }

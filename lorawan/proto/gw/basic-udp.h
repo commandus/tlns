@@ -5,31 +5,31 @@
 #include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/proto/gw/proto-gw-parser.h"
 
+// upstream {"rxpk": {}}
+int parsePushData(
+    GwPushData *retVal,
+    const char *json,
+    size_t size,
+    const DEVEUI &gwId,
+    TASK_TIME receivedTime
+);
+
+// downstream {"txpk": {}}
+int parsePullResp(
+    GwPullResp *retVal,
+    const char *json,
+    size_t size,
+    const DEVEUI &gwId
+);
+
+// downstream {"txpk_ack": {}}
+int parseTxAck(
+    ERR_CODE_TX *retVal,
+    const char *json,
+    size_t size
+);
+
 class GatewayBasicUdpProtocol : public ProtoGwParser {
-private:
-    // upstream {"rxpk": {}}
-    int parsePushData(
-        const char *json,
-        size_t size,
-        const DEVEUI &gwId,
-        TASK_TIME receivedTime,
-        OnPushDataProc cb
-    );
-    // downstream {"txpk": {}}
-    int parsePullResp(
-        const char *json,
-        size_t size,
-        const DEVEUI &gwId,
-        TASK_TIME receivedTime,
-        OnPullRespProc cb
-    );
-    // downstream {"txpk_ack": {}}
-    int parseTxAck(
-        const char *json,
-        size_t size,
-        TASK_TIME receivedTime,
-        OnTxpkAckProc cb
-    );
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
      * @param packetForwarderPacket

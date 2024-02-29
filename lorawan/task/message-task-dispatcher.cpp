@@ -85,16 +85,16 @@ void TaskSocket::closeSocket()
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
-      parser(new GatewayBasicUdpProtocol(this)), queue(nullptr), controlSocket(nullptr), running(false)
+      parser(new GatewayBasicUdpProtocol(this)), running(false)
 {
-
+    queue.setDispatcher(this);
 }
 
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : clientControlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
-      parser(value.parser), queue(value.queue), controlSocket(nullptr), running(value.running)
+      parser(value.parser), queue(value.queue), running(value.running)
 {
 }
 
@@ -103,14 +103,6 @@ MessageTaskDispatcher::~MessageTaskDispatcher()
     stop();
     clearSockets();
     delete parser;
-}
-
-void MessageTaskDispatcher::setQueue(
-    MessageQueue *aQueue
-)
-{
-    queue = aQueue;
-    queue->setDispatcher(this);
 }
 
 void MessageTaskDispatcher::response(
@@ -132,13 +124,13 @@ void MessageTaskDispatcher::send(
     size_t size
 )
 {
-    if (clientControlSocket < 0 || !controlSocket)
+    if (clientControlSocket < 0 || sockets.empty())
         return;
     sockaddr_in destination {
         .sin_family = AF_INET,
-        .sin_port = htons(controlSocket->port)
+        .sin_port = htons(sockets[0]->port)
     };
-    destination.sin_addr.s_addr = htonl(controlSocket->addr);
+    destination.sin_addr.s_addr = htonl(sockets[0]->addr);
     sendto(clientControlSocket, cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
 }
 
@@ -291,7 +283,7 @@ int MessageTaskDispatcher::runner()
                         {
                             DEVADDR *a = (DEVADDR *) buffer;
                             // process message queue
-                            MessageQueueItem *item = queue->findByDevAddr(a);
+                            MessageQueueItem *item = queue.findByDevAddr(a);
                         }
                             break;
                         default: {
@@ -360,7 +352,7 @@ TaskSocket* createDumbControlSocket(
         int r = dispatcher->parser->parse(buffer, size, receivedTime,
             [](MessageTaskDispatcher*dispatcher,  GwPushData &item) {
                 std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
-                dispatcher->queue->put(item);
+                dispatcher->queue.put(item);
             }, nullptr, nullptr);
         return r;
     });

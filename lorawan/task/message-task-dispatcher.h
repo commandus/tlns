@@ -69,9 +69,7 @@ protected:
 public:
     ProtoGwParser* parser;
     // message queue
-    MessageQueue *queue;
-    // wake up main loop's select(). It is first element in the sockets array
-    TaskSocket* controlSocket;
+    MessageQueue queue;
     // task socket array
     std::vector<TaskSocket*> sockets;
     // it loop thread is running
@@ -84,7 +82,7 @@ public:
     void setPorts(uint16_t control);
     virtual ~MessageTaskDispatcher();
 
-    void setQueue(MessageQueue *queue);
+
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
 

@@ -63,15 +63,9 @@ static TaskSocket* createExampleControlSocket(
 }
 
 static void run() {
-    MessageQueue q;
     MessageTaskDispatcher dispatcher;
-    dispatcher.setQueue(&q);
-
-    dispatcher.controlSocket = createDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242);
-    dispatcher.sockets.push_back(dispatcher.controlSocket);
-
-    // dispatcher.controlSocket = createExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244);
-    // dispatcher.sockets.push_back(dispatcher.controlSocket);
+    dispatcher.sockets.push_back(createDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242));
+    // dispatcher.sockets.push_back(createExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244));
 
     dispatcher.start();
 

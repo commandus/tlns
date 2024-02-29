@@ -19,6 +19,7 @@ PACK(
     }
 );                                  // 4 1 255 =  260 bytes
 
+#define SIZE_DOWNLINK_EMPTY_STORAGE 5
 #define SIZE_DOWNLINK_STORAGE 260
 
 PACK(
@@ -37,6 +38,7 @@ PACK(
     }
 );                                  // 4 1 255 = 260
 
+#define SIZE_UPLINK_EMPTY_STORAGE 5
 #define SIZE_UPLINK_STORAGE 260
 
 PACK(

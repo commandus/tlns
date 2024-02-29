@@ -1,4 +1,5 @@
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
 
 #include "lorawan/lorawan-packet-storage.h"
@@ -31,7 +32,7 @@ bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
             sz = sizeof(LORAWAN_MESSAGE_STORAGE) - 2;
         memmove(&retVal.mhdr, s.c_str(), sz);
         retVal.packetSize = (uint16_t) sz;
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error &e) {
         return false;
     }
     return true;
@@ -39,7 +40,30 @@ bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
 
 std::string LORAWAN_MESSAGE_STORAGE::toString() const
 {
-    return MHDR2String(this->mhdr);
+    std::stringstream ss;
+    ss << "{\"mhdr\": " << MHDR2String(mhdr);
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_JOIN_REQUEST:
+        case MTYPE_REJOIN_REQUEST:
+            ss << ", \"joinRequest\": " << JOIN_REQUEST_FRAME2string(data.joinRequest);
+            break;
+        case MTYPE_JOIN_ACCEPT:
+            ss << ", \"joinResponse\": " << JOIN_ACCEPT_FRAME2string(data.joinResponse);
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            ss << ", \"uplink\": " << UPLINK_STORAGE2String(data.uplink, packetSize);
+            break;
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            ss << ", \"downlink\": " << DOWNLINK_STORAGE2String(data.downlink, packetSize);
+            break;
+        default:
+            // case MTYPE_PROPRIETARYRADIO:
+            break;
+    }
+    ss << "}";
+    return ss.str();
 }
 
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const

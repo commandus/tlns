@@ -253,6 +253,52 @@ std::string JOIN_ACCEPT_FRAME_CFLIST2string(
     return ss.str();
 }
 
+std::string DOWNLINK_STORAGE2String(
+    const DOWNLINK_STORAGE &value,
+    int size
+)
+{
+    std::stringstream ss;
+    int payloadSize = size - SIZE_DOWNLINK_EMPTY_STORAGE;
+    if (payloadSize > 255)
+        payloadSize = 255;
+    else
+        if (payloadSize < 0)
+            payloadSize = 0;
+    ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
+        << R"(", "foptslen": )" << (int) value.f.foptslen
+        << ", \"fpending\": " << (value.f.fpending ? "true" : "false")
+        << ", \"ack\": " << (value.f.ack ? "true" : "false")
+        << ", \"rfu\": " << (int) value.f.rfu
+        << ", \"adr\": " << (value.f.adr ? "true" : "false")
+        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << "\"}";
+    return ss.str();
+}
+
+std::string UPLINK_STORAGE2String(
+    const UPLINK_STORAGE &value,
+    int size
+)
+{
+    std::stringstream ss;
+    int payloadSize = size - SIZE_UPLINK_EMPTY_STORAGE;
+    if (payloadSize > 255)
+        payloadSize = 255;
+    else
+    if (payloadSize < 0)
+        payloadSize = 0;
+    ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
+       << R"(", "foptslen": )" << (int) value.f.foptslen
+       << ", \"classb\": " << (value.f.classb ? "true" : "false")
+       << ", \"ack\": " << (value.f.ack ? "true" : "false")
+       << ", \"addrackreq\": " << (int) value.f.addrackreq
+       << ", \"adr\": " << (value.f.adr ? "true" : "false")
+       << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << "\"}";
+    return ss.str();
+}
+
 std::string NETID2String(
     const NETID &value
 )
@@ -810,7 +856,7 @@ SPREADING_FACTOR string2datr(
     if (p == std::string::npos)
         return DRLORA_SF5;
     std::string s = value.substr(2, p - 2);
-    SPREADING_FACTOR spreadingFactor = static_cast<SPREADING_FACTOR>(atoi(s.c_str()));
+    auto spreadingFactor = static_cast<SPREADING_FACTOR>(atoi(s.c_str()));
     s = value.substr(p + 2);
     int bandwidthValue = atoi(s.c_str());
     switch (bandwidthValue) {
@@ -968,17 +1014,17 @@ std::string SEMTECH_PROTOCOL_METADATA_RX2string(
 )
 {
     std::stringstream ss;
-    ss << "{\"gatewayId\": \"" << gatewayId2str(value.gatewayId)
-        << "\", \"t\": \"" << time2string(value.t)
-        << "\", \"tmst\": " << value.tmst
+    ss << R"({"gatewayId": ")" << gatewayId2str(value.gatewayId)
+        << R"(", "time": ")" << time2string(value.t)
+        << R"(", "tmst": )" << value.tmst
         << ", \"chan\": " << (int) value.chan
         << ", \"rfch\": " << (int) value.rfch
         << ", \"freq\": " << value.freq
         << ", \"stat\": " << (int) value.stat
-        << ", \"modu\": \"" << MODULATION2String(value.modu)
-        << "\", \"datr\": \"" <<  datr2string(value.spreadingFactor, value.bandwidth)
-        << "\", \"codingRate\": \"" << codingRate2string(value.codingRate)
-        << "\", \"bps\": " << value.bps
+        << R"(, "modu": ")" << MODULATION2String(value.modu)
+        << R"(", "datr": ")" <<  datr2string(value.spreadingFactor, value.bandwidth)
+        << R"(", "codr": ")" << codingRate2string(value.codingRate)
+        << R"(", "bps": )" << value.bps
         << ", \"rssi\": " << value.rssi
         << ", \"lsnr\": " << std::fixed << std::setprecision(2) << value.lsnr
         << "}";
@@ -990,18 +1036,18 @@ std::string SEMTECH_PROTOCOL_METADATA_TX2string(
 )
 {
     std::stringstream ss;
-    ss  << "{\"freq_hz\": " << std::fixed << std::setprecision(6) << value.freq_hz
+    ss  << "{\"freq\": " << std::fixed << std::setprecision(6) << value.freq_hz
         << ", \"tx_mode\": " << (int) value.tx_mode
         << ", \"count_us\": " << value.count_us
-        << ", \"rf_chain\": " << (int) value.rf_chain
-        << ", \"rf_power\": " << (int) value.rf_power
-        << ", \"modulation\": \"" << MODULATION2String((MODULATION) value.modulation)
-        << "\", \"bandwidth\": " << BANDWIDTH2String((BANDWIDTH) value.bandwidth)
-        << ", \"coderate\": \"" << codingRate2string((CODING_RATE) value.coderate)
-        << "\", \"invert_pol\": " << (value.invert_pol? "true" : "false")
-        << ", \"f_dev\": " << (int) value.f_dev
-        << ", \"preamble\": " << value.preamble
-        << ", \"no_crc\": " << (value.no_crc? "true" : "false")
+        << ", \"rfch\": " << (int) value.rf_chain
+        << ", \"powe\": " << (int) value.rf_power
+        << R"(, "modu": ")" << MODULATION2String((MODULATION) value.modulation)
+        << R"(", "bandwidth": )" << BANDWIDTH2String((BANDWIDTH) value.bandwidth)
+        << R"(, "codr": ")" << codingRate2string((CODING_RATE) value.coderate)
+        << R"(", "ipol": )" << (value.invert_pol? "true" : "false")
+        << ", \"fdev\": " << (int) value.f_dev
+        << ", \"prea\": " << value.preamble
+        << ", \"ncrc\": " << (value.no_crc? "true" : "false")
         << ", \"no_header\": " << (value.no_header? "true" : "false")
         << ", \"size\": " << value.size
        << "}";

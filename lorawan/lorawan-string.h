@@ -1,5 +1,6 @@
 #include <string>
 #include "lorawan-types.h"
+#include "lorawan-packet-storage.h"
 
 std::string replaceAll(std::string str, const std::string& from, const std::string& to);
 
@@ -38,6 +39,8 @@ std::string CFLIST2string(const CFLIST &value);
 std::string JOIN_REQUEST_FRAME2string(const JOIN_REQUEST_FRAME &value);
 std::string JOIN_ACCEPT_FRAME2string(const JOIN_ACCEPT_FRAME &value);
 std::string JOIN_ACCEPT_FRAME_CFLIST2string(const JOIN_ACCEPT_FRAME_CFLIST &value);
+std::string DOWNLINK_STORAGE2String(const DOWNLINK_STORAGE &value, int size);
+std::string UPLINK_STORAGE2String(const UPLINK_STORAGE &value, int size);
 std::string NETID2String(const NETID &value);
 std::string activation2string(ACTIVATION value);
 std::string MODULATION2String(MODULATION value);

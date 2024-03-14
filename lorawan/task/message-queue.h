@@ -11,13 +11,17 @@ class MessageTaskDispatcher;
 
 class MessageQueue {
 protected:
-    MessageTaskDispatcher *dispatcher;
+    MessageTaskDispatcher *dispatcher;                      ///< parent dispatcher
 public:
-    std::map <DEVADDR, MessageQueueItem> items;
-    std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;
+    std::map <DEVADDR, MessageQueueItem> items;             ///< data packets
+    std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;  ///< join packets
     MessageQueue();
     virtual ~MessageQueue();
     void step();
+    /**
+     * Set parent dispatcher
+     * @param aDispatcher
+     */
     void setDispatcher(
         MessageTaskDispatcher *aDispatcher
     );
@@ -48,6 +52,11 @@ public:
         GwPushData & pushData
     );
     void rm(const DEVADDR &addr);
+    /**
+     * Find item by address
+     * @param devAddr devioce address
+     * @return null if not found
+     */
     MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
     MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);
 };

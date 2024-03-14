@@ -29,6 +29,10 @@ int parseTxAck(
     size_t size
 );
 
+/**
+ * Semtech-Cycleo Basic communication protocol between Lora gateway and server
+ * @see https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT#L133C1-L147C58
+ */
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
@@ -47,7 +51,6 @@ public:
     ) override;
 
     GatewayBasicUdpProtocol(MessageTaskDispatcher *pDispatcher);
-
 };
 
 #endif

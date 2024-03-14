@@ -1,5 +1,10 @@
 #include "lorawan-types.h"
 
+/*
+ * Conversion functions from one type to another except string.
+ * String conversion defined in the @see lorawan-string.h
+ */
+
 #define IS_LITTLE_ENDIAN (*(unsigned char *)&(uint16_t){1})
 #define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
 

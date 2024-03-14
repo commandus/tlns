@@ -67,13 +67,12 @@ protected:
      */
     void clearSockets();
 public:
-    ProtoGwParser* parser;
+    ProtoGwParser* parser;  ///< protocol parser
     // message queue
     MessageQueue queue;
     // task socket array
     std::vector<TaskSocket*> sockets;
-    // it loop thread is running
-    bool running;
+    bool running;    ///< true- loop thread is running
 
     int runner();
 

@@ -25,8 +25,17 @@ public:
 
     void setQueue(MessageQueue *value);
 
+    /**
+     * Return Check does item expired since time
+     * @param since current time
+     * @return true if item expired
+     */
     bool expired(const TASK_TIME &since);
 
+    /**
+     * Serialize item to print out in debug log
+     * @return serialize item
+     */
     std::string toString() const;
     /**
      * Return network address

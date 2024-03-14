@@ -119,6 +119,11 @@ void MessageTaskDispatcher::setResponse(
     taskResponse = value;
 }
 
+/**
+ * Send buffer to client control socket
+ * @param cmd buffer
+ * @param size size
+ */
 void MessageTaskDispatcher::send(
     const void *cmd,
     size_t size
@@ -134,8 +139,12 @@ void MessageTaskDispatcher::send(
     sendto(clientControlSocket, cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
 }
 
+/**
+ * Send string to client control socket
+ * @param cmd String size must be less 4K
+ */
 void MessageTaskDispatcher::send(
-    const std::string & cmd
+    const std::string &cmd
 )
 {
     send(cmd.c_str(), cmd.size());
@@ -149,6 +158,11 @@ void MessageTaskDispatcher::send(
     send(&c, 1);
 }
 
+/**
+ * Run dispatcher runner in separate thread.
+ * If dispatcher running already, return true.
+ * @return true always
+ */
 bool MessageTaskDispatcher::start()
 {
     if (running)
@@ -158,6 +172,11 @@ bool MessageTaskDispatcher::start()
     return true;
 }
 
+/**
+ * Stop dispatcher runner.
+ * Set stop request flag and send wake-up message.
+ * Then wait until dispatcher loop finished then destroy dispatcher thread.
+ */
 void MessageTaskDispatcher::stop()
 {
     if (!running)
@@ -206,6 +225,10 @@ void MessageTaskDispatcher::clearSockets()
     sockets.clear();
 }
 
+/**
+ * Dispatcher main loop
+ * @return 0 if success or negative error code
+ */
 int MessageTaskDispatcher::runner()
 {
     if (sockets.empty())
@@ -281,7 +304,7 @@ int MessageTaskDispatcher::runner()
                             break;
                         case SIZE_DEVADDR:
                         {
-                            DEVADDR *a = (DEVADDR *) buffer;
+                            auto *a = (DEVADDR *) buffer;
                             // process message queue
                             MessageQueueItem *item = queue.findByDevAddr(a);
                         }
@@ -351,7 +374,11 @@ TaskSocket* createDumbControlSocket(
         // get gateway identifier first
         int r = dispatcher->parser->parse(buffer, size, receivedTime,
             [](MessageTaskDispatcher*dispatcher,  GwPushData &item) {
-                std::cout << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata) << std::endl;
+                std::cout
+                    << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
+                    << ",\n\"rfm\": "
+                    << item.rxData.toString()
+                    << "}" << std::endl;
                 dispatcher->queue.put(item);
             }, nullptr, nullptr);
         return r;

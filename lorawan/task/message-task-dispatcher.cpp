@@ -19,10 +19,9 @@
 
 TaskSocket::TaskSocket(
     in_addr_t aAddr,
-    uint16_t aPort,
-    TaskProc aCb
+    uint16_t aPort
 )
-    : sock(-1), addr(aAddr), port(aPort), lastError(CODE_OK), cb(aCb)
+    : sock(-1), addr(aAddr), port(aPort), lastError(CODE_OK)
 {
 
 }
@@ -85,7 +84,8 @@ void TaskSocket::closeSocket()
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
-      parser(new GatewayBasicUdpProtocol(this)), running(false)
+      parser(new GatewayBasicUdpProtocol(this)), running(false),
+      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
     queue.setDispatcher(this);
 }
@@ -94,7 +94,8 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : clientControlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
-      parser(value.parser), queue(value.queue), running(value.running)
+      parser(value.parser), queue(value.queue), running(value.running),
+      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
 }
 
@@ -310,9 +311,12 @@ int MessageTaskDispatcher::runner()
                         }
                             break;
                         default: {
-                            int r = s->cb(this, s, &srcAddr, receivedTime, buffer, sz);
-                            if (r < 0) {
-                                // inform
+                            if (parser) {
+                                int r = parser->parse(buffer, sz, receivedTime, onPushData, onPullResp, onTxPkAck
+                                );
+                                if (r < 0) {
+                                    // inform
+                                }
                             }
                         }
                     }
@@ -342,45 +346,4 @@ ssize_t MessageTaskDispatcher::sendACK(
         return ERR_CODE_SEND_ACK;
     ack.tag++;
     return sendto(taskSocket->sock, &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
-}
-
-// --------------------------------------------------------------
-
-/**
- * Create control socket
- * @param dispatcher owner
- * @param addr socket address
- * @param port port number
- * @return socket, -1 if fail
- */
-TaskSocket* createDumbControlSocket(
-    MessageTaskDispatcher *dispatcher,
-    in_addr_t addr,
-    uint16_t port
-)
-{
-    return new TaskSocket(addr, port, [] (
-        MessageTaskDispatcher *dispatcher,
-        TaskSocket *taskSocket,
-        const struct sockaddr *gwAddr,
-        TASK_TIME receivedTime,
-        const char *buffer,
-        size_t size
-    ) {
-        // Join request
-        // JOIN_REQUEST_FRAME *f = (JOIN_REQUEST_FRAME *) buffer;
-        // MessageQueueItem *item = dispatcher->queue->findByJoinRequest(f);
-
-        // get gateway identifier first
-        int r = dispatcher->parser->parse(buffer, size, receivedTime,
-            [](MessageTaskDispatcher*dispatcher,  GwPushData &item) {
-                std::cout
-                    << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
-                    << ",\n\"rfm\": "
-                    << item.rxData.toString()
-                    << "}" << std::endl;
-                dispatcher->queue.put(item);
-            }, nullptr, nullptr);
-        return r;
-    });
 }

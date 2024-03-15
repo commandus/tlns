@@ -13,7 +13,6 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
-#include "task-response-threaded.h"
 
 const char *programName = "tlns-check";
 
@@ -38,34 +37,41 @@ public:
 
 static CheckParams params;
 
-static TaskSocket* createExampleControlSocket(
-    MessageTaskDispatcher *dispatcher,
-    in_addr_t addr,
-    uint16_t port
-)
-{
-    return new TaskSocket(addr, port, [] (
-        MessageTaskDispatcher *dispatcher,
-        TaskSocket *socket,
-        const struct sockaddr * srcAddr,
-        TASK_TIME receivedTime,
-        const char *buffer,
-        size_t size
-    ) {
-        if (size == 1 && *buffer == 'q') {
-            dispatcher->running = false;
-            return -1;
-        }
-        // add a new "received" packet
-        std::cerr << "** Received " << std::endl;
-        return 0;
-    });
-}
-
 static void run() {
     MessageTaskDispatcher dispatcher;
-    dispatcher.sockets.push_back(createDumbControlSocket(&dispatcher, INADDR_LOOPBACK, 4242));
-    // dispatcher.sockets.push_back(createExampleControlSocket(&dispatcher, INADDR_LOOPBACK, 4244));
+    dispatcher.onPushData = [] (
+        MessageTaskDispatcher* dispatcher,
+        GwPushData &item
+    ) {
+        std::cout
+            << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
+            << ",\n\"rfm\": "
+            << item.rxData.toString()
+            << "}" << std::endl;
+    };
+
+    dispatcher.onPullResp = [] (
+        MessageTaskDispatcher* dispatcher,
+        GwPullResp &item
+    ) {
+        std::cout
+            << "{\"metadata\": "
+            << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
+            << ", \"gwId\": " << gatewayId2str(item.gwId.u)
+            << ", \"txData\": " << item.txData.toString()
+            << "}" << std::endl;
+    };
+
+    dispatcher.onTxPkAck = [] (
+        MessageTaskDispatcher* dispatcher,
+        ERR_CODE_TX code
+    ) {
+        std::cout
+            << "{\"txPkAck\": \""
+            << ERR_CODE_TX2string(code)
+            << "\"}" << std::endl;
+    };
+    dispatcher.sockets.push_back(new TaskSocket(INADDR_LOOPBACK, 4242));
 
     dispatcher.start();
 

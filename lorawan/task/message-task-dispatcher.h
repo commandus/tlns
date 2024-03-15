@@ -10,6 +10,21 @@
 
 #include "lorawan/proto/gw/gw.h"
 
+typedef void(*OnPushDataProc)(
+        MessageTaskDispatcher* dispatcher,
+        GwPushData &item
+);
+
+typedef void(*OnPullRespProc)(
+        MessageTaskDispatcher* dispatcher,
+        GwPullResp &item
+);
+
+typedef void(*OnTxpkAckProc)(
+        MessageTaskDispatcher* dispatcher,
+        ERR_CODE_TX code
+);
+
 class MessageTaskDispatcher;
 class TaskSocket;
 
@@ -28,12 +43,11 @@ public:
     in_addr_t addr;
     uint16_t port;
     int lastError;
-    TaskProc cb;
     /**
      * @param addr ""- any interface, "localhost"- localhost otherwise- address
      * @param port port number
      */
-    TaskSocket(in_addr_t aAddr, uint16_t port, TaskProc cb);
+    TaskSocket(in_addr_t aAddr, uint16_t port);
     /**
      * Open UDP socket for listen
      * @return -1 if fail
@@ -74,13 +88,16 @@ public:
     std::vector<TaskSocket*> sockets;
     bool running;    ///< true- loop thread is running
 
+    OnPushDataProc onPushData;
+    OnPullRespProc onPullResp;
+    OnTxpkAckProc onTxPkAck;
+
     int runner();
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
     void setPorts(uint16_t control);
     virtual ~MessageTaskDispatcher();
-
 
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
@@ -100,18 +117,5 @@ public:
         ssize_t packetSize
     );
 };
-
-/**
- * Create control socket
- * @param dispatcher owner
- * @param addr socket address
- * @param port port number
- * @return socket, -1 if fail
- */
-TaskSocket* createDumbControlSocket(
-    MessageTaskDispatcher *dispatcher,
-    in_addr_t addr,
-    uint16_t port
-);
 
 #endif

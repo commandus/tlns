@@ -265,6 +265,7 @@ int MessageTaskDispatcher::runner()
     if (clientControlSocket < 0)
         return ERR_CODE_PARAM_INVALID;
 
+    ParseResult pr;
     while (running) {
         fd_set working_set;
         // Copy the master fd_set over to the working fd_set
@@ -312,8 +313,27 @@ int MessageTaskDispatcher::runner()
                             break;
                         default: {
                             if (parser) {
-                                int r = parser->parse(buffer, sz, receivedTime, onPushData, onPullResp, onTxPkAck
-                                );
+                                int r = parser->parse(pr, buffer, sz, receivedTime);
+                                if (r == CODE_OK) {
+                                    switch (pr.tag) {
+                                        case SEMTECH_GW_PUSH_DATA:
+                                            if (onPushData)
+                                                onPushData(this, pr.gwPushData);
+                                            queue.put(pr.gwPushData);
+                                            break;
+                                        case SEMTECH_GW_PULL_RESP:
+                                            if (onPullResp)
+                                                onPullResp(this, pr.gwPullResp);
+                                            break;
+                                        case SEMTECH_GW_TX_ACK:
+                                            onTxPkAck(this, pr.code);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+
                                 if (r < 0) {
                                     // inform
                                 }

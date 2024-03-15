@@ -11,18 +11,18 @@
 #include "lorawan/proto/gw/gw.h"
 
 typedef void(*OnPushDataProc)(
-        MessageTaskDispatcher* dispatcher,
-        GwPushData &item
+    MessageTaskDispatcher* dispatcher,
+    GwPushData &item
 );
 
 typedef void(*OnPullRespProc)(
-        MessageTaskDispatcher* dispatcher,
-        GwPullResp &item
+    MessageTaskDispatcher* dispatcher,
+    GwPullResp &item
 );
 
 typedef void(*OnTxpkAckProc)(
-        MessageTaskDispatcher* dispatcher,
-        ERR_CODE_TX code
+    MessageTaskDispatcher* dispatcher,
+    ERR_CODE_TX code
 );
 
 class MessageTaskDispatcher;

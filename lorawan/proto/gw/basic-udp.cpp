@@ -374,12 +374,10 @@ public:
 };
 
 int GatewayBasicUdpProtocol::parse(
+    ParseResult &retVal,
     const char *packetForwarderPacket,
     size_t size,
-    TASK_TIME receivedTime,
-    OnPushDataProc onPushData,
-    OnPullRespProc onPullResp,
-    OnTxpkAckProc onTxpkAckProc
+    TASK_TIME receivedTime
 )
 {
     if (size <= sizeof(SEMTECH_PREFIX)) // at least 4 bytes
@@ -387,35 +385,28 @@ int GatewayBasicUdpProtocol::parse(
     SEMTECH_PREFIX *p = (SEMTECH_PREFIX *) packetForwarderPacket;
     if (p->version != 2)
         return ERR_CODE_INVALID_PACKET;
-    int r = p->tag;
-
+    retVal.tag = p->tag;
+    int r = 0;
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
         {
             SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
-            GwPushData gwPushData;
-            r = parsePushData(&gwPushData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, size - SIZE_SEMTECH_PREFIX_GW,
-                pGw->mac, receivedTime); // +12 bytes
-            onPushData(this->dispatcher, gwPushData);
+            r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
+                size - SIZE_SEMTECH_PREFIX_GW, pGw->mac, receivedTime); // +12 bytes
         }
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
         {
             SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
-            GwPullResp gwPullResp;
-            r = parsePullResp(&gwPullResp, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
+            r = parsePullResp(&retVal.gwPullResp, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
                 pGw->mac); // +4 bytes
-            onPullResp(this->dispatcher, gwPullResp);
+
         }
             break;
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
-        {
-            ERR_CODE_TX code;
-            r = parseTxAck(&code, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW); // +12 bytes
-            onTxpkAckProc(this->dispatcher, code);
-        }
+            r = parseTxAck(&retVal.code, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW); // +12 bytes
             break;
         default:
             r = ERR_CODE_INVALID_PACKET;

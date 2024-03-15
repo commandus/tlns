@@ -42,12 +42,10 @@ public:
      * @return Return tag number 0-5 or error code (<0)
      */
     int parse(
+        ParseResult &retVal,
         const char *packetForwarderPacket,
         size_t size,
-        TASK_TIME receivedTime,
-        OnPushDataProc onPushData,
-        OnPullRespProc onPullResp,
-        OnTxpkAckProc onTxpkAckProc
+        TASK_TIME receivedTime
     ) override;
 
     GatewayBasicUdpProtocol(MessageTaskDispatcher *pDispatcher);

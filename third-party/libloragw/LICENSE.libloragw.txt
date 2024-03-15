@@ -1,0 +1,2 @@
+- [rakwireless.com](https://docs.rakwireless.com/Introduction/)
+- Tiny Mersenne Twister only 127 bit internal state Copyright (C) 2011 Mutsuo Saito, Makoto Matsumoto, Hiroshima University and The University of Tokyo. All rights reserved.

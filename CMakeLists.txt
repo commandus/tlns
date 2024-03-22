@@ -106,6 +106,8 @@ else()
 		set (OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
 	endif()
 
+	add_subdirectory("third-party/libloragw")
+
 	set(SRC_LIBLORAWAN
 		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp

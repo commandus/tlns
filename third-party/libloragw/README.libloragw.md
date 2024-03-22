@@ -82,7 +82,7 @@ Clone repository in the parent directory of the lorawan-network-server source di
 ```
 git clone https://github.com/commandus/libloragw.git
 ```
-
+    
 Check path to RAK2287 libloragw lib sources in the CMakeLists.txt:
 ```
 vi CMakeLists.txt
@@ -95,7 +95,6 @@ set(RAK_COMMON_FOR_GATEWAY_ROOT ../../rak_common_for_gateway)
 ```
 
 and replace with actual path of RAK root directory.
-
 
 Build library:
 

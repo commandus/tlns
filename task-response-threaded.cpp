@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "task-response-threaded.h"
+#include "lorawan/task/task-platform.h"
 
 void TaskResponseThreaded::onReceive(
     MessageQueueItem *value
@@ -50,7 +51,6 @@ void TaskResponseThreaded::run()
         // receive
         MessageQueueItem* receivedItem = new MessageQueueItem;
         std::cerr << "Received " << receivedItem->toString() << std::endl;
-
         sleep(1);
     }
     loopExit.notify_all();

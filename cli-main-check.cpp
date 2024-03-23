@@ -71,8 +71,13 @@ static void run() {
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };
+#ifdef _MSC_VER
+    in_addr_t a;
+    a.S_un.S_addr = INADDR_LOOPBACK;
+    dispatcher.sockets.push_back(new TaskSocket(a, 4242));
+#else
     dispatcher.sockets.push_back(new TaskSocket(INADDR_LOOPBACK, 4242));
-
+#endif
     dispatcher.start();
 
     // TaskResponseThreaded response;

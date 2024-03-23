@@ -1,13 +1,14 @@
 #ifndef MESSAGE_TASK_DISPATCHER_H
 #define MESSAGE_TASK_DISPATCHER_H
 
+
 #include <thread>
 #include <condition_variable>
 
+#include "lorawan/task/task-platform.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
-
 #include "lorawan/proto/gw/gw.h"
 
 typedef void(*OnPushDataProc)(

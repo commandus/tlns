@@ -3,10 +3,14 @@
 #include <algorithm>
 #include <functional>
 #include <csignal>
+#include "lorawan/task/task-platform.h"
+#if defined(_MSC_VER)
+#else
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#endif
 #include <cstring>
 #include <iostream>
 
@@ -48,6 +52,8 @@ SOCKET TaskSocket::openUDPSocket()
         return -1;
     }
     // Set socket to be nonblocking
+#ifdef _MSC_VER
+#else
     rc = ioctl(sock, FIONBIO, (char *)&on);
     if (rc < 0) {
         close(sock);
@@ -55,12 +61,16 @@ SOCKET TaskSocket::openUDPSocket()
         lastError = ERR_CODE_SOCKET_OPEN;
         return -1;
     }
-
+#endif
     // Bind the socket
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
+#if defined(_MSC_VER)
+    saddr.sin_addr.s_addr = htonl(addr.S_un.S_addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
+#else
     saddr.sin_addr.s_addr = htonl(addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
+#endif
     saddr.sin_port = htons(port);
     rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
@@ -132,12 +142,16 @@ void MessageTaskDispatcher::send(
 {
     if (clientControlSocket < 0 || sockets.empty())
         return;
-    sockaddr_in destination {
-        .sin_family = AF_INET,
-        .sin_port = htons(sockets[0]->port)
-    };
+    sockaddr_in destination;
+    destination.sin_family = AF_INET,
+    destination.sin_port = htons(sockets[0]->port);
+#if defined(_MSC_VER)
+    destination.sin_addr.s_addr = htonl(sockets[0]->addr.S_un.S_addr);
+#else
     destination.sin_addr.s_addr = htonl(sockets[0]->addr);
-    sendto(clientControlSocket, cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
+#endif
+
+    sendto(clientControlSocket, (const char *) cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
 }
 
 /**
@@ -271,14 +285,13 @@ int MessageTaskDispatcher::runner()
         // Copy the master fd_set over to the working fd_set
         memcpy(&working_set, &master_set, sizeof(master_set));
         // Initialize the timeval struct
-        timeout = { .tv_sec = DEF_TIMEOUT_SECONDS, .tv_usec = 0 };
+        timeout.tv_sec = DEF_TIMEOUT_SECONDS;
+        timeout.tv_usec = 0;
         int rc = select(maxFD1, &working_set, nullptr, nullptr, &timeout);
-        if (rc < 0) { // select error
+        if (rc < 0)     // select error
             break;
-        }
-        if (rc == 0) { // select() timed out.
+        if (rc == 0)    // select() timed out.
             continue;
-        }
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
         for (auto s : sockets) {
@@ -365,5 +378,5 @@ ssize_t MessageTaskDispatcher::sendACK(
     if (ack.version != 2)
         return ERR_CODE_SEND_ACK;
     ack.tag++;
-    return sendto(taskSocket->sock, &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
+    return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
 }

@@ -104,6 +104,7 @@ else()
 	target_compile_definitions(gw-dev-usb PRIVATE ${TLNS_DEF})
 	target_include_directories(gw-dev-usb PRIVATE "." "../../" "../../third-party" 
 		"../../third-party/libloragw"
+		"../../third-party/libloragw"
 		"../../third-party/libloragw/inc"
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 

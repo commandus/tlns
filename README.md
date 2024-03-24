@@ -15,8 +15,17 @@ Network server collects metadata sent by gateways to choose gateway with the bes
 ## Tools
 
 - Visual Code
-  - Draw.io Integration Visual Code plugin
-  - For ESP32 install Visual Code "Espressif IDF" plugin and configure ESP-IDF 
+- CMake
+- Draw.io Integration Visual Code plugin
+- For ESP32 install Visual Code "Espressif IDF" plugin and configure ESP-IDF 
+- gettext (optional)
+
+## Prereqisites
+
+Install tools
+```
+sudo apt install cmake gettext
+```
 
 ## Library
 

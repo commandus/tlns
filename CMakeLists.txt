@@ -3,6 +3,7 @@
 # mkdir build; cd build; cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_SQLITE=on
 #
 # Options:
+# -DENABLE_GW_DEV_USB   build RAK2287 USB gateway backend
 # -DENABLE_LIBUV=off   	enable libuv UDP/TCP. Default UDP only
 # -DENABLE_DEBUG=off   	enable debugging output
 # -DENABLE_GEN=on   	enable key generator (default in memory storage)
@@ -86,6 +87,8 @@ else()
 
 	set(CMAKE_CXX_STANDARD 11)
 
+	
+	option(ENABLE_GW_DEV_USB "Build RAK2287 USB gateway backend" ON)
 	option(ENABLE_IPV6 "Build with IPv6" OFF)
 	option(ENABLE_DEBUG "Build with debug" OFF)
 	option(ENABLE_LIBUV "Build with libuv" OFF)
@@ -122,8 +125,13 @@ else()
 		${AES_SRC}
 	)
 
+	if (ENABLE_GW_DEV_USB)
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_GW_DEV_USB )
+		add_subdirectory("gw-dev/usb")
+	endif()
+
 	if (ENABLE_IPV6)
-		set(TLNS_DEF ENABLE_IPV6 )
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_IPV6 )
 	endif()
 
 	if (ENABLE_DEBUG)
@@ -170,10 +178,9 @@ else()
 	#
 	set(CLI_MAIN_CHECK_SRC
 		cli-main-check.cpp
+		task-response-threaded.cpp
 		${SRC_LIBLORAWAN}
 		${ARGTABLE}
-		task-response-threaded.cpp
-			lorawan/proto/gw/gw.h
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC})
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})

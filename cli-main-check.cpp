@@ -76,7 +76,8 @@ static void run() {
     a.S_un.S_addr = INADDR_LOOPBACK;
     dispatcher.sockets.push_back(new TaskSocket(a, 4242));
 #else
-    dispatcher.sockets.push_back(new TaskSocket(INADDR_LOOPBACK, 4242));
+    dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
+    // allow send()
     dispatcher.enableClientControlSocket(INADDR_LOOPBACK, 4242);
 #endif
     dispatcher.start();

@@ -5,21 +5,31 @@
 #include "task-socket.h"
 #include "lorawan/lorawan-error.h"
 
-TaskSocket::TaskSocket(
-    in_addr_t aAddr,
-    uint16_t aPort
-)
-    : sock(-1), addr(aAddr), port(aPort), lastError(CODE_OK)
+TaskSocket::TaskSocket()
+    : sock(-1), lastError(CODE_OK)
 {
 
 }
 
 TaskSocket::~TaskSocket()
 {
+}
+
+TaskUDPSocket::TaskUDPSocket(
+    in_addr_t aAddr,
+    uint16_t aPort
+)
+    : TaskSocket(), addr(aAddr), port(aPort)
+{
+
+}
+
+TaskUDPSocket::~TaskUDPSocket()
+{
     closeSocket();
 }
 
-SOCKET TaskSocket::openSocket()
+SOCKET TaskUDPSocket::openSocket()
 {
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0) {
@@ -67,7 +77,7 @@ SOCKET TaskSocket::openSocket()
     return sock;
 }
 
-void TaskSocket::closeSocket()
+void TaskUDPSocket::closeSocket()
 {
     if (sock >= 0)
         close(sock);

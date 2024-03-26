@@ -67,6 +67,7 @@ else()
 	set(GW_DEV_USB_SRC
         gw-dev-usb.cpp
 		task-usb-socket.cpp
+		rak2286.cpp
 		${ARGTABLE}
 		../../daemonize.cpp
 		../../lorawan/helper/file-helper.cpp

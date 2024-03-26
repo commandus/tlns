@@ -77,6 +77,7 @@ static void run() {
     dispatcher.sockets.push_back(new TaskSocket(a, 4242));
 #else
     dispatcher.sockets.push_back(new TaskSocket(INADDR_LOOPBACK, 4242));
+    dispatcher.enableClientControlSocket(INADDR_LOOPBACK, 4242);
 #endif
     dispatcher.start();
 

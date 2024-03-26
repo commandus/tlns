@@ -4376,7 +4376,7 @@ int arg_parse(int argc, char * *argv, void * *argtable)
  * Does not append more than *pndest chars into *pdest[]
  * so as to prevent buffer overruns.
  * Its something like strncat() but more efficient for repeated
- * calls on the same destination string.
+ * calls on the same clientControlSocketDestination string.
  * Example of use:
  *   char dest[30] = "good"
  *   size_t ndest = sizeof(dest);

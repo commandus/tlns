@@ -5,10 +5,10 @@
 
 class TaskSocket {
 private:
-public:
-    SOCKET sock;
     in_addr_t addr;
     uint16_t port;
+public:
+    SOCKET sock;
     int lastError;
     /**
      * @param addr ""- any interface, "localhost"- localhost otherwise- address

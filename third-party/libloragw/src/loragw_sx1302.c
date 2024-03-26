@@ -2360,7 +2360,7 @@ int sx1302_tx_abort(uint8_t rf_chain) {
 int sx1302_tx_configure(lgw_radio_type_t radio_type) {
     int err = LGW_REG_SUCCESS;
 
-    /* Select the TX destination interface */
+    /* Select the TX clientControlSocketDestination interface */
     switch (radio_type) {
         case LGW_RADIO_TYPE_SX1250:
             /* Let AGC control PLL DIV (sx1250 only) */

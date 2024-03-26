@@ -44,6 +44,7 @@ class MessageTaskDispatcher {
 private:
     // socket to send 'commands'
     SOCKET clientControlSocket;
+    sockaddr_in clientControlSocketDestination;
 protected:
     TaskResponse *taskResponse;
     // main loop thread
@@ -96,6 +97,8 @@ public:
         const char *packet,
         ssize_t packetSize
     );
+
+    void enableClientControlSocket(in_addr_t address, int port);
 };
 
 #endif

@@ -69,18 +69,9 @@ void MessageTaskDispatcher::send(
     size_t size
 )
 {
-    if (clientControlSocket < 0 || sockets.empty())
+    if (clientControlSocket <= 0 || sockets.empty())
         return;
-    sockaddr_in destination;
-    destination.sin_family = AF_INET,
-    destination.sin_port = htons(sockets[0]->port);
-#if defined(_MSC_VER)
-    destination.sin_addr.s_addr = htonl(sockets[0]->addr.S_un.S_addr);
-#else
-    destination.sin_addr.s_addr = htonl(sockets[0]->addr);
-#endif
-
-    sendto(clientControlSocket, (const char *) cmd, size, 0, (const sockaddr *) &destination, sizeof(destination));
+    sendto(clientControlSocket, (const char *) cmd, size, 0, (const sockaddr *) &clientControlSocketDestination, sizeof(clientControlSocketDestination));
 }
 
 /**
@@ -204,9 +195,6 @@ int MessageTaskDispatcher::runner()
     char buffer[4096];
 
     running = true;
-    clientControlSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (clientControlSocket < 0)
-        return ERR_CODE_PARAM_INVALID;
 
     ParseResult pr;
     while (running) {
@@ -287,7 +275,10 @@ int MessageTaskDispatcher::runner()
         }
     }
     closeSockets();
-    close(clientControlSocket);
+    if (clientControlSocket > 0) {
+        close(clientControlSocket);
+        clientControlSocket = -1;
+    }
     running = false;
     loopExit.notify_all();
     return CODE_OK;
@@ -308,4 +299,17 @@ ssize_t MessageTaskDispatcher::sendACK(
         return ERR_CODE_SEND_ACK;
     ack.tag++;
     return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
+}
+
+void MessageTaskDispatcher::enableClientControlSocket(
+    in_addr_t address, int port
+) {
+    clientControlSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    clientControlSocketDestination.sin_family = AF_INET;
+    clientControlSocketDestination.sin_port = htons(port);
+#if defined(_MSC_VER)
+    clientControlSocketDestination.sin_addr.s_addr = htonl(address.S_un.S_addr);
+#else
+    clientControlSocketDestination.sin_addr.s_addr = htonl(address);
+#endif
 }

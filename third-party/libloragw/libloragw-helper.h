@@ -32,7 +32,7 @@ class LibLoragwHelper {
         // int fd; ///< USB gateway file descriptor
         // std::string fileName; ///< USB gateway file name called from open() - not used
         LibLoragwOpenClose *onOpenClose;
-        LogIntf *onLog;
+        Log *onLog;
 
         LibLoragwHelper();
         LibLoragwHelper(const LibLoragwHelper&value);
@@ -42,7 +42,7 @@ class LibLoragwHelper {
         int close(int fd);
         int log(char ch);
         void flush();
-        void bind(LogIntf *aOnLog, LibLoragwOpenClose *aOnOpenClose);    ///< bind to the library using global
+        void bind(Log *aOnLog, LibLoragwOpenClose *aOnOpenClose);    ///< bind to the library using global
         void unbind();    ///< bind to the library using global
 };
 

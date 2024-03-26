@@ -1,7 +1,6 @@
 #ifndef MESSAGE_TASK_DISPATCHER_H
 #define MESSAGE_TASK_DISPATCHER_H
 
-
 #include <thread>
 #include <condition_variable>
 
@@ -10,6 +9,7 @@
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
+#include "lorawan/task/task-socket.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -27,7 +27,6 @@ typedef void(*OnTxpkAckProc)(
 );
 
 class MessageTaskDispatcher;
-class TaskSocket;
 
 typedef int(*TaskProc)(
     MessageTaskDispatcher *env,
@@ -38,26 +37,6 @@ typedef int(*TaskProc)(
     size_t size
 );
 
-class TaskSocket {
-public:
-    SOCKET sock;
-    in_addr_t addr;
-    uint16_t port;
-    int lastError;
-    /**
-     * @param addr ""- any interface, "localhost"- localhost otherwise- address
-     * @param port port number
-     */
-    TaskSocket(in_addr_t aAddr, uint16_t port);
-    /**
-     * Open UDP socket for listen
-     * @return -1 if fail
-     */
-    SOCKET openUDPSocket();
-    void closeSocket();
-    // virtual int onData(const char *buffer, size_t size) = 0;
-    virtual ~TaskSocket();
-};
 
 class ProtoGwParser;
 

@@ -13,24 +13,21 @@
 #endif
 
 #include <fcntl.h>
+#include <netinet/in.h>
 
 #include "argtable3/argtable3.h"
 
 #include "libloragw-helper.h"
 
-#include "platform.h"
-#include "usb-listener.h"
-#include "identity-service-file-json.h"
-#include "utilstring.h"
-#include "utildate.h"
 #include "daemonize.h"
-#include "errlist.h"
-#include "config-filename.h"
-#include "utilfile.h"
-#include "client-id.h"
+#include "lorawan/lorawan-error.h"
 
 // generated gateway regional settings source code
 #include "gateway_usb_conf.cpp"
+#include "lorawan/lorawan-types.h"
+#include "lorawan/lorawan-date.h"
+#include "lorawan/lorawan-msg.h"
+#include "lorawan/helper/file-helper.h"
 
 class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
 private:
@@ -53,8 +50,8 @@ public:
 static std::string getRegionNames()
 {
     std::stringstream ss;
-    for (size_t i = 0; i < sizeof(memSetupMemGatewaySettingsStorage) / sizeof(setupMemGatewaySettingsStorage); i++) {
-        ss << "\"" << memSetupMemGatewaySettingsStorage[i].name << "\" ";
+    for (size_t i = 0; i < sizeof(lorawanGatewaySettings) / sizeof(GatewaySettings); i++) {
+        ss << "\"" << lorawanGatewaySettings[i].name << "\" ";
     }
     return ss.str();
 }
@@ -63,112 +60,20 @@ size_t findRegionIndex(
     const std::string &namePrefix
 )
 {
-    for (size_t i = 0; i < sizeof(memSetupMemGatewaySettingsStorage) / sizeof(setupMemGatewaySettingsStorage); i++) {
-        if (memSetupMemGatewaySettingsStorage[i].name.find(namePrefix) != std::string::npos) {
+    for (size_t i = 0; i < sizeof(lorawanGatewaySettings) / sizeof(GatewaySettings); i++) {
+        if (lorawanGatewaySettings[i].name.find(namePrefix) != std::string::npos) {
             return i;
         }
     }
     return 0;
 }
 
-class GatewayConfigMem : public GatewaySettings {
-public:
-    MemGatewaySettingsStorage storage;
-    sx1261_config_t *sx1261() override { return &storage.sx1261; };
-    sx130x_config_t *sx130x() override { return &storage.sx130x; };
-    gateway_t *gateway() override { return &storage.gateway; };
-    struct lgw_conf_debug_s *debug() override { return &storage.debug; };
-    std::string *serverAddress() override { return &storage.serverAddr; };
-    std::string *gpsTTYPath() override { return &storage.gpsTtyPath; };;
-    void set(MemGatewaySettingsStorage &value) { storage = value;};
-};
-
 const std::string programName = "lorawan-gateway";
-#ifdef _MSC_VER
-#undef ENABLE_TERM_COLOR
-#else
-#define ENABLE_TERM_COLOR	1
-#endif
-
-/**
- * Handle uplink messages interface
- */
-class StdoutLoraPacketHandler : public LoraPacketHandler {
-public:
-    int ack(
-        int socket,
-        const sockaddr_in* gwAddress,
-        const SEMTECH_PREFIX_GW &dataprefix
-    ) override
-    {
-        return 0;
-    };
-
-    // Return 0, retval = EUI and keys
-    int put(
-        const struct timeval &time,
-        SemtechUDPPacket &packet
-    ) override
-    {
-        uint32_t f = 0;
-        uint32_t sf = 0;
-        int16_t rssi = 0;
-        float lsnr = 0.0f;
-        if (!packet.metadata.empty()) {
-            rfmMetaData &m = packet.metadata[0];
-            f = m.freq;
-            sf = m.spreadingFactor;
-            rssi = m.rssi;
-            lsnr = m.lsnr;
-        }
-        std::cout << time2string(time.tv_sec) << "\t"
-            << DEVEUI2string(packet.devId.devEUI) << "\t"
-            << DEVICENAME2string(packet.devId.name) << "\t"
-            << hexString(packet.payload) << "\t"
-            << f << "\t"
-            << sf << "\t"
-            << rssi << "\t"
-            << lsnr << "\t"
-            << std::endl;
-        return 0;
-    }
-
-    int putUnidentified(
-            const struct timeval &time,
-            SemtechUDPPacket &packet
-    ) override
-    {
-        std::cout << timeval2string(time) << "\t"
-            << DEVADDRINT2string(packet.getDeviceAddr()) << "\t"
-            << "unknown\t"
-            << "undeciphered\t"
-            << hexString(packet.payload) << std::endl;
-        return 0;
-    }
-
-    // Reserve FPort number for network service purposes
-    void reserveFPort(
-        uint8_t value
-    ) override
-    {
-    }
-
-    int join(
-        const struct timeval &time,
-        int socket,
-        const sockaddr_in *socketAddress,
-        SemtechUDPPacket &packet
-    ) override
-    {
-        return 0;
-    }
-};
 
 class LocalGatewayConfiguration {
 public:
     std::string devicePath;
     std::string identityFileName;
-    uint64_t gatewayIdentifier;
     size_t regionIdx;
     bool enableSend;
     bool enableBeacon;
@@ -177,27 +82,17 @@ public:
 
 };
 
-static GatewayConfigMem gwSettings;
-
 GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
-    MemGatewaySettingsStorage settings;
-    // set regional settings
-    memSetupMemGatewaySettingsStorage[config->regionIdx].setup(settings);
     // set COM port device path, just in case
-    strncpy(settings.sx130x.boardConf.com_path, config->devicePath.c_str(), sizeof(settings.sx130x.boardConf.com_path));
-    gwSettings.set(settings);
-    return &gwSettings;
+    strncpy(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path, config->devicePath.c_str(),
+            sizeof(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path));
+    return &lorawanGatewaySettings[config->regionIdx];
 }
 
 static LocalGatewayConfiguration localConfig;
 
-static PacketListener *listener = nullptr;
-static IdentityService *identityService = nullptr;
-
 static void stop()
 {
-    if (listener)
-        listener->clear();
 }
 
 static LibLoragwHelper libLoragwHelper;
@@ -208,99 +103,12 @@ static void done()
         delete libLoragwHelper.onOpenClose;
         libLoragwHelper.onOpenClose = nullptr;
     }
-    if (listener) {
-        delete listener;
-        listener = nullptr;
-    }
-    if (identityService) {
-        delete identityService;
-        identityService = nullptr;
-    }
 }
 
-class StdErrLog: public LogIntf {
+class StdErrLog: public Log {
 public:
-    void onConnected(bool connected) override
-    {
-
-    }
-
-    void onDisconnected() override
-    {
-
-    }
-
-    void onStarted(uint64_t gatewayId, const std::string regionName, size_t regionIndex) override
-    {
-        std::cout << "gateway " << std::hex << gatewayId
-            << " region " << regionName << " (settings #" << std::dec << regionIndex << ")" << std::endl;
-    }
-
-    void onFinished(const std::string &message) override
-    {
-
-    }
-
-    void onReceive(Payload &value) override
-    {
-        // std::cerr << hexString(value.payload) << std::endl;
-    }
-
-    void onValue(Payload &value) override
-    {
-        // TODO send to another program or service
-        // std::cout << hexString(value.payload) << std::endl;
-    }
-
-    void onInfo(
-        void *env,
-        int level,
-        int moduleCode,
-        int errorCode,
-        const std::string &message
-    ) override {
-        if (localConfig.daemonize) {
-            SYSLOG(level, message.c_str());
-            return;
-        }
-        if (env) {
-            if (localConfig.verbosity < level)
-                return;
-        }
-        struct timeval t;
-        gettimeofday(&t, nullptr);
-        std::cerr << timeval2string(t);
-#ifdef ENABLE_TERM_COLOR
-        if (isatty(2))  // if stderr is piped to the file, do not put ANSI color to the file
-            std::cerr << "\033[" << logLevelColor(level)  << "m";
-#endif
-        std::cerr << " " << std::setw(LOG_LEVEL_FIELD_WIDTH) << std::left << logLevelString(level);
-#ifdef ENABLE_TERM_COLOR
-        if (isatty(2))
-            std::cerr << "\033[0m";
-#endif
-        std::cerr << message << std::endl;
-        if (level == LOG_ALERT) {
-            stop();
-        }
-    }
-
-    // not used
-    int identityGet(DeviceId& deviceid, DEVADDR& addr)
-    {
-        return 0;
-    }
-
-    // not used
-    int identityGetNetworkIdentity(NetworkIdentity &retVal, const DEVEUI &eui)
-    {
-        return 0;
-    }
-
-    // not used
-    size_t identitySize()
-    {
-        return 0;
+    std::ostream& strm(int level) override {
+        return std::cerr;
     }
 };
 
@@ -313,7 +121,8 @@ public:
 int parseCmd(
     LocalGatewayConfiguration *config,
     int argc,
-    char *argv[])
+    char *argv[]
+)
 {
     // device path
     struct arg_str *a_device_path = arg_str1(nullptr, nullptr, "<device-name>", "USB gateway device e.g. /dev/ttyACM0");
@@ -344,7 +153,6 @@ int parseCmd(
         config->devicePath = std::string(*a_device_path->sval);
     else
         config->devicePath = "";
-    config->gatewayIdentifier = 0;
     if (a_identity_file_name->count)
         config->identityFileName = *a_identity_file_name->sval;
     else
@@ -376,7 +184,7 @@ int parseCmd(
     }
 
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
-    return LORA_OK;
+    return CODE_OK;
 }
 
 #ifdef _MSC_VER
@@ -460,78 +268,21 @@ static void run()
     if (!localConfig.daemonize)
         setSignalHandler();
 
-    if (listener->onLog)
-        listener->onLog->onInfo(listener, LOG_DEBUG, LOG_MAIN_FUNC, LORA_OK, MSG_LISTENER_RUN);
-
     libLoragwHelper.bind(&errLog, new PosixLibLoragwOpenClose(localConfig.devicePath));
     if (!libLoragwHelper.onOpenClose)
         return;
-
-    int flags = 0;
-    if (!localConfig.enableSend)
-        flags |= FLAG_GATEWAY_LISTENER_NO_SEND;
-    if (!localConfig.enableBeacon)
-        flags |= FLAG_GATEWAY_LISTENER_NO_BEACON;
-
-    int r = listener->listen(memSetupMemGatewaySettingsStorage[localConfig.regionIdx].name,
-                             localConfig.regionIdx, getGatewayConfig(&localConfig), flags, nullptr);
-    if (r && listener->onLog) {
-        std::stringstream ss;
-        ss << ERR_MESSAGE << r << ": " << strerror_lorawan_ns(r) << std::endl;
-        listener->onLog->onInfo(listener, LOG_ERR, LOG_MAIN_FUNC, r, ss.str());
-    }
 }
-
-static StdoutLoraPacketHandler packetHandler;
 
 static void init()
 {
-    identityService = new JsonFileIdentityService();
-    if (!identityService) {
-        std::cerr << ERR_MESSAGE << ERR_CODE_FAIL_IDENTITY_SERVICE << ": " << ERR_FAIL_IDENTITY_SERVICE << std::endl;
-        exit(ERR_CODE_INSUFFICIENT_MEMORY);
-    }
-
     if (localConfig.identityFileName.empty()) {
         // std::cerr << ERR_WARNING << ERR_CODE_INIT_IDENTITY << ": " << ERR_INIT_IDENTITY << std::endl;
         if (localConfig.verbosity > 0)
             std::cerr << MSG_NO_IDENTITIES << std::endl;
     } else {
-        if (int r = identityService->init(localConfig.identityFileName, nullptr) != 0) {
-            std::cerr << ERR_MESSAGE << r << ": " << strerror_lorawan_ns(r) << std::endl;
-            exit(ERR_CODE_NO_CONFIG);
-        }
     }
 
     libLoragwHelper.bind(&errLog, nullptr);
-
-    listener = new USBListener();
-    if (!listener) {
-        std::cerr << ERR_MESSAGE << ERR_CODE_FAIL_IDENTITY_SERVICE << ": " << ERR_FAIL_IDENTITY_SERVICE << std::endl;
-        exit(ERR_CODE_INSUFFICIENT_MEMORY);
-    }
-
-    // signal is not required in USB listener
-    // listener->setSysSignalPtr(&lastSysSignal);
-    listener->setLogger(localConfig.verbosity, &errLog);
-    listener->setHandler(&packetHandler);
-    listener->setIdentityService(identityService);
-    ((USBListener*) listener)->listener.setOnStop(
-        [] (const LoraGatewayListener *lsnr,
-            bool gracefullyStopped
-        ) {
-            if (!gracefullyStopped) {
-                // wait until all threads done
-                int seconds2wait = 0;
-                while(!lsnr->isStopped() && seconds2wait < 60)
-                {
-                    std::cerr << ".";
-                    sleep(1);
-                    seconds2wait++;
-                }
-            }
-        }
-    );
 }
 
 int main(
@@ -542,28 +293,11 @@ int main(
         // std::cerr << ERR_MESSAGE << ERR_CODE_COMMAND_LINE << ": " << ERR_COMMAND_LINE << std::endl;
         exit(ERR_CODE_COMMAND_LINE);
     }
-
-    if (!localConfig.gatewayIdentifier) {
-        // std::cerr << ERR_WARNING << ERR_CODE_INVALID_GATEWAY_ID << ": " << ERR_INVALID_GATEWAY_ID << std::endl;
-        localConfig.gatewayIdentifier = getGatewayId();
-        if (localConfig.verbosity > 0)
-            std::cerr << "gateway id " << std::hex << localConfig.gatewayIdentifier << std::dec << std::endl;
-    }
-
     init();
 
     if (localConfig.daemonize)	{
-        if (listener->onLog)
-            listener->onLog->onInfo(listener, LOG_DEBUG, LOG_MAIN_FUNC, LORA_OK, MSG_LISTENER_DAEMON_RUN);
         std::string progpath = getCurrentDir();
-        if (localConfig.verbosity > 1) {
-            std::cerr << MSG_DAEMON_STARTED << progpath << "/" << programName << MSG_DAEMON_STARTED_1 << std::endl;
-        }
-
-        OPEN_SYSLOG(programName.c_str())
         Daemonize daemonize(programName, progpath, run, stop, done);
-        std::cerr << MSG_DAEMON_STOPPED << std::endl;
-        CLOSE_SYSLOG()
     } else {
         run();
         done();

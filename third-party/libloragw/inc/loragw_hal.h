@@ -583,7 +583,7 @@ int lgw_spectral_scan_get_status(lgw_spectral_scan_status_t * status);
 @param values ar array containing the results of the scan for each power levels
 @return LGW_HAL_ERROR id the operation failed, LGW_HAL_SUCCESS else
 */
-int lgw_spectral_scan_get_results(int16_t levels_dbm[static LGW_SPECTRAL_SCAN_RESULT_SIZE], uint16_t results[static LGW_SPECTRAL_SCAN_RESULT_SIZE]);
+int lgw_spectral_scan_get_results(int16_t levels_dbm[LGW_SPECTRAL_SCAN_RESULT_SIZE], uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]);
 
 /**
 @brief Abort the current scan

@@ -1,6 +1,5 @@
 #include "libloragw-helper.h"
-
-#include "errlist.h"
+#include "lorawan/lorawan-error.h"
 
 // libloragw.a: subst-call-c.c calls to LibLoragwHelper
 
@@ -73,13 +72,13 @@ void LibLoragwHelper::flush()
             emergency = LOG_ERR;
         }
     }
-    onLog->onInfo(this, emergency, LOG_EMBEDDED_GATEWAY, 0, msg);
+    onLog->strm(emergency) << msg;
     logBuffer.str("");
     logBuffer.clear();
 }
 
 void LibLoragwHelper::bind(
-    LogIntf *aOnLog,
+    Log *aOnLog,
     LibLoragwOpenClose *aOnOpenClose
 )
 {

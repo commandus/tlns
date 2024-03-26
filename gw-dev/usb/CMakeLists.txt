@@ -49,58 +49,32 @@ else()
 		../../lorawan/task/task-descriptor.cpp
 		../../lorawan/task/message-task-dispatcher.cpp
 		../../lorawan/task/task-response.cpp
+		../../lorawan/task/task-socket.cpp
 		../../third-party/strptime.cpp
 		../../third-party/base64/base64.cpp
 		${AES_SRC}
 	)
 
-	set(LIBLORAGW_ROOT "../../third-party/libloragw/src")
-	set(LIBLORAGW_SRC_DIR ${LIBLORAGW_ROOT}/src)
-	set(SRC_LIBLORAGW
-    ${LIBLORAGW_SRC_DIR}/loragw_spi.c
-    ${LIBLORAGW_SRC_DIR}/loragw_usb.c
-    ${LIBLORAGW_SRC_DIR}/loragw_com.c
-    ${LIBLORAGW_SRC_DIR}/loragw_mcu.c
-    ${LIBLORAGW_SRC_DIR}/loragw_i2c.c
-    ${LIBLORAGW_SRC_DIR}/sx125x_spi.c
-    ${LIBLORAGW_SRC_DIR}/sx125x_com.c
-    ${LIBLORAGW_SRC_DIR}/sx1250_spi.c
-    ${LIBLORAGW_SRC_DIR}/sx1250_usb.c
-    ${LIBLORAGW_SRC_DIR}/sx1250_com.c
-    ${LIBLORAGW_SRC_DIR}/sx1261_spi.c
-    ${LIBLORAGW_SRC_DIR}/sx1261_usb.c
-    ${LIBLORAGW_SRC_DIR}/sx1261_com.c
-    ${LIBLORAGW_SRC_DIR}/loragw_aux.c
-    ${LIBLORAGW_SRC_DIR}/loragw_reg.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx1250.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx1261.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx125x.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx1302.c
-    ${LIBLORAGW_SRC_DIR}/loragw_cal.c
-    ${LIBLORAGW_SRC_DIR}/loragw_debug.c
-    ${LIBLORAGW_SRC_DIR}/loragw_hal.c
-    ${LIBLORAGW_SRC_DIR}/loragw_lbt.c
-    ${LIBLORAGW_SRC_DIR}/loragw_stts751.c
-    ${LIBLORAGW_SRC_DIR}/loragw_gps.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx1302_timestamp.c
-    ${LIBLORAGW_SRC_DIR}/loragw_sx1302_rx.c
-    ${LIBLORAGW_SRC_DIR}/loragw_ad5338r.c
-#   Tiny Mersenne Twister only 127 bit internal state
-	${LIBLORAGW_ROOT}/tinymt32.c
-)
+	add_library(lorawan ${SRC_LIBLORAWAN})
+	target_link_libraries(lorawan PRIVATE ${OS_SPECIFIC_LIBS})
+	target_include_directories(lorawan PRIVATE "." "../../" "../../third-party")
+
+	find_library(loragw NAMES loragw PATHS "../third-party/libloragw/")
 
 	#
 	# gw-dev-usb
 	#
 	set(GW_DEV_USB_SRC
         gw-dev-usb.cpp
-		${SRC_LIBLORAWAN}
 		${ARGTABLE}
+		../../daemonize.cpp
+		../../lorawan/helper/file-helper.cpp
 		../../task-response-threaded.cpp
 		../../third-party/libloragw/libloragw-helper.cpp
 	)
 	add_executable(gw-dev-usb ${GW_DEV_USB_SRC})
-	target_link_libraries(gw-dev-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL})
+	set_property(TARGET gw-dev-usb PROPERTY C_STANDARD 99)
+	target_link_libraries(gw-dev-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
 	target_compile_definitions(gw-dev-usb PRIVATE ${TLNS_DEF})
 	target_include_directories(gw-dev-usb PRIVATE "." "../../" "../../third-party" 
 		"../../third-party/libloragw"

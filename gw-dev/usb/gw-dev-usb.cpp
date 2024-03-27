@@ -1,11 +1,9 @@
 /**
  * LoRaWAN RAK2287 gateway backend
  */
-#include <iomanip>
 #include <iostream>
 #include <cstring>
 #include <csignal>
-#include <climits>
 
 #ifdef _MSC_VER
 #else
@@ -13,7 +11,6 @@
 #endif
 
 #include <fcntl.h>
-#include <netinet/in.h>
 
 #include "argtable3/argtable3.h"
 
@@ -24,10 +21,10 @@
 
 // generated gateway regional settings source code
 #include "gateway_usb_conf.cpp"
-#include "lorawan/lorawan-types.h"
-#include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
+
+#include "subst-call-c.h"
 
 class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
 private:
@@ -267,14 +264,14 @@ static void run()
 {
     if (!localConfig.daemonize)
         setSignalHandler();
-
-    libLoragwHelper.bind(&errLog, new PosixLibLoragwOpenClose(localConfig.devicePath));
-    if (!libLoragwHelper.onOpenClose)
-        return;
 }
 
 static void init()
 {
+    libLoragwHelper.bind(&errLog, new PosixLibLoragwOpenClose(localConfig.devicePath));
+    if (!libLoragwHelper.onOpenClose)
+        return;
+
     if (localConfig.identityFileName.empty()) {
         // std::cerr << ERR_WARNING << ERR_CODE_INIT_IDENTITY << ": " << ERR_INIT_IDENTITY << std::endl;
         if (localConfig.verbosity > 0)

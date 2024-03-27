@@ -74,6 +74,11 @@ PACK(
     }
 );
 
+void  setLORAWAN_MESSAGE_STORAGE(
+    LORAWAN_MESSAGE_STORAGE &retVal,
+    const std::string &bin
+);
+
 bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &base64string

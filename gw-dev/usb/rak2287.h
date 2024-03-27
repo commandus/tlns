@@ -8,6 +8,7 @@
 #include "gateway-settings.h"
 #include "log-intf.h"
 #include "lorawan/lorawan-types.h"
+#include "lorawan/task/message-task-dispatcher.h"
 
 #define MEASUREMENT_COUNT_SIZE 23
 
@@ -99,12 +100,11 @@ public:
 class LoraGatewayListener {
 private:
     int logVerbosity;
+    MessageTaskDispatcher* dispatcher;
 
-    std::function<void(
-        const LoraGatewayListener *listener,
-        const SEMTECH_PROTOCOL_METADATA_RX *metadata,
-        const std::string &payload
-    )> onUpstream;
+    OnPushDataProc onPushData;
+    OnPullRespProc onPullResp;
+    OnTxpkAckProc onTxPkAck;
 
     std::function<void(
         const LoraGatewayListener *listener,
@@ -196,7 +196,6 @@ public:
     bool isStopped() const;
 
     void setThreadStartFinish(ThreadStartFinish *value);
-
     void setOnSpectralScan(
         std::function<void(
             const LoraGatewayListener *listener,
@@ -204,13 +203,18 @@ public:
             const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
         )> value
     );
+    void setOnPushData(
+        OnPushDataProc onPushData
+    );
+    void setOnPullResp(
+        OnPullRespProc onPullResp
+    );
+    void setOnTxpkAck(
+        OnTxpkAckProc onTxPkAck
+    );
     void setOnLog(Log *value);
-    void setOnUpstream(
-        std::function<void(
-            const LoraGatewayListener *listener,
-            const SEMTECH_PROTOCOL_METADATA_RX *metadata,
-            const std::string &payload
-        )> value
+    void setDispatcher(
+        MessageTaskDispatcher *dispatcher
     );
     void setOnStop(
         std::function<void(
@@ -220,9 +224,7 @@ public:
     );
     void setLogVerbosity(int level);
     int enqueueTxPacket(TxPacket &tx);
-
     std::string toString() const;
-
     Log *onLog;
 };
 

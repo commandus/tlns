@@ -115,7 +115,7 @@ else()
 		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp
 		lorawan/lorawan-packet-storage.cpp
-		lorawan/helper/ip-address.cpp
+		lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp
 		lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp

@@ -71,8 +71,10 @@ else()
 		${ARGTABLE}
 		../../daemonize.cpp
 		../../lorawan/helper/file-helper.cpp
+		../../lorawan/helper/thread-helper.cpp
 		../../task-response-threaded.cpp
 		../../third-party/libloragw/libloragw-helper.cpp
+		../../third-party/libloragw/subst-call-c.cpp
 	)
 	add_executable(gw-dev-usb ${GW_DEV_USB_SRC})
 	set_property(TARGET gw-dev-usb PROPERTY C_STANDARD 99)

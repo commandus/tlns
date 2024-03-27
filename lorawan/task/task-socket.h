@@ -1,3 +1,5 @@
+#ifndef TASK_SOCKET_H_
+#define TASK_SOCKET_H_ 1
 
 #include <cinttypes>
 #include <netinet/in.h>
@@ -33,3 +35,5 @@ public:
     // virtual int onData(const char *buffer, size_t size) = 0;
     virtual ~TaskUDPSocket();
 };
+
+#endif

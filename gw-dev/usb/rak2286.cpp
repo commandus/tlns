@@ -1,7 +1,9 @@
 #include <cstring>
+#include <sstream>
 
 #include "rak2287.h"
 #include "lorawan/lorawan-error.h"
+#include "lorawan/helper/thread-helper.h"
 
 /*
  * C++ wrapper of lora_pkt_fwd.c (C)2019 Semtech License: Revised BSD License, see LICENSE.TXT file include in the project
@@ -71,6 +73,128 @@ const char *MEASUREMENT_SHORT_NAME[MEASUREMENT_COUNT_SIZE] = {
     "becSen",
     "becRej"
 };
+
+// Module and thread names
+#define MODULE_NAME_RECEIVER_QUEUE_PROCESSOR        "RcvQue"
+#define MODULE_NAME_DEVICE_STAT_SVC_FILE            "DStatF"
+#define MODULE_NAME_GW_STAT_SVC_FILE                "GStatF"
+#define MODULE_NAME_GW_UPSTREAM                     "GwUp"
+#define MODULE_NAME_GW_DOWNSTREAM                   "GwDown"
+#define MODULE_NAME_GW_JIT                          "GwJit"
+#define MODULE_NAME_GW_SPECTRAL_SCAN                "GwSS"
+#define MODULE_NAME_GW_GPS                          "GwGPS"
+#define MODULE_NAME_GW_GPS_CHECK_TIME               "GwGPSCT"
+#define MODULE_NAME_PACKET_QUEUE_SEND               "PkQue"
+
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_START_FAILED    "Spectral scan start failed"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_TIMEOUT         "Timeout on spectral scan"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_FAILED          "Spectral scan status failed"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_ABORTED         "Spectral scan has been aborted"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_UNEXPECTED_STATUS "Unexpected spectral scan status"
+#define ERR_LORA_GATEWAY_GET_TX_STATUS                  "Failed to get TX status on spectral scan"
+#define ERR_LORA_GATEWAY_SKIP_SPECTRAL_SCAN             "Skip spectral scan"
+#define ERR_LORA_GATEWAY_STATUS_FAILED                  "Getting gateway status failed"
+#define ERR_LORA_GATEWAY_EMIT_ALLREADY                  "Concentrator is currently emitting"
+#define ERR_LORA_GATEWAY_SCHEDULED_ALLREADY             "Downlink was already scheduled on, overwriting it"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_ABORT_FAILED     "Spectral scan abort failed"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_RESULT           "Spectral scan get results failed"
+#define MSG_SPECTRAL_SCAN_FINISHED      "Spectral scan thread finished"
+#define MSG_SPECTRAL_SCAN_STARTED       "Spectral scan thread started"
+#define MSG_GPS_STARTED                 "GPS thread started"
+#define MSG_GPS_FINISHED                "GPS thread finished"
+#define MSG_CHECK_TIME_STARTED          "Check time thread started."
+#define MSG_CHECK_TIME_FINISHED         "Check time thread finished"
+#define MSG_UPSTREAM_STARTED            "Upstream thread started"
+#define MSG_BEACON_DOWNSTREAM_STARTED   "Beacon downstream thread started"
+#define MSG_BEACON_DOWNSTREAM_NO_GPS    "Beacon downstream thread: no GPS enabled"
+#define MSG_BEACON_TIME                 "Beacon GPS time now "
+#define MSG_BEACON_TIME_LAST            ", last "
+#define MSG_BEACON_TIME_NEXT            ", next "
+#define MSG_BEACON_QUEUED               "Beacon queued, count_us "
+#define MSG_BEACON_DEQUEUED             "Beacon dequeued, count_us "
+#define MSG_LORA_GATEWAY_SEND_AT_GPS_TIME   "A packet will be sent on timestamp (calculated from GPS time)"
+#define MSG_JIT_QUEUE_STARTED           "JIT thread started"
+#define MSG_JIT_QUEUE_FINISHED          "JIT thread finished"
+#define MSG_SPECTRAL_SCAN_FINISHED      "Spectral scan thread finished"
+#define MSG_SPECTRAL_SCAN_STARTED       "Spectral scan thread started"
+#define MSG_GPS_STARTED                 "GPS thread started"
+#define MSG_GPS_FINISHED                "GPS thread finished"
+#define MSG_CHECK_TIME_STARTED          "Check time thread started."
+#define MSG_CHECK_TIME_FINISHED         "Check time thread finished"
+#define MSG_UPSTREAM_STARTED            "Upstream thread started"
+#define MSG_UPSTREAM_FINISHED           "Upstream thread finished"
+#define MSG_BEACON_DOWNSTREAM_STARTED   "Beacon downstream thread started"
+#define MSG_BEACON_DOWNSTREAM_FINISHED  "Beacon downstream thread finished"
+#define MSG_BEACON_DOWNSTREAM_NO_GPS    "Beacon downstream thread: no GPS enabled"
+#define MSG_BEACON_TIME                 "Beacon GPS time now "
+#define MSG_BEACON_TIME_LAST            ", last "
+#define MSG_BEACON_TIME_NEXT            ", next "
+#define MSG_BEACON_QUEUED               "Beacon queued, count_us "
+#define MSG_BEACON_DEQUEUED             "Beacon dequeued, count_us "
+#define MSG_NO_IDENTITIES               "No identities provided"
+
+
+#define ERR_LORA_GATEWAY_FETCH                          "Failed Lora packet fetch, exiting"
+#define ERR_LORA_GATEWAY_UNKNOWN_STATUS                 "Received Lora packet with unknown status"
+#define ERR_LORA_GATEWAY_UNKNOWN_DATARATE               "Received Lora packet with unknown data rate"
+#define ERR_LORA_GATEWAY_UNKNOWN_BANDWIDTH              "Received Lora packet with unknown bandwidth"
+#define ERR_LORA_GATEWAY_UNKNOWN_CODERATE               "Received Lora packet with unknown code rate"
+
+#define ERR_LORA_GATEWAY_UNKNOWN_MODULATION             "Received Lora packet with unknown modulation"
+#define ERR_LORA_GATEWAY_RECEIVED                       "Received Lora packet "
+#define ERR_LORA_GATEWAY_AUTOQUIT_THRESHOLD             "Last PULL_DATA were not ACKed, exiting application"
+#define ERR_LORA_GATEWAY_BEACON_FAILED                  "Beacon queuing failed"
+#define ERR_LORA_GATEWAY_DUPLICATE_ACK                  "Duplicate ACK received"
+
+#define ERR_LORA_GATEWAY_UNKNOWN_TX_MODE                "Unknown Tx mode"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME               "No valid GPS time reference yet, impossible to send packet on specific GPS time, TX aborted"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME_DISABLED      "GPS disabled, impossible to send packet on specific GPS time, TX aborted"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME_INVALID       "Сould not convert GPS time to timestamp, TX aborted"
+#define ERR_LORA_GATEWAY_TX_CHAIN_DISABLED              "TX is not enabled on RF chain, TX aborted"
+
+#define ERR_LORA_GATEWAY_TX_UNSUPPORTED_FREQUENCY       "Unsupported frequency, TX aborted"
+#define ERR_LORA_GATEWAY_TX_UNSUPPORTED_POWER           "RF power is not supported, closest lower power used"
+
+#define ERR_LORA_GATEWAY_USB_NOT_FOUND                  "Gateway USB path not found"
+#define ERR_LORA_GATEWAY_SHUTDOWN_TIMEOUT               "Gateway shutdown timeout"
+#define ERR_LORA_GATEWAY_SHUTDOWN_SUCCESS               "Gateway shutdown successfully"
+#define ERR_LORA_GATEWAY_STOP_FAILED                    "Gateway stop failed"
+#define ERR_LORA_GATEWAY_JIT_ENQUEUE_FAILED             "JIT enqueueTxPacket failed"
+
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_ABORT_FAILED     "Spectral scan abort failed"
+#define ERR_LORA_GATEWAY_SEND_FAILED                    "Gateway send failed"
+#define ERR_LORA_GATEWAY_SENT                           "Gateway sent successfully"
+#define ERR_LORA_GATEWAY_JIT_DEQUEUE_FAILED             "JIT dequeue failed"
+#define ERR_LORA_GATEWAY_JIT_PEEK_FAILED                "JIT peek failed"
+#define ERR_LORA_GATEWAY_JIT_ENQUEUE_FAILED             "JIT enqueueTxPacket failed"
+
+#define ERR_LORA_GATEWAY_FETCH                          "Failed Lora packet fetch, exiting"
+#define ERR_LORA_GATEWAY_UNKNOWN_STATUS                 "Received Lora packet with unknown status"
+#define ERR_LORA_GATEWAY_UNKNOWN_DATARATE               "Received Lora packet with unknown data rate"
+#define ERR_LORA_GATEWAY_UNKNOWN_BANDWIDTH              "Received Lora packet with unknown bandwidth"
+#define ERR_LORA_GATEWAY_UNKNOWN_CODERATE               "Received Lora packet with unknown code rate"
+
+#define ERR_LORA_GATEWAY_UNKNOWN_MODULATION             "Received Lora packet with unknown modulation"
+#define ERR_LORA_GATEWAY_RECEIVED                       "Received Lora packet "
+#define ERR_LORA_GATEWAY_AUTOQUIT_THRESHOLD             "Last PULL_DATA were not ACKed, exiting application"
+#define ERR_LORA_GATEWAY_BEACON_FAILED                  "Beacon queuing failed"
+#define ERR_LORA_GATEWAY_DUPLICATE_ACK                  "Duplicate ACK received"
+
+#define ERR_LORA_GATEWAY_UNKNOWN_TX_MODE                "Unknown Tx mode"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME               "No valid GPS time reference yet, impossible to send packet on specific GPS time, TX aborted"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME_DISABLED      "GPS disabled, impossible to send packet on specific GPS time, TX aborted"
+#define ERR_LORA_GATEWAY_SEND_AT_GPS_TIME_INVALID       "Сould not convert GPS time to timestamp, TX aborted"
+#define ERR_LORA_GATEWAY_TX_CHAIN_DISABLED              "TX is not enabled on RF chain, TX aborted"
+
+#define ERR_LORA_GATEWAY_TX_UNSUPPORTED_FREQUENCY       "Unsupported frequency, TX aborted"
+#define ERR_LORA_GATEWAY_TX_UNSUPPORTED_POWER           "RF power is not supported, closest lower power used"
+
+#define ERR_LORA_GATEWAY_USB_NOT_FOUND                  "Gateway USB path not found"
+#define ERR_LORA_GATEWAY_SHUTDOWN_TIMEOUT               "Gateway shutdown timeout"
+#define ERR_LORA_GATEWAY_SHUTDOWN_SUCCESS               "Gateway shutdown successfully"
+#define ERR_LORA_GATEWAY_STOP_FAILED                    "Gateway stop failed"
+
+
 
 GatewayMeasurements::GatewayMeasurements()
 {
@@ -240,7 +364,7 @@ void LoraGatewayListener::spectralScanRunner()
 {
     if (!config)
         return;
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_SPECTRAL_SCAN_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_SPECTRAL_SCAN_STARTED);
 
     uint32_t freqHz = config->sx1261.spectralScan.freq_hz_start;
     uint32_t freqHzStop = config->sx1261.spectralScan.freq_hz_start + config->sx1261.spectralScan.nb_chan * 200E3;
@@ -347,7 +471,7 @@ void LoraGatewayListener::spectralScanRunner()
             }
         }
     }
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_SPECTRAL_SCAN_FINISHED);
+    log(LOG_DEBUG, CODE_OK, MSG_SPECTRAL_SCAN_FINISHED);
     spectralScanThreadRunning = false;
     if (threadStartFinish)
         threadStartFinish->onThreadStart(THREAD_SPECTRALSCAN);
@@ -355,7 +479,7 @@ void LoraGatewayListener::spectralScanRunner()
 
 void LoraGatewayListener::gpsRunner()
 {
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_GPS_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_GPS_STARTED);
     char serial_buff[128]; // buffer to receive GPS data
     memset(serial_buff, 0, sizeof serial_buff);
 
@@ -436,7 +560,7 @@ void LoraGatewayListener::gpsRunner()
             wr_idx -= LGW_GPS_MIN_MSG_SIZE;
         }
     }
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_GPS_FINISHED);
+    log(LOG_DEBUG, CODE_OK, MSG_GPS_FINISHED);
     gpsThreadRunning = false;
     if (threadStartFinish)
         threadStartFinish->onThreadStart(THREAD_GPS);
@@ -446,7 +570,7 @@ void LoraGatewayListener::gpsRunner()
  * Check time reference and calculate XTAL correction
  */
 void LoraGatewayListener::gpsCheckTimeRunner() {
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_CHECK_TIME_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_CHECK_TIME_STARTED);
 
     // GPS reference validation variables
     long gps_ref_age = 0;
@@ -509,7 +633,7 @@ void LoraGatewayListener::gpsCheckTimeRunner() {
         }
     }
     gpsCheckTimeThreadRunning = false;
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_CHECK_TIME_FINISHED);
+    log(LOG_DEBUG, CODE_OK, MSG_CHECK_TIME_FINISHED);
     if (threadStartFinish)
         threadStartFinish->onThreadStart(THREAD_GPSCHECKTIME);
 }
@@ -533,7 +657,7 @@ void LoraGatewayListener::upstreamRunner()
 
     metadata.gatewayId = config->gateway.gatewayId;
 
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_UPSTREAM_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_UPSTREAM_STARTED);
 
     // allocate memory for metadata fetching and processing
     struct lgw_pkt_rx_s rxpkt[NB_PKT_MAX]; // array containing inbound packets + metadata
@@ -658,7 +782,7 @@ void LoraGatewayListener::upstreamRunner()
 
             // Packet modulation, 13-14 useful chars
             if (p->modulation == MOD_LORA) {
-                metadata.modu = LORA;
+                metadata.modu = MODULATION_LORA;
 
                 // Lora datarate & bandwidth, 16-19 useful chars
                 switch (p->datarate) {
@@ -693,16 +817,16 @@ void LoraGatewayListener::upstreamRunner()
                 }
                 switch (p->bandwidth) {
                     case BW_125KHZ:
-                        metadata.bandwith = BANDWIDTH_INDEX_125KHZ;
+                        metadata.bandwidth = BANDWIDTH_INDEX_125KHZ;
                         break;
                     case BW_250KHZ:
-                        metadata.bandwith = BANDWIDTH_INDEX_250KHZ;
+                        metadata.bandwidth = BANDWIDTH_INDEX_250KHZ;
                         break;
                     case BW_500KHZ:
-                        metadata.bandwith = BANDWIDTH_INDEX_500KHZ;
+                        metadata.bandwidth = BANDWIDTH_INDEX_500KHZ;
                         break;
                     default:
-                        metadata.bandwith = BANDWIDTH_INDEX_125KHZ;
+                        metadata.bandwidth = BANDWIDTH_INDEX_125KHZ;
                         log(LOG_ERR, ERR_CODE_LORA_GATEWAY_UNKNOWN_BANDWIDTH, ERR_LORA_GATEWAY_UNKNOWN_BANDWIDTH);
                         continue;
                 }
@@ -735,7 +859,7 @@ void LoraGatewayListener::upstreamRunner()
                 // Lora SNR
                 metadata.lsnr = p->snr;
             } else if (p->modulation == MOD_FSK) {
-                metadata.modu = FSK;
+                metadata.modu = MODULATION_FSK;
                 metadata.bps = p->datarate;
             } else {
                 log(LOG_ERR, ERR_CODE_LORA_GATEWAY_UNKNOWN_MODULATION, ERR_LORA_GATEWAY_UNKNOWN_MODULATION);
@@ -749,21 +873,12 @@ void LoraGatewayListener::upstreamRunner()
         // restart fetch sequence without empty call if all packets have been filtered out
         if (pkt_in_dgram == 0)
             continue;
-
-        // log received message (payload ciphered)
-        if (onLog) {
-            Payload p;
-            p.received = metadata.tmst;
-            p.frequency = metadata.freq;
-            p.rssi = metadata.rssi;
-            p.lsnr = metadata.lsnr;
-            p.payload = payload;
-            onLog->onReceive(p);
-        }
-
         // send to the network server, network server must call onValue
-        if (onUpstream)
-            onUpstream(this, &metadata, payload);
+        GwPushData pd;
+        setLORAWAN_MESSAGE_STORAGE(pd.rxData, payload);
+        pd.rxMetadata = metadata;
+        if (onPushData)
+            onPushData(dispatcher, pd);
 
         measurements.inc(meas_up_dgram_sent);
         measurements.inc(meas_up_network_byte, p->size);    // no network traffic, return size of payload
@@ -905,7 +1020,7 @@ int LoraGatewayListener::enqueueTxPacket(
                 log(LOG_WARNING, ERR_CODE_LORA_GATEWAY_SEND_AT_GPS_TIME_INVALID, ERR_LORA_GATEWAY_SEND_AT_GPS_TIME_INVALID);
                 return ERR_CODE_LORA_GATEWAY_SEND_AT_GPS_TIME_INVALID;
             } else {
-                log(LOG_INFO, 0, MSG_LORA_GATEWAY_SEND_AT_GPS_TIME);
+                log(LOG_INFO, CODE_OK, MSG_LORA_GATEWAY_SEND_AT_GPS_TIME);
             }
             // GPS timestamp is given, we consider it is a Class B downlink
             downlinkClass = JIT_PKT_TYPE_DOWNLINK_CLASS_B;
@@ -1001,7 +1116,7 @@ int LoraGatewayListener::enqueueTxPacket(
         }
         measurements.inc(meas_nb_tx_requested);
     }
-    return LORA_OK;
+    return CODE_OK;
 }
 
 /**
@@ -1010,10 +1125,10 @@ int LoraGatewayListener::enqueueTxPacket(
 void LoraGatewayListener::downstreamBeaconRunner() {
     if (!gpsEnabled) {
         // TODO remove this return in production
-        log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_BEACON_DOWNSTREAM_NO_GPS);
+        log(LOG_DEBUG, CODE_OK, MSG_BEACON_DOWNSTREAM_NO_GPS);
         return;
     }
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_BEACON_DOWNSTREAM_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_BEACON_DOWNSTREAM_STARTED);
     // beacon variables
     struct lgw_pkt_tx_s beacon_pkt;
     uint8_t beacon_chan;
@@ -1248,7 +1363,7 @@ void LoraGatewayListener::downstreamBeaconRunner() {
  * Transmit packets from JIT queue
  **/
 void LoraGatewayListener::jitRunner() {
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_JIT_QUEUE_STARTED);
+    log(LOG_DEBUG, CODE_OK, MSG_JIT_QUEUE_STARTED);
     int result = LGW_HAL_SUCCESS;
     struct lgw_pkt_tx_s pkt;
     int pkt_index = -1;
@@ -1346,19 +1461,21 @@ void LoraGatewayListener::jitRunner() {
         }
     }
     jitThreadRunning = false;
-    log(LOG_DEBUG, LOG_EMBEDDED_GATEWAY, MSG_JIT_QUEUE_FINISHED);
+    log(LOG_DEBUG, CODE_OK, MSG_JIT_QUEUE_FINISHED);
     if (threadStartFinish)
         threadStartFinish->onThreadStart(THREAD_JIT);
 }
 
 LoraGatewayListener::LoraGatewayListener()
-        : logVerbosity(0), onUpstream(nullptr), onSpectralScan(nullptr), onLog(nullptr), stopRequest(false),
-          upstreamThreadRunning(false), downstreamBeaconThreadRunning(false), jitThreadRunning(false),
-          gpsThreadRunning(false), gpsCheckTimeThreadRunning(false), spectralScanThreadRunning(false),
-          gps_ref_valid(false), lastLgwCode(0), config(nullptr), flags(0), fdGpsTty(-1), eui(0),
-          gpsCoordsLastSynced(0), gpsTimeLastSynced(0), gpsEnabled(false),
-          xtal_correct_ok(false), xtal_correct(1.0),
-          packetListener(nullptr), threadStartFinish(nullptr)
+    : logVerbosity(0), dispatcher(nullptr),
+    onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr),
+    onSpectralScan(nullptr), onLog(nullptr), stopRequest(false),
+    upstreamThreadRunning(false), downstreamBeaconThreadRunning(false), jitThreadRunning(false),
+    gpsThreadRunning(false), gpsCheckTimeThreadRunning(false), spectralScanThreadRunning(false),
+    gps_ref_valid(false), lastLgwCode(0), config(nullptr), flags(0), fdGpsTty(-1), eui(0),
+    gpsCoordsLastSynced(0), gpsTimeLastSynced(0), gpsEnabled(false),
+    xtal_correct_ok(false), xtal_correct(1.0),
+    threadStartFinish(nullptr)
 {
     // JIT queue initialization
     jit_queue_init(&jit_queue[0]);
@@ -1434,7 +1551,7 @@ int LoraGatewayListener::setup()
     lastLgwCode = lgw_debug_setconf(&config->debug);
     if (lastLgwCode)
         return ERR_CODE_LORA_GATEWAY_CONFIGURE_DEBUG;
-    return LORA_OK;
+    return CODE_OK;
 }
 
 std::string LoraGatewayListener::version()
@@ -1537,8 +1654,6 @@ int LoraGatewayListener::start()
             gpsCheckTimeThread.detach();
         }
     }
-    if (onLog)
-        onLog->onStarted(eui, packetListener->regionName, packetListener->regionIndex);
     return 0;
 }
 
@@ -1599,15 +1714,13 @@ int LoraGatewayListener::stop(int waitSeconds)
     if (onStop) {
         onStop(this, success);
     }
-    if (onLog)
-        onLog->onFinished(success ? ERR_LORA_GATEWAY_SHUTDOWN_SUCCESS : ERR_LORA_GATEWAY_SHUTDOWN_TIMEOUT);
-    return success ? LORA_OK : ERR_CODE_LORA_GATEWAY_SHUTDOWN_TIMEOUT;
+    return success ? CODE_OK : ERR_CODE_LORA_GATEWAY_SHUTDOWN_TIMEOUT;
 }
 
 void LoraGatewayListener::log(
-        int level,
-        int errorcode,
-        const std::string &message
+    int level,
+    int errorCode,
+    const std::string &message
 ) const
 {
     if (!onLog)
@@ -1615,7 +1728,7 @@ void LoraGatewayListener::log(
     if (level > logVerbosity)
         return;
     mLog.lock();
-    onLog->onInfo((void *) this, LOG_EMBEDDED_GATEWAY, level, errorcode, message);
+    onLog->strm(level) << message << std::endl;
     mLog.unlock();
 }
 
@@ -1627,9 +1740,9 @@ void LoraGatewayListener::setThreadStartFinish(
 
 void LoraGatewayListener::setOnSpectralScan(
         std::function<void(
-                const LoraGatewayListener *listener,
-                const uint32_t frequency,
-                const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
+            const LoraGatewayListener *listener,
+            const uint32_t frequency,
+            const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
         )> value)
 {
     mReportSpectralScan.lock();
@@ -1638,7 +1751,7 @@ void LoraGatewayListener::setOnSpectralScan(
 }
 
 void LoraGatewayListener::setOnLog(
-        LogIntf *value
+    Log *value
 )
 {
     mLog.lock();
@@ -1646,23 +1759,11 @@ void LoraGatewayListener::setOnLog(
     mLog.unlock();
 }
 
-void LoraGatewayListener::setOnUpstream(
-        std::function<void(
-                const LoraGatewayListener *listener,
-                const SEMTECH_PROTOCOL_METADATA *metadata,
-                const std::string &payload
-        )> value
-)
-{
-    // no prevent mutex required
-    onUpstream = value;
-}
-
 void LoraGatewayListener::setOnStop(
-        std::function<void(
-                const LoraGatewayListener *listener,
-                bool gracefullyStopped
-        )> value
+    std::function<void(
+        const LoraGatewayListener *listener,
+        bool gracefullyStopped
+    )> value
 )
 {
     onStop = value;
@@ -1677,4 +1778,28 @@ const char *getMeasurementName(int index)
 
 std::string LoraGatewayListener::toString() const {
     return "{\"measurements\": " + measurements.toString() + "}";
+}
+
+void LoraGatewayListener::setOnPushData(
+    OnPushDataProc proc
+) {
+    onPushData = proc;
+}
+
+void LoraGatewayListener::setOnPullResp(
+    OnPullRespProc proc
+) {
+    onPullResp = proc;
+}
+
+void LoraGatewayListener::setOnTxpkAck(
+    OnTxpkAckProc proc
+) {
+    onTxPkAck = proc;
+}
+
+void LoraGatewayListener::setDispatcher(
+    MessageTaskDispatcher *value
+) {
+    dispatcher = value;
 }

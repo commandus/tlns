@@ -189,12 +189,6 @@ const char *MEASUREMENT_SHORT_NAME[MEASUREMENT_COUNT_SIZE] = {
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_FREQUENCY       "Unsupported frequency, TX aborted"
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_POWER           "RF power is not supported, closest lower power used"
 
-#define ERR_LORA_GATEWAY_USB_NOT_FOUND                  "Gateway USB path not found"
-#define ERR_LORA_GATEWAY_SHUTDOWN_TIMEOUT               "Gateway shutdown timeout"
-#define ERR_LORA_GATEWAY_SHUTDOWN_SUCCESS               "Gateway shutdown successfully"
-#define ERR_LORA_GATEWAY_STOP_FAILED                    "Gateway stop failed"
-
-
 
 GatewayMeasurements::GatewayMeasurements()
 {
@@ -1733,17 +1727,17 @@ void LoraGatewayListener::log(
 }
 
 void LoraGatewayListener::setThreadStartFinish(
-        ThreadStartFinish *value
+    ThreadStartFinish *value
 ) {
     threadStartFinish = value;
 }
 
 void LoraGatewayListener::setOnSpectralScan(
-        std::function<void(
-            const LoraGatewayListener *listener,
-            const uint32_t frequency,
-            const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
-        )> value)
+    std::function<void(
+        const LoraGatewayListener *listener,
+        const uint32_t frequency,
+        const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
+    )> value)
 {
     mReportSpectralScan.lock();
     onSpectralScan = value;

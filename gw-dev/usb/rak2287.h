@@ -212,7 +212,9 @@ public:
     void setOnTxpkAck(
         OnTxpkAckProc onTxPkAck
     );
-    void setOnLog(Log *value);
+    void setOnLog(
+        Log *value
+    );
     void setDispatcher(
         MessageTaskDispatcher *dispatcher
     );

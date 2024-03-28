@@ -77,7 +77,6 @@ public:
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
-    void setPorts(uint16_t control);
     virtual ~MessageTaskDispatcher();
 
     void response(MessageQueueItem *item);

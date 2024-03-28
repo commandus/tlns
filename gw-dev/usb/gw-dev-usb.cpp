@@ -14,8 +14,6 @@
 
 #include "argtable3/argtable3.h"
 
-#include "libloragw-helper.h"
-
 #include "daemonize.h"
 #include "lorawan/lorawan-error.h"
 
@@ -25,24 +23,7 @@
 #include "lorawan/helper/file-helper.h"
 
 #include "subst-call-c.h"
-
-class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
-private:
-        std::string devicePath;
-public:
-    
-    explicit PosixLibLoragwOpenClose(const std::string &aDevicePath) : devicePath(aDevicePath) {};
-
-    int openDevice(const char *fileName, int mode) override
-    {
-        return open(devicePath.c_str(), mode);
-    };
-
-    int closeDevice(int fd) override
-    {
-        return close(fd);
-    };
-};
+#include "task-usb-socket.h"
 
 static std::string getRegionNames()
 {
@@ -66,6 +47,7 @@ size_t findRegionIndex(
 }
 
 const std::string programName = "lorawan-gateway";
+static TaskUSBSocket *taskUSBSocket = nullptr;
 
 class LocalGatewayConfiguration {
 public:
@@ -92,22 +74,13 @@ static void stop()
 {
 }
 
-static LibLoragwHelper libLoragwHelper;
-
 static void done()
 {
-    if (libLoragwHelper.onOpenClose) {
-        delete libLoragwHelper.onOpenClose;
-        libLoragwHelper.onOpenClose = nullptr;
+    if (taskUSBSocket) {
+        delete taskUSBSocket;
+        taskUSBSocket = nullptr;
     }
 }
-
-class StdErrLog: public Log {
-public:
-    std::ostream& strm(int level) override {
-        return std::cerr;
-    }
-};
 
 /**
  * Parse command line
@@ -201,8 +174,6 @@ static void printTrace() {
 #endif
 }
 
-static StdErrLog errLog;
-
 static void init();
 static void run();
 
@@ -266,20 +237,21 @@ static void run()
         setSignalHandler();
 }
 
+class StdErrLog: public Log {
+public:
+    std::ostream& strm(int level) override {
+        return std::cerr;
+    }
+};
+
+static StdErrLog errLog;
+
 static void init()
 {
-    libLoragwHelper.bind(&errLog, new PosixLibLoragwOpenClose(localConfig.devicePath));
-    if (!libLoragwHelper.onOpenClose)
-        return;
-
-    if (localConfig.identityFileName.empty()) {
-        // std::cerr << ERR_WARNING << ERR_CODE_INIT_IDENTITY << ": " << ERR_INIT_IDENTITY << std::endl;
-        if (localConfig.verbosity > 0)
-            std::cerr << MSG_NO_IDENTITIES << std::endl;
-    } else {
-    }
-
-    libLoragwHelper.bind(&errLog, nullptr);
+    std::string socketFileName = "/tmp/usb.socket";
+    GatewaySettings* settings = getGatewayConfig(&localConfig);
+    MessageTaskDispatcher *dispatcher;
+    taskUSBSocket = new TaskUSBSocket(dispatcher, socketFileName, settings, &errLog, localConfig.verbosity);
 }
 
 int main(

@@ -26,6 +26,14 @@ public:
 
 static LibLoragwHelper libLoragwHelper;
 
+static void onPushData(
+    MessageTaskDispatcher* dispatcher,
+    GwPushData &item
+)
+{
+
+}
+
 /**
  * Open Unix domain socket
  * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
@@ -45,6 +53,7 @@ TaskUSBSocket::TaskUSBSocket(
         verbosity = 0;
     listener.setLogVerbosity(verbosity);
     listener.onLog = aLog;
+    listener.setOnPushData(onPushData);
     helperOpenClose = new PosixLibLoragwOpenClose(settings->sx130x.boardConf.com_path);
     libLoragwHelper.bind(aLog, helperOpenClose);
 

@@ -79,11 +79,11 @@ SOCKET TaskUSBSocket::openSocket()
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
     r = listen(sock, 20);
-    if (r < 0) {
+    if (r < 0)
         sock = -1;
-        return sock;
-    }
-    listener.start();
+    else
+        listener.start();
+    return sock;
 }
 
 void TaskUSBSocket::closeSocket()

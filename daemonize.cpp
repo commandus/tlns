@@ -37,19 +37,19 @@ static TDaemonRunner daemonDone;
 
 #define DEF_FD_LIMIT			(1024 * 10)
 
-Daemonize::Daemonize(
+Daemonize::	Daemonize(
     const std::string &daemonName,
     const std::string &aWorkingDirectory,
-    TDaemonRunner runner,
-    TDaemonRunner stopRequest,
-    TDaemonRunner done,
-    const int aMaxFileDescriptors,
-    const std::string &aPidFileName
+    TDaemonRunner runner,					///< function to run as deamon
+    TDaemonRunner stopRequest, 				///< function to stop
+    TDaemonRunner done,						///< function to clean after runner exit
+    const int aMaxFileDescriptors,  		///< 0- default 1024
+    const std::string &aPidFileName     	///< if empty, /var/run/program_name.pid is used
 )
-	: workingDirectory(aWorkingDirectory), maxFileDescriptors(aMaxFileDescriptors)
+    : workingDirectory(aWorkingDirectory), maxFileDescriptors(aMaxFileDescriptors)
 {
 	serviceName = daemonName;
-	if (pidFileName.empty())
+	if (aPidFileName.empty())
 		pidFileName = DEF_PID_PATH + daemonName + ".pid";
 	else
 		pidFileName = aPidFileName;

@@ -69,7 +69,7 @@ else()
 		task-usb-socket.cpp
 		rak2286.cpp
 		${ARGTABLE}
-		../../daemonize.cpp
+        ../../third-party/daemonize.cpp
 		../../lorawan/helper/file-helper.cpp
 		../../lorawan/helper/thread-helper.cpp
 		../../task-response-threaded.cpp

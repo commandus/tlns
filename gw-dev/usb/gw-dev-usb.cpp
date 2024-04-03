@@ -22,6 +22,7 @@
 
 #include "subst-call-c.h"
 #include "task-usb-socket.h"
+#include "lorawan/lorawan-string.h"
 
 // i18n
 // #include <libintl.h>
@@ -31,8 +32,8 @@
 static std::string getRegionNames()
 {
     std::stringstream ss;
-    for (size_t i = 0; i < sizeof(lorawanGatewaySettings) / sizeof(GatewaySettings); i++) {
-        ss << "\"" << lorawanGatewaySettings[i].name << "\" ";
+    for (auto & lorawanGatewaySetting : lorawanGatewaySettings) {
+        ss << "\"" << lorawanGatewaySetting.name << "\" ";
     }
     return ss.str();
 }
@@ -62,6 +63,10 @@ public:
     bool daemonize;
     int verbosity;
     std::string pidfile;
+    LocalGatewayConfiguration()
+        : regionIdx(0), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0) {
+
+    }
 };
 
 GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
@@ -79,10 +84,6 @@ static void stop()
 
 static void done()
 {
-    if (taskUSBSocket) {
-        delete taskUSBSocket;
-        taskUSBSocket = nullptr;
-    }
 }
 
 /**
@@ -225,6 +226,8 @@ void signalHandler(int signal)
     }
 }
 
+MessageTaskDispatcher dispatcher;
+
 void setSignalHandler()
 {
 #ifndef _MSC_VER
@@ -244,6 +247,19 @@ static void run()
 {
     if (!localConfig.daemonize)
         setSignalHandler();
+    dispatcher.start();
+    // Check is abnormally stopped
+    if (!dispatcher.running)
+        return;
+    std::cout << _("Enter 'q' to stop") << std::endl;
+    while (dispatcher.running) {
+        std::string l;
+        getline(std::cin, l);
+        if (l == "q") {
+            dispatcher.stop();
+            break;
+        }
+    }
 }
 
 class StdErrLog: public Log {
@@ -257,10 +273,55 @@ static StdErrLog errLog;
 
 static void init()
 {
+    dispatcher.onPushData = [] (
+            MessageTaskDispatcher* dispatcher,
+            GwPushData &item
+    ) {
+        std::cout
+                << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
+                << ",\n\"rfm\": "
+                << item.rxData.toString()
+                << "}" << std::endl;
+    };
+
+    dispatcher.onPullResp = [] (
+            MessageTaskDispatcher* dispatcher,
+            GwPullResp &item
+    ) {
+        std::cout
+                << "{\"metadata\": "
+                << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
+                << ", \"gwId\": " << gatewayId2str(item.gwId.u)
+                << ", \"txData\": " << item.txData.toString()
+                << "}" << std::endl;
+    };
+
+    dispatcher.onTxPkAck = [] (
+            MessageTaskDispatcher* dispatcher,
+            ERR_CODE_TX code
+    ) {
+        std::cout
+                << "{\"txPkAck\": \""
+                << ERR_CODE_TX2string(code)
+                << "\"}" << std::endl;
+    };
+
     std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
-    MessageTaskDispatcher *dispatcher;
-    taskUSBSocket = new TaskUSBSocket(dispatcher, socketFileName, settings, &errLog, localConfig.verbosity);
+    taskUSBSocket = new TaskUSBSocket(&dispatcher, socketFileName, settings, &errLog,
+        localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+
+#ifdef _MSC_VER
+    in_addr_t a;
+    a.S_un.S_addr = INADDR_LOOPBACK;
+    dispatcher.sockets.push_back(taskUSBSocket);
+#else
+    dispatcher.sockets.push_back(taskUSBSocket);
+#endif
+    // allow send()
+    dispatcher.enableClientControlSocket(INADDR_LOOPBACK, 4242);
+    // TaskResponseThreaded response;
+    // dispatcher.setResponse(&response);
 }
 
 int main(

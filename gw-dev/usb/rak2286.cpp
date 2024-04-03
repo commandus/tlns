@@ -1575,7 +1575,7 @@ int LoraGatewayListener::start()
     // GPS sync
     if (config->gateway.gpsEnabled) {
         lastLgwCode = lgw_gps_enable((char *) config->gpsTtyPath.c_str(),
-                                     (char *) DEF_GPS_FAMILY, 0, &fdGpsTty);
+            (char *) DEF_GPS_FAMILY, 0, &fdGpsTty);
         if (lastLgwCode) {
             config->gateway.gpsEnabled = false;
             // return ERR_CODE_LORA_GATEWAY_CONFIGURE_BOARD_FAILED;

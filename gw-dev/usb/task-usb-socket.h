@@ -7,7 +7,6 @@ class TaskUSBSocket : public TaskSocket {
 private:
     MessageTaskDispatcher *dispatcher;
     std::string socketPath;
-    GatewaySettings *settings;
     LoraGatewayListener listener;
     LibLoragwOpenClose *helperOpenClose;
     bool stopped;
@@ -23,6 +22,8 @@ public:
         const std::string &socketFileName,
         GatewaySettings *settings,
         Log *log,
+        bool enableSend,
+        bool enableBeacon,
         int verbosity
     );
     SOCKET openSocket() override;

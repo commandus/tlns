@@ -44,17 +44,23 @@ TaskUSBSocket::TaskUSBSocket(
     const std::string &socketFileName,
     GatewaySettings *aSettings,
     Log *aLog,
+    bool enableSend,
+    bool enableBeacon,
     int verbosity
 )
-    : dispatcher(aDispatcher), TaskSocket(), socketPath(socketFileName), settings(aSettings)
+    : dispatcher(aDispatcher), TaskSocket(),
+    socketPath(socketFileName)
 {
+    listener.config = aSettings;
     listener.setDispatcher(dispatcher);
+    listener.flags = (enableSend ? 0 : FLAG_GATEWAY_LISTENER_NO_SEND) | (enableBeacon ? 0 : FLAG_GATEWAY_LISTENER_NO_BEACON);
+
     if (!aLog)
         verbosity = 0;
     listener.setLogVerbosity(verbosity);
     listener.onLog = aLog;
     listener.setOnPushData(onPushData);
-    helperOpenClose = new PosixLibLoragwOpenClose(settings->sx130x.boardConf.com_path);
+    helperOpenClose = new PosixLibLoragwOpenClose(aSettings->sx130x.boardConf.com_path);
     libLoragwHelper.bind(aLog, helperOpenClose);
 
     // In case the program exited inadvertently on the last run, remove the socket.
@@ -81,8 +87,11 @@ SOCKET TaskUSBSocket::openSocket()
     r = listen(sock, 20);
     if (r < 0)
         sock = -1;
-    else
-        listener.start();
+    else {
+        r = listener.start();
+        if (r < 0)
+            sock = -1;
+    }
     return sock;
 }
 

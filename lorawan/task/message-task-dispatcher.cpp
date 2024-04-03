@@ -166,6 +166,7 @@ void MessageTaskDispatcher::clearSockets()
  */
 int MessageTaskDispatcher::runner()
 {
+    running = false;
     if (sockets.empty())
         return ERR_CODE_PARAM_INVALID;
     if (!openSockets()) {

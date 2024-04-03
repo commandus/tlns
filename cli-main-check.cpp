@@ -14,6 +14,11 @@
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
 
+// i18n
+// #include <libintl.h>
+// #define _(String) gettext (String)
+#define _(String) (String)
+
 const char *programName = "tlns-check";
 
 // global parameters
@@ -85,7 +90,7 @@ static void run() {
     // TaskResponseThreaded response;
     // dispatcher.setResponse(&response);
 
-    std::cout << "Enter packet (hex string) or  'q' to stop" << std::endl;
+    std::cout << _("Enter packet (hex string) or  'q' to stop") << std::endl;
     while (true) {
         std::string l;
         getline(std::cin, l);
@@ -102,8 +107,8 @@ static void run() {
 }
 
 int main(int argc, char **argv) {
-    struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2,"-v verbose -vv debug");
-    struct arg_lit *a_help = arg_lit0("h", "help", "Show this help");
+    struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));
+    struct arg_lit *a_help = arg_lit0("h", "help", _("Show this help"));
 	struct arg_end *a_end = arg_end(20);
 
 	void* argtable[] = { 
@@ -125,9 +130,9 @@ int main(int argc, char **argv) {
 	if ((a_help->count) || errorCount) {
 		if (errorCount)
 			arg_print_errors(stderr, a_end, programName);
-		std::cerr << "Usage: " << programName << std::endl;
+		std::cerr << _("Usage: ") << programName << std::endl;
 		arg_print_syntax(stderr, argtable, "\n");
-		std::cerr << "tlns check utility" << std::endl;
+		std::cerr << _("tlns check utility") << std::endl;
 		arg_print_glossary(stderr, argtable, "  %-27s %s\n");
 		arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 		return ERR_CODE_COMMAND_LINE;

@@ -10,8 +10,6 @@
 #include <execinfo.h>
 #endif
 
-#include <fcntl.h>
-
 #include "argtable3/argtable3.h"
 
 #include "daemonize.h"
@@ -24,6 +22,11 @@
 
 #include "subst-call-c.h"
 #include "task-usb-socket.h"
+
+// i18n
+// #include <libintl.h>
+// #define _(String) gettext (String)
+#define _(String) (String)
 
 static std::string getRegionNames()
 {
@@ -46,7 +49,7 @@ size_t findRegionIndex(
     return 0;
 }
 
-const std::string programName = "lorawan-gateway";
+const std::string programName = _("lorawan-gateway");
 static TaskUSBSocket *taskUSBSocket = nullptr;
 
 class LocalGatewayConfiguration {
@@ -58,7 +61,7 @@ public:
     bool enableBeacon;
     bool daemonize;
     int verbosity;
-
+    std::string pidfile;
 };
 
 GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
@@ -95,20 +98,21 @@ int parseCmd(
 )
 {
     // device path
-    struct arg_str *a_device_path = arg_str1(nullptr, nullptr, "<device-name>", "USB gateway device e.g. /dev/ttyACM0");
-    struct arg_str *a_region_name = arg_str1("c", "region", "<region-name>", "Region name, e.g. \"EU433\" or \"US\"");
-    struct arg_str *a_identity_file_name = arg_str0("i", "id", "<id-file-name>", "Device identities JSON file name");
-    struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", "Allow send");
-    struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", "Allow send beacon");
-    struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", "Run as daemon");
-    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, "Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug");
-    struct arg_lit *a_help = arg_lit0("?", "help", "Show this help");
+    struct arg_str *a_device_path = arg_str1(nullptr, nullptr, _("<device-name>"), _("USB gateway device e.g. /dev/ttyACM0"));
+    struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
+    struct arg_str *a_identity_file_name = arg_str0("i", "id", _("<id-file-name>"), _("Device identities JSON file name"));
+    struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
+    struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
+    struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
+    struct arg_str *a_pidfile = arg_str0("p", "pidfile", _("<file>"), _("Check whether a process has created the file pidfile"));
+    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
+    struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
         a_device_path, a_region_name, a_identity_file_name,
         a_enable_send, a_enable_beacon,
-        a_daemonize, a_verbosity, a_help, a_end
+        a_daemonize, a_pidfile, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -137,17 +141,22 @@ int parseCmd(
     config->enableBeacon = (a_enable_beacon->count > 0);
 
     config->daemonize = (a_daemonize->count > 0);
+    if (a_pidfile->count)
+        config->pidfile = *a_pidfile->sval;
+    else
+        config->pidfile = "";
+
     config->verbosity = a_verbosity->count;
 
     // special case: '--help' takes precedence over error reporting
     if ((a_help->count) || nErrors) {
         if (nErrors)
             arg_print_errors(stderr, a_end, programName.c_str());
-        std::cerr << "Usage: " << programName << std::endl;
+        std::cerr << _("Usage: ") << programName << std::endl;
         arg_print_syntax(stderr, argtable, "\n");
         std::cerr << MSG_PROG_NAME_GATEWAY_USB << std::endl;
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
-        std::cerr << "  region name: "
+        std::cerr << _("  region name: ")
             << getRegionNames() << std::endl;
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
         return ERR_CODE_PARAM_INVALID;
@@ -266,7 +275,7 @@ int main(
 
     if (localConfig.daemonize)	{
         std::string progpath = getCurrentDir();
-        Daemonize daemonize(programName, progpath, run, stop, done);
+        Daemonize daemonize(programName, progpath, run, stop, done, 0, localConfig.pidfile);
     } else {
         run();
         done();

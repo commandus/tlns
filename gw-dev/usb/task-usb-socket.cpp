@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <sys/syslog.h>
 
-#include "libloragw-helper.h"
 #include "lorawan/lorawan-msg.h"
 
 class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
@@ -65,6 +64,9 @@ TaskUSBSocket::TaskUSBSocket(
 
     // In case the program exited inadvertently on the last run, remove the socket.
     unlink(socketPath.c_str());
+
+    if (aLog)
+        aLog->strm(LOG_INFO) << "Settings " << listener.config->name << "\n";
 }
 
 SOCKET TaskUSBSocket::openSocket()
@@ -108,6 +110,7 @@ void TaskUSBSocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskUSBSocket::~TaskUSBSocket()
 {
+    libLoragwHelper.flush();
     closeSocket();
 
     if (helperOpenClose) {

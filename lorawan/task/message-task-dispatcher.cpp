@@ -102,6 +102,7 @@ bool MessageTaskDispatcher::start()
 {
     if (running)
         return true;
+    running = true;
     thread = new std::thread(std::bind(&MessageTaskDispatcher::runner, this));
     thread->detach();
     return true;
@@ -166,11 +167,13 @@ void MessageTaskDispatcher::clearSockets()
  */
 int MessageTaskDispatcher::runner()
 {
-    running = false;
-    if (sockets.empty())
+    if (sockets.empty()) {
+        running = false;
         return ERR_CODE_PARAM_INVALID;
+    }
     if (!openSockets()) {
         closeSockets();
+        running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
 
@@ -194,8 +197,6 @@ int MessageTaskDispatcher::runner()
     }
 
     char buffer[4096];
-
-    running = true;
 
     ParseResult pr;
     while (running) {

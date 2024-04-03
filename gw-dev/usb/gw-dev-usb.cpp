@@ -248,7 +248,8 @@ static void run()
     if (!localConfig.daemonize)
         setSignalHandler();
     dispatcher.start();
-    // Check is abnormally stopped
+    // Check is thread abnormally stopped
+    sleep(1);
     if (!dispatcher.running)
         return;
     std::cout << _("Enter 'q' to stop") << std::endl;
@@ -274,36 +275,36 @@ static StdErrLog errLog;
 static void init()
 {
     dispatcher.onPushData = [] (
-            MessageTaskDispatcher* dispatcher,
-            GwPushData &item
+        MessageTaskDispatcher* dispatcher,
+        GwPushData &item
     ) {
         std::cout
-                << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
-                << ",\n\"rfm\": "
-                << item.rxData.toString()
-                << "}" << std::endl;
+            << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
+            << ",\n\"rfm\": "
+            << item.rxData.toString()
+            << "}" << std::endl;
     };
 
     dispatcher.onPullResp = [] (
-            MessageTaskDispatcher* dispatcher,
-            GwPullResp &item
+        MessageTaskDispatcher* dispatcher,
+        GwPullResp &item
     ) {
         std::cout
-                << "{\"metadata\": "
-                << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
-                << ", \"gwId\": " << gatewayId2str(item.gwId.u)
-                << ", \"txData\": " << item.txData.toString()
-                << "}" << std::endl;
+            << "{\"metadata\": "
+            << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
+            << ", \"gwId\": " << gatewayId2str(item.gwId.u)
+            << ", \"txData\": " << item.txData.toString()
+            << "}" << std::endl;
     };
 
     dispatcher.onTxPkAck = [] (
-            MessageTaskDispatcher* dispatcher,
-            ERR_CODE_TX code
+        MessageTaskDispatcher* dispatcher,
+        ERR_CODE_TX code
     ) {
         std::cout
-                << "{\"txPkAck\": \""
-                << ERR_CODE_TX2string(code)
-                << "\"}" << std::endl;
+            << "{\"txPkAck\": \""
+            << ERR_CODE_TX2string(code)
+            << "\"}" << std::endl;
     };
 
     std::string socketFileName = "/tmp/usb.socket";
@@ -333,7 +334,6 @@ int main(
         exit(ERR_CODE_COMMAND_LINE);
     }
     init();
-
     if (localConfig.daemonize)	{
         std::string progpath = getCurrentDir();
         Daemonize daemonize(programName, progpath, run, stop, done, 0, localConfig.pidfile);

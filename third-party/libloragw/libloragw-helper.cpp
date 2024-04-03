@@ -72,7 +72,7 @@ void LibLoragwHelper::flush()
             emergency = LOG_ERR;
         }
     }
-    onLog->strm(emergency) << msg;
+    onLog->strm(emergency) << msg << "\n";
     logBuffer.str("");
     logBuffer.clear();
 }

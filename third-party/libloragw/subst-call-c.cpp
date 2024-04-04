@@ -62,6 +62,20 @@ static int ft_print_d(const char *fmt, va_list ap, int len) {
     return ft_printf_aux(fmt, ap, len);
 }
 
+static int ft_print_f(const char *fmt, va_list ap, int len) {
+    float f = va_arg(ap, float);
+    unsigned long long u;
+    if (f < 0) {
+        ft_putchar('-');
+        len++;
+        u = -(unsigned) f;
+    } else {
+        u = f;
+    }
+    len += ft_putnum(u, 10, "0123456789");
+    return ft_printf_aux(fmt, ap, len);
+}
+
 static int ft_print_o(const char *fmt, va_list ap, int len) {
     unsigned int n = va_arg(ap, unsigned int);
     len += ft_putnum(n, 8, "01234567");
@@ -108,6 +122,8 @@ ft_print_dispatch_f ft_print_dispatch(char v)
     case 'd':
     case 'i':
         return ft_print_d;
+    case 'f':
+        return ft_print_f;
     case 'o':
         return ft_print_o;
     case 'u':

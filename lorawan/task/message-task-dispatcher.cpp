@@ -324,6 +324,9 @@ void MessageTaskDispatcher::pushData(
     bool isNew = queue.put(pushData);
     queueMutex.unlock();
     // wake up
-    if (isNew)
-        send('p');
+    if (isNew) {
+        auto a = pushData.rxData.getAddr();
+        if (a)
+            send(a, SIZE_DEVADDR);
+    }
 }

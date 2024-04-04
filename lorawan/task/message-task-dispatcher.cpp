@@ -241,6 +241,11 @@ int MessageTaskDispatcher::runner()
                             auto *a = (DEVADDR *) buffer;
                             // process message queue
                             MessageQueueItem *item = queue.findByDevAddr(a);
+                            if (item) {
+                                if (onPushData)
+                                    onPushData(this, item);
+                            }
+                            break;
                         }
                             break;
                         default: {
@@ -249,9 +254,7 @@ int MessageTaskDispatcher::runner()
                                 if (r == CODE_OK) {
                                     switch (pr.tag) {
                                         case SEMTECH_GW_PUSH_DATA:
-                                            if (onPushData)
-                                                onPushData(this, pr.gwPushData);
-                                            queue.put(pr.gwPushData);
+                                            pushData(pr.gwPushData);
                                             break;
                                         case SEMTECH_GW_PULL_RESP:
                                             if (onPullResp)
@@ -264,8 +267,6 @@ int MessageTaskDispatcher::runner()
                                             break;
                                     }
                                 }
-
-
                                 if (r < 0) {
                                     // inform
                                 }
@@ -314,4 +315,15 @@ void MessageTaskDispatcher::enableClientControlSocket(
 #else
     clientControlSocketDestination.sin_addr.s_addr = htonl(address);
 #endif
+}
+
+void MessageTaskDispatcher::pushData(
+    GwPushData &pushData
+) {
+    queueMutex.lock();
+    bool isNew = queue.put(pushData);
+    queueMutex.unlock();
+    // wake up
+    if (isNew)
+        send('p');
 }

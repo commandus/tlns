@@ -5,6 +5,7 @@
 #include <sys/syslog.h>
 
 #include "lorawan/lorawan-msg.h"
+#include "lorawan/lorawan-string.h"
 
 class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
 private:
@@ -27,10 +28,25 @@ static LibLoragwHelper libLoragwHelper;
 
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
-    GwPushData &item
+    MessageQueueItem *item
 )
 {
+    bool f = true;
+    for (auto it(item->metadata.begin()); it != item->metadata.end(); it++) {
+        if (f)
+            f = false;
+        else
+            std::cout << ", ";
+        std::cout << "{\"gateway_id\": " << gatewayId2str(it->first);
+        std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+    }
+    std::cout
+            << "],\n\"rfm\": "
+            << item->radioPacket.toString()
+            << "}" << std::endl;
 
+    // GwPushData pd;
+    // dispatcher->pushData(pd);
 }
 
 /**
@@ -59,6 +75,11 @@ TaskUSBSocket::TaskUSBSocket(
     listener.setLogVerbosity(verbosity);
     listener.onLog = aLog;
     listener.setOnPushData(onPushData);
+    /*
+    listener.setOnPullResp();
+    listener.setOnTxpkAck();
+    listener.setOnSpectralScan();
+     */
     helperOpenClose = new PosixLibLoragwOpenClose(aSettings->sx130x.boardConf.com_path);
     libLoragwHelper.bind(aLog, helperOpenClose);
 

@@ -276,13 +276,21 @@ static void init()
 {
     dispatcher.onPushData = [] (
         MessageTaskDispatcher* dispatcher,
-        GwPushData &item
+        MessageQueueItem *item
     ) {
+        bool f = true;
+        for (auto it(item->metadata.begin()); it != item->metadata.end(); it++) {
+            if (f)
+                f = false;
+            else
+                std::cout << ", ";
+            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first);
+            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+        }
         std::cout
-            << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(item.rxMetadata)
-            << ",\n\"rfm\": "
-            << item.rxData.toString()
-            << "}" << std::endl;
+                << "],\n\"rfm\": "
+                << item->radioPacket.toString()
+                << "}" << std::endl;
     };
 
     dispatcher.onPullResp = [] (

@@ -868,11 +868,11 @@ void LoraGatewayListener::upstreamRunner()
         if (pkt_in_dgram == 0)
             continue;
         // send to the network server, network server must call onValue
-        GwPushData pd;
-        setLORAWAN_MESSAGE_STORAGE(pd.rxData, payload);
-        pd.rxMetadata = metadata;
+        MessageQueueItem mqi;
+        mqi.metadata[metadata.gatewayId] = metadata;
+        setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
         if (onPushData)
-            onPushData(dispatcher, pd);
+            onPushData(dispatcher, &mqi);
 
         measurements.inc(meas_up_dgram_sent);
         measurements.inc(meas_up_network_byte, p->size);    // no network traffic, return size of payload

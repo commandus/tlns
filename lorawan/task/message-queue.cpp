@@ -82,6 +82,11 @@ bool MessageQueue::put(
     return true;
 }
 
+/**
+ * Return true if first packet added, false if it is from another gateway (duplicate)
+ * @param pushData
+ * @return
+ */
 bool MessageQueue::put(
     GwPushData & pushData
 )
@@ -95,9 +100,11 @@ bool MessageQueue::put(
         // update metadata
         f->second.metadata[pushData.rxMetadata.gatewayId] = pushData.rxMetadata;
     } else {
+        qi.metadata[pushData.rxMetadata.gatewayId] = pushData.rxMetadata;
+        qi.radioPacket = pushData.rxData;
         auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
     }
-    return true;
+    return !isSame;
 }
 
 void MessageQueue::rm(
@@ -139,4 +146,3 @@ MessageQueueItem *MessageQueue::findByJoinRequest(
     else
         return &f->second;
 }
-

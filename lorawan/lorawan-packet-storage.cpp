@@ -118,6 +118,16 @@ bool LORAWAN_MESSAGE_STORAGE::operator==(const LORAWAN_MESSAGE_STORAGE &rhs) con
     }
 }
 
+LORAWAN_MESSAGE_STORAGE& LORAWAN_MESSAGE_STORAGE::operator=(
+    const LORAWAN_MESSAGE_STORAGE &value
+)
+{
+    mhdr = value.mhdr;
+    memmove(&data, &value.data, sizeof(data));
+    packetSize = value.packetSize;
+    return *this;
+}
+
 bool UPLINK_STORAGE::operator==(
     const UPLINK_STORAGE &rhs
 ) const

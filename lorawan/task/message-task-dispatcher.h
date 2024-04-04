@@ -13,7 +13,7 @@
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
-    GwPushData &item
+    MessageQueueItem *item
 );
 
 typedef void(*OnPullRespProc)(
@@ -45,6 +45,7 @@ private:
     // socket to send 'commands'
     SOCKET clientControlSocket;
     sockaddr_in clientControlSocketDestination;
+    std::mutex queueMutex;
 protected:
     TaskResponse *taskResponse;
     // main loop thread
@@ -98,6 +99,8 @@ public:
     );
 
     void enableClientControlSocket(in_addr_t address, int port);
+
+    void pushData(GwPushData &pushData);
 };
 
 #endif

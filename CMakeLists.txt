@@ -87,7 +87,6 @@ else()
 
 	set(CMAKE_CXX_STANDARD 11)
 
-	
 	option(ENABLE_GW_DEV_USB "Build RAK2287 USB gateway backend" ON)
 	option(ENABLE_IPV6 "Build with IPv6" OFF)
 	option(ENABLE_DEBUG "Build with debug" OFF)

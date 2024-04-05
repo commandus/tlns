@@ -35,7 +35,7 @@ class LibLoragwHelper {
         Log *onLog;
 
         LibLoragwHelper();
-        LibLoragwHelper(const LibLoragwHelper&value);
+        LibLoragwHelper(const LibLoragwHelper &value);
         virtual ~LibLoragwHelper();
 
         int open(const char *fileName, int mode);

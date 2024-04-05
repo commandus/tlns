@@ -647,8 +647,6 @@ void LoraGatewayListener::gpsCheckTimeRunner() {
 void LoraGatewayListener::upstreamRunner()
 {
     SEMTECH_PROTOCOL_METADATA_RX metadata;
-    std::string payload;
-
     metadata.gatewayId = config->gateway.gatewayId;
 
     log(LOG_DEBUG, CODE_OK, MSG_UPSTREAM_STARTED);
@@ -860,7 +858,7 @@ void LoraGatewayListener::upstreamRunner()
                 continue;
             }
 
-            payload = std::string((char *)p->payload, p->size);
+            // payload = std::string((char *)p->payload, p->size);
             pkt_in_dgram++;
         }
 
@@ -868,11 +866,13 @@ void LoraGatewayListener::upstreamRunner()
         if (pkt_in_dgram == 0)
             continue;
         // send to the network server, network server must call onValue
+        /*
         MessageQueueItem mqi;
         mqi.metadata[metadata.gatewayId] = metadata;
         setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
+         */
         if (onPushData)
-            onPushData(dispatcher, &mqi);
+            onPushData(dispatcher, metadata, p->payload, p->size);
 
         measurements.inc(meas_up_dgram_sent);
         measurements.inc(meas_up_network_byte, p->size);    // no network traffic, return size of payload

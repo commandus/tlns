@@ -1,6 +1,5 @@
 #include <string>
 #include <iostream>
-
 #include <sstream>
 
 #ifdef _MSC_VER

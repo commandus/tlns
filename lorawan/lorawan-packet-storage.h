@@ -80,6 +80,12 @@ void  setLORAWAN_MESSAGE_STORAGE(
     const std::string &bin
 );
 
+void setLORAWAN_MESSAGE_STORAGE(
+    LORAWAN_MESSAGE_STORAGE &retVal,
+    void *buffer,
+    size_t size
+);
+
 bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &base64string

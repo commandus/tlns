@@ -28,14 +28,14 @@ static LibLoragwHelper libLoragwHelper;
 
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
-    MessageQueueItem *item
+    SEMTECH_PROTOCOL_METADATA_RX metadata,
+    void *radioPacket,
+    size_t size
 )
 {
     GwPushData pd;
-    pd.rxData = item->radioPacket;
-    auto it = item->metadata.begin();
-    if (it != item->metadata.end())
-        pd.rxMetadata = it->second;
+    setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
+    pd.rxMetadata = metadata;
     dispatcher->pushData(pd);
 }
 

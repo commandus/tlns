@@ -30,6 +30,16 @@ void setLORAWAN_MESSAGE_STORAGE(
     retVal.packetSize = (uint16_t) sz;
 }
 
+void setLORAWAN_MESSAGE_STORAGE(
+    LORAWAN_MESSAGE_STORAGE &retVal,
+    void *buffer,
+    size_t size
+)
+{
+    memmove(&retVal.mhdr, buffer, size);
+    retVal.packetSize = (uint16_t) size;
+}
+
 bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &base64string

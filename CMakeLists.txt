@@ -182,10 +182,14 @@ else()
 		${SRC_LIBLORAWAN}
 		${ARGTABLE}
 	)
-	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC})
+	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
+			third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
+	)
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
-	target_include_directories(tlns-check PRIVATE "." "third-party" ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+	target_include_directories(tlns-check PRIVATE "." "third-party"
+		"third-party/libloragw" "gw-dev/usb"
+		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'

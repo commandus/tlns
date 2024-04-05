@@ -13,6 +13,13 @@
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
+    SEMTECH_PROTOCOL_METADATA_RX metadata,
+    void *radioPacket,
+    size_t size
+);
+
+typedef void(*OnPushMessageQueueItem)(
+    MessageTaskDispatcher* dispatcher,
     MessageQueueItem *item
 );
 
@@ -70,7 +77,7 @@ public:
     std::vector<TaskSocket*> sockets;
     bool running;    ///< true- loop thread is running
 
-    OnPushDataProc onPushData;
+    OnPushMessageQueueItem onPushData;
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
 

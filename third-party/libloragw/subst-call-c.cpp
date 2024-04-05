@@ -2,6 +2,7 @@
 
 #include <stdarg.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "libloragw-helper.h"
 
@@ -63,16 +64,23 @@ static int ft_print_d(const char *fmt, va_list ap, int len) {
 }
 
 static int ft_print_f(const char *fmt, va_list ap, int len) {
-    float f = va_arg(ap, float);
+    double f = va_arg(ap, double);
     unsigned long long u;
     if (f < 0) {
         ft_putchar('-');
         len++;
-        u = -(unsigned) f;
+        if (f < -9223372036854775807)
+            u = -9223372036854775807;
+        else
+            u = -(unsigned) f;
     } else {
-        u = f;
+        if (f > 9223372036854775807)
+            u = 9223372036854775807;
+        else
+            u = f;
     }
     len += ft_putnum(u, 10, "0123456789");
+    ft_putchar('.');
     return ft_printf_aux(fmt, ap, len);
 }
 
@@ -141,14 +149,19 @@ ft_print_dispatch_f ft_print_dispatch(char v)
 
 static int ft_printf_aux(const char *fmt, va_list ap, int len) {
     int c;
-
+    bool startFmt = false;
     while (*fmt) {
         c = (unsigned char)*fmt++;
         if (c != '%') {
             ft_putchar(c);
             len++;
         } else {
-            c = (unsigned char)*fmt++;
+            startFmt = true;
+            while (*fmt) {
+                c = (unsigned char)*fmt++;
+                if ((c < '.' || c > '9') && (c != '/'))
+                    break;
+            }
             if (ft_print_dispatch(c) == nullptr) {
                 if (c == '\0')
                     break;
@@ -168,9 +181,9 @@ static int ft_printf_aux(const char *fmt, va_list ap, int len) {
 extern "C" int printf_c(const char* format, ... )
 {
     va_list ap;
-    int n;
+    int len;
     va_start(ap, format);
-    n = ft_printf_aux(format, ap, 0);
+    len = ft_printf_aux(format, ap, 0);
     va_end(ap);
-    return n;
+    return len;
 }

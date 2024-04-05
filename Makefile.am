@@ -115,11 +115,23 @@ HDRS = \
 bin_PROGRAMS = cli-main-check
 
 cli_main_check_SOURCES = \
-	cli-main-check.cpp task-response-threaded.cppc \
-	$SRC_ARGTABLE $SRC_LIBLORAWAN
+	cli-main-check.cpp task-response-threaded.cpp \
+	$(SRC_ARGTABLE) $(SRC_LIBLORAWAN)
 
 cli_main_check_LDADD =
 cli_main_check_CPPFLAGS = $(EXTRA_DEF)
+
+test_printf_SOURCES = tests/test-printf.cpp \
+    third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
+
+test_printf_CPPFLAGS = -Ithird-party/libloragw -Igw-dev/usb
+
+#
+# test-printf
+#
+check_PROGRAMS = test-printf
+
+TESTS = $(check_PROGRAMS)
 
 #
 # Configs, readme, CMake etc.
@@ -129,7 +141,7 @@ dist_config_DATA = \
 	autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
 	third-party/argtable3/README.argtable3 \
 	third-party/base64/README.base64 \
-	third-party/libloragw/README.libloragw.md third-party/libloragw/LICENSE.libloragw.md \
+	third-party/libloragw/README.libloragw.md third-party/libloragw/LICENSE.libloragw.txt \
 	third-party/libloragw/cp-lib.sh third-party/libloragw/build.sh  \
 	third-party/libloragw/CMakeLists.txt \
-	third-party/nlohmann/README.nlohmann.md4
+	third-party/nlohmann/README.nlohmann.md

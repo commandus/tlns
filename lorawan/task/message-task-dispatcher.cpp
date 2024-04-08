@@ -22,7 +22,7 @@
 #define DEF_WAIT_QUIT_SECONDS 1
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : clientControlSocket(-1), taskResponse(nullptr), thread(nullptr),
+    : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
       parser(new GatewayBasicUdpProtocol(this)), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -32,7 +32,7 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : clientControlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
+    : controlSocket(nullptr), taskResponse(value.taskResponse), thread(value.thread),
       parser(value.parser), queue(value.queue), running(value.running),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -69,9 +69,8 @@ void MessageTaskDispatcher::send(
     size_t size
 )
 {
-    if (clientControlSocket <= 0 || sockets.empty())
-        return;
-    sendto(clientControlSocket, (const char *) cmd, size, 0, (const sockaddr *) &clientControlSocketDestination, sizeof(clientControlSocketDestination));
+    if (controlSocket)
+        write(controlSocket->sock, (const char *) cmd, size);
 }
 
 /**
@@ -278,10 +277,6 @@ int MessageTaskDispatcher::runner()
         }
     }
     closeSockets();
-    if (clientControlSocket > 0) {
-        close(clientControlSocket);
-        clientControlSocket = -1;
-    }
     running = false;
     loopExit.notify_all();
     return CODE_OK;
@@ -305,16 +300,14 @@ ssize_t MessageTaskDispatcher::sendACK(
 }
 
 void MessageTaskDispatcher::enableClientControlSocket(
-    in_addr_t address, int port
+    const TaskSocket *socket
 ) {
-    clientControlSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    clientControlSocketDestination.sin_family = AF_INET;
-    clientControlSocketDestination.sin_port = htons(port);
-#if defined(_MSC_VER)
-    clientControlSocketDestination.sin_addr.s_addr = htonl(address.S_un.S_addr);
-#else
-    clientControlSocketDestination.sin_addr.s_addr = htonl(address);
-#endif
+    auto f = std::find_if(sockets.begin(), sockets.end(), [socket] (const TaskSocket *v) {
+        return (socket == v);
+    } );
+    if (f == sockets.end())
+        return;
+    controlSocket = *f;
 }
 
 void MessageTaskDispatcher::pushData(
@@ -324,9 +317,8 @@ void MessageTaskDispatcher::pushData(
     bool isNew = queue.put(pushData);
     queueMutex.unlock();
     // wake up
-    if (isNew) {
-        auto a = pushData.rxData.getAddr();
-        if (a)
-            send(a, SIZE_DEVADDR);
-    }
+    // if (isNew) {
+    auto a = pushData.rxData.getAddr();
+    if (a)
+        send(a, SIZE_DEVADDR);
 }

@@ -328,7 +328,7 @@ static void init()
     dispatcher.sockets.push_back(taskUSBSocket);
 #endif
     // allow send()
-    dispatcher.enableClientControlSocket(INADDR_LOOPBACK, 4242);
+    dispatcher.enableClientControlSocket(taskUSBSocket);
     // TaskResponseThreaded response;
     // dispatcher.setResponse(&response);
 }

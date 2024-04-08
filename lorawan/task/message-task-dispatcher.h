@@ -49,10 +49,8 @@ class ProtoGwParser;
 
 class MessageTaskDispatcher {
 private:
-    // socket to send 'commands'
-    SOCKET clientControlSocket;
-    sockaddr_in clientControlSocketDestination;
     std::mutex queueMutex;
+    TaskSocket * controlSocket;
 protected:
     TaskResponse *taskResponse;
     // main loop thread
@@ -105,7 +103,7 @@ public:
         ssize_t packetSize
     );
 
-    void enableClientControlSocket(in_addr_t address, int port);
+    void enableClientControlSocket(const TaskSocket *socket);
 
     void pushData(GwPushData &pushData);
 };

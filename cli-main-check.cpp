@@ -85,14 +85,15 @@ static void run() {
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };
+    TaskSocket *s = new TaskUDPSocket(INADDR_LOOPBACK, 4242);
 #ifdef _MSC_VER
     in_addr_t a;
     a.S_un.S_addr = INADDR_LOOPBACK;
-    dispatcher.sockets.push_back(new TaskSocket(a, 4242));
+    dispatcher.sockets.push_back(s);
 #else
-    dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
+    dispatcher.sockets.push_back(s);
     // allow send()
-    dispatcher.enableClientControlSocket(INADDR_LOOPBACK, 4242);
+    dispatcher.enableClientControlSocket(s);
 #endif
     dispatcher.start();
 

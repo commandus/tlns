@@ -179,9 +179,8 @@ int MessageTaskDispatcher::runner()
     struct timeval timeout {};
 
     // Initialize the master fd_set
-    fd_set master_set;
-    // , working_set;
-    FD_ZERO(&master_set);
+    fd_set masterSocketSet;
+    FD_ZERO(&masterSocketSet);
 
     // sort sockets ascendant
     std::sort(sockets.begin(), sockets.end(),
@@ -192,20 +191,20 @@ int MessageTaskDispatcher::runner()
     SOCKET maxFD1 = sockets.back()->sock + 1;
 
     for (auto s : sockets) {
-        FD_SET(s->sock, &master_set);
+        FD_SET(s->sock, &masterSocketSet);
     }
 
     char buffer[4096];
 
     ParseResult pr;
     while (running) {
-        fd_set working_set;
+        fd_set workingSocketSet;
         // Copy the master fd_set over to the working fd_set
-        memcpy(&working_set, &master_set, sizeof(master_set));
+        memcpy(&workingSocketSet, &masterSocketSet, sizeof(masterSocketSet));
         // Initialize the timeval struct
         timeout.tv_sec = DEF_TIMEOUT_SECONDS;
         timeout.tv_usec = 0;
-        int rc = select(maxFD1, &working_set, nullptr, nullptr, &timeout);
+        int rc = select(maxFD1, &workingSocketSet, nullptr, nullptr, &timeout);
         if (rc < 0)     // select error
             break;
         if (rc == 0)    // select() timed out.
@@ -213,7 +212,7 @@ int MessageTaskDispatcher::runner()
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
         for (auto s : sockets) {
-            if (FD_ISSET(s->sock, &working_set)) {
+            if (FD_ISSET(s->sock, &workingSocketSet)) {
                 struct sockaddr srcAddr;
                 socklen_t srcAddrLen = sizeof(srcAddr);
                 ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);

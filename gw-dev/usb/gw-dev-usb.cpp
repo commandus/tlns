@@ -328,7 +328,7 @@ static void init()
     dispatcher.sockets.push_back(taskUSBSocket);
 #endif
     // allow send()
-    dispatcher.enableClientControlSocket(taskUSBSocket);
+    dispatcher.enableClientControlSocket(taskUSBSocket->controlSocket);
     // TaskResponseThreaded response;
     // dispatcher.setResponse(&response);
 }

@@ -93,7 +93,7 @@ static void run() {
 #else
     dispatcher.sockets.push_back(s);
     // allow send()
-    dispatcher.enableClientControlSocket(s);
+    dispatcher.enableControlSocket(s);
 #endif
     dispatcher.start();
 

@@ -22,7 +22,7 @@
 #define DEF_WAIT_QUIT_SECONDS 1
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
+    : controlSocket(-1), taskResponse(nullptr), thread(nullptr),
       parser(new GatewayBasicUdpProtocol(this)), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -32,7 +32,7 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : controlSocket(nullptr), taskResponse(value.taskResponse), thread(value.thread),
+    : controlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
       parser(value.parser), queue(value.queue), running(value.running),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -70,7 +70,7 @@ void MessageTaskDispatcher::send(
 )
 {
     if (controlSocket)
-        write(controlSocket->sock, (const char *) cmd, size);
+        write(controlSocket, (const char *) cmd, size);
 }
 
 /**
@@ -215,7 +215,11 @@ int MessageTaskDispatcher::runner()
             if (FD_ISSET(s->sock, &workingSocketSet)) {
                 struct sockaddr srcAddr;
                 socklen_t srcAddrLen = sizeof(srcAddr);
-                ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
+                // ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
+                ssize_t sz = read(s->sock, buffer, sizeof(buffer));
+                if (sz < 0) {
+                    std::cerr << "Error " << errno << ": " << strerror(errno) << std::endl;
+                }
                 if (sz > 0) {
                     // send ACK immediately
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
@@ -299,15 +303,22 @@ ssize_t MessageTaskDispatcher::sendACK(
 }
 
 void MessageTaskDispatcher::enableClientControlSocket(
-    const TaskSocket *socket
+    SOCKET socket
 ) {
-    auto f = std::find_if(sockets.begin(), sockets.end(), [socket] (const TaskSocket *v) {
+    controlSocket = socket;
+}
+
+void MessageTaskDispatcher::enableControlSocket(
+    TaskSocket *socket
+) {
+    auto f = std::find_if(sockets.begin(), sockets.end(), [socket](const TaskSocket *v) {
         return (socket == v);
-    } );
+    });
     if (f == sockets.end())
         return;
-    controlSocket = *f;
+    controlSocket = (*f)->sock;
 }
+
 
 void MessageTaskDispatcher::pushData(
     GwPushData &pushData

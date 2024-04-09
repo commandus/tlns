@@ -50,7 +50,7 @@ class ProtoGwParser;
 class MessageTaskDispatcher {
 private:
     std::mutex queueMutex;
-    TaskSocket * controlSocket;
+    SOCKET controlSocket;
 protected:
     TaskResponse *taskResponse;
     // main loop thread
@@ -103,7 +103,12 @@ public:
         ssize_t packetSize
     );
 
-    void enableClientControlSocket(const TaskSocket *socket);
+    void enableClientControlSocket(
+        SOCKET socket
+    );
+    void enableControlSocket(
+        TaskSocket *socket
+    );
 
     void pushData(GwPushData &pushData);
 };

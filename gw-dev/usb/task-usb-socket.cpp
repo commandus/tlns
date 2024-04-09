@@ -53,7 +53,7 @@ TaskUSBSocket::TaskUSBSocket(
     bool enableBeacon,
     int verbosity
 )
-    : dispatcher(aDispatcher), TaskSocket(),
+    : controlSocket(-1), dispatcher(aDispatcher), TaskSocket(),
     socketPath(socketFileName)
 {
     listener.config = aSettings;
@@ -104,6 +104,20 @@ SOCKET TaskUSBSocket::openSocket()
         r = listener.start();
         if (r < 0)
             sock = -1;
+    }
+
+    controlSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (controlSocket <= 0)
+        return sock;
+    /*
+    r = bind(controlSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    if (r < 0) {
+        return sock;
+    }
+     */
+    r = connect(controlSocket, (const sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    if (r < 0) {
+        return sock;
     }
     return sock;
 }

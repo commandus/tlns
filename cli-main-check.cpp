@@ -12,6 +12,8 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
+#include "lorawan/task/task-udp-socket.h"
+#include "lorawan/task/task-udp-control-socket.h"
 
 // i18n
 // #include <libintl.h>
@@ -85,16 +87,12 @@ static void run() {
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };
-    TaskSocket *s = new TaskUDPSocket(INADDR_LOOPBACK, 4242);
-#ifdef _MSC_VER
-    in_addr_t a;
-    a.S_un.S_addr = INADDR_LOOPBACK;
-    dispatcher.sockets.push_back(s);
-#else
-    dispatcher.sockets.push_back(s);
-    // allow send()
-    dispatcher.enableControlSocket(s);
-#endif
+    TaskSocket *ss = new TaskUDPSocket(INADDR_LOOPBACK, 4242);
+    dispatcher.sockets.push_back(ss);
+
+    TaskSocket *cs = new TaskUDPControlSocket(INADDR_LOOPBACK, 4242);
+    dispatcher.sockets.push_back(cs);
+    dispatcher.enableControlSocket(cs);
     dispatcher.start();
 
     // TaskResponseThreaded response;

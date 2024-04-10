@@ -23,6 +23,7 @@
 #include "subst-call-c.h"
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
+#include "task-usb-control-socket.h"
 
 // i18n
 // #include <libintl.h>
@@ -319,18 +320,12 @@ static void init()
     GatewaySettings* settings = getGatewayConfig(&localConfig);
     taskUSBSocket = new TaskUSBSocket(&dispatcher, socketFileName, settings, &errLog,
         localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+    dispatcher.sockets.push_back(taskUSBSocket);
 
-#ifdef _MSC_VER
-    in_addr_t a;
-    a.S_un.S_addr = INADDR_LOOPBACK;
-    dispatcher.sockets.push_back(taskUSBSocket);
-#else
-    dispatcher.sockets.push_back(taskUSBSocket);
-#endif
-    // allow send()
-    dispatcher.enableClientControlSocket(taskUSBSocket->controlSocket);
-    // TaskResponseThreaded response;
-    // dispatcher.setResponse(&response);
+    // control socket
+    TaskUSBControlSocket *taskUSBControlSocket = new TaskUSBControlSocket(socketFileName);
+    dispatcher.sockets.push_back(taskUSBControlSocket);
+    dispatcher.enableControlSocket(taskUSBControlSocket);
 }
 
 int main(

@@ -66,7 +66,7 @@ else()
 	#
 	set(GW_DEV_USB_SRC
         gw-dev-usb.cpp
-		task-usb-socket.cpp
+		task-usb-socket.cpp task-usb-control-socket.cpp
 		rak2286.cpp
 		${ARGTABLE}
         ../../third-party/daemonize.cpp
@@ -80,8 +80,8 @@ else()
 	set_property(TARGET gw-dev-usb PROPERTY C_STANDARD 99)
 	target_link_libraries(gw-dev-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
 	target_compile_definitions(gw-dev-usb PRIVATE ${TLNS_DEF})
-	target_include_directories(gw-dev-usb PRIVATE "." "../../" "../../third-party" 
-		"../../third-party/libloragw"
+	target_include_directories(gw-dev-usb PRIVATE "." "../../"
+		"../../third-party"
 		"../../third-party/libloragw"
 		"../../third-party/libloragw/inc"
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})

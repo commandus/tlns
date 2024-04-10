@@ -22,7 +22,7 @@
 #define DEF_WAIT_QUIT_SECONDS 1
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : controlSocket(-1), taskResponse(nullptr), thread(nullptr),
+    : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
       parser(new GatewayBasicUdpProtocol(this)), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -32,7 +32,7 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : controlSocket(-1), taskResponse(value.taskResponse), thread(value.thread),
+    : controlSocket(nullptr), taskResponse(value.taskResponse), thread(value.thread),
       parser(value.parser), queue(value.queue), running(value.running),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
@@ -70,7 +70,7 @@ void MessageTaskDispatcher::send(
 )
 {
     if (controlSocket)
-        write(controlSocket, (const char *) cmd, size);
+        write(controlSocket->sock, (const char *) cmd, size);
 }
 
 /**
@@ -88,8 +88,7 @@ void MessageTaskDispatcher::send(
     char cmd
 )
 {
-    char c = 'q';
-    send(&c, 1);
+    send(&cmd, 1);
 }
 
 /**
@@ -302,23 +301,17 @@ ssize_t MessageTaskDispatcher::sendACK(
     return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
 }
 
-void MessageTaskDispatcher::enableClientControlSocket(
-    SOCKET socket
-) {
-    controlSocket = socket;
-}
-
 void MessageTaskDispatcher::enableControlSocket(
     TaskSocket *socket
-) {
+)
+{
     auto f = std::find_if(sockets.begin(), sockets.end(), [socket](const TaskSocket *v) {
         return (socket == v);
     });
     if (f == sockets.end())
         return;
-    controlSocket = (*f)->sock;
+    controlSocket = *f;
 }
-
 
 void MessageTaskDispatcher::pushData(
     GwPushData &pushData

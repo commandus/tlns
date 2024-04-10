@@ -25,10 +25,10 @@ SRC_LIBLORAWAN = \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
-    lorawan/task/task-socket.cpp \
+    lorawan/task/task-socket.cpp lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp \
     third-party/strptime.cpp \
     third-party/base64/base64.cpp \
-    $SRC_AES
+    $(SRC_AES)
 
 HDRS = \
 	third-party/system/crypto/cmac.h \
@@ -81,6 +81,7 @@ HDRS = \
     main/platform-defs.h \
     gw-dev/usb/rak2287.h \
     gw-dev/usb/task-usb-socket.h \
+    gw-dev/usb/task-usb-control-socket.h \
     gw-dev/usb/log-intf.h \
     lorawan/storage/network-identity.h \
     lorawan/storage/gateway-identity.h \
@@ -104,6 +105,8 @@ HDRS = \
     lorawan/task/message-queue.h \
     lorawan/task/task-descriptor.h \
     lorawan/task/task-socket.h \
+    lorawan/task/task-udp-socket.h \
+    lorawan/task/task-udp-control-socket.h \
     lorawan/task/task-response.h \
     lorawan/lorawan-string.h \
     nlohmann/json.hpp \

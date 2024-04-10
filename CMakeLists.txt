@@ -119,7 +119,7 @@ else()
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
-		lorawan/task/task-socket.cpp
+		lorawan/task/task-socket.cpp lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
 		${AES_SRC}
@@ -183,7 +183,7 @@ else()
 		${ARGTABLE}
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
-			third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
+		third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
 	)
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})

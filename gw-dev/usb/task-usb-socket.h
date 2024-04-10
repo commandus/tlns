@@ -12,7 +12,6 @@ private:
     bool stopped;
     int listen2();
 public:
-    SOCKET controlSocket;
     /**
      * Open Unix domain socket
      * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"

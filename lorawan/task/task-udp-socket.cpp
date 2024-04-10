@@ -63,17 +63,6 @@ SOCKET TaskUDPSocket::openSocket()
         lastError = ERR_CODE_SOCKET_BIND;
         return -1;
     }
-
-    /*
-    rc = listen(sock, 20);
-    if (rc < 0) {
-        close(sock);
-        sock = -1;
-        lastError = ERR_CODE_SOCKET_LISTEN;
-        return sock;
-    }
-     */
-
     lastError = CODE_OK;
     return sock;
 }

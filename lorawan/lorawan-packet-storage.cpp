@@ -13,6 +13,14 @@ LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE()
 }
 
 LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE(
+    const LORAWAN_MESSAGE_STORAGE& value
+)
+    : mhdr(value.mhdr), data{}, packetSize(value.packetSize)
+{
+    memmove(&data, &value.data, sizeof(data));
+}
+
+LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE(
     const std::string &base64string
 )
     : data {}

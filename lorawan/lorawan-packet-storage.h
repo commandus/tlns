@@ -66,6 +66,7 @@ PACK(
         } ) data;
         uint16_t packetSize;
         LORAWAN_MESSAGE_STORAGE();
+        LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
         LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
         std::string toString() const;
         const DEVADDR* getAddr() const;

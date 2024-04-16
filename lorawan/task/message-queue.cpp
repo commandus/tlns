@@ -78,7 +78,7 @@ bool MessageQueue::put(
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *a = qi.getAddr();
     // TODO parse buffer
-    auto i = items.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
+    items.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
     return true;
 }
 
@@ -121,10 +121,7 @@ MessageQueueItem *MessageQueue::findByDevAddr(
 )
 {
     auto f = std::find_if(items.begin(), items.end(), [devAddr] (const std::pair<DEVADDR, MessageQueueItem> &v) {
-        auto a = v.second.getAddr();
-        if (!a)
-            return false;
-        return *a == *devAddr;
+        return v.first == *devAddr;
     } );
     if (f == items.end())
         return nullptr;

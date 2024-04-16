@@ -24,9 +24,9 @@ MessageQueueItem::MessageQueueItem(
 MessageQueueItem::MessageQueueItem(
     const MessageQueueItem& value
 )
-    : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived)
+    : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived),
+        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task)
 {
-
 }
 
 void MessageQueueItem::setQueue(

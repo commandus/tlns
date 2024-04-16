@@ -17,6 +17,7 @@
 #include "lorawan/lorawan-error.h"
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-msg.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -217,7 +218,7 @@ int MessageTaskDispatcher::runner()
                 // ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 ssize_t sz = read(s->sock, buffer, sizeof(buffer));
                 if (sz < 0) {
-                    std::cerr << "Error " << errno << ": " << strerror(errno) << std::endl;
+                    std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno) << std::endl;
                 }
                 if (sz > 0) {
                     // send ACK immediately

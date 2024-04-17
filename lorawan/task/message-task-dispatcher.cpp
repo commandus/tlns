@@ -215,8 +215,12 @@ int MessageTaskDispatcher::runner()
             if (FD_ISSET(s->sock, &workingSocketSet)) {
                 struct sockaddr srcAddr;
                 socklen_t srcAddrLen = sizeof(srcAddr);
-                ssize_t sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
-                // ssize_t sz = read(s->sock, buffer, sizeof(buffer));
+                SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
+                ssize_t sz = read(cfd, buffer, sizeof(buffer));
+                // close(cfd);
+                continue;
+
+
                 if (sz < 0) {
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
                         << " socket " << s->sock
@@ -225,9 +229,11 @@ int MessageTaskDispatcher::runner()
                 }
                 if (sz > 0) {
                     // send ACK immediately
+                    /*
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
                         // inform
                     }
+                     */
                     switch (sz) {
                         case 1:
                         {

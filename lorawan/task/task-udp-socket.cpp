@@ -26,7 +26,7 @@ SOCKET TaskUDPSocket::openSocket()
         lastError = ERR_CODE_SOCKET_CREATE;
         return -1;
     }
-    // Allow socket descriptor to be reuseable
+    // Allow socket descriptor to be reusable
     int on = 1;
     int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {

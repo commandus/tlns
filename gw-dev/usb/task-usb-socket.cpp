@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <sys/syslog.h>
+#include <sys/ioctl.h>
 
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/lorawan-string.h"
@@ -96,6 +97,27 @@ SOCKET TaskUSBSocket::openSocket()
         return sock;
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
+
+    // Allow socket descriptor to be reusable
+    int on = 1;
+    int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (rc < 0) {
+        close(sock);
+        sock = -1;
+        lastError = ERR_CODE_SOCKET_OPEN;
+        return -1;
+    }
+    // Set socket to be nonblocking
+#ifdef _MSC_VER
+#else
+    rc = ioctl(sock, FIONBIO, (char *)&on);
+    if (rc < 0) {
+        close(sock);
+        sock = -1;
+        lastError = ERR_CODE_SOCKET_OPEN;
+        return -1;
+    }
+#endif
 
     // Bind socket to socket name
     sunAddr.sun_family = AF_UNIX;

@@ -1,7 +1,9 @@
 #include "task-usb-control-socket.h"
 #include <sys/un.h>
 #include <unistd.h>
+#include <iostream>
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-error.h"
 
 TaskUSBControlSocket::TaskUSBControlSocket(
     const std::string &socketFileName
@@ -15,8 +17,10 @@ TaskUSBControlSocket::TaskUSBControlSocket(
 SOCKET TaskUSBControlSocket::openSocket()
 {
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock <= 0)
+    if (sock <= 0) {
+        lastError = ERR_CODE_SOCKET_CREATE;
         return sock;
+    }
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
     sunAddr.sun_family = AF_UNIX;
@@ -24,6 +28,9 @@ SOCKET TaskUSBControlSocket::openSocket()
     int r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = -1;
+        std::cerr << strerror(errno) << std::endl;
+        lastError = ERR_CODE_SOCKET_CONNECT;
+        return sock;
     }
     return sock;
 }

@@ -52,7 +52,7 @@ size_t findRegionIndex(
 }
 
 const std::string programName = _("lorawan-gateway");
-static TaskUSBSocket *taskUSBSocket = nullptr;
+static TaskSocket *taskUSBSocket = nullptr;
 
 class LocalGatewayConfiguration {
 public:
@@ -90,8 +90,7 @@ static void done()
 /**
  * Parse command line
  * Return 0- success
- *        1- show help and exit, or command syntax error
- *        2- output file does not exists or can not open to write
+ *        ERR_CODE_PARAM_INVALID- show help and exit, or command syntax error
  **/
 int parseCmd(
     LocalGatewayConfiguration *config,
@@ -330,19 +329,19 @@ static void init()
 
 int main(
 	int argc,
-	char *argv[])
+	char *argv[]
+)
 {
-    if (parseCmd(&localConfig, argc, argv) != 0) {
-        // std::cerr << ERR_MESSAGE << ERR_CODE_COMMAND_LINE << ": " << ERR_COMMAND_LINE << std::endl;
-        exit(ERR_CODE_COMMAND_LINE);
-    }
+    int r = parseCmd(&localConfig, argc, argv);
+    if (r)
+        return r;
     init();
     if (localConfig.daemonize)	{
-        std::string progpath = getCurrentDir();
-        Daemonize daemonize(programName, progpath, run, stop, done, 0, localConfig.pidfile);
+        Daemonize daemonize(programName, getCurrentDir(), run, stop, done, 0, localConfig.pidfile);
     } else {
         run();
+        stop();
         done();
     }
-    return 0;
+    return CODE_OK;
 }

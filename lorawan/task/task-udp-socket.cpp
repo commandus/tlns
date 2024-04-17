@@ -63,6 +63,14 @@ SOCKET TaskUDPSocket::openSocket()
         lastError = ERR_CODE_SOCKET_BIND;
         return -1;
     }
+    // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
+    /* UDP do not require listen()
+    rc = listen(sock, 20);
+    if (rc < 0) {
+        sock = -1;
+        return sock;
+    }
+    */
     lastError = CODE_OK;
     return sock;
 }

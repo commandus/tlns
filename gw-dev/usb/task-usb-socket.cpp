@@ -11,17 +11,26 @@ class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
 private:
     std::string devicePath;
 public:
-    explicit PosixLibLoragwOpenClose(const std::string &aDevicePath) : devicePath(aDevicePath) {};
+    explicit PosixLibLoragwOpenClose(
+        const std::string &aDevicePath
+    ) : devicePath(aDevicePath)
+    {
 
-    int openDevice(const char *fileName, int mode) override
+    }
+    int openDevice(
+        const char *fileName,
+        int mode
+    ) override
     {
         return open(devicePath.c_str(), mode);
-    };
+    }
 
-    int closeDevice(int fd) override
+    int closeDevice(
+        int fd
+    ) override
     {
         return close(fd);
-    };
+    }
 };
 
 static LibLoragwHelper libLoragwHelper;
@@ -94,16 +103,20 @@ SOCKET TaskUSBSocket::openSocket()
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = -1;
+        lastError = ERR_CODE_SOCKET_BIND;
         return sock;
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
     r = listen(sock, 20);
-    if (r < 0)
+    if (r < 0) {
         sock = -1;
-    else {
-        r = listener.start();
-        if (r < 0)
-            sock = -1;
+        return sock;
+    }
+
+    r = listener.start();
+    if (r < 0) {
+        sock = -1;
+        lastError = ERR_CODE_SOCKET_LISTEN;
     }
     return sock;
 }

@@ -227,10 +227,10 @@ int MessageTaskDispatcher::runner()
                 socklen_t srcAddrLen = sizeof(srcAddr);
                 ssize_t sz;
                 if (s->accept == SA_REQUIRE) {
+                    // TCP, UNIX sockets require create accept socket and create a new paired socket
                     SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
-                    if (cfd > 0) {
-                        acceptedSockets.push_back(cfd);
-                    }
+                    if (cfd > 0)
+                        acceptedSockets.push_back(cfd); // do not modify vector using iterator, do it after
                     continue;
                     // sz = read(cfd, buffer, sizeof(buffer));
                 } else {
@@ -244,11 +244,9 @@ int MessageTaskDispatcher::runner()
                 }
                 if (sz > 0) {
                     // send ACK immediately
-                    /*
                     if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
                         // inform
                     }
-                     */
                     switch (sz) {
                         case 1:
                         {

@@ -92,7 +92,7 @@ static void run() {
 
     TaskSocket *cs = new TaskUDPControlSocket(INADDR_LOOPBACK, 4242);
     dispatcher.sockets.push_back(cs);
-    dispatcher.enableControlSocket(cs);
+    dispatcher.setControlSocket(cs);
     dispatcher.start();
 
     // TaskResponseThreaded response;

@@ -63,7 +63,7 @@ TaskUSBSocket::TaskUSBSocket(
     bool enableBeacon,
     int verbosity
 )
-    : dispatcher(aDispatcher), TaskSocket(),
+    : dispatcher(aDispatcher), TaskSocket(SA_REQUIRE),
     socketPath(socketFileName)
 {
     listener.config = aSettings;

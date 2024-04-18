@@ -9,7 +9,7 @@ TaskUDPSocket::TaskUDPSocket(
     in_addr_t aAddr,
     uint16_t aPort
 )
-    : TaskSocket(), addr(aAddr), port(aPort)
+    : TaskSocket(SA_NONE), addr(aAddr), port(aPort)
 {
 
 }

@@ -8,7 +8,7 @@
 TaskUSBControlSocket::TaskUSBControlSocket(
     const std::string &socketFileName
 )
-    : TaskSocket(), socketPath(socketFileName)
+    : TaskSocket(SA_NONE), socketPath(socketFileName)
 {
     // In case the program exited inadvertently on the last run, remove the socket.
     unlink(socketPath.c_str());

@@ -18,6 +18,7 @@
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-msg.h"
+#include "task-accepted-socket.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -160,6 +161,25 @@ void MessageTaskDispatcher::clearSockets()
     sockets.clear();
 }
 
+
+int MessageTaskDispatcher::getMaxDescriptor1(
+    fd_set &retVal
+)
+{
+    FD_ZERO(&retVal);
+    // sort sockets ascendant
+    std::sort(sockets.begin(), sockets.end(),
+        [] (TaskSocket* a, TaskSocket* b) {
+            return a->sock < b->sock;
+        }
+    );
+    SOCKET maxFD1 = sockets.back()->sock + 1;
+    for (auto s : sockets) {
+        FD_SET(s->sock, &retVal);
+    }
+    return maxFD1;
+}
+
 /**
  * Dispatcher main loop
  * @return 0 if success or negative error code
@@ -180,20 +200,7 @@ int MessageTaskDispatcher::runner()
 
     // Initialize the master fd_set
     fd_set masterSocketSet;
-    FD_ZERO(&masterSocketSet);
-
-    // sort sockets ascendant
-    std::sort(sockets.begin(), sockets.end(),
-        [] (TaskSocket* a, TaskSocket* b) {
-        return a->sock < b->sock;
-    });
-    //
-    SOCKET maxFD1 = sockets.back()->sock + 1;
-
-    for (auto s : sockets) {
-        FD_SET(s->sock, &masterSocketSet);
-    }
-
+    SOCKET maxFD1 = getMaxDescriptor1(masterSocketSet);
     char buffer[4096];
 
     ParseResult pr;
@@ -211,16 +218,24 @@ int MessageTaskDispatcher::runner()
             continue;
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
+
+        std::vector<SOCKET> acceptedSockets(4);
+
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &workingSocketSet)) {
                 struct sockaddr srcAddr;
                 socklen_t srcAddrLen = sizeof(srcAddr);
-                SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
-                ssize_t sz = read(cfd, buffer, sizeof(buffer));
-                // close(cfd);
-                continue;
-
-
+                ssize_t sz;
+                if (s->accept == SA_REQUIRE) {
+                    SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
+                    if (cfd > 0) {
+                        acceptedSockets.push_back(cfd);
+                    }
+                    continue;
+                    // sz = read(cfd, buffer, sizeof(buffer));
+                } else {
+                    sz = read(s->sock, buffer, sizeof(buffer));
+                }
                 if (sz < 0) {
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
                         << " socket " << s->sock
@@ -287,6 +302,13 @@ int MessageTaskDispatcher::runner()
                 }
             }
         }
+        if (acceptedSockets.size()) {
+            for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
+                // get max socket
+                sockets.push_back(new TaskAcceptedSocket(*a));
+            }
+            maxFD1 = getMaxDescriptor1(masterSocketSet);
+        }
     }
     closeSockets();
     running = false;
@@ -311,7 +333,7 @@ ssize_t MessageTaskDispatcher::sendACK(
     return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
 }
 
-void MessageTaskDispatcher::enableControlSocket(
+void MessageTaskDispatcher::setControlSocket(
     TaskSocket *socket
 )
 {

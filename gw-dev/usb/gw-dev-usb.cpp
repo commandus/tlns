@@ -324,7 +324,7 @@ static void init()
     // control socket
     TaskSocket *taskUSBControlSocket = new TaskUSBControlSocket(socketFileName);
     dispatcher.sockets.push_back(taskUSBControlSocket);
-    dispatcher.enableControlSocket(taskUSBControlSocket);
+    dispatcher.setControlSocket(taskUSBControlSocket);
 }
 
 int main(

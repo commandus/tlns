@@ -44,7 +44,6 @@ typedef int(*TaskProc)(
     size_t size
 );
 
-
 class ProtoGwParser;
 
 class MessageTaskDispatcher {
@@ -103,9 +102,16 @@ public:
         ssize_t packetSize
     );
 
-    void enableControlSocket(
+    void setControlSocket(
         TaskSocket *socket
     );
+
+    /**
+     * Set descriptor set
+     * @param retVal
+     * @return
+     */
+    int getMaxDescriptor1(fd_set &retVal);
 
     void pushData(GwPushData &pushData);
 };

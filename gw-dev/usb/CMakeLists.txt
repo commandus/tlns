@@ -65,13 +65,12 @@ else()
 	# gw-dev-usb
 	#
 	set(GW_DEV_USB_SRC
-        gw-dev-usb.cpp
-		task-usb-socket.cpp task-usb-control-socket.cpp
-		rak2286.cpp
+        gw-dev-usb.cpp task-usb-socket.cpp task-usb-control-socket.cpp rak2286.cpp
 		${ARGTABLE}
         ../../third-party/daemonize.cpp
 		../../lorawan/helper/file-helper.cpp
 		../../lorawan/helper/thread-helper.cpp
+		../../lorawan/task/task-accepted-socket.cpp
 		../../task-response-threaded.cpp
 		../../third-party/libloragw/libloragw-helper.cpp
 		../../third-party/libloragw/subst-call-c.cpp

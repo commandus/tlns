@@ -119,7 +119,8 @@ else()
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
-		lorawan/task/task-socket.cpp lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
+		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp lorawan/task/task-udp-socket.cpp
+		lorawan/task/task-udp-control-socket.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
 		${AES_SRC}

@@ -36,6 +36,7 @@ public:
         size_t size,
         TASK_TIME receivedTime
     ) = 0;
+    virtual ~ProtoGwParser();
 };
 
 #endif

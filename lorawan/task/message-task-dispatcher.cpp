@@ -7,9 +7,7 @@
 #if defined(_MSC_VER)
 #else
 #include <sys/select.h>
-#include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #endif
 #include <cstring>
 #include <iostream>

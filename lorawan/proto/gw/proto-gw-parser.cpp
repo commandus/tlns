@@ -7,3 +7,8 @@ ProtoGwParser::ProtoGwParser(
 {
 
 }
+
+ProtoGwParser::~ProtoGwParser()
+{
+
+}

@@ -163,10 +163,10 @@ void MessageTaskDispatcher::clearSockets()
 
 
 int MessageTaskDispatcher::getMaxDescriptor1(
-    fd_set &retVal
+    fd_set &retValReadSet
 )
 {
-    FD_ZERO(&retVal);
+    FD_ZERO(&retValReadSet);
     // sort sockets ascendant
     std::sort(sockets.begin(), sockets.end(),
         [] (TaskSocket* a, TaskSocket* b) {
@@ -175,7 +175,7 @@ int MessageTaskDispatcher::getMaxDescriptor1(
     );
     SOCKET maxFD1 = sockets.back()->sock + 1;
     for (auto s : sockets) {
-        FD_SET(s->sock, &retVal);
+        FD_SET(s->sock, &retValReadSet);
     }
     return maxFD1;
 }
@@ -199,15 +199,15 @@ int MessageTaskDispatcher::runner()
     struct timeval timeout {};
 
     // Initialize the master fd_set
-    fd_set masterSocketSet;
-    SOCKET maxFD1 = getMaxDescriptor1(masterSocketSet);
+    fd_set masterReadSocketSet;
+    SOCKET maxFD1 = getMaxDescriptor1(masterReadSocketSet);
     char buffer[4096];
 
     ParseResult pr;
     while (running) {
         fd_set workingSocketSet;
         // Copy the master fd_set over to the working fd_set
-        memcpy(&workingSocketSet, &masterSocketSet, sizeof(masterSocketSet));
+        memcpy(&workingSocketSet, &masterReadSocketSet, sizeof(masterReadSocketSet));
         // Initialize the timeval struct
         timeout.tv_sec = DEF_TIMEOUT_SECONDS;
         timeout.tv_usec = 0;
@@ -220,6 +220,7 @@ int MessageTaskDispatcher::runner()
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
         std::vector<SOCKET> acceptedSockets(4);
+        std::vector<TaskSocket*> removedSockets(2);
 
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &workingSocketSet)) {
@@ -240,6 +241,10 @@ int MessageTaskDispatcher::runner()
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
                         << " socket " << s->sock
                         << std::endl;
+                    if (s->accept == SA_ACCEPTED) {
+                        // close client connection
+                        removedSockets.push_back(s); // do not modify vector using iterator, do it after
+                    }
                     continue;
                 }
                 if (sz > 0) {
@@ -300,12 +305,25 @@ int MessageTaskDispatcher::runner()
                 }
             }
         }
+        // accept connections
         if (acceptedSockets.size()) {
             for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
                 // get max socket
                 sockets.push_back(new TaskAcceptedSocket(*a));
             }
-            maxFD1 = getMaxDescriptor1(masterSocketSet);
+            maxFD1 = getMaxDescriptor1(masterReadSocketSet);
+        }
+        // delete broken connections
+        if (removedSockets.size()) {
+            for (auto a = removedSockets.begin(); a != removedSockets.end(); a++) {
+                // get max socket
+                auto f = std::find_if(sockets.begin(), sockets.end(), [a](const TaskSocket *v) {
+                    return (*a == v);
+                });
+                if (f != sockets.end())
+                    sockets.erase(f);
+            }
+            maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
     }
     closeSockets();

@@ -50,6 +50,14 @@ class MessageTaskDispatcher {
 private:
     std::mutex queueMutex;
     TaskSocket *controlSocket;
+    /**
+     * Set descriptor set
+     * @param retValReadSet
+     * @return
+     */
+    int getMaxDescriptor1(
+        fd_set &retValReadSet
+    );
 protected:
     TaskResponse *taskResponse;
     // main loop thread
@@ -105,13 +113,6 @@ public:
     void setControlSocket(
         TaskSocket *socket
     );
-
-    /**
-     * Set descriptor set
-     * @param retVal
-     * @return
-     */
-    int getMaxDescriptor1(fd_set &retVal);
 
     void pushData(GwPushData &pushData);
 };

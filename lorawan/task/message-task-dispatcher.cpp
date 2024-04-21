@@ -233,7 +233,7 @@ int MessageTaskDispatcher::runner()
                     continue;
                     // sz = read(cfd, buffer, sizeof(buffer));
                 } else {
-                    sz = read(s->sock, buffer, sizeof(buffer));
+                    sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 }
                 if (sz < 0) {
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
@@ -274,7 +274,6 @@ int MessageTaskDispatcher::runner()
                             }
                             break;
                         }
-                            break;
                         default: {
                             if (parser) {
                                 int r = parser->parse(pr, buffer, sz, receivedTime);
@@ -304,7 +303,7 @@ int MessageTaskDispatcher::runner()
             }
         }
         // accept connections
-        if (acceptedSockets.size()) {
+        if (!acceptedSockets.empty()) {
             for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
                 // get max socket
                 sockets.push_back(new TaskAcceptedSocket(*a));
@@ -312,7 +311,7 @@ int MessageTaskDispatcher::runner()
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
         // delete broken connections
-        if (removedSockets.size()) {
+        if (!removedSockets.empty()) {
             for (auto a = removedSockets.begin(); a != removedSockets.end(); a++) {
                 // get max socket
                 auto f = std::find_if(sockets.begin(), sockets.end(), [a](const TaskSocket *v) {

@@ -317,12 +317,12 @@ static void init()
 
     std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
-    taskUSBSocket = new TaskUSBSocket(&dispatcher, socketFileName, settings, &errLog,
-        localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, socketFileName, settings, &errLog,
+                                                 localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
-    TaskSocket *taskUSBControlSocket = new TaskUSBControlSocket(socketFileName);
+    TaskSocket *taskUSBControlSocket = new TaskUsbGwUnixControlSocket(socketFileName);
     dispatcher.sockets.push_back(taskUSBControlSocket);
     dispatcher.setControlSocket(taskUSBControlSocket);
 }

@@ -54,7 +54,7 @@ static void onPushData(
  * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
  * @param devicePath Gateway device file name e.g. "/dev/ttyACM0"
  */
-TaskUSBSocket::TaskUSBSocket(
+TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
     MessageTaskDispatcher *aDispatcher,
     const std::string &socketFileName,
     GatewaySettings *aSettings,
@@ -90,7 +90,7 @@ TaskUSBSocket::TaskUSBSocket(
         aLog->strm(LOG_INFO) << "Settings " << listener.config->name << "\n";
 }
 
-SOCKET TaskUSBSocket::openSocket()
+SOCKET TaskUsbGatewayUnixSocket::openSocket()
 {
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock <= 0)
@@ -143,7 +143,7 @@ SOCKET TaskUSBSocket::openSocket()
     return sock;
 }
 
-void TaskUSBSocket::closeSocket()
+void TaskUsbGatewayUnixSocket::closeSocket()
 {
     listener.stop(0);   // default wait 60s
     if (sock > 0) {
@@ -154,7 +154,7 @@ void TaskUSBSocket::closeSocket()
 }
 
 // virtual int onData(const char *buffer, size_t size) = 0;
-TaskUSBSocket::~TaskUSBSocket()
+TaskUsbGatewayUnixSocket::~TaskUsbGatewayUnixSocket()
 {
     libLoragwHelper.flush();
     closeSocket();
@@ -163,72 +163,4 @@ TaskUSBSocket::~TaskUSBSocket()
         delete helperOpenClose;
         helperOpenClose = nullptr;
     }
-}
-
-int TaskUSBSocket::listen2() {
-    stopped = false;
-    while (!stopped) {
-        fd_set readHandles;
-        FD_ZERO(&readHandles);
-        FD_SET(sock, &readHandles);
-
-        struct timeval timeoutInterval;
-        timeoutInterval.tv_sec = 1;
-        timeoutInterval.tv_usec = 0;
-
-        int rs = select(sock + 1, &readHandles, nullptr, nullptr, &timeoutInterval);
-        if (rs == -1) {
-            int serrno = errno;
-            if (listener.onLog) {
-                std::stringstream ss;
-                ss << ERR_MESSAGE << ERR_CODE_SELECT << ": " << ERR_SELECT
-                   << ", errno " << serrno << ": " << strerror(errno);
-                listener.onLog->strm(LOG_WARNING) << ss.str();
-            }
-            return ERR_CODE_SELECT;
-        }
-        if (rs == 0) {
-            // timeout, nothing to do
-            // std::stringstream ss;ss << MSG_TIMEOUT;onInfo(LOG_DEBUG, LOG_UDP_LISTENER, 0, ss.str());
-            continue;
-        }
-        struct timeval receivedTime;
-        gettimeofday(&receivedTime, nullptr);
-        // By default, there are two sockets: one for IPv4, second for IPv6
-        /*
-        for (std::vector<UDPSocket>::const_iterator it = sockets.begin(); it != sockets.end(); it++) {
-            if (!FD_ISSET(it->sock, &readHandles))
-                continue;
-            struct sockaddr_in6 gwAddress;
-            int bytesReceived = it->recv((void *) buffer.c_str(), buffer.size() - 1,
-                                         &gwAddress);    // add extra trailing byte for null-terminated string
-            if (bytesReceived <= 0) {
-                if (listener.onLog) {
-                    std::stringstream ss;
-                    ss << ERR_MESSAGE << ERR_CODE_SOCKET_READ << " "
-                       << UDPSocket::addrString((const struct sockaddr *) &gwAddress) << ", errno "
-                       << errno << ": " << strerror(errno);
-                    listener.onLog->strm(LOG_ERR) << LOG_UDP_LISTENER, ERR_CODE_SOCKET_READ, ss.str());
-                }
-                continue;
-            }
-            // rapidjson operates with \0 terminated string, just in case add terminator. Extra space is reserved
-            buffer[bytesReceived] = '\0';
-            if (listener.onLog) {
-                std::stringstream ss;
-                char *json = SemtechUDPPacket::getSemtechJSONCharPtr(buffer.c_str(), bytesReceived);
-                ss << MSG_RECEIVED
-                   << UDPSocket::addrString((const struct sockaddr *) &gwAddress)
-                   << " (" << bytesReceived
-                   << " bytes): " << hexString(buffer.c_str(), bytesReceived);
-                if (json)
-                    ss << "; " << json;
-                listener.onLog(LOG_INFO) << LOG_UDP_LISTENER, 0, ss.str());
-            }
-            // parseRX packet result code
-            int pr = parseBuffer(buffer, bytesReceived, it->sock, receivedTime, gwAddress);
-        }
-        */
-    }
-    return CODE_OK;
 }

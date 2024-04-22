@@ -193,7 +193,6 @@ int MessageTaskDispatcher::runner()
         running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
-
     struct timeval timeout {};
 
     // Initialize the master fd_set
@@ -354,8 +353,8 @@ void MessageTaskDispatcher::setControlSocket(
         return (socket == v);
     });
     if (f == sockets.end())
-        return;
-    controlSocket = *f;
+        sockets.push_back(socket);
+    controlSocket = socket;
 }
 
 void MessageTaskDispatcher::pushData(

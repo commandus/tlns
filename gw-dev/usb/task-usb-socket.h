@@ -3,21 +3,20 @@
 #include "rak2287.h"
 #include "libloragw-helper.h"
 
-class TaskUSBSocket : public TaskSocket {
+class TaskUsbGatewayUnixSocket : public TaskSocket {
 private:
     MessageTaskDispatcher *dispatcher;
     std::string socketPath;
     LoraGatewayListener listener;
     LibLoragwOpenClose *helperOpenClose;
     bool stopped;
-    int listen2();
 public:
     /**
      * Open Unix domain socket
      * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
      * @param devicePath Gateway device file name e.g. "/dev/ttyACM0"
      */
-    TaskUSBSocket(
+    TaskUsbGatewayUnixSocket(
         MessageTaskDispatcher *dispatcher,
         const std::string &socketFileName,
         GatewaySettings *settings,
@@ -29,5 +28,5 @@ public:
     SOCKET openSocket() override;
     void closeSocket() override;
     // virtual int onData(const char *buffer, size_t size) = 0;
-    virtual ~TaskUSBSocket();
+    virtual ~TaskUsbGatewayUnixSocket();
 };

@@ -102,7 +102,7 @@ public:
     bool start();
     void stop();
 
-    ssize_t sendACK(
+    static ssize_t sendACK(
         const TaskSocket *taskSocket,
         const sockaddr &destAddr,
         socklen_t destAddrLen,

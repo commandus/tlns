@@ -12,8 +12,6 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
-#include "lorawan/task/task-udp-socket.h"
-#include "lorawan/task/task-udp-control-socket.h"
 #include "lorawan/task/task-unix-socket.h"
 #include "lorawan/task/task-unix-control-socket.h"
 

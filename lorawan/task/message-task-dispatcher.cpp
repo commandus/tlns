@@ -216,8 +216,8 @@ int MessageTaskDispatcher::runner()
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
-        std::vector<SOCKET> acceptedSockets(4);
-        std::vector<TaskSocket*> removedSockets(2);
+        std::vector<SOCKET> acceptedSockets;
+        std::vector<TaskSocket*> removedSockets;
 
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &workingSocketSet)) {
@@ -304,9 +304,9 @@ int MessageTaskDispatcher::runner()
         // accept connections
         if (!acceptedSockets.empty()) {
             for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
-                // get max socket
                 sockets.push_back(new TaskAcceptedSocket(*a));
             }
+            acceptedSockets.clear();
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
         // delete broken connections
@@ -319,6 +319,7 @@ int MessageTaskDispatcher::runner()
                 if (f != sockets.end())
                     sockets.erase(f);
             }
+            removedSockets.clear();
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
     }

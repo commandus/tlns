@@ -10,7 +10,7 @@ EXTRA_DEF =
 #-D_GLIBCXX_USE_CXX11_ABI=0
 # -I../.third-party for make distcheck target be happy
 #
-COMMON_C_FLAGS = -Ithird-party -I../.third-party
+COMMON_C_FLAGS = -Ithird-party -I../third-party
 AM_CXXFLAGS= -std=c++11 $(COMMON_C_FLAGS)
 AM_CPPFLAGS = $(COMMON_C_FLAGS)
 
@@ -26,13 +26,15 @@ SRC_LIBLORAWAN = \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
     lorawan/task/task-socket.cpp lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp \
+    lorawan/task/task-accepted-socket.cpp lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp \
     third-party/strptime.cpp \
     third-party/base64/base64.cpp \
     $(SRC_AES)
 
-HDRS = \
-	third-party/system/crypto/cmac.h \
-    third-party/system/crypto/aes.h \
+nobase_dist_include_HEADERS = \
+    third-party/argtable3/argtable3.h \
+    third-party/base64/base64.h \
+    third-party/daemonize.h \
     third-party/libloragw/jitqueue.h \
     third-party/libloragw/tinymt32.h \
     third-party/libloragw/gateway-lora.h \
@@ -73,10 +75,10 @@ HDRS = \
     third-party/libloragw/subst.h \
     third-party/libloragw/gateway-settings.h \
     third-party/libloragw/libloragw-helper.h \
-    third-party/base64/base64.h \
+    third-party/nlohmann/json.hpp \
     third-party/strptime.h \
-    third-party/argtable3/argtable3.h \
-    third-party/daemonize.h \
+	third-party/system/crypto/cmac.h \
+    third-party/system/crypto/aes.h \
     main/wifi-station.h \
     main/platform-defs.h \
     gw-dev/usb/rak2287.h \
@@ -99,18 +101,12 @@ HDRS = \
     lorawan/lorawan-date.h \
     lorawan/lorawan-msg.h \
     lorawan/lorawan-types.h \
-    lorawan/task/message-task-dispatcher.h \
-    lorawan/task/task-platform.h \
-    lorawan/task/message-queue-item.h \
-    lorawan/task/message-queue.h \
-    lorawan/task/task-descriptor.h \
-    lorawan/task/task-socket.h \
-    lorawan/task/task-udp-socket.h \
-    lorawan/task/task-udp-control-socket.h \
-    lorawan/task/task-response.h \
+    lorawan/task/message-queue.h            lorawan/task/task-accepted-socket.h  lorawan/task/task-response.h            lorawan/task/task-udp-socket.h \
+    lorawan/task/message-queue-item.h       lorawan/task/task-descriptor.h       lorawan/task/task-socket.h              lorawan/task/task-unix-control-socket.h \
+    lorawan/task/message-task-dispatcher.h  lorawan/task/task-platform.h         lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
     lorawan/lorawan-string.h \
-    nlohmann/json.hpp \
-    task-response-threaded.h
+    task-response-threaded.h \
+    gw-dev/usb/log-intf.h  gw-dev/usb/rak2287.h  gw-dev/usb/task-usb-control-socket.h  gw-dev/usb/task-usb-socket.h
 
 #
 # Binaries
@@ -142,9 +138,10 @@ TESTS = $(check_PROGRAMS)
 configdir = $(datadir)
 dist_config_DATA = \
 	autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
+	gw-dev/usb/CMakeLists.txt \
 	third-party/argtable3/README.argtable3 \
 	third-party/base64/README.base64 \
 	third-party/libloragw/README.libloragw.md third-party/libloragw/LICENSE.libloragw.txt \
-	third-party/libloragw/cp-lib.sh third-party/libloragw/build.sh  \
+	third-party/libloragw/cp-lib.sh third-party/libloragw/build.sh \
 	third-party/libloragw/CMakeLists.txt \
 	third-party/nlohmann/README.nlohmann.md

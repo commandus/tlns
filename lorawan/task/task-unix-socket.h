@@ -8,10 +8,10 @@
 
 class TaskUnixSocket : public TaskSocket {
 private:
-    std::string socketPath;
+    const char *socketPath;
 public:
     TaskUnixSocket(
-        const std::string &socketFileName
+        const char *socketFileName
     );
     /**
     * Open UDP socket for listen

@@ -1,3 +1,6 @@
+#ifndef TASK_UNIX_CONTROL_SOCKET_H_
+#define TASK_UNIX_CONTROL_SOCKET_H_ 1
+
 #include <string>
 #include "lorawan/task/task-socket.h"
 
@@ -17,3 +20,5 @@ public:
     void closeSocket() override;
     virtual ~TaskUnixControlSocket();
 };
+
+#endif

@@ -1,3 +1,5 @@
+#ifndef TASK_PLATFORM_H
+#define TASK_PLATFORM_H
 /*
  * Platform specific definitions
  */
@@ -12,4 +14,6 @@ typedef SSIZE_T ssize_t;
 typedef struct in_addr in_addr_t;
 #define sleep(x) Sleep(x)
 #define close(x) closesocket(x)
+#endif
+
 #endif

@@ -21,7 +21,7 @@
 #define _(String) (String)
 
 const char *programName = "tlns-check";
-
+const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";
 // global parameters
 class CheckParams {
 public:
@@ -90,8 +90,8 @@ static void run() {
     // dispatcher 'll destroy sockets in destructor
     // dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
     // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
-    dispatcher.sockets.push_back(new TaskUnixSocket("/tmp/cli-main-check.socket"));
-    dispatcher.setControlSocket(new TaskUnixControlSocket("/tmp/cli-main-check.socket"));
+    dispatcher.sockets.push_back(new TaskUnixSocket(FILE_NAME_UNIX_SOCKET));
+    dispatcher.setControlSocket(new TaskUnixControlSocket(FILE_NAME_UNIX_SOCKET));
     dispatcher.start();
 
     // TaskResponseThreaded response;

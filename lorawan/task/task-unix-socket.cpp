@@ -6,11 +6,11 @@
 #include "lorawan/lorawan-error.h"
 
 TaskUnixSocket::TaskUnixSocket(
-    const std::string &socketFileName
+    const char *socketFileName
 )
     : TaskSocket(SA_REQUIRE), socketPath(socketFileName)
 {
-    unlink(socketPath.c_str());
+    unlink(socketPath);
 }
 
 TaskUnixSocket::~TaskUnixSocket()
@@ -49,7 +49,7 @@ SOCKET TaskUnixSocket::openSocket()
 
     // Bind socket to socket name
     sunAddr.sun_family = AF_UNIX;
-    strncpy(sunAddr.sun_path, socketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
+    strncpy(sunAddr.sun_path, socketPath, sizeof(sunAddr.sun_path) - 1);
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = -1;
@@ -70,5 +70,5 @@ void TaskUnixSocket::closeSocket()
     if (sock >= 0)
         close(sock);
     sock = -1;
-    unlink(socketPath.c_str());
+    unlink(socketPath);
 }

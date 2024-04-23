@@ -23,7 +23,7 @@
 #include "subst-call-c.h"
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
-#include "task-usb-control-socket.h"
+#include "lorawan/task/task-unix-control-socket.h"
 
 // i18n
 // #include <libintl.h>
@@ -284,8 +284,8 @@ static void init()
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first);
-            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first)
+                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
         }
         std::cout
                 << "],\n\"rfm\": "
@@ -318,13 +318,13 @@ static void init()
     std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
     taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, socketFileName, settings, &errLog,
-                                                 localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+        localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
-    TaskSocket *taskUSBControlSocket = new TaskUsbGwUnixControlSocket(socketFileName);
-    dispatcher.sockets.push_back(taskUSBControlSocket);
-    dispatcher.setControlSocket(taskUSBControlSocket);
+    TaskSocket *taskControlSocket = new TaskUnixControlSocket(socketFileName);
+    dispatcher.sockets.push_back(taskControlSocket);
+    dispatcher.setControlSocket(taskControlSocket);
 }
 
 int main(

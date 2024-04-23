@@ -1,3 +1,6 @@
+#ifndef TASK_USB_SOCKET_H_
+#define TASK_USB_SOCKET_H_ 1
+
 #include <string>
 #include "lorawan/task/task-socket.h"
 #include "rak2287.h"
@@ -30,3 +33,5 @@ public:
     // virtual int onData(const char *buffer, size_t size) = 0;
     virtual ~TaskUsbGatewayUnixSocket();
 };
+
+#endif

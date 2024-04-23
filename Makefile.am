@@ -32,6 +32,7 @@ SRC_LIBLORAWAN = \
     $(SRC_AES)
 
 nobase_dist_include_HEADERS = \
+    task-response-threaded.h \
     third-party/argtable3/argtable3.h \
     third-party/base64/base64.h \
     third-party/daemonize.h \
@@ -83,7 +84,6 @@ nobase_dist_include_HEADERS = \
     main/platform-defs.h \
     gw-dev/usb/rak2287.h \
     gw-dev/usb/task-usb-socket.h \
-    gw-dev/usb/task-usb-control-socket.h \
     gw-dev/usb/log-intf.h \
     lorawan/storage/network-identity.h \
     lorawan/storage/gateway-identity.h \
@@ -104,9 +104,8 @@ nobase_dist_include_HEADERS = \
     lorawan/task/message-queue.h            lorawan/task/task-accepted-socket.h  lorawan/task/task-response.h            lorawan/task/task-udp-socket.h \
     lorawan/task/message-queue-item.h       lorawan/task/task-descriptor.h       lorawan/task/task-socket.h              lorawan/task/task-unix-control-socket.h \
     lorawan/task/message-task-dispatcher.h  lorawan/task/task-platform.h         lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
-    lorawan/lorawan-string.h \
-    task-response-threaded.h \
-    gw-dev/usb/log-intf.h  gw-dev/usb/rak2287.h  gw-dev/usb/task-usb-control-socket.h  gw-dev/usb/task-usb-socket.h
+    lorawan/lorawan-string.h
+
 
 #
 # Binaries

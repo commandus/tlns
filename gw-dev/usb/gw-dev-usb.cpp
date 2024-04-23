@@ -79,8 +79,11 @@ GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
 
 static LocalGatewayConfiguration localConfig;
 
+static MessageTaskDispatcher dispatcher;
+
 static void stop()
 {
+    dispatcher.stop();
 }
 
 static void done()
@@ -226,8 +229,6 @@ void signalHandler(int signal)
     }
 }
 
-MessageTaskDispatcher dispatcher;
-
 void setSignalHandler()
 {
 #ifndef _MSC_VER
@@ -247,20 +248,13 @@ static void run()
 {
     if (!localConfig.daemonize)
         setSignalHandler();
+    dispatcher.run();
+    /*
     dispatcher.start();
-    // Check is thread abnormally stopped
-    sleep(1);
-    if (!dispatcher.running)
-        return;
-    std::cout << _("Enter 'q' to stop") << std::endl;
     while (dispatcher.running) {
-        std::string l;
-        getline(std::cin, l);
-        if (l == "q") {
-            dispatcher.stop();
-            break;
-        }
+        sleep(1);
     }
+     */
 }
 
 class StdErrLog: public Log {

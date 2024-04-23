@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <functional>
 #include <csignal>
-#include "lorawan/task/task-platform.h"
 #if defined(_MSC_VER)
 #else
 #include <sys/select.h>
@@ -96,14 +95,13 @@ void MessageTaskDispatcher::send(
  * If dispatcher running already, return true.
  * @return true always
  */
-bool MessageTaskDispatcher::start()
+void MessageTaskDispatcher::start()
 {
     if (running)
-        return true;
-    running = true;
-    thread = new std::thread(std::bind(&MessageTaskDispatcher::runner, this));
+        return;
+    running = true; // force running because thread start with delay
+    thread = new std::thread(std::bind(&MessageTaskDispatcher::run, this));
     thread->detach();
-    return true;
 }
 
 /**
@@ -122,12 +120,15 @@ void MessageTaskDispatcher::stop()
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
-        // try wake-up select() if UDP packet is missed
-        send(&q, 1);
+    if (thread) {
+        while (running) {
+            // try wake-up select() if UDP packet is missed
+            send(&q, 1);
+        }
+        // free up resources
+        delete thread;
+        thread = nullptr;
     }
-    // free up resources
-    delete thread;
 }
 
 bool MessageTaskDispatcher::openSockets()
@@ -182,8 +183,9 @@ int MessageTaskDispatcher::getMaxDescriptor1(
  * Dispatcher main loop
  * @return 0 if success or negative error code
  */
-int MessageTaskDispatcher::runner()
+int MessageTaskDispatcher::run()
 {
+    running = true;
     if (sockets.empty()) {
         running = false;
         return ERR_CODE_PARAM_INVALID;
@@ -325,7 +327,6 @@ int MessageTaskDispatcher::runner()
     }
     closeSockets();
     running = false;
-    loopExit.notify_all();
     return CODE_OK;
 }
 

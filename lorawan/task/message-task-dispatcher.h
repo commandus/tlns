@@ -62,9 +62,6 @@ protected:
     TaskResponse *taskResponse;
     // main loop thread
     std::thread *thread;
-    // wait for thread loop done
-    mutable std::condition_variable loopExit;
-
     bool openSockets();
     /**
      * close all sockets
@@ -86,7 +83,7 @@ public:
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
 
-    int runner();
+    int run();
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
@@ -99,10 +96,10 @@ public:
     void send(char cmd);
     void send(const std::string& cmd);
 
-    bool start();
+    void start();
     void stop();
 
-    ssize_t sendACK(
+    static ssize_t sendACK(
         const TaskSocket *taskSocket,
         const sockaddr &destAddr,
         socklen_t destAddrLen,

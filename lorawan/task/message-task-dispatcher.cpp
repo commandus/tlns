@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <functional>
 #include <csignal>
-#include "lorawan/task/task-platform.h"
 #if defined(_MSC_VER)
 #else
 #include <sys/select.h>
@@ -96,14 +95,13 @@ void MessageTaskDispatcher::send(
  * If dispatcher running already, return true.
  * @return true always
  */
-bool MessageTaskDispatcher::start()
+void MessageTaskDispatcher::start()
 {
     if (running)
-        return true;
-    running = true;
-    thread = new std::thread(std::bind(&MessageTaskDispatcher::runner, this));
+        return;
+    running = true; // force running because thread start with delay
+    thread = new std::thread(std::bind(&MessageTaskDispatcher::run, this));
     thread->detach();
-    return true;
 }
 
 /**
@@ -122,12 +120,15 @@ void MessageTaskDispatcher::stop()
     // wait until thread finish
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    while (running && loopExit.wait_for(lock, std::chrono::seconds(DEF_WAIT_QUIT_SECONDS)) == std::cv_status::timeout) {
-        // try wake-up select() if UDP packet is missed
-        send(&q, 1);
+    if (thread) {
+        while (running) {
+            // try wake-up select() if UDP packet is missed
+            send(&q, 1);
+        }
+        // free up resources
+        delete thread;
+        thread = nullptr;
     }
-    // free up resources
-    delete thread;
 }
 
 bool MessageTaskDispatcher::openSockets()
@@ -182,8 +183,9 @@ int MessageTaskDispatcher::getMaxDescriptor1(
  * Dispatcher main loop
  * @return 0 if success or negative error code
  */
-int MessageTaskDispatcher::runner()
+int MessageTaskDispatcher::run()
 {
+    running = true;
     if (sockets.empty()) {
         running = false;
         return ERR_CODE_PARAM_INVALID;
@@ -193,7 +195,6 @@ int MessageTaskDispatcher::runner()
         running = false;
         return ERR_CODE_SOCKET_CREATE;
     }
-
     struct timeval timeout {};
 
     // Initialize the master fd_set
@@ -217,8 +218,8 @@ int MessageTaskDispatcher::runner()
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
-        std::vector<SOCKET> acceptedSockets(4);
-        std::vector<TaskSocket*> removedSockets(2);
+        std::vector<SOCKET> acceptedSockets;
+        std::vector<TaskSocket*> removedSockets;
 
         for (auto s : sockets) {
             if (FD_ISSET(s->sock, &workingSocketSet)) {
@@ -233,7 +234,7 @@ int MessageTaskDispatcher::runner()
                     continue;
                     // sz = read(cfd, buffer, sizeof(buffer));
                 } else {
-                    sz = read(s->sock, buffer, sizeof(buffer));
+                    sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 }
                 if (sz < 0) {
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
@@ -274,7 +275,6 @@ int MessageTaskDispatcher::runner()
                             }
                             break;
                         }
-                            break;
                         default: {
                             if (parser) {
                                 int r = parser->parse(pr, buffer, sz, receivedTime);
@@ -304,15 +304,15 @@ int MessageTaskDispatcher::runner()
             }
         }
         // accept connections
-        if (acceptedSockets.size()) {
+        if (!acceptedSockets.empty()) {
             for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
-                // get max socket
                 sockets.push_back(new TaskAcceptedSocket(*a));
             }
+            acceptedSockets.clear();
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
         // delete broken connections
-        if (removedSockets.size()) {
+        if (!removedSockets.empty()) {
             for (auto a = removedSockets.begin(); a != removedSockets.end(); a++) {
                 // get max socket
                 auto f = std::find_if(sockets.begin(), sockets.end(), [a](const TaskSocket *v) {
@@ -321,12 +321,12 @@ int MessageTaskDispatcher::runner()
                 if (f != sockets.end())
                     sockets.erase(f);
             }
+            removedSockets.clear();
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
     }
     closeSockets();
     running = false;
-    loopExit.notify_all();
     return CODE_OK;
 }
 
@@ -355,8 +355,8 @@ void MessageTaskDispatcher::setControlSocket(
         return (socket == v);
     });
     if (f == sockets.end())
-        return;
-    controlSocket = *f;
+        sockets.push_back(socket);
+    controlSocket = socket;
 }
 
 void MessageTaskDispatcher::pushData(

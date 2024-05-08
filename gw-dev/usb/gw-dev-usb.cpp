@@ -23,7 +23,7 @@
 #include "subst-call-c.h"
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
-#include "task-usb-control-socket.h"
+#include "lorawan/task/task-unix-control-socket.h"
 
 // i18n
 // #include <libintl.h>
@@ -79,8 +79,11 @@ GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
 
 static LocalGatewayConfiguration localConfig;
 
+static MessageTaskDispatcher dispatcher;
+
 static void stop()
 {
+    dispatcher.stop();
 }
 
 static void done()
@@ -226,8 +229,6 @@ void signalHandler(int signal)
     }
 }
 
-MessageTaskDispatcher dispatcher;
-
 void setSignalHandler()
 {
 #ifndef _MSC_VER
@@ -247,20 +248,13 @@ static void run()
 {
     if (!localConfig.daemonize)
         setSignalHandler();
+    dispatcher.run();
+    /*
     dispatcher.start();
-    // Check is thread abnormally stopped
-    sleep(1);
-    if (!dispatcher.running)
-        return;
-    std::cout << _("Enter 'q' to stop") << std::endl;
     while (dispatcher.running) {
-        std::string l;
-        getline(std::cin, l);
-        if (l == "q") {
-            dispatcher.stop();
-            break;
-        }
+        sleep(1);
     }
+     */
 }
 
 class StdErrLog: public Log {
@@ -284,8 +278,8 @@ static void init()
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first);
-            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first)
+                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
         }
         std::cout
                 << "],\n\"rfm\": "
@@ -317,14 +311,14 @@ static void init()
 
     std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
-    taskUSBSocket = new TaskUSBSocket(&dispatcher, socketFileName, settings, &errLog,
+    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, socketFileName, settings, &errLog,
         localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
-    TaskSocket *taskUSBControlSocket = new TaskUSBControlSocket(socketFileName);
-    dispatcher.sockets.push_back(taskUSBControlSocket);
-    dispatcher.setControlSocket(taskUSBControlSocket);
+    TaskSocket *taskControlSocket = new TaskUnixControlSocket(socketFileName);
+    dispatcher.sockets.push_back(taskControlSocket);
+    dispatcher.setControlSocket(taskControlSocket);
 }
 
 int main(

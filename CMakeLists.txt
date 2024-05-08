@@ -119,8 +119,10 @@ else()
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
-		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp lorawan/task/task-udp-socket.cpp
-		lorawan/task/task-udp-control-socket.cpp
+		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp
+		lorawan/task/task-unix-socket.cpp
+		lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
+		lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
 		${AES_SRC}
@@ -188,8 +190,7 @@ else()
 	)
 	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
-	target_include_directories(tlns-check PRIVATE "." "third-party"
-		"third-party/libloragw" "gw-dev/usb"
+	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "gw-dev/usb"
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")

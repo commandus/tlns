@@ -1,11 +1,11 @@
-#include "task-usb-control-socket.h"
+#include "task-unix-control-socket.h"
 #include <sys/un.h>
 #include <unistd.h>
 #include <iostream>
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 
-TaskUSBControlSocket::TaskUSBControlSocket(
+TaskUnixControlSocket::TaskUnixControlSocket(
     const std::string &socketFileName
 )
     : TaskSocket(SA_NONE), socketPath(socketFileName)
@@ -14,7 +14,7 @@ TaskUSBControlSocket::TaskUSBControlSocket(
     unlink(socketPath.c_str());
 }
 
-SOCKET TaskUSBControlSocket::openSocket()
+SOCKET TaskUnixControlSocket::openSocket()
 {
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock <= 0) {
@@ -35,7 +35,7 @@ SOCKET TaskUSBControlSocket::openSocket()
     return sock;
 }
 
-void TaskUSBControlSocket::closeSocket()
+void TaskUnixControlSocket::closeSocket()
 {
     if (sock > 0) {
         close(sock);
@@ -45,7 +45,7 @@ void TaskUSBControlSocket::closeSocket()
 }
 
 // virtual int onData(const char *buffer, size_t size) = 0;
-TaskUSBControlSocket::~TaskUSBControlSocket()
+TaskUnixControlSocket::~TaskUnixControlSocket()
 {
     closeSocket();
 }

@@ -12,8 +12,8 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
-#include "lorawan/task/task-udp-socket.h"
-#include "lorawan/task/task-udp-control-socket.h"
+#include "lorawan/task/task-unix-socket.h"
+#include "lorawan/task/task-unix-control-socket.h"
 
 // i18n
 // #include <libintl.h>
@@ -21,7 +21,7 @@
 #define _(String) (String)
 
 const char *programName = "tlns-check";
-
+const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";
 // global parameters
 class CheckParams {
 public:
@@ -87,12 +87,11 @@ static void run() {
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };
-    TaskSocket *ss = new TaskUDPSocket(INADDR_LOOPBACK, 4242);
-    dispatcher.sockets.push_back(ss);
-
-    TaskSocket *cs = new TaskUDPControlSocket(INADDR_LOOPBACK, 4242);
-    dispatcher.sockets.push_back(cs);
-    dispatcher.setControlSocket(cs);
+    // dispatcher 'll destroy sockets in destructor
+    // dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
+    // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
+    dispatcher.sockets.push_back(new TaskUnixSocket(FILE_NAME_UNIX_SOCKET));
+    dispatcher.setControlSocket(new TaskUnixControlSocket(FILE_NAME_UNIX_SOCKET));
     dispatcher.start();
 
     // TaskResponseThreaded response;
@@ -112,6 +111,7 @@ static void run() {
             break;
     }
     // dispatcher.stop();
+
 }
 
 int main(int argc, char **argv) {

@@ -18,8 +18,7 @@ SRC_ARGTABLE = third-party/argtable3/argtable3.c
 SRC_AES = third-party/system/crypto/aes.c third-party/system/crypto/cmac.c
 SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
-    lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp \
-    lorawan/lorawan-packet-storage.cpp \
+    lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
@@ -30,6 +29,41 @@ SRC_LIBLORAWAN = \
     third-party/strptime.cpp \
     third-party/base64/base64.cpp \
     $(SRC_AES)
+
+LIBLORAGW_ROOT = third-party/libloragw
+LIBLORAGW_SRC_DIR = $(LIBLORAGW_ROOT)/src
+LIBLORAGW_INC_DIR = $(LIBLORAGW_ROOT)/inc
+SRC_LIBLORAGW = \
+    $(LIBLORAGW_SRC_DIR)/loragw_spi.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_usb.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_com.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_mcu.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_i2c.c \
+    $(LIBLORAGW_SRC_DIR)/sx125x_spi.c \
+    $(LIBLORAGW_SRC_DIR)/sx125x_com.c \
+    $(LIBLORAGW_SRC_DIR)/sx1250_spi.c \
+    $(LIBLORAGW_SRC_DIR)/sx1250_usb.c \
+    $(LIBLORAGW_SRC_DIR)/sx1250_com.c \
+    $(LIBLORAGW_SRC_DIR)/sx1261_spi.c \
+    $(LIBLORAGW_SRC_DIR)/sx1261_usb.c \
+    $(LIBLORAGW_SRC_DIR)/sx1261_com.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_aux.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_reg.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx1250.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx1261.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx125x.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx1302.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_cal.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_debug.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_hal.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_lbt.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_stts751.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_gps.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx1302_timestamp.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_sx1302_rx.c \
+    $(LIBLORAGW_SRC_DIR)/loragw_ad5338r.c \
+    $(LIBLORAGW_ROOT)/tinymt32.c \
+    $(LIBLORAGW_ROOT)/jitqueue.c
 
 nobase_dist_include_HEADERS = \
     task-response-threaded.h \
@@ -106,22 +140,50 @@ nobase_dist_include_HEADERS = \
     lorawan/task/message-task-dispatcher.h  lorawan/task/task-platform.h         lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
     lorawan/lorawan-string.h
 
+#
+# Libraries
+#
+lib_LIBRARIES = liblorawan.a
+if ENABLE_GW_DEV_USB
+lib_LIBRARIES += libloragw.a
+endif
 
 #
 # Binaries
 #
 bin_PROGRAMS = cli-main-check
 
+if ENABLE_GW_DEV_USB
+bin_PROGRAMS += gw-dev-usb
+endif
+
+# Static library used for build binaries, so build library first.
+$(bin_PROGRAMS): $(lib_LIBRARIES)
+
+liblorawan_a_SOURCES = $(SRC_LIBLORAWAN)
+liblorawan_a_CPPFLAGS = -fPIC
+
+libloragw_a_SOURCES = $(SRC_LIBLORAGW)
+libloragw_a_CPPFLAGS = -fPIC -I$(LIBLORAGW_ROOT) -I$(LIBLORAGW_INC_DIR)
+
 cli_main_check_SOURCES = \
 	cli-main-check.cpp task-response-threaded.cpp \
-	$(SRC_ARGTABLE) $(SRC_LIBLORAWAN)
-
-cli_main_check_LDADD =
+	$(SRC_ARGTABLE)
+cli_main_check_LDADD = -L. -llorawan
 cli_main_check_CPPFLAGS = $(EXTRA_DEF)
+
+# -----------------------
+gw_dev_usb_SOURCES = \
+	gw-dev/usb/gw-dev-usb.cpp gw-dev/usb/task-usb-socket.cpp gw-dev/usb/rak2286.cpp \
+    task-response-threaded.cpp \
+    lorawan/helper/file-helper.cpp lorawan/helper/thread-helper.cpp lorawan/task/task-accepted-socket.cpp \
+    third-party/daemonize.cpp third-party/libloragw/libloragw-helper.cpp third-party/libloragw/subst-call-c.cpp \
+	$(SRC_ARGTABLE)
+gw_dev_usb_LDADD = -L. -llorawan -lloragw
+gw_dev_usb_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
 test_printf_SOURCES = tests/test-printf.cpp \
     third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
-
 test_printf_CPPFLAGS = -Ithird-party/libloragw -Igw-dev/usb
 
 #

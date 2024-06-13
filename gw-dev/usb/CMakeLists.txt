@@ -27,7 +27,7 @@ else()
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-		set (OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
+		set(OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
 	endif()
 
 	set(SRC_LIBLORAWAN

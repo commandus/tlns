@@ -7,7 +7,7 @@
 # -DENABLE_LIBUV=off   	enable libuv UDP/TCP. Default UDP only
 # -DENABLE_DEBUG=off   	enable debugging output
 # -DENABLE_GEN=on   	enable key generator (default in memory storage)
-# -DENABLE_SQLITE=off  	enable SQLITE3 backend
+# -DENABLE_SQLITE=off  	enable sqlite3 backend
 # -DJSON=off   	        enable JSON file backend
 # -DENABLE_IPV6=off   	enable IPv6 (reserved)
 #

@@ -1,9 +1,9 @@
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#pragma warning(disable: 4996)
 #include <windows.h>
 #include <io.h>
-#include <wchar.h>
-#include <stdio.h>
+#include <cwchar>
+#include <cstdio>
 #define PATH_DELIMITER "\\"
 #else
 #include <sys/param.h>
@@ -43,10 +43,10 @@
 
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 bool file::rmAllDir(const char *path)
 {
-	if (&path == NULL)
+	if (!path)
 		return false;
 	size_t sz = strlen(path);
 	if (sz <= 1)
@@ -56,14 +56,14 @@ bool file::rmAllDir(const char *path)
 	fp[sz] = '\0';
 	fp[sz + 1] = '\0';
 	SHFILEOPSTRUCTA shfo = {
-		NULL,
+		nullptr,
 		FO_DELETE,
 		fp,
-		NULL,
+		nullptr,
 		FOF_SILENT | FOF_NOERRORUI | FOF_NOCONFIRMATION,
 		FALSE,
-		NULL,
-		NULL };
+		nullptr,
+		nullptr };
 
 	SHFileOperationA(&shfo);
     return true;
@@ -71,7 +71,7 @@ bool file::rmAllDir(const char *path)
 
 bool file::rmDir(const std::string &path)
 {
-	if (&path == NULL)
+	if (&path == nullptr)
 		return false;
 	if (path.size() <= 1)
 		return false;	// prevent "rm -r /"
@@ -130,7 +130,7 @@ size_t file::filesInPath
 			// , delete '!' read other 2 default folder . and ..
 			std::string f(fd.cFileName);
 			if ((f == ".") || (f == ".."))
-				continue;;
+				continue;
 			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 				r += filesInPath(f, suffix, flags, retval);
 			} else {
@@ -317,7 +317,7 @@ bool file::rmFile(const std::string &fn)
 	return std::remove((const char*) fn.c_str()) == 0;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 /**
  * @see https://www.gamedev.net/forums/topic/565693-converting-filetime-to-time_t-on-windows/#:~:text=A%20FILETIME%20is%20the%20number,intervals%20since%20January%201%2C%201970.
  * A FILETIME is the number of 100-nanosecond intervals since January 1, 1601.
@@ -342,7 +342,7 @@ time_t fileModificationTime(
 	const std::string &fileName
 )
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 	WIN32_FILE_ATTRIBUTE_DATA fileInfo;
 	GetFileAttributesEx(fileName.c_str(), GetFileExInfoStandard, (void *)&fileInfo);
 	return filetime2time_t(fileInfo.ftLastWriteTime);
@@ -435,7 +435,7 @@ int URL::getInt(
 
 std::string getCurrentDir()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     TCHAR buffer[MAX_PATH];
     GetCurrentDirectory(MAX_PATH - 1, buffer);
     return std::string((char *) buffer);

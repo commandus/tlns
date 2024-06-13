@@ -4,7 +4,7 @@
 #include <string>
 #include <ctime>
 #include <cinttypes>
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WinSock2.h>
 #include <ws2tcpip.h>
 #else

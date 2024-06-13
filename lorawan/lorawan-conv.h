@@ -11,23 +11,29 @@
 #ifdef ESP_PLATFORM
     #include <arpa/inet.h>
 #endif
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     #include <WinSock2.h>
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
     #define SWAP_BYTES_2(x) htons(x)
     #define SWAP_BYTES_4(x) htonl(x)
     #define SWAP_BYTES_8(x) htonll(x)
 #else
-    #ifdef ESP_PLATFORM
-        #define SWAP_BYTES_2(x) lwip_htons(x)
-        #define SWAP_BYTES_4(x) lwip_htonl(x)
-        #define SWAP_BYTES_8(x) ((((uint64_t) lwip_htonl(x)) << 32) + lwip_htonl((uint64_t)(x) >> 32))
+    #if defined(__MINGW32__)
+        #define SWAP_BYTES_2(x) htons(x)
+        #define SWAP_BYTES_4(x) htonl(x)
+        #define SWAP_BYTES_8(x) ((1==htonl(1)) ? (x) : ((uint64_t)htonl((x) & 0xFFFFFFFF) << 32) | htonl((x) >> 32))
     #else
-        #define SWAP_BYTES_2(x) be16toh(x)
-        #define SWAP_BYTES_4(x) be32toh(x)
-        #define SWAP_BYTES_8(x) be64toh(x)
+        #ifdef ESP_PLATFORM
+            #define SWAP_BYTES_2(x) lwip_htons(x)
+            #define SWAP_BYTES_4(x) lwip_htonl(x)
+            #define SWAP_BYTES_8(x) ((((uint64_t) lwip_htonl(x)) << 32) + lwip_htonl((uint64_t)(x) >> 32))
+        #else
+            #define SWAP_BYTES_2(x) be16toh(x)
+            #define SWAP_BYTES_4(x) be32toh(x)
+            #define SWAP_BYTES_8(x) be64toh(x)
+        #endif
     #endif
 #endif
 

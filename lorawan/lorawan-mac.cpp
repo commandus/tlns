@@ -1,7 +1,7 @@
 #include "lorawan-mac.h"
 #include <cstring>
 #include <sstream>
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <Windows.h>
 #else
 #include <sys/time.h>

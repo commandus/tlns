@@ -34,7 +34,7 @@ const char *logLevelString(
 {
 	if (logLevel < 0)
 		logLevel = 0;
-	if (logLevel > LOG_LEVEL_COUNT)
+	if (logLevel >= LOG_LEVEL_COUNT)
 		logLevel = 0;
 	return logLevelList[logLevel];
 }
@@ -45,7 +45,7 @@ const char *logLevelColor(
 {
 	if (logLevel < 0)
 		logLevel = 0;
-	if (logLevel > LOG_LEVEL_COUNT)
+	if (logLevel >= LOG_LEVEL_COUNT)
 		logLevel = 0;
 	return logLevelColorList[logLevel];
 }

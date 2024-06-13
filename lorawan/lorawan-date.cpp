@@ -1,4 +1,4 @@
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #endif
@@ -11,7 +11,7 @@
 #include <sstream>
 #include <iomanip>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include "strptime.h"
 #else
 #include <sys/time.h>
@@ -105,7 +105,7 @@ time_t parseDate(
 	return r;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 /**
  * @see https://stackoverflow.com/questions/10905892/equivalent-of-gettimeofday-for-windows
  * @param tp

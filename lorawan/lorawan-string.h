@@ -24,6 +24,7 @@ std::string hexString(const void *buffer, size_t size);
 std::string hexString(const std::string &data);
 
 std::string hex2string(const std::string &hex);
+std::string toUpperCase(const std::string &value);
 
 std::string DEVICENAME2string(const DEVICENAME &value);
 std::string gatewayId2str(uint64_t value);

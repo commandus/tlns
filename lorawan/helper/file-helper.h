@@ -10,7 +10,7 @@
 namespace file {
 	bool rmDir(const std::string &path);
 	bool rmFile(const std::string &fn);
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 	bool rmAllDir(const char* path);
 #endif
 	/**

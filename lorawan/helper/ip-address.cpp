@@ -2,7 +2,8 @@
 #include "ip-address.h"
 
 #include <sstream>
-#ifndef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <arpa/inet.h>
 #endif
 

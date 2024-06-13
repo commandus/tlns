@@ -6,8 +6,15 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-mac.h"
+#ifdef ENABLE_UNICODE
+#include <unicode/unistr.h>
+#endif
 
 #define DEF_CODING_RATE CRLORA_4_6
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#pragma warning(disable: 4996)
+#endif
 
 /**
  * @see https://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
@@ -106,6 +113,29 @@ std::string hex2string(const std::string &hex)
     return readHex(ss);
 }
 
+std::string toUpperCase(
+    const std::string &value
+)
+{
+    std::string r;
+#ifdef ENABLE_UNICODE
+    icu::UnicodeString::fromUTF8(value).toUpper().toUTF8String(r);
+#else
+    r = value;
+    for (auto & c: r) {
+        c = std::toupper(c);
+    }
+#endif
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    if (r.empty())
+        CharUpperA((LPSTR)r.c_str());
+#endif
+    if (r.empty())
+        return value;
+    else
+        return r;
+}
+
 std::string DEVICENAME2string(
 	const DEVICENAME &value
 )
@@ -189,7 +219,7 @@ DEVNONCE string2DEVNONCE(
 )
 {
     DEVNONCE r;
-    r.u = strtoul(value.c_str(), nullptr, 16);
+    r.u = (uint16_t) strtoul(value.c_str(), nullptr, 16);
     r.u = NTOH2(r.u);
     return r;
 }
@@ -216,7 +246,6 @@ std::string JOIN_ACCEPT_FRAME2string(
     std::stringstream ss;
     ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr)
         << R"(, "mic": ")" << MIC2String(value.mic) << "\"}";
-    return ss.str();
     return ss.str();
 }
 
@@ -815,7 +844,17 @@ bool string2NETWORKIDENTITY(
 }
 
 const std::string ERR_CODE_TX_STR[] {
-    "NONE", "TOO_LATE", "TOO_EARLY", "FULL", "EMPTY", "COLLISION_PACKET", "COLLISION_BEACON", "TX_FREQ", "TX_POWER", "GPS_UNLOCKED"
+    "NONE",             // 0
+    "TOO_LATE",
+    "TOO_EARLY",
+    "FULL",
+    "EMPTY",
+    "COLLISION_PACKET", // 5
+    "COLLISION_BEACON",
+    "TX_FREQ",
+    "TX_POWER",
+    "GPS_UNLOCKED",
+    "INVALID"           // 10
 };
 
 const std::string& ERR_CODE_TX2string(
@@ -856,9 +895,9 @@ SPREADING_FACTOR string2datr(
     if (p == std::string::npos)
         return DRLORA_SF5;
     std::string s = value.substr(2, p - 2);
-    auto spreadingFactor = static_cast<SPREADING_FACTOR>(atoi(s.c_str()));
+    auto spreadingFactor = static_cast<SPREADING_FACTOR>(strtol(s.c_str(), nullptr, 10));
     s = value.substr(p + 2);
-    int bandwidthValue = atoi(s.c_str());
+    int bandwidthValue = strtol(s.c_str(), nullptr, 10);
     switch (bandwidthValue) {
         case 7:
             bandwidth = BANDWIDTH_INDEX_7KHZ; // 7.8
@@ -906,7 +945,7 @@ std::string datr2string(
     BANDWIDTH bandwidth
 )
 {
-    int bandwidthValue = 125;
+    int bandwidthValue;
     switch (bandwidth) {
         case BANDWIDTH_INDEX_7KHZ:
             bandwidthValue = 7; // 7.8

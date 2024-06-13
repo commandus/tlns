@@ -2,7 +2,7 @@
 #define LORAWAN_ERROR_H_	1
 
 // syslog
-#if defined(_MSC_VER) or defined(ESP_PLATFORM)
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(ESP_PLATFORM)
 #define	LOG_EMERG	0	/* system is unusable */
 #define	LOG_ALERT	1	/* action must be taken immediately */
 #define	LOG_CRIT	2	/* critical conditions */
@@ -134,7 +134,7 @@
 #define ERR_CODE_NO_PACKET_PARSER           (-5114)
 #define ERR_CODE_LOAD_WS_PASSWD_NOT_FOUND   (-5115)
 
-// embedded gateway config)
+// embedded gateway config
 #define ERR_CODE_LORA_GATEWAY_CONFIGURE_BOARD_FAILED       (-5116)
 #define ERR_CODE_LORA_GATEWAY_CONFIGURE_TIME_STAMP         (-5117)
 #define ERR_CODE_LORA_GATEWAY_CONFIGURE_SX1261_RADIO       (-5118)

@@ -4,7 +4,7 @@
 #include <string>
 #include <cinttypes>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <stdint.h> // portable: uint64_t   MSVC: __int64
 #else
 #include <sys/time.h>
@@ -71,7 +71,7 @@ void incTimeval(
 	int usec = 0
 );
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif
 

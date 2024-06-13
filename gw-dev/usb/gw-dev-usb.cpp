@@ -108,6 +108,7 @@ int parseCmd(
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
+    struct arg_str *a_unix_socket_file = arg_str0("u", "socket-name", _("<file>"), _("UNIX socket file name. Default /tmp/gw-usb.socket"));
     struct arg_str *a_pidfile = arg_str0("p", "pidfile", _("<file>"), _("Check whether a process has created the file pidfile"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
@@ -248,8 +249,10 @@ static void run()
 {
     if (!localConfig.daemonize)
         setSignalHandler();
+    // run() in main thread
     dispatcher.run();
     /*
+     // start() in separate thread
     dispatcher.start();
     while (dispatcher.running) {
         sleep(1);

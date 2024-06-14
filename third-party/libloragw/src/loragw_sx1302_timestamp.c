@@ -14,7 +14,7 @@ Description:
     Provides function to compute the correction to be applied to the received
     timestamp for demodulation processing time.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

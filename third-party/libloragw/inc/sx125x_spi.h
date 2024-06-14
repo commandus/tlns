@@ -9,7 +9,7 @@
 Description:
     Functions used to handle LoRa concentrator SX1255/SX1257 radios SPI access.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 #ifndef _SX125X_SPI_H

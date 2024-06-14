@@ -12,7 +12,7 @@ Description:
     Single-byte read/write and burst read/write.
     Could be used with multiple SPI ports in parallel (explicit file descriptor)
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

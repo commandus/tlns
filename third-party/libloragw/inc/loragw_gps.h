@@ -11,7 +11,7 @@ Description:
     timestamping of packets and synchronisation of gateways.
     A limited set of module brands/models are supported.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

@@ -11,7 +11,7 @@ Description:
     the concentrator.
     Single-byte read/write and burst read/write.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

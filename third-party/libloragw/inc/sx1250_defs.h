@@ -9,7 +9,7 @@
 Description:
     Functions used to handle LoRa concentrator SX1250 radios.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

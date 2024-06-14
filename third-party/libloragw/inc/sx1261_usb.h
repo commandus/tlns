@@ -10,7 +10,7 @@ Description:
     Functions used to handle LoRa concentrator SX1261 radio through USB
     interface.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

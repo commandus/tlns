@@ -9,7 +9,7 @@
 Description:
     SX1302 RX buffer Hardware Abstraction Layer
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

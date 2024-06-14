@@ -10,7 +10,7 @@ Description:
     Functions used to handle LoRa concentrator SX1261 radio used to handle LBT
     and Spectral Scan.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

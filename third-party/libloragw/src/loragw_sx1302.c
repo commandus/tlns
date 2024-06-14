@@ -9,7 +9,7 @@
 Description:
     SX1302 Hardware Abstraction Layer entry functions.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

@@ -22,7 +22,7 @@
 
 const char *programName = "tlns-check";
 const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";
-// global parameters
+// global parameters keep command line arguments
 class CheckParams {
 public:
     int verbose;
@@ -36,7 +36,7 @@ public:
 
     std::string toString() const {
         std::stringstream ss;
-        ss << "Verbose: " << verbose << "\n";
+        ss << _("Verbose: ") << verbose << "\n";
         return ss.str();
     }
 };
@@ -52,13 +52,13 @@ static void run() {
         std::cout
             << "{\"metadata\": [";
         bool f = true;
-        for (auto it(item->metadata.begin()); it != item->metadata.end(); it++) {
+        for (auto & it : item->metadata) {
             if (f)
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first);
-            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+            std::cout << "{\"gateway_id\": " << gatewayId2str(it.first);
+            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second) << "}";
         }
         std::cout
             << "],\n\"rfm\": "
@@ -83,7 +83,7 @@ static void run() {
         ERR_CODE_TX code
     ) {
         std::cout
-            << "{\"txPkAck\": \""
+            << R"({"txPkAck": ")"
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };

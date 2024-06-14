@@ -9,7 +9,7 @@
 Description:
     Functions used to handle the sx1261 radio used for LBT/Spectral Scan.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

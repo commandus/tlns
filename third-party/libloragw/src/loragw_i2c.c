@@ -9,7 +9,7 @@
 Description:
     Host specific functions to address the LoRa concentrator I2C peripherals.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

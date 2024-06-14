@@ -3,13 +3,13 @@
 # mkdir build; cd build; cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_SQLITE=on
 #
 # Options:
-# -DENABLE_GW_DEV_USB   build RAK2287 USB gateway backend
-# -DENABLE_LIBUV=off   	enable libuv UDP/TCP. Default UDP only
-# -DENABLE_DEBUG=off   	enable debugging output
-# -DENABLE_GEN=on   	enable key generator (default in memory storage)
-# -DENABLE_SQLITE=off  	enable sqlite3 backend
-# -DJSON=off   	        enable JSON file backend
-# -DENABLE_IPV6=off   	enable IPv6 (reserved)
+# -DENABLE_GW_DEV_USB=off   build RAK2287 USB gateway backend
+# -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only
+# -DENABLE_DEBUG=off   		enable debugging output
+# -DENABLE_GEN=on   		enable key generator (default in memory storage)
+# -DENABLE_SQLITE=off  		enable sqlite3 backend
+# -DJSON=off   	        	enable JSON file backend
+# -DENABLE_IPV6=off   		enable IPv6 (reserved)
 #
 # Example:
 # cmake -DENABLE_LIBUV=on

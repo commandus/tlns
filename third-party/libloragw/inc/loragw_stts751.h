@@ -9,7 +9,7 @@
 Description:
     Basic driver for ST ts751 temperature sensor
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 

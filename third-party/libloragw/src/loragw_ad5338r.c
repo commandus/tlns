@@ -9,7 +9,7 @@
 Description:
     Basic driver for Analog AD5338R DAC.
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
 #include <stdint.h>     /* C99 types */

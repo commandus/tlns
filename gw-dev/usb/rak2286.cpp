@@ -6,7 +6,7 @@
 #include "lorawan/helper/thread-helper.h"
 
 /*
- * C++ wrapper of lora_pkt_fwd.c (C)2019 Semtech License: Revised BSD License, see LICENSE.TXT file include in the project
+ * C++ wrapper of lora_pkt_fwd.c (C)2019 Semtech License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
  */
 #include <iomanip>
 #include <thread>
@@ -196,7 +196,9 @@ GatewayMeasurements::GatewayMeasurements()
 }
 
 // measurements to establish statistics
-const uint32_t GatewayMeasurements::get(MEASUREMENT_ENUM index) const
+const uint32_t GatewayMeasurements::get(
+    MEASUREMENT_ENUM index
+) const
 {
     mAccess.lock();
     uint32_t r = value[index];
@@ -567,8 +569,8 @@ void LoraGatewayListener::gpsCheckTimeRunner() {
     log(LOG_DEBUG, CODE_OK, MSG_CHECK_TIME_STARTED);
 
     // GPS reference validation variables
-    long gps_ref_age = 0;
-    bool ref_valid_local = false;
+    long gps_ref_age;
+    bool ref_valid_local;
     double xtal_err_cpy;
 
     // variables for XTAL correction averaging
@@ -656,7 +658,7 @@ void LoraGatewayListener::upstreamRunner()
     struct lgw_pkt_rx_s *p; // pointer on a RX metadata
 
     // local copy of GPS time reference
-    bool ref_ok = false; // determine if GPS time reference must be used or not
+    bool ref_ok; // determine if GPS time reference must be used or not
     struct tref local_ref; // time reference used for UTC <-> timestamp conversion
 
     struct timespec recv_time;
@@ -908,8 +910,8 @@ static uint16_t crc16(
 }
 
 static double difftimespec(
-        struct timespec end,
-        struct timespec beginning
+    struct timespec end,
+    struct timespec beginning
 )
 {
     double r;
@@ -919,9 +921,9 @@ static double difftimespec(
 }
 
 bool LoraGatewayListener::getTxGainLutIndex(
-        uint8_t rf_chain,
-        int8_t rf_power,
-        uint8_t *lut_index
+    uint8_t rf_chain,
+    int8_t rf_power,
+    uint8_t *lut_index
 )
 {
     uint8_t pow_index;

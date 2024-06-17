@@ -5,7 +5,15 @@
 #include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/proto/gw/proto-gw-parser.h"
 
-// upstream {"rxpk": {}}
+/**
+ * Parse upstream PUSH message {"rxpk": {}}
+ * @param retVal returned received message form the device
+ * @param json JSON to parse
+ * @param size size of JSON char array
+ * @param gwId gateway identifier
+ * @param receivedTime time of receive
+ * @return 0- success
+ */
 int parsePushData(
     GwPushData *retVal,
     const char *json,
@@ -14,7 +22,14 @@ int parsePushData(
     TASK_TIME receivedTime
 );
 
-// downstream {"txpk": {}}
+/**
+ * Parse message to downstream from the server to the device  {"txpk": {}}
+ * @param retVal returned value
+ * @param json JSON to parse
+ * @param size size of JSON char array
+ * @param gwId gateway identifier
+ * @return 0- success
+ */
 int parsePullResp(
     GwPullResp *retVal,
     const char *json,
@@ -22,7 +37,13 @@ int parsePullResp(
     const DEVEUI &gwId
 );
 
-// downstream {"txpk_ack": {}}
+/**
+ * Parse ACK message downstream {"txpk_ack": {}}
+ * @param retVal returned code
+ * @param json JSON to parse
+ * @param size size of JSON char array
+ * @return
+ */
 int parseTxAck(
     ERR_CODE_TX *retVal,
     const char *json,
@@ -48,7 +69,7 @@ public:
         TASK_TIME receivedTime
     ) override;
 
-    GatewayBasicUdpProtocol(MessageTaskDispatcher *pDispatcher);
+    GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
 };
 
 #endif

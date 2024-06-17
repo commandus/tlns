@@ -5,24 +5,33 @@
 #include "lorawan/task/message-task-dispatcher.h"
 #include "lorawan/proto/gw/gw.h"
 
+/**
+ * ProtoGwParser::parse return result in ParseResult structure
+ */
 class ParseResult {
 public:
     uint8_t tag;
     GwPushData gwPushData;
     GwPullResp gwPullResp;
-    ERR_CODE_TX code;
+    ERR_CODE_TX code;           ///< code
 };
 
 /**
- * @see GatewayBasicUdpProtocol
- * @file basic-udp.h
- */
+  * MessageTaskDispatcher call ProtoGwParser::parse() method
+  * to parse received message from the TaskSocket.
+  * You must override this abstract class to implement specific protocol
+  * For instance GatewayBasicUdpProtocol is implementation of Semtech basic gateway protocol.
+  * @see GatewayBasicUdpProtocol
+  * @file basic-udp.h
+  */
 class ProtoGwParser {
 public:
     MessageTaskDispatcher *dispatcher;
     explicit ProtoGwParser(MessageTaskDispatcher *dispatcher);
 
-    /** Upstream only. array of packets from Basic communication protocol packet
+    /**
+     * Parse protocol interface
+     * Upstream only. array of packets from Basic communication protocol packet
      * @param result return value
      * @param packetForwarderPacket buffer
      * @param size buffer size

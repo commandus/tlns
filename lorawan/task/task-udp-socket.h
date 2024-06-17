@@ -6,12 +6,16 @@
 #include "lorawan/storage/gateway-identity.h"
 #include "lorawan/task/task-socket.h"
 
+/**
+ * Task UDP socket
+ */
 class TaskUDPSocket : public TaskSocket {
 private:
     in_addr_t addr;
     uint16_t port;
 public:
     /**
+     * Create UDP socket. UDP socket does not require accept() call.
      * @param addr ""- any interface, "localhost"- localhost otherwise- address
      * @param port port number
      */

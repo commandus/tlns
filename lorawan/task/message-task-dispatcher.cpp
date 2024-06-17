@@ -22,7 +22,7 @@
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
-      parser(new GatewayBasicUdpProtocol(this)), running(false),
+      parser(nullptr), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
     queue.setDispatcher(this);
@@ -41,7 +41,6 @@ MessageTaskDispatcher::~MessageTaskDispatcher()
 {
     stop();
     clearSockets();
-    delete parser;
 }
 
 void MessageTaskDispatcher::response(
@@ -370,4 +369,10 @@ void MessageTaskDispatcher::pushData(
     auto a = pushData.rxData.getAddr();
     if (a)
         send(a, SIZE_DEVADDR);
+}
+
+void MessageTaskDispatcher::setParser(
+    ProtoGwParser *aParser)
+{
+    parser = aParser;
 }

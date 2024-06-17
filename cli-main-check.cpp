@@ -14,6 +14,7 @@
 #include "lorawan/task/message-task-dispatcher.h"
 #include "lorawan/task/task-unix-socket.h"
 #include "lorawan/task/task-unix-control-socket.h"
+#include "lorawan/proto/gw/basic-udp.h"
 
 // i18n
 // #include <libintl.h>
@@ -45,6 +46,9 @@ static CheckParams params;
 
 static void run() {
     MessageTaskDispatcher dispatcher;
+    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
+    dispatcher.setParser(parser);
+
     dispatcher.onPushData = [] (
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item
@@ -111,7 +115,7 @@ static void run() {
             break;
     }
     // dispatcher.stop();
-
+    delete(parser);
 }
 
 int main(int argc, char **argv) {
@@ -119,9 +123,9 @@ int main(int argc, char **argv) {
     struct arg_lit *a_help = arg_lit0("h", "help", _("Show this help"));
 	struct arg_end *a_end = arg_end(20);
 
-	void* argtable[] = { 
+	void* argtable[] = {
         a_verbose,
-		a_help, a_end 
+		a_help, a_end
 	};
 
 	// verify the argtable[] entries were allocated successfully

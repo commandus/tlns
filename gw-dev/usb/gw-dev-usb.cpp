@@ -24,6 +24,7 @@
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/task-unix-control-socket.h"
+#include "lorawan/proto/gw/basic-udp.h"
 
 // i18n
 // #include <libintl.h>
@@ -247,17 +248,13 @@ void setSignalHandler()
 
 static void run()
 {
+    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
+    dispatcher.setParser(parser);
     if (!localConfig.daemonize)
         setSignalHandler();
     // run() in main thread
     dispatcher.run();
-    /*
-     // start() in separate thread
-    dispatcher.start();
-    while (dispatcher.running) {
-        sleep(1);
-    }
-     */
+    delete parser;
 }
 
 class StdErrLog: public Log {

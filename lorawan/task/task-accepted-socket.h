@@ -6,16 +6,18 @@
 #include "lorawan/storage/gateway-identity.h"
 #include "lorawan/task/task-socket.h"
 
+/**
+ * After TCP socket is accepted, create TaskAcceptedSocket
+ */
 class TaskAcceptedSocket : public TaskSocket {
 public:
     /**
-     * @param addr ""- any interface, "localhost"- localhost otherwise- address
-     * @param port port number
+     * @param socket accepted socket
      */
     TaskAcceptedSocket(SOCKET socket);
     /**
-    * Open UDP socket for listen
-    * @return -1 if fail
+    * socket is already open and accepted, so it just return accepted socket
+    * @return socket itself
     */
     SOCKET openSocket() override;
     void closeSocket() override;

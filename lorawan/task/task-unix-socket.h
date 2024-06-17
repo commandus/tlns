@@ -6,6 +6,9 @@
 #include "lorawan/storage/gateway-identity.h"
 #include "lorawan/task/task-socket.h"
 
+/**
+ * Task Unix domain socket
+ */
 class TaskUnixSocket : public TaskSocket {
 private:
     const char *socketPath;

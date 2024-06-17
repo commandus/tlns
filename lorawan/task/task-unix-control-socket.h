@@ -6,16 +6,24 @@
 
 class TaskUnixControlSocket : public TaskSocket {
 private:
+    /**
+     *  File name e.g. "/tmp/gw-dev-usb.socket"
+     *  Please note file has owner, group access rights
+     */
     std::string socketPath;
 public:
     /**
-     * Open Unix domain socket
+     * Task Unix domain socket
      * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
      * @param devicePath Gateway device file name e.g. "/dev/ttyACM0"
      */
     TaskUnixControlSocket(
         const std::string &socketFileName
     );
+    /**
+     * Open Unix domain socket
+     * @return socket number, -1 if fails
+     */
     SOCKET openSocket() override;
     void closeSocket() override;
     virtual ~TaskUnixControlSocket();

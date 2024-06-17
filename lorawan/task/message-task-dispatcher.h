@@ -46,6 +46,9 @@ typedef int(*TaskProc)(
 
 class ProtoGwParser;
 
+/**
+ * MessageTaskDispatcher receive messages from the one or more TaskSocket
+ */
 class MessageTaskDispatcher {
 private:
     std::mutex queueMutex;
@@ -53,15 +56,15 @@ private:
     /**
      * Set descriptor set
      * @param retValReadSet
-     * @return
+     * @return max socket file descriptor number plus 1
      */
     int getMaxDescriptor1(
         fd_set &retValReadSet
     );
 protected:
     TaskResponse *taskResponse;
-    // main loop thread
-    std::thread *thread;
+    std::thread *thread;    ///< main loop thread
+    ProtoGwParser* parser;  ///< protocol parser
     bool openSockets();
     /**
      * close all sockets
@@ -72,11 +75,8 @@ protected:
      */
     void clearSockets();
 public:
-    ProtoGwParser* parser;  ///< protocol parser
-    // message queue
-    MessageQueue queue;
-    // task socket array
-    std::vector<TaskSocket*> sockets;
+    MessageQueue queue;     ///< message queue
+    std::vector<TaskSocket*> sockets;   ///< task socket array
     bool running;    ///< true- loop thread is running
 
     OnPushMessageQueueItem onPushData;
@@ -112,6 +112,8 @@ public:
     );
 
     void pushData(GwPushData &pushData);
+
+    void setParser(ProtoGwParser *parser);
 };
 
 #endif

@@ -23,7 +23,7 @@
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
       parser(nullptr), running(false),
-      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
+      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
 {
     queue.setDispatcher(this);
 }
@@ -41,6 +41,8 @@ MessageTaskDispatcher::~MessageTaskDispatcher()
 {
     stop();
     clearSockets();
+    if (onDestroy)
+        onDestroy(this);
 }
 
 void MessageTaskDispatcher::response(

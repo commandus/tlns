@@ -78,9 +78,35 @@ GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
     return &lorawanGatewaySettings[config->regionIdx];
 }
 
-static LocalGatewayConfiguration localConfig;
+class StdErrLog: public Log {
+private:
+    MessageTaskDispatcher *dispatcher;
+public:
+    StdErrLog(
+            MessageTaskDispatcher *aDispatcher
+    )
+            : dispatcher(aDispatcher)
+    {
 
+    }
+
+    void log(
+            int level,
+            const std::string &msg
+    ) override
+    {
+        std::cerr << msg << std::endl;
+        if (level <= LOG_ALERT) {
+            if (dispatcher) {
+                dispatcher->stop();
+            }
+        }
+    }
+};
+
+static LocalGatewayConfiguration localConfig;
 static MessageTaskDispatcher dispatcher;
+static StdErrLog errLog(&dispatcher);
 
 static void stop()
 {
@@ -189,7 +215,6 @@ static void printTrace() {
 #endif
 }
 
-static void init();
 static void run();
 
 void signalHandler(int signal)
@@ -223,7 +248,6 @@ void signalHandler(int signal)
             std::cerr << MSG_RESTART_REQUEST << std::endl;
             stop();
             done();
-            init();
             run();
             break;
         default:
@@ -248,26 +272,6 @@ void setSignalHandler()
 
 static void run()
 {
-    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
-    dispatcher.setParser(parser);
-    if (!localConfig.daemonize)
-        setSignalHandler();
-    // run() in main thread
-    dispatcher.run();
-    delete parser;
-}
-
-class StdErrLog: public Log {
-public:
-    std::ostream& strm(int level) override {
-        return std::cerr;
-    }
-};
-
-static StdErrLog errLog;
-
-static void init()
-{
     dispatcher.onPushData = [] (
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item
@@ -279,7 +283,7 @@ static void init()
             else
                 std::cout << ", ";
             std::cout << "{\"gateway_id\": " << gatewayId2str(it->first)
-                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+                      << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
         }
         std::cout
                 << "],\n\"rfm\": "
@@ -292,11 +296,11 @@ static void init()
         GwPullResp &item
     ) {
         std::cout
-            << "{\"metadata\": "
-            << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
-            << ", \"gwId\": " << gatewayId2str(item.gwId.u)
-            << ", \"txData\": " << item.txData.toString()
-            << "}" << std::endl;
+                << "{\"metadata\": "
+                << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
+                << ", \"gwId\": " << gatewayId2str(item.gwId.u)
+                << ", \"txData\": " << item.txData.toString()
+                << "}" << std::endl;
     };
 
     dispatcher.onTxPkAck = [] (
@@ -304,13 +308,19 @@ static void init()
         ERR_CODE_TX code
     ) {
         std::cout
-            << "{\"txPkAck\": \""
-            << ERR_CODE_TX2string(code)
-            << "\"}" << std::endl;
+                << "{\"txPkAck\": \""
+                << ERR_CODE_TX2string(code)
+                << "\"}" << std::endl;
+    };
+    dispatcher.onDestroy = [] (
+        MessageTaskDispatcher* dispatcher
+    ) {
+        delete dispatcher->parser;
     };
 
     std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
+
     taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, socketFileName, settings, &errLog,
         localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
@@ -319,6 +329,13 @@ static void init()
     TaskSocket *taskControlSocket = new TaskUnixControlSocket(socketFileName);
     dispatcher.sockets.push_back(taskControlSocket);
     dispatcher.setControlSocket(taskControlSocket);
+
+    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
+    dispatcher.setParser(parser);
+    if (!localConfig.daemonize)
+        setSignalHandler();
+    // run() in main thread
+    dispatcher.run();
 }
 
 int main(
@@ -329,7 +346,6 @@ int main(
     int r = parseCmd(&localConfig, argc, argv);
     if (r)
         return r;
-    init();
     if (localConfig.daemonize)	{
         Daemonize daemonize(programName, getCurrentDir(), run, stop, done, 0, localConfig.pidfile);
     } else {

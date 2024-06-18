@@ -9,6 +9,7 @@
 #include "log-intf.h"
 #include "lorawan/lorawan-types.h"
 #include "lorawan/task/message-task-dispatcher.h"
+#include "libloragw-helper.h"
 
 #define MEASUREMENT_COUNT_SIZE 23
 
@@ -151,9 +152,13 @@ private:
     void gpsCheckTimeRunner();
 
     bool getTxGainLutIndex(uint8_t rf_chain, int8_t rf_power, uint8_t * lut_index);
+
+    LibLoragwOpenClose *helperOpenClose;
+
 protected:
     // Apply config
     int setup();
+    Log *onLog;
 public:
     // thread control
     bool stopRequest;               ///< set to true to stop all threads
@@ -173,8 +178,9 @@ public:
     int fdGpsTty;        ///< file descriptor of the GPS TTY port
     uint64_t eui;        ///< Gateway EUI
 
+    LibLoragwHelper libLoragwHelper;
+
     LoraGatewayListener();
-    LoraGatewayListener(GatewaySettings *cfg);
     ~LoraGatewayListener();
 
     void log(
@@ -227,7 +233,11 @@ public:
     void setLogVerbosity(int level);
     int enqueueTxPacket(TxPacket &tx);
     std::string toString() const;
-    Log *onLog;
+
+    void init(
+        GatewaySettings *settings,
+        Log *log
+    );
 };
 
 #endif

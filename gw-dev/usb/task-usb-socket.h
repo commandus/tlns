@@ -11,7 +11,6 @@ private:
     MessageTaskDispatcher *dispatcher;
     std::string socketPath;
     LoraGatewayListener listener;
-    LibLoragwOpenClose *helperOpenClose;
     bool stopped;
 public:
     /**
@@ -30,8 +29,7 @@ public:
     );
     SOCKET openSocket() override;
     void closeSocket() override;
-    // virtual int onData(const char *buffer, size_t size) = 0;
-    virtual ~TaskUsbGatewayUnixSocket();
+    ~TaskUsbGatewayUnixSocket() override;
 };
 
 #endif

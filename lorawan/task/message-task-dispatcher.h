@@ -33,6 +33,10 @@ typedef void(*OnTxpkAckProc)(
     ERR_CODE_TX code
 );
 
+typedef void(*OnDestroyProc)(
+    MessageTaskDispatcher* dispatcher
+);
+
 class MessageTaskDispatcher;
 
 typedef int(*TaskProc)(
@@ -64,7 +68,7 @@ private:
 protected:
     TaskResponse *taskResponse;
     std::thread *thread;    ///< main loop thread
-    ProtoGwParser* parser;  ///< protocol parser
+    ///< protocol parser
     bool openSockets();
     /**
      * close all sockets
@@ -82,6 +86,9 @@ public:
     OnPushMessageQueueItem onPushData;
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
+    OnDestroyProc onDestroy;
+
+    ProtoGwParser* parser;
 
     int run();
 
@@ -114,6 +121,7 @@ public:
     void pushData(GwPushData &pushData);
 
     void setParser(ProtoGwParser *parser);
+
 };
 
 #endif

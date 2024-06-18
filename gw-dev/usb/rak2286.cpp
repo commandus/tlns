@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <thread>
 #include <cmath>
+#include <fcntl.h>
 
 // XTAL correction constants
 #define GPS_REF_MAX_AGE     30          // maximum admitted delay in seconds of GPS loss before considering latest GPS sync unusable
@@ -189,6 +190,31 @@ const char *MEASUREMENT_SHORT_NAME[MEASUREMENT_COUNT_SIZE] = {
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_FREQUENCY       "Unsupported frequency, TX aborted"
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_POWER           "RF power is not supported, closest lower power used"
 
+class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
+private:
+    std::string devicePath;
+public:
+    explicit PosixLibLoragwOpenClose(
+        const std::string &aDevicePath
+    ) : devicePath(aDevicePath)
+    {
+
+    }
+    int openDevice(
+        const char *fileName,
+        int mode
+    ) override
+    {
+        return open(devicePath.c_str(), mode);
+    }
+
+    int closeDevice(
+        int fd
+    ) override
+    {
+        return close(fd);
+    }
+};
 
 GatewayMeasurements::GatewayMeasurements()
 {
@@ -891,8 +917,8 @@ void LoraGatewayListener::upstreamRunner()
 #define MIN_FSK_PREAMBBLE_LEN       3           // minimum FSK preamble length
 
 static uint16_t crc16(
-        const uint8_t *data,
-        size_t size
+    const uint8_t *data,
+    size_t size
 ) {
     if (!data)
         return 0;
@@ -1478,14 +1504,13 @@ LoraGatewayListener::LoraGatewayListener()
     jit_queue_init(&jit_queue[1]);
 }
 
-LoraGatewayListener::LoraGatewayListener(GatewaySettings *cfg)
-        : LoraGatewayListener()
-{
-    config = cfg;
-}
-
 LoraGatewayListener::~LoraGatewayListener()
 {
+    libLoragwHelper.flush();
+    if (helperOpenClose) {
+        delete helperOpenClose;
+        helperOpenClose = nullptr;
+    }
 }
 
 void LoraGatewayListener::setLogVerbosity(
@@ -1724,7 +1749,7 @@ void LoraGatewayListener::log(
     if (level > logVerbosity)
         return;
     mLog.lock();
-    onLog->strm(level) << message << std::endl;
+    onLog->log(level, message);
     mLog.unlock();
 }
 
@@ -1798,4 +1823,15 @@ void LoraGatewayListener::setDispatcher(
     MessageTaskDispatcher *value
 ) {
     dispatcher = value;
+}
+
+void LoraGatewayListener::init(
+    GatewaySettings *aConfig,
+    Log *aLog
+) {
+    config = aConfig;
+    if (config) {
+        helperOpenClose = new PosixLibLoragwOpenClose(config->sx130x.boardConf.com_path);
+        libLoragwHelper.bind(aLog, helperOpenClose);
+    }
 }

@@ -5,7 +5,10 @@
 
 class Log {
 public:
-    virtual std::ostream& strm(int level) = 0;
+    virtual void log(
+        int level,
+        const std::string &msg
+    ) = 0;
 };
 
 #endif

@@ -1,40 +1,11 @@
 #include "task-usb-socket.h"
 #include <sys/un.h>
 #include <iostream>
-#include <fcntl.h>
 #include <sys/syslog.h>
 #include <sys/ioctl.h>
 
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/lorawan-string.h"
-
-class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
-private:
-    std::string devicePath;
-public:
-    explicit PosixLibLoragwOpenClose(
-        const std::string &aDevicePath
-    ) : devicePath(aDevicePath)
-    {
-
-    }
-    int openDevice(
-        const char *fileName,
-        int mode
-    ) override
-    {
-        return open(devicePath.c_str(), mode);
-    }
-
-    int closeDevice(
-        int fd
-    ) override
-    {
-        return close(fd);
-    }
-};
-
-static LibLoragwHelper libLoragwHelper;
 
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
@@ -66,28 +37,24 @@ TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
     : dispatcher(aDispatcher), TaskSocket(SA_REQUIRE),
     socketPath(socketFileName)
 {
-    listener.config = aSettings;
+    if (!aLog)
+        verbosity = 0;
+    listener.init(aSettings, aLog);
     listener.setDispatcher(dispatcher);
     listener.flags = (enableSend ? 0 : FLAG_GATEWAY_LISTENER_NO_SEND) | (enableBeacon ? 0 : FLAG_GATEWAY_LISTENER_NO_BEACON);
 
-    if (!aLog)
-        verbosity = 0;
     listener.setLogVerbosity(verbosity);
-    listener.onLog = aLog;
     listener.setOnPushData(onPushData);
     /*
     listener.setOnPullResp();
     listener.setOnTxpkAck();
     listener.setOnSpectralScan();
      */
-    helperOpenClose = new PosixLibLoragwOpenClose(aSettings->sx130x.boardConf.com_path);
-    libLoragwHelper.bind(aLog, helperOpenClose);
-
     // In case the program exited inadvertently on the last run, remove the socket.
     unlink(socketPath.c_str());
 
     if (aLog)
-        aLog->strm(LOG_INFO) << "Settings " << listener.config->name << "\n";
+        aLog->log(LOG_INFO, "Settings " + listener.config->name);
 }
 
 SOCKET TaskUsbGatewayUnixSocket::openSocket()
@@ -156,11 +123,5 @@ void TaskUsbGatewayUnixSocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskUsbGatewayUnixSocket::~TaskUsbGatewayUnixSocket()
 {
-    libLoragwHelper.flush();
     closeSocket();
-
-    if (helperOpenClose) {
-        delete helperOpenClose;
-        helperOpenClose = nullptr;
-    }
 }

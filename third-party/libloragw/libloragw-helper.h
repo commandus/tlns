@@ -28,16 +28,15 @@ class LibLoragwOpenClose {
 class LibLoragwHelper {
     private:
         std::stringstream logBuffer;
-    public:
-        // int fd; ///< USB gateway file descriptor
-        // std::string fileName; ///< USB gateway file name called from open() - not used
-        LibLoragwOpenClose *onOpenClose;
         Log *onLog;
+        LibLoragwOpenClose *onOpenClose;
+    public:
 
         LibLoragwHelper();
-        LibLoragwHelper(const LibLoragwHelper &value);
+        LibLoragwHelper(
+            const LibLoragwHelper &value
+        );
         virtual ~LibLoragwHelper();
-
         int open(const char *fileName, int mode);
         int close(int fd);
         int log(char ch);

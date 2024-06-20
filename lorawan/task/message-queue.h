@@ -51,14 +51,20 @@ public:
     bool put(
         GwPushData & pushData
     );
-    void rm(const DEVADDR &addr);
+    void rm(
+        const DEVADDR &addr
+    );
     /**
      * Find item by address
      * @param devAddr devioce address
      * @return null if not found
      */
-    MessageQueueItem *findByDevAddr(const DEVADDR *devAddr);
-    MessageQueueItem *findByJoinRequest(const JOIN_REQUEST_FRAME *joinRequestFrame);
+    MessageQueueItem *findByDevAddr(
+        const DEVADDR *devAddr
+    );
+    MessageQueueItem *findByJoinRequest(
+        const JOIN_REQUEST_FRAME *joinRequestFrame
+    );
 };
 
 #endif

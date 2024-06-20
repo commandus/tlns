@@ -48,6 +48,15 @@ public:
      * @return pointer to Join request frame
      */
     const JOIN_REQUEST_FRAME* getJoinRequestFrame() const;
+    /**
+     * Return gateway MAC address as int with best SNR
+     * @param retvalLsnr if provided, return SNR
+     * @return 0 if not found
+     */
+    uint64_t getBestGatewayAddress(
+        float *retvalLsnr
+    ) const;
+
 };
 
 #endif

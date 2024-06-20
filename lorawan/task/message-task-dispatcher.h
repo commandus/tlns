@@ -114,6 +114,12 @@ public:
         ssize_t packetSize
     );
 
+    ssize_t sendConfirm(
+        const TaskSocket *taskSocket,
+        const sockaddr &destAddr,
+        socklen_t destAddrLen
+    );
+
     void setControlSocket(
         TaskSocket *socket
     );

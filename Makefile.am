@@ -20,7 +20,7 @@ SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
-    lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp \
+    lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
@@ -122,7 +122,7 @@ nobase_dist_include_HEADERS = \
     lorawan/storage/network-identity.h \
     lorawan/storage/gateway-identity.h \
     lorawan/lorawan-packet-storage.h \
-    lorawan/proto/gw/gw.h \
+    lorawan/proto/gw/gw.h lorawan/proto/gw/set-gateway-metadata.h \
     lorawan/proto/gw/proto-gw-parser.h \
     lorawan/proto/gw/basic-udp.h \
     lorawan/helper/file-helper.h \

@@ -265,7 +265,7 @@ int MessageTaskDispatcher::run()
                             }
                         }
                             break;
-                        case SIZE_DEVADDR:
+                        case SIZE_DEVADDR:      // something happens on device (by address)
                         {
                             auto *a = (DEVADDR *) buffer;
                             // process message queue
@@ -348,6 +348,15 @@ ssize_t MessageTaskDispatcher::sendACK(
     return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
 }
 
+ssize_t MessageTaskDispatcher::sendConfirm(
+    const TaskSocket *taskSocket,
+    const sockaddr &destAddr,
+    socklen_t destAddrLen
+) {
+    SEMTECH_ACK ack;
+    return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
+}
+
 void MessageTaskDispatcher::setControlSocket(
     TaskSocket *socket
 )
@@ -370,7 +379,14 @@ void MessageTaskDispatcher::pushData(
     // if (isNew) {
     auto a = pushData.rxData.getAddr();
     if (a)
-        send(a, SIZE_DEVADDR);
+        send(a, SIZE_DEVADDR);  // pass address of just added item
+    if (pushData.needConfirmation()) {
+        // send confirmation
+        std::cout << "** NEED CONFIRMATION **" << std::endl;
+        queueMutex.lock();
+        bool isNew = queue.put(pushData);
+        queueMutex.unlock();
+    }
 }
 
 void MessageTaskDispatcher::setParser(

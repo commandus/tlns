@@ -1,6 +1,7 @@
 #include <csignal>
 #include <sys/ioctl.h>
 #include <sys/un.h>
+#include <fcntl.h>
 
 #include "lorawan/task/task-unix-socket.h"
 #include "lorawan/lorawan-error.h"
@@ -38,6 +39,9 @@ SOCKET TaskUnixSocket::openSocket()
     // Set socket to be nonblocking
 #ifdef _MSC_VER
 #else
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    // make sure
     rc = ioctl(sock, FIONBIO, (char *)&on);
     if (rc < 0) {
         close(sock);

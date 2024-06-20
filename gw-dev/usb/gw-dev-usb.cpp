@@ -282,11 +282,10 @@ static void run()
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it->first)
-                      << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second) << "}";
+            std::cout << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second);
         }
         std::cout
-                << "],\n\"rfm\": "
+                << ",\"rfm\": "
                 << item->radioPacket.toString()
                 << "}" << std::endl;
     };

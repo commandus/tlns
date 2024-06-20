@@ -10,6 +10,7 @@ class GwPushData {
 public:
     LORAWAN_MESSAGE_STORAGE rxData;             ///< received message itself
     SEMTECH_PROTOCOL_METADATA_RX rxMetadata;    ///< received message metadata including receiving time, frequency, RSSI etc.
+    bool needConfirmation();
 };
 
 /**
@@ -20,6 +21,7 @@ public:
     DEVEUI gwId;                                ///< gateway selected for transmission (closest to the device or having the best conditions for transmission)
     LORAWAN_MESSAGE_STORAGE txData;             ///< message to be send
     SEMTECH_PROTOCOL_METADATA_TX txMetadata;    ///< transmission frequency etc
+    bool needConfirmation();
 };
 
 #endif //TLNS_GW_H

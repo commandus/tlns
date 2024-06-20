@@ -40,6 +40,7 @@ else()
 		../../lorawan/lorawan-types.cpp
 		../../lorawan/lorawan-packet-storage.cpp
 		../../lorawan/helper/ip-address.cpp
+		../../lorawan/proto/gw/gw.cpp
 		../../lorawan/proto/gw/proto-gw-parser.cpp
 		../../lorawan/proto/gw/basic-udp.cpp
 		../../lorawan/storage/gateway-identity.cpp

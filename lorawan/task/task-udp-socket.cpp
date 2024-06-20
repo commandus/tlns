@@ -1,6 +1,7 @@
 #include <cstring>
 #include <csignal>
 #include <sys/ioctl.h>
+#include <fcntl.h>
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/task/task-udp-socket.h"
@@ -38,6 +39,9 @@ SOCKET TaskUDPSocket::openSocket()
     // Set socket to be nonblocking
 #ifdef _MSC_VER
 #else
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    // to make sure use socket specific call
     rc = ioctl(sock, FIONBIO, (char *)&on);
     if (rc < 0) {
         close(sock);

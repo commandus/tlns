@@ -142,6 +142,8 @@
 #define ERR_INIT_REGION_NO_DEFAULT		"No default regional settings loaded"
 #define ERR_NO_REGION_BAND              "Regional settings not available"
 #define ERR_REGION_BAND_NO_DEFAULT      "No default region assigned"
+#define ERR_REGION_PARSE_ERROR          "Regional settings file parse error "
+#define ERR_REGION_UNKNOWN_ATTRIBUTE    "Regional settings unknown attribute "
 #define ERR_IS_JOIN					    "Join request"
 #define ERR_BAD_JOIN_REQUEST			"Bad Join request"
 #define ERR_NETID_OR_NETTYPE_MISSED     "NetId identifier or type missed"

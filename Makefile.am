@@ -21,6 +21,9 @@ SRC_LIBLORAWAN = \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp \
+    lorawan/regional-parameters/regional-parameter-channel-plan.cpp \
+    lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
+    lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
@@ -125,6 +128,10 @@ nobase_dist_include_HEADERS = \
     lorawan/proto/gw/gw.h lorawan/proto/gw/set-gateway-metadata.h \
     lorawan/proto/gw/proto-gw-parser.h \
     lorawan/proto/gw/basic-udp.h \
+    lorawan/regional-parameter-channel-plan-file-json.h \
+    lorawan/regional-parameters/regional-parameter-channel-plan.h \
+    lorawan/regional-parameters/regional-parameter-channel-plans.h \
+    lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
     lorawan/helper/file-helper.h \
     lorawan/helper/thread-helper.h \
     lorawan/helper/ip-address.h \

@@ -142,3 +142,60 @@ void ntoh_RFM_HEADER(
 }
 
 #endif
+
+BANDWIDTH int2BANDWIDTH(int value)
+{
+    if (value == 7)
+        return BANDWIDTH_INDEX_7KHZ;
+    if (value == 10)
+        return BANDWIDTH_INDEX_10KHZ;
+    if (value == 15)
+        return BANDWIDTH_INDEX_15KHZ;
+    if (value == 20)
+        return BANDWIDTH_INDEX_20KHZ;
+    if (value == 31)
+        return BANDWIDTH_INDEX_31KHZ;
+    if (value == 41)
+        return BANDWIDTH_INDEX_41KHZ;
+    if (value == 62)
+        return BANDWIDTH_INDEX_62KHZ;
+    if (value == 125)
+        return BANDWIDTH_INDEX_125KHZ;
+    if (value == 250)
+        return BANDWIDTH_INDEX_250KHZ;
+    if (value == 500)
+        return BANDWIDTH_INDEX_500KHZ;
+    return BANDWIDTH_INDEX_7KHZ;
+}
+
+/**
+ * @param value 7..500 or 7000..
+ */
+BANDWIDTH double2BANDWIDTH(double value)
+{
+    if (value <= 500)
+        return int2BANDWIDTH((int) value);
+    else {
+        if (value >= 7000)
+            return BANDWIDTH_INDEX_7KHZ;
+        if (value >= 10000)
+            return BANDWIDTH_INDEX_10KHZ;
+        if (value >= 15000)
+            return BANDWIDTH_INDEX_15KHZ;
+        if (value >= 20000)
+            return BANDWIDTH_INDEX_20KHZ;
+        if (value >= 31000)
+            return BANDWIDTH_INDEX_31KHZ;
+        if (value >= 41000)
+            return BANDWIDTH_INDEX_41KHZ;
+        if (value >= 62000)
+            return BANDWIDTH_INDEX_62KHZ;
+        if (value >= 125000)
+            return BANDWIDTH_INDEX_125KHZ;
+        if (value >= 250000)
+            return BANDWIDTH_INDEX_250KHZ;
+        if (value >= 500000)
+            return BANDWIDTH_INDEX_500KHZ;
+        return BANDWIDTH_INDEX_7KHZ;
+    }
+}

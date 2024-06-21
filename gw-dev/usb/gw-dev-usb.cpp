@@ -285,9 +285,9 @@ static void run()
             std::cout << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second);
         }
         std::cout
-                << ",\"rfm\": "
-                << item->radioPacket.toString()
-                << "}" << std::endl;
+            << ",\"rfm\": "
+            << item->radioPacket.toString()
+            << "}" << std::endl;
     };
 
     dispatcher.onPullResp = [] (

@@ -117,6 +117,7 @@ else()
 		lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp
 		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
 		lorawan/proto/gw/set-gateway-metadata.cpp
+		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
@@ -160,9 +161,6 @@ else()
 
 	if (ENABLE_SQLITE)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_SQLITE)
-	endif()
-
-	if (ENABLE_SQLITE)
 		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			find_package(unofficial-sqlite3 CONFIG REQUIRED)
 			set(BACKEND_DB_LIB unofficial::sqlite3::sqlite3)
@@ -174,6 +172,7 @@ else()
 	endif()
 
 	if (ENABLE_JSON)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_JSON)
 	endif()
 

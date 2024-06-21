@@ -45,6 +45,15 @@ std::string UPLINK_STORAGE2String(const UPLINK_STORAGE &value, int size);
 std::string NETID2String(const NETID &value);
 std::string activation2string(ACTIVATION value);
 std::string MODULATION2String(MODULATION value);
+
+/**
+ * Bandwidth to string
+ * I am not sure for BANDWIDTH_INDEX_7KHZ..BANDWIDTH_INDEX_125KHZ
+ * @see https://github.com/x893/SX1231/blob/master/SX12xxDrivers-2.0.0/src/radio/sx1276-LoRa.c
+ * SignalBw
+ * 0: 7.8kHz, 1: 10.4 kHz, 2: 15.6 kHz, 3: 20.8 kHz, 4: 31.2 kHz,
+ * 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved
+ */
 std::string BANDWIDTH2String(BANDWIDTH value);
 std::string LORAWAN_VERSION2string(LORAWAN_VERSION value);
 std::string deviceclass2string(DEVICECLASS value);
@@ -111,3 +120,11 @@ std::string SEMTECH_PROTOCOL_METADATA_RX2string(const SEMTECH_PROTOCOL_METADATA_
  * @return JSON string
  */
 std::string SEMTECH_PROTOCOL_METADATA_TX2string(const SEMTECH_PROTOCOL_METADATA_TX &value);
+
+std::string REGIONAL_PARAMETERS_VERSION2string(
+    REGIONAL_PARAMETERS_VERSION value
+);
+
+REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
+    const std::string &value
+);

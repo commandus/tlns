@@ -106,3 +106,7 @@ void ntoh_SEMTECH_PREFIX_GW(SEMTECH_PREFIX_GW &value);
 #define ntoh_RFM_HEADER(v) {}
 #define ntoh_SEMTECH_PREFIX_GW(v) {}
 #endif
+
+BANDWIDTH int2BANDWIDTH(int value);
+
+BANDWIDTH double2BANDWIDTH(double value);

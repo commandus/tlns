@@ -43,6 +43,8 @@ else()
 		../../lorawan/proto/gw/gw.cpp
 		../../lorawan/proto/gw/proto-gw-parser.cpp
 		../../lorawan/proto/gw/basic-udp.cpp
+		../../lorawan/regional-parameters/regional-parameter-channel-plan.cpp
+		../../lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		../../lorawan/storage/gateway-identity.cpp
 		../../lorawan/storage/network-identity.cpp
 		../../lorawan/task/message-queue-item.cpp

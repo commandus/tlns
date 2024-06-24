@@ -128,3 +128,12 @@ std::string REGIONAL_PARAMETERS_VERSION2string(
 REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
     const std::string &value
 );
+
+std::string file2string(
+    const char *filename
+);
+
+bool string2file(
+    const std::string &filename,
+    const std::string &value
+);

@@ -876,28 +876,15 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanFileJson::get(in
     return it->second;
 }
 
-int RegionalParameterChannelPlanFileJson::loadFile(const std::string &fileName)
+int RegionalParameterChannelPlanFileJson::loadFile(
+    const std::string &fileName
+)
 {
+    // parse JSON
     RegionBandsJsonHandler handler(this);
-    rapidjson::Reader reader;
-    FILE* fp = fopen(fileName.c_str(), "rb");
-    if (!fp)
-        return ERR_CODE_INVALID_JSON;
-    char readBuffer[4096];
-    rapidjson::FileReadStream istrm(fp, readBuffer, sizeof(readBuffer));
-    rapidjson::ParseResult r = reader.Parse<rapidjson::kParseCommentsFlag>(istrm, handler);
-    if (r.IsError()) {
-        errCode = r.Code();
-        std::stringstream ss;
-        ss << rapidjson::GetParseError_En(r.Code()) << " Offset: " << r.Offset()
-           << ",  " << errDescription;
-        errDescription = ss.str();
-    } else {
-        errCode = 0;
-        errDescription = "";
-    }
-    fclose(fp);
-    return r.IsError() ? ERR_CODE_INVALID_JSON : 0;
+    std::string j = file2string(fileName.c_str());
+    nlohmann::json::sax_parse(j, &handler, nlohmann::json::input_format_t::json, false, true);
+    return 0;
 }
 
 int RegionalParameterChannelPlanFileJson::load()

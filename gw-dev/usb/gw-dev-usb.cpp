@@ -16,7 +16,7 @@
 #include "lorawan/lorawan-error.h"
 
 // generated gateway regional settings source code
-#include "gateway_usb_conf.cpp"
+#include "gen/gateway_usb_conf.cpp"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
 

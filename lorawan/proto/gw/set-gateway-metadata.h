@@ -2,7 +2,7 @@
 #define SET_GATEWAY_METADATA_H
 
 #include "lorawan/proto/gw/gw.h"
-#include "gateway-settings.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 
 /**
  * Setup metadata for transmission gateway.
@@ -14,14 +14,9 @@
  */
 void setSEMTECH_PROTOCOL_METADATA_TX(
     SEMTECH_PROTOCOL_METADATA_TX &retVal,
-    const GatewaySettings &gatewaySettings,
+    const RegionalParameterChannelPlan &plan,
     const SEMTECH_PROTOCOL_METADATA_RX &rxMetadata,
     uint16_t payloadSize
-);
-
-void invalidateSEMTECH_PROTOCOL_METADATA_TX(
-    SEMTECH_PROTOCOL_METADATA_TX &val,
-    const GatewaySettings &gatewaySettings
 );
 
 #endif

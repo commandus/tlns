@@ -5,15 +5,6 @@
 #include "regional-parameter-channel-plan.h"
 #include "regional-parameter-channel-plans.h"
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wexpansion-to-defined"
-#endif
-#include "rapidjson/document.h"
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
 /**
  * RegionalParameterChannelPlanFileJson class load LoRaWAN region settings from the
  * regional-parameters.json JSON file. This file looks like:

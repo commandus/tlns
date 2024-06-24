@@ -1,0 +1,506 @@
+{
+	"regionalParametersVersion": "1.0.3",
+	"RegionBands": [
+		{
+			"id": 1,
+			"name": "EU863-870",
+			"cn": "EU868",
+			"implementsTXParamSetup": false,
+			"maxUplinkEIRP": 16,
+			"defaultDownlinkTXPower": 14,
+			"pingSlotFrequency": 869525000,
+			"supportsExtraChannels": true,
+			"bandDefaults": {
+				"RX2Frequency": 869100000,
+				"RX2DataRate": 0,
+				"ReceiveDelay1": 1,
+				"ReceiveDelay2": 2,
+				"JoinAcceptDelay1": 5,
+				"JoinAcceptDelay2": 6
+			},
+			"dataRates": [{
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 12,
+				"bps": 250
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 11,
+				"bps": 440
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 10,
+				"bps": 980
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 9,
+				"bps": 1760
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 8,
+				"bps": 3125
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 7,
+				"bps": 5470
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 250,
+				"spreadingFactor": 7,
+				"bps": 11000
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "FSK",
+				"bandwidth": 0,
+				"spreadingFactor": 0,
+				"bps": 50000
+			}],			
+			"uplinkChannels": [{
+				"frequency": 868900000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 869100000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}],
+			"downlinkChannels": [{
+				"frequency": 868900000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 869100000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}],
+			"maxPayloadSizePerDataRate": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}],
+			"maxPayloadSizePerDataRateRepeater": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}],
+			"rx1DataRateOffsets": [
+				[0, 0, 0, 0, 0, 0],
+				[1, 0, 0, 0, 0, 0],
+				[2, 1, 0, 0, 0, 0],
+				[3, 2, 1, 0, 0, 0],
+				[4, 3, 2, 1, 0, 0],
+				[5, 4, 3, 2, 1, 0],
+				[6, 5, 4, 3, 2, 1],
+				[7, 6, 5, 4, 3, 2]
+			],
+			"txPowerOffsets": [0, -2, -4, -6, -8, -10, -12, -14]
+		},
+		{
+		"id": 12,
+		"name": "RU864-870",
+		"cn": "RU864",
+		"defaultRegion": true,
+		"implementsTXParamSetup": false,
+		"maxUplinkEIRP": 16,
+		"defaultDownlinkTXPower": 14,
+		"pingSlotFrequency": 868900000,
+		"supportsExtraChannels": true,
+		"bandDefaults": {
+			"RX2Frequency": 869100000,
+			"RX2DataRate": 0,
+			"ReceiveDelay1": 1,
+			"ReceiveDelay2": 2,
+			"JoinAcceptDelay1": 5,
+			"JoinAcceptDelay2": 6
+		},
+		"dataRates": [{
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 12,
+			"bps": 250
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 11,
+			"bps": 440
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 10,
+			"bps": 980
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 9,
+			"bps": 1760
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 8,
+			"bps": 3125
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 7,
+			"bps": 5470
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 250,
+			"spreadingFactor": 7,
+			"bps": 11000
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "FSK",
+			"bandwidth": 0,
+			"spreadingFactor": 0,
+			"bps": 50000
+		}],			
+		"uplinkChannels": [{
+			"frequency": 868900000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 869100000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}],
+		"downlinkChannels": [{
+			"frequency": 868900000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 869100000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}],
+		"maxPayloadSizePerDataRate": [{
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 123,
+			"n": 115
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}],
+		"maxPayloadSizePerDataRateRepeater": [{
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 123,
+			"n": 115
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}],
+		"rx1DataRateOffsets": [
+			[0, 0, 0, 0, 0, 0],
+			[1, 0, 0, 0, 0, 0],
+			[2, 1, 0, 0, 0, 0],
+			[3, 2, 1, 0, 0, 0],
+			[4, 3, 2, 1, 0, 0],
+			[5, 4, 3, 2, 1, 0],
+			[6, 5, 4, 3, 2, 1],
+			[7, 6, 5, 4, 3, 2]
+		],
+		"txPowerOffsets": [0, -2, -4, -6, -8, -10, -12, -14]
+	},
+	{
+		"id": 4,
+		"name": "EU443",
+		"cn": "EU433",
+		"implementsTXParamSetup": false,
+		"maxUplinkEIRP": 12.15,
+		"defaultDownlinkTXPower": 10,
+		"pingSlotFrequency": 434665000,
+
+		"supportsExtraChannels": true,
+		"bandDefaults": {
+			"RX2Frequency": 434665000,
+			"RX2DataRate": 0,
+			"ReceiveDelay1": 1,
+			"ReceiveDelay2": 2,
+			"JoinAcceptDelay1": 5,
+			"JoinAcceptDelay2": 6
+		},
+		"dataRates": [{
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 12,
+			"bps": 250
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 11,
+			"bps": 440
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 10,
+			"bps": 980
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 9,
+			"bps": 1760
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 8,
+			"bps": 3125
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 125,
+			"spreadingFactor": 7,
+			"bps": 5470
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "LORA",
+			"bandwidth": 250,
+			"spreadingFactor": 7,
+			"bps": 11000
+		}, {
+			"uplink": true,
+			"downlink": true,
+			"modulation": "FSK",
+			"bandwidth": 0,
+			"spreadingFactor": 0,
+			"bps": 50000
+		}],			
+		"uplinkChannels": [{
+			"frequency": 433175000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 433375000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 433575000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}],
+		"downlinkChannels": [{
+			"frequency": 433175000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 433375000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}, {
+			"frequency": 433575000,
+			"minDR": 0,
+			"maxDR": 5,
+			"enabled": true,
+			"custom": false
+		}],
+		"maxPayloadSizePerDataRate": [{
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 123,
+			"n": 115
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}, {
+			"m": 250,
+			"n": 242
+		}],
+		"maxPayloadSizePerDataRateRepeater": [{
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 59,
+			"n": 51
+		}, {
+			"m": 123,
+			"n": 115
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}, {
+			"m": 230,
+			"n": 222
+		}],
+		"rx1DataRateOffsets": [
+			[0, 0, 0, 0, 0, 0],
+			[1, 0, 0, 0, 0, 0],
+			[2, 1, 0, 0, 0, 0],
+			[3, 2, 1, 0, 0, 0],
+			[4, 3, 2, 1, 0, 0],
+			[5, 4, 3, 2, 1, 0],
+			[6, 5, 5, 4, 3, 2],
+			[7, 6, 5, 4, 3, 2]
+		],
+		"txPowerOffsets": [0, -2, -4, -6, -8, -10]
+	}
+	]
+}
+

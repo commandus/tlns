@@ -4,7 +4,8 @@
 #include <iomanip>
 
 #include "regional-parameter-channel-plan.h"
-#include "errlist.h"
+#include "lorawan/lorawan-error.h"
+#include "lorawan/lorawan-string.h"
 
 static std::string STR_TRUE("true");
 static std::string STR_FALSE("false");
@@ -12,7 +13,7 @@ static std::string STR_FALSE("false");
 #define STR_TRUE_FALSE STR_TRUE : STR_FALSE
 
 DataRate::DataRate()
-    : uplink(true), downlink(true), modulation(LORA),
+    : uplink(true), downlink(true), modulation(MODULATION_LORA),
       bandwidth(BANDWIDTH_INDEX_125KHZ), spreadingFactor(DRLORA_SF11), bps(0)
 {
 
@@ -26,14 +27,14 @@ DataRate::DataRate(const DataRate &value)
 }
 
 DataRate::DataRate(BANDWIDTH aBandwidth, SPREADING_FACTOR aSpreadingFactor)
-    : uplink(true), downlink(true), modulation(LORA),
+    : uplink(true), downlink(true), modulation(MODULATION_LORA),
     bandwidth(aBandwidth), spreadingFactor(aSpreadingFactor), bps(0)
 {
 
 }
 
 DataRate::DataRate(uint32_t aBps)
-    : uplink(true), downlink(true), modulation(FSK),
+    : uplink(true), downlink(true), modulation(MODULATION_FSK),
       bandwidth(BANDWIDTH_INDEX_7KHZ), spreadingFactor(DRLORA_SF5), bps(aBps)
 {
 
@@ -43,7 +44,7 @@ void DataRate::setLora(BANDWIDTH aBandwidth, SPREADING_FACTOR aSpreadingFactor)
 {
     uplink = true;
     downlink = true;
-    modulation = LORA;
+    modulation = MODULATION_LORA;
     bandwidth = aBandwidth;
     spreadingFactor = aSpreadingFactor;
     bps = 0;
@@ -53,7 +54,7 @@ void DataRate::setFSK(uint32_t aBps)
 {
     uplink = true;
     downlink = true;
-    modulation = FSK;
+    modulation = MODULATION_FSK;
     bandwidth = BANDWIDTH_INDEX_7KHZ;
     spreadingFactor = DRLORA_SF5;
     bps = aBps;

@@ -1,6 +1,7 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-string.h"
@@ -1117,4 +1118,36 @@ REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
         ss >> re;
     REGIONAL_PARAMETERS_VERSION r = { (uint8_t) (ma & 3), (uint8_t) (mi & 3), (uint8_t) (re & 0xf) };
     return r;
+}
+
+static std::string file2string(
+    std::istream &strm
+)
+{
+    if (!strm)
+        return "";
+    return std::string((std::istreambuf_iterator<char>(strm)), std::istreambuf_iterator<char>());
+}
+
+std::string file2string(
+    const char *filename
+)
+{
+    if (!filename)
+        return "";
+    std::ifstream t(filename);
+    return file2string(t);
+}
+
+bool string2file(
+    const std::string &filename,
+    const std::string &value
+)
+{
+    FILE* f = fopen(filename.c_str(), "w");
+    if (!f)
+        return false;
+    fwrite(value.c_str(), value.size(), 1, f);
+    fclose(f);
+    return true;
 }

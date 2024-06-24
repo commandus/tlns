@@ -176,21 +176,34 @@ else()
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_JSON)
 	endif()
 
+	add_library(lorawan STATIC ${SRC_LIBLORAWAN})
+	# -fPIC
+	set_property(TARGET lorawan PROPERTY POSITION_INDEPENDENT_CODE ON)
+	target_compile_definitions(lorawan PRIVATE ${TLNS_DEF})
+	target_include_directories(lorawan PRIVATE "." "third-party" ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+
 	#
 	# tlns-check
 	#
 	set(CLI_MAIN_CHECK_SRC
 		cli-main-check.cpp
 		task-response-threaded.cpp
-		${SRC_LIBLORAWAN}
 		${ARGTABLE}
 	)
 	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
 		third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
 	)
-	target_link_libraries(tlns-check PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA})
+	target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
 	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
 	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
+		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+
+	add_executable(gateway-config2cpp
+		tools/gateway-config2cpp.cpp
+	)
+	target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
+	target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
+	target_include_directories(gateway-config2cpp PRIVATE "." "third-party"
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")

@@ -60,9 +60,9 @@ else()
 		${AES_SRC}
 	)
 
-	add_library(lorawan ${SRC_LIBLORAWAN})
-	target_link_libraries(lorawan PRIVATE ${OS_SPECIFIC_LIBS})
-	target_include_directories(lorawan PRIVATE "." "../.." "../../third-party")
+	add_library(lorawan-usb ${SRC_LIBLORAWAN})
+	target_link_libraries(lorawan-usb PRIVATE ${OS_SPECIFIC_LIBS})
+	target_include_directories(lorawan-usb PRIVATE "." "../.." "../../third-party")
 
 	find_library(loragw NAMES loragw PATHS "../third-party/libloragw/")
 

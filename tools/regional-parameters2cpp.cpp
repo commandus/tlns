@@ -1,12 +1,11 @@
 /**
- * @brief Gateway JSON config file to c++ source convert utility
- * @file gateway-config2cpp.cpp
+ * @brief Regional parameters JSON file to c++ source convert utility
+ * @file regional-parameters2cpp.cpp
  *
  * MIT license
  * Usage:
- *   ./gateway-config2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > gateway_usb_conf.cpp
- *   ./gateway-config2cpp ~/src/rak_common_for_gateway/lora/rak2287/packet_forwarder/lora_pkt_fwd/global_conf/ *.json
- * @file /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/
+ *   ./regional-parameters2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > regional-settings.h
+ *   ./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters.h
  */
 #include <string>
 #include <vector>
@@ -20,7 +19,7 @@
 #include "lorawan/proto/gw/gateway-file-json.h"
 #include "lorawan/lorawan-msg.h"
 
-const std::string programName = "gateway-config2cpp";
+const std::string programName = "regional-parameters2cpp";
 
 #ifdef _MSC_VER
 #undef ENABLE_TERM_COLOR
@@ -46,7 +45,7 @@ int parseCmd(
         char *argv[])
 {
     // device path
-    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, "<file>", 1, 100, "Gateway config JSON file name");
+    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, "<file>", 1, 100, "Regional parameters JSON file name");
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, "Set verbosity level");
     struct arg_lit *a_help = arg_lit0("?", "help", "Show this help");
     struct arg_end *a_end = arg_end(20);
@@ -75,8 +74,8 @@ int parseCmd(
         arg_print_syntax(stderr, argtable, "\n");
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
         std::cerr
-                << "Convert gateway JSON config file to c++ source e.g.\n"
-                   "\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/*.json > gateway_usb_conf.h"
+                << "Convert regional parameters JSON file(s) to c++ source e.g.\n"
+                   "\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters.h"
                 << std::endl;
 
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
@@ -106,8 +105,8 @@ static std::string fileName2VarName(
 }
 
 static void addPrefixHeader(
-    std::ostream &strm,
-    const std::vector<std::string> &files
+        std::ostream &strm,
+        const std::vector<std::string> &files
 )
 {
     strm
@@ -126,13 +125,13 @@ static void addPrefixHeader(
 }
 
 static void addSuffixHeader(
-    std::ostream &strm
+        std::ostream &strm
 ) {
     strm << "};\n";
 }
 
 static void addFilePrefixHeader(
-    std::ostream &strm
+        std::ostream &strm
 )
 {
     strm << "\n";

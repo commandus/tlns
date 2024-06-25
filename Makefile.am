@@ -20,7 +20,8 @@ SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
-    lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp \
+    lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
+    lorawan/proto/gw/basic-udp.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
@@ -128,6 +129,7 @@ nobase_dist_include_HEADERS = \
     lorawan/proto/gw/gw.h lorawan/proto/gw/set-gateway-metadata.h \
     lorawan/proto/gw/proto-gw-parser.h \
     lorawan/proto/gw/basic-udp.h \
+    lorawan/proto/gw/gateway-file-json.h \
     lorawan/regional-parameter-channel-plan-file-json.h \
     lorawan/regional-parameters/regional-parameter-channel-plan.h \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \
@@ -188,6 +190,14 @@ gw_dev_usb_SOURCES = \
 	$(SRC_ARGTABLE)
 gw_dev_usb_LDADD = -L. -llorawan -lloragw
 gw_dev_usb_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
+
+
+#
+# lorawan/proto/gw/gateway-file-json.cpp
+#
+gateway_config2cpp_SOURCES = tools/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp
+gateway_config2cpp_LDADD = -L. -llorawan -lloragw
+gateway_config2cpp_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
 test_printf_SOURCES = tests/test-printf.cpp \
     third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp

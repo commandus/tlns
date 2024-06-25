@@ -200,11 +200,25 @@ else()
 
 	add_executable(gateway-config2cpp
 		tools/gateway-config2cpp.cpp
+		lorawan/proto/gw/gateway-file-json.cpp
+		${ARGTABLE}
 	)
 	target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
-	target_include_directories(gateway-config2cpp PRIVATE "." "third-party"
-		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+	target_include_directories(gateway-config2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
+		${VCPKG_INC} ${Intl_INCLUDE_DIRS}
+	)
+
+	add_executable(regional-parameters2cpp
+		tools/regional-parameters2cpp.cpp
+		lorawan/proto/gw/gateway-file-json.cpp
+		${ARGTABLE}
+	)
+	target_link_libraries(regional-parameters2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
+	target_compile_definitions(regional-parameters2cpp PRIVATE ${TLNS_DEF})
+	target_include_directories(regional-parameters2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
+			${VCPKG_INC} ${Intl_INCLUDE_DIRS}
+	)
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'

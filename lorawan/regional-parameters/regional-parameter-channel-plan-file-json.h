@@ -80,6 +80,10 @@ class RegionalParameterChannelPlanFileJson : public RegionalParameterChannelPlan
         virtual std::string toJsonString() const override;
 
         virtual std::string getErrorDescription(int &subCode) const override;
+
+    void toHeader(
+        std::ostream &strm
+    ) const;
 };
 
 #endif

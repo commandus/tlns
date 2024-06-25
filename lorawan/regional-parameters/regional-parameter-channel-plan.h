@@ -120,6 +120,7 @@ public:
     void setRx1DataRateOffsets(int dataRateIndex, int count, ...);
 
     std::string toDescriptionTableString() const;
+    void toHeader(std::ostream &strm) const;
 };
 
 class RegionBands : public StringifyIntf {

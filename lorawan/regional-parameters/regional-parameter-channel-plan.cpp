@@ -375,6 +375,41 @@ std::string RegionalParameterChannelPlan::toDescriptionTableString() const {
     return ss.str();
 }
 
+void RegionalParameterChannelPlan::toHeader(
+    std::ostream &ss
+) const
+{
+    ss << "{\"id\": " << (int) id
+       << ", \"name\": \"" << name
+       << "\", \"cn\": \"" << cn
+       << "\", \"implementsTXParamSetup\": " << (implementsTXParamSetup ? STR_TRUE_FALSE)
+       << ", \"maxUplinkEIRP\": " << maxUplinkEIRP
+       << ", \"pingSlotFrequency\": " << pingSlotFrequency
+       << ", \"defaultDownlinkTXPower\": " << defaultDownlinkTXPower
+       << ", \"supportsExtraChannels\": " << (supportsExtraChannels ? STR_TRUE_FALSE)
+       << ", \"defaultRegion\": " << (defaultRegion ? STR_TRUE_FALSE)
+       << ", \"bandDefaults\": " << bandDefaults.toString()
+       << ", \"dataRates\": ";
+    arrayAppendJSON(ss, dataRates);
+    ss << ", \"uplinkChannels\": ";
+
+    vectorAppendJSON(ss, uplinkChannels);
+    ss << ", \"downlinkChannels\": ";
+    vectorAppendJSON(ss, downlinkChannels);
+
+    ss << ", \"maxPayloadSizePerDataRate\": ";
+    arrayAppendJSON(ss, maxPayloadSizePerDataRate);
+    ss << ", \"maxPayloadSizePerDataRateRepeater\": ";
+    arrayAppendJSON(ss, maxPayloadSizePerDataRateRepeater);
+    ss << ", \"rx1DataRateOffsets\": ";
+    // ss << "[]";
+    rx1DataRateOffsetsAppendJSON(ss, rx1DataRateOffsets);
+    ss << ", \"txPowerOffsets\": ";
+    txPowerOffsetsAppendJSON(ss, txPowerOffsets);
+
+    ss << "}";
+}
+
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const
 {
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(bands.begin()); it != bands.end(); it++) {

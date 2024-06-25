@@ -211,7 +211,7 @@ else()
 
 	add_executable(regional-parameters2cpp
 		tools/regional-parameters2cpp.cpp
-		lorawan/proto/gw/gateway-file-json.cpp
+		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
 		${ARGTABLE}
 	)
 	target_link_libraries(regional-parameters2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})

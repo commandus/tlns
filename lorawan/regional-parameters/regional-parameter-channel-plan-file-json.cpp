@@ -941,3 +941,12 @@ std::string RegionalParameterChannelPlanFileJson::getErrorDescription(int &subCo
     subCode = errCode;
     return errDescription;
 }
+
+void RegionalParameterChannelPlanFileJson::toHeader(
+    std::ostream &strm
+) const
+{
+    for (auto it = idIndex.begin(); it != idIndex.end(); it++) {
+        it->second->toHeader(strm);
+    }
+}

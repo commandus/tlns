@@ -18,6 +18,11 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h"
 #include "lorawan/lorawan-msg.h"
 
+// i18n
+// #include <libintl.h>
+// #define _(String) gettext (String)
+#define _(String) (String)
+
 const std::string programName = "regional-parameters2cpp";
 
 #ifdef _MSC_VER
@@ -102,20 +107,21 @@ static void addPrefixHeader(
     }
     strm << "\n *\n */\n\n"
             "#include \"lorawan/regional-parameters/regional-parameter-channel-plans.h\"\n\n"
-            "GatewaySettings lorawanGatewaySettings[] = {";
+            "RegionalParameterChannelPlanMem regionalParameterChannelPlanMem = {\n\t.storage = {";
 }
 
 static void addSuffixHeader(
         std::ostream &strm
 ) {
-    strm << "};\n";
+    strm << "\t};\n};\n";
 }
 
 static void addFilePrefixHeader(
-        std::ostream &strm
+    std::ostream &strm,
+    const std::string &fileName
 )
 {
-    strm << "\n";
+    strm << "\t\t// file " << fileName << "\n";
 }
 
 int main(int argc, char **argv)
@@ -124,25 +130,32 @@ int main(int argc, char **argv)
     int r = parseCmd(&config, argc, argv);
     if (r != 0)
         exit(ERR_CODE_COMMAND_LINE);
-    bool isFirstFile = true;
-
     addPrefixHeader(std::cout, config.fileNames);
     std::cout << "\n";
 
+    bool isFirst = true;
     for (std::vector<std::string>::const_iterator it(config.fileNames.begin()); it != config.fileNames.end(); it++) {
-        if (isFirstFile)
-            isFirstFile = false;
-        else
+        if (config.verbosity > 1)
+            std::cerr << _("File: ") << *it << std::endl;
+        if (!isFirst)
             std::cout << ",";
-        std::string s = file2string(it->c_str());
         RegionalParameterChannelPlanFileJson rpfj;
-        rpfj.init(s, nullptr);
+        rpfj.init(*it, nullptr);
         if (rpfj.errCode) {
             std::cerr << ERR_MESSAGE << rpfj.errCode << ": " << strerror_lorawan_ns(rpfj.errCode) << std::endl;
             continue;
         }
-        addFilePrefixHeader(std::cout);
-        rpfj.toHeader(std::cout);
+        if (config.verbosity > 1) {
+            std::cerr << _("Regions: ");
+            for (auto &b: rpfj.storage.bands) {
+                std::cerr << b.cn << " ";
+            }
+            std::cerr << std::endl;
+        }
+
+        addFilePrefixHeader(std::cout, *it);
+        rpfj.toHeader(std::cout, isFirst);
+        isFirst = false;
     }
     addSuffixHeader(std::cout);
 }

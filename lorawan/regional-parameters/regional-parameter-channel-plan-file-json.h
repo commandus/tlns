@@ -81,9 +81,7 @@ class RegionalParameterChannelPlanFileJson : public RegionalParameterChannelPlan
 
         virtual std::string getErrorDescription(int &subCode) const override;
 
-    void toHeader(
-        std::ostream &strm
-    ) const;
+    void toHeader(std::ostream &strm, bool b) const;
 };
 
 #endif

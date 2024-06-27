@@ -943,10 +943,25 @@ std::string RegionalParameterChannelPlanFileJson::getErrorDescription(int &subCo
 }
 
 void RegionalParameterChannelPlanFileJson::toHeader(
-    std::ostream &strm
+    std::ostream &strm,
+    bool isFirstFile
 ) const
 {
-    for (auto it = idIndex.begin(); it != idIndex.end(); it++) {
-        it->second->toHeader(strm);
+    if (isFirstFile) {
+        strm << "\t\t.regionalParametersVersion = {\n"
+            << "\t\t\t.major = " << (int) storage.regionalParametersVersion.major << ",\n"
+            << "\t\t\t.minor = " << (int) storage.regionalParametersVersion.minor << ",\n"
+            << "\t\t\t.release = " << (int) storage.regionalParametersVersion.release << "\n"
+            << "\t\t},\n";
     }
+    bool isFirst = true;
+    strm << "\t\t.bands = [\n";
+    for (auto it = storage.bands.begin(); it != storage.bands.end(); it++) {
+        it->toHeader(strm, 3);
+        if (isFirst)
+            isFirst = false;
+        else
+            strm << "\t\t,\n";
+    }
+    strm << "\t\t]\n";
 }

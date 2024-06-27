@@ -1,11 +1,11 @@
 #ifndef REGIONAL_PARAMETER_CHANNEL_PLAN_MEM_H_
 #define REGIONAL_PARAMETER_CHANNEL_PLAN_MEM_H_ 1
 
-#include <vector>
-#include "regional-parameter-channel-plan.h"
-#include "regional-parameter-channel-plans.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plans.h"
 
 class RegionalParameterChannelPlanMem : public RegionalParameterChannelPlans {
+    private:
+        const RegionalParameterChannelPlan *getDefault() const;
 	public:
         RegionBands storage;
         RegionalParameterChannelPlanMem();

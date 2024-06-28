@@ -211,7 +211,7 @@ private:
                             return false;
                         }
                         RegionalParameterChannelPlan &rb(value->storage.bands.back());
-                        rb.txPowerOffsets.push_back((int8_t) val);
+                        rb.value.txPowerOffsets.push_back((int8_t) val);
                         txPowerOffsetCount++;
                         return true;
                     }
@@ -224,22 +224,22 @@ private:
                 }
                 switch (keyIndex) {
                     case JK_RX2FREQUENCY:
-                        value->storage.bands.back().bandDefaults.RX2Frequency = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.RX2Frequency = (int) val;
                         return true;
                     case JK_RX2DATARATE:
-                        value->storage.bands.back().bandDefaults.RX2DataRate = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.RX2DataRate = (int) val;
                         return true;
                     case JK_RECEIVEDELAY1:
-                        value->storage.bands.back().bandDefaults.ReceiveDelay1 = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.ReceiveDelay1 = (int) val;
                         return true;
                     case JK_RECEIVEDELAY2:
-                        value->storage.bands.back().bandDefaults.ReceiveDelay2 = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.ReceiveDelay2 = (int) val;
                         return true;
                     case JK_JOINACCEPTDELAY1:
-                        value->storage.bands.back().bandDefaults.JoinAcceptDelay1 = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.JoinAcceptDelay1 = (int) val;
                         return true;
                     case JK_JOINACCEPTDELAY2:
-                        value->storage.bands.back().bandDefaults.JoinAcceptDelay2 = (int) val;
+                        value->storage.bands.back().value.bandDefaults.value.JoinAcceptDelay2 = (int) val;
                         return true;
                     default:
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
@@ -256,7 +256,7 @@ private:
                 }
 
                 RegionalParameterChannelPlan &rb = value->storage.bands.back();
-                rb.rx1DataRateOffsets[rx1DataRateOffsetCount].push_back((uint8_t) val);
+                rb.value.rx1DataRateOffsets[rx1DataRateOffsetCount].push_back((uint8_t) val);
                 return true;
             }
             case JRB_BAND_CHANNEL: {
@@ -267,18 +267,18 @@ private:
                 Channel *channel;
                 switch (prevState) {
                     case JRB_BAND_UPLINKS:
-                        if (value->storage.bands.back().uplinkChannels.empty()) {
+                        if (value->storage.bands.back().value.uplinkChannels.empty()) {
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        channel = &value->storage.bands.back().uplinkChannels.back();
+                        channel = &value->storage.bands.back().value.uplinkChannels.back();
                         break;
                     case JRB_BAND_DOWNLINKS:
-                        if (value->storage.bands.back().downlinkChannels.empty()) {
+                        if (value->storage.bands.back().value.downlinkChannels.empty()) {
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        channel = &value->storage.bands.back().downlinkChannels.back();
+                        channel = &value->storage.bands.back().value.downlinkChannels.back();
                         break;
                     default:
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
@@ -287,13 +287,13 @@ private:
 
                 switch (keyIndex) {
                     case JK_FREQUENCY:
-                        channel->frequency = (int) val;
+                        channel->value.frequency = (int) val;
                         return true;
                     case JK_MINDR:
-                        channel->minDR = (int) val;
+                        channel->value.minDR = (int) val;
                         return true;
                     case JK_MAXDR:
-                        channel->maxDR = (int) val;
+                        channel->value.maxDR = (int) val;
                         return true;
                     default:
                         break;
@@ -312,10 +312,10 @@ private:
                 }
                 switch (keyIndex) {
                     case JK_M:
-                        value->storage.bands.back().maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].m = (uint8_t) val;
+                        value->storage.bands.back().value.maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].value.m = (uint8_t) val;
                         return true;
                     case JK_N:
-                        value->storage.bands.back().maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].n = (uint8_t) val;
+                        value->storage.bands.back().value.maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].value.n = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -334,10 +334,10 @@ private:
                 }
                 switch (keyIndex) {
                     case JK_M:
-                        value->storage.bands.back().maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].m = (uint8_t) val;
+                        value->storage.bands.back().value.maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].value.m = (uint8_t) val;
                         return true;
                     case JK_N:
-                        value->storage.bands.back().maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].n = (uint8_t) val;
+                        value->storage.bands.back().value.maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].value.n = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -356,7 +356,7 @@ private:
                             applyErrorDescription("dataRates array size bigger than 8 elements");
                             return false;
                         }
-                        value->storage.bands.back().dataRates[dataRateCount - 1].bandwidth = int2BANDWIDTH((int) val);
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bandwidth = int2BANDWIDTH((int) val);
                         return true;
                     case JK_SPREADINGFACTOR:
                         if (value->storage.bands.empty()) {
@@ -367,7 +367,7 @@ private:
                             applyErrorDescription("dataRates array size bigger than 8 elements");
                             return false;
                         }
-                        value->storage.bands.back().dataRates[dataRateCount - 1].spreadingFactor = (SPREADING_FACTOR) val;
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.spreadingFactor = (SPREADING_FACTOR) val;
                         return true;
                     case JK_BPS:
                         if (value->storage.bands.empty()) {
@@ -378,7 +378,7 @@ private:
                             applyErrorDescription("dataRates array size bigger than 8 elements");
                             return false;
                         }
-                        value->storage.bands.back().dataRates[dataRateCount - 1].bps = (uint32_t) val;
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bps = (uint32_t) val;
                         return true;
                     default:
                         break;
@@ -393,28 +393,28 @@ private:
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        value->storage.bands.back().defaultDownlinkTXPower = (int) val;
+                        value->storage.bands.back().value.defaultDownlinkTXPower = (int) val;
                         return true;
                     case JK_PINGSLOTFREQUENCY:
                         if (value->storage.bands.empty()) {
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        value->storage.bands.back().pingSlotFrequency = (int) val;
+                        value->storage.bands.back().value.pingSlotFrequency = (int) val;
                         return true;
                     case JK_MAXUPLINKEIRP:
                         if (value->storage.bands.empty()) {
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        value->storage.bands.back().maxUplinkEIRP = (float) val;
+                        value->storage.bands.back().value.maxUplinkEIRP = (float) val;
                         return true;
                     case JK_ID:
                         if (value->storage.bands.empty()) {
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        value->storage.bands.back().id = (uint8_t) val;
+                        value->storage.bands.back().value.id = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -455,21 +455,21 @@ public :
                     applyErrorDescription(ERR_REGION_BAND_EMPTY);
                     return false;
                 }
-                value->storage.bands.back().supportsExtraChannels = b;
+                value->storage.bands.back().value.supportsExtraChannels = b;
                 return true;
             case JK_IMPLEMENTSTXPARAMSETUP:
                 if (value->storage.bands.empty()) {
                     applyErrorDescription(ERR_REGION_BAND_EMPTY);
                     return false;
                 }
-                value->storage.bands.back().implementsTXParamSetup = b;
+                value->storage.bands.back().value.implementsTXParamSetup = b;
                 return true;
             case JK_DEFAULT_REGION:
                 if (value->storage.bands.empty()) {
                     applyErrorDescription(ERR_REGION_BAND_EMPTY);
                     return false;
                 }
-                value->storage.bands.back().defaultRegion = b;
+                value->storage.bands.back().value.defaultRegion = b;
                 return true;
             case JK_UPLINK:
             case JK_DOWNLINK:
@@ -483,9 +483,9 @@ public :
                         return false;
                     }
                     if (keyIndex == JK_UPLINK)
-                        value->storage.bands.back().dataRates[dataRateCount - 1].uplink = b;
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.uplink = b;
                     else
-                        value->storage.bands.back().dataRates[dataRateCount - 1].downlink = b;
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.downlink = b;
                     return true;
                 }
                 applyErrorDescription("Unexpected boolean");
@@ -498,13 +498,13 @@ public :
                 }
                 switch (prevState) {
                     case JRB_BAND_UPLINKS:
-                        if (value->storage.bands.back().uplinkChannels.empty()) {
+                        if (value->storage.bands.back().value.uplinkChannels.empty()) {
                             applyErrorDescription("uplinkChannels array element disappeared ");
                             return false;
                         }
                         break;
                     case JRB_BAND_DOWNLINKS:
-                        if (value->storage.bands.back().downlinkChannels.empty()) {
+                        if (value->storage.bands.back().value.downlinkChannels.empty()) {
                             applyErrorDescription("downlinkChannels array element disappeared");
                             return false;
                         }
@@ -512,14 +512,14 @@ public :
                     default:
                         break;
                 }
-                Channel &channel = value->storage.bands.back().uplinkChannels.back();
+                Channel &channel = value->storage.bands.back().value.uplinkChannels.back();
 
                 switch (keyIndex) {
                     case JK_ENABLED:
-                        channel.enabled = b;
+                        channel.value.enabled = b;
                         break;
                     case JK_CUSTOM:
-                        channel.custom = b;
+                        channel.value.custom = b;
                         break;
                     default:
                             break;
@@ -549,7 +549,7 @@ public :
                             applyErrorDescription(ERR_REGION_BAND_EMPTY);
                             return false;
                         }
-                        value->storage.bands.back().maxUplinkEIRP = (float) d;
+                        value->storage.bands.back().value.maxUplinkEIRP = (float) d;
                         return true;
                     default:
                         break;
@@ -566,7 +566,7 @@ public :
                             applyErrorDescription("dataRates array size bigger than 8 elements");
                             return false;
                         }
-                        value->storage.bands.back().dataRates[dataRateCount - 1].bandwidth = double2BANDWIDTH(d);
+                        value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bandwidth = double2BANDWIDTH(d);
                         return true;
                     default:
                         break;
@@ -595,7 +595,7 @@ public :
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
                         return false;
                     }
-                    value->storage.bands.back().name = s;
+                    value->storage.bands.back().value.name = s;
                     return true;
                 }
                 applyErrorDescription("String JK_NAME");
@@ -606,7 +606,7 @@ public :
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
                         return false;
                     }
-                    value->storage.bands.back().cn = s;
+                    value->storage.bands.back().value.cn = s;
                     return true;
                 }
                 applyErrorDescription("String JK_CN");
@@ -621,7 +621,7 @@ public :
                         applyErrorDescription("dataRates array size bigger than 8 elements");
                         return false;
                     }
-                    value->storage.bands.back().dataRates[dataRateCount - 1].modulation = string2MODULATION(s.c_str());
+                    value->storage.bands.back().value.dataRates[dataRateCount - 1].value.modulation = string2MODULATION(s.c_str());
                     return true;
                 }
                 applyErrorDescription("Unexpected boolean");
@@ -675,7 +675,7 @@ public :
                 state = JRB_BAND_CHANNEL;
                 if (!value->storage.bands.empty()) {
                     Channel ch;
-                    value->storage.bands.back().uplinkChannels.push_back(ch);
+                    value->storage.bands.back().value.uplinkChannels.push_back(ch);
                     uplinkChannelCount++;
                     return true;
                 }
@@ -685,7 +685,7 @@ public :
                 state = JRB_BAND_CHANNEL;
                 if (!value->storage.bands.empty()) {
                     Channel ch;
-                    value->storage.bands.back().downlinkChannels.push_back(ch);
+                    value->storage.bands.back().value.downlinkChannels.push_back(ch);
                     downlinkChannelCount++;
                     return true;
                 }
@@ -843,9 +843,9 @@ int RegionalParameterChannelPlanFileJson::buildIndex()
     idIndex.clear();
     defaultRegionBand = nullptr;
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        nameIndex[it->name] = &*it;
-        idIndex[it->id] = &*it;
-        if (it->defaultRegion)
+        nameIndex[it->value.name] = &*it;
+        idIndex[it->value.id] = &*it;
+        if (it->value.defaultRegion)
             defaultRegionBand = &*it;
     }
     // Assign default regional settings
@@ -955,13 +955,13 @@ void RegionalParameterChannelPlanFileJson::toHeader(
             << "\t\t},\n";
     }
     bool isFirst = true;
-    strm << "\t\t.bands = [\n";
+    strm << "\t\t.bands = {\n";
     for (auto it = storage.bands.begin(); it != storage.bands.end(); it++) {
-        it->toHeader(strm, 3);
         if (isFirst)
             isFirst = false;
         else
             strm << "\t\t,\n";
+        it->toHeader(strm, 3);
     }
-    strm << "\t\t]\n";
+    strm << "\t\t}\n";
 }

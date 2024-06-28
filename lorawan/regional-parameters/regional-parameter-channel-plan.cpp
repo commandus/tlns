@@ -3,8 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "regional-parameter-channel-plan.h"
-#include "lorawan/lorawan-error.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/lorawan-string.h"
 
 static std::string STR_TRUE("true");
@@ -13,77 +12,105 @@ static std::string STR_FALSE("false");
 #define STR_TRUE_FALSE STR_TRUE : STR_FALSE
 
 DataRate::DataRate()
-    : uplink(true), downlink(true), modulation(MODULATION_LORA),
-      bandwidth(BANDWIDTH_INDEX_125KHZ), spreadingFactor(DRLORA_SF11), bps(0)
+    : value { .uplink = true, .downlink = true, .modulation = MODULATION_LORA,
+      .bandwidth = BANDWIDTH_INDEX_125KHZ, .spreadingFactor = DRLORA_SF11, .bps = 00 }
 {
 
 }
 
-DataRate::DataRate(const DataRate &value)
-    : uplink(value.uplink), downlink(value.downlink), modulation(value.modulation),
-    bandwidth(value.bandwidth), spreadingFactor(value.spreadingFactor), bps(value.bps)
+DataRate::DataRate(
+    const DataRate &val
+)
+    : value { .uplink = val.value.uplink, .downlink = val.value.downlink, .modulation = val.value.modulation,
+        .bandwidth = val.value.bandwidth, .spreadingFactor = val.value.spreadingFactor, .bps = val.value.bps }
 {
 
 }
 
-DataRate::DataRate(BANDWIDTH aBandwidth, SPREADING_FACTOR aSpreadingFactor)
-    : uplink(true), downlink(true), modulation(MODULATION_LORA),
-    bandwidth(aBandwidth), spreadingFactor(aSpreadingFactor), bps(0)
+DataRate::DataRate(
+    const DATA_RATE &val
+)
+    : value { .uplink = val.uplink, .downlink = val.downlink, .modulation = val.modulation,
+        .bandwidth = val.bandwidth, .spreadingFactor = val.spreadingFactor, .bps = val.bps }
+{
+
+}
+
+DataRate::DataRate(
+    BANDWIDTH aBandwidth,
+    SPREADING_FACTOR aSpreadingFactor
+)
+    : value { .uplink = true, .downlink = true, .modulation = MODULATION_LORA,
+        .bandwidth = aBandwidth, .spreadingFactor = aSpreadingFactor, .bps = 0 }
 {
 
 }
 
 DataRate::DataRate(uint32_t aBps)
-    : uplink(true), downlink(true), modulation(MODULATION_FSK),
-      bandwidth(BANDWIDTH_INDEX_7KHZ), spreadingFactor(DRLORA_SF5), bps(aBps)
+    : value { .uplink = true, .downlink = true, .modulation = MODULATION_FSK,
+      .bandwidth = BANDWIDTH_INDEX_7KHZ, .spreadingFactor = DRLORA_SF5, .bps = aBps }
 {
 
 }
 
-void DataRate::setLora(BANDWIDTH aBandwidth, SPREADING_FACTOR aSpreadingFactor)
+void DataRate::setLora(
+    BANDWIDTH aBandwidth,
+    SPREADING_FACTOR aSpreadingFactor
+)
 {
-    uplink = true;
-    downlink = true;
-    modulation = MODULATION_LORA;
-    bandwidth = aBandwidth;
-    spreadingFactor = aSpreadingFactor;
-    bps = 0;
+    value.uplink = true;
+    value.downlink = true;
+    value.modulation = MODULATION_LORA;
+    value.bandwidth = aBandwidth;
+    value.spreadingFactor = aSpreadingFactor;
+    value.bps = 0;
 }
 
 void DataRate::setFSK(uint32_t aBps)
 {
-    uplink = true;
-    downlink = true;
-    modulation = MODULATION_FSK;
-    bandwidth = BANDWIDTH_INDEX_7KHZ;
-    spreadingFactor = DRLORA_SF5;
-    bps = aBps;
+    value.uplink = true;
+    value.downlink = true;
+    value.modulation = MODULATION_FSK;
+    value.bandwidth = BANDWIDTH_INDEX_7KHZ;
+    value.spreadingFactor = DRLORA_SF5;
+    value.bps = aBps;
 }
 
 std::string DataRate::toString() const
 {
     std::stringstream ss;
     // std::boolalpha
-    ss << "{\"uplink\": " << (uplink ? STR_TRUE_FALSE)
-        << ", \"downlink\": " << (downlink ? STR_TRUE_FALSE)
-        << ", \"modulation\": \"" << MODULATION2String(modulation)
-        << "\", \"bandwidth\": " <<  BANDWIDTH2String(bandwidth)
-        << ", \"spreadingFactor\": " << spreadingFactor
-        << ", \"bps\": " <<  bps
+    ss << "{\"uplink\": " << (value.uplink ? STR_TRUE_FALSE)
+        << ", \"downlink\": " << (value.downlink ? STR_TRUE_FALSE)
+        << ", \"modulation\": \"" << MODULATION2String(value.modulation)
+        << "\", \"bandwidth\": " <<  BANDWIDTH2String(value.bandwidth)
+        << ", \"spreadingFactor\": " << value.spreadingFactor
+        << ", \"bps\": " <<  value.bps
         << "}";
     return ss.str();
 }
 
 Channel::Channel()
-    : frequency(0), minDR(0), maxDR(0),
-    enabled(true), custom(false)
+    : value { .frequency = 0, .minDR = 0, .maxDR = 0,
+        .enabled = true, .custom = false }
 {
 
 }
 
-Channel::Channel(const Channel &value)
-    : frequency(value.frequency), minDR(value.minDR), maxDR(value.maxDR),
-    enabled(value.enabled), custom(value.custom)
+Channel::Channel(const Channel &val)
+    : value { .frequency = val.value.frequency, .minDR = val.value.minDR,
+          .maxDR = val.value.maxDR, .enabled = val.value.enabled,
+          .custom = val.value.custom }
+{
+
+}
+
+Channel::Channel(
+    const RADIO_CHANNEL &value
+)
+    : value { .frequency = value.frequency, .minDR = value.minDR,
+        .maxDR = value.maxDR, .enabled = value.enabled,
+        .custom = value.custom }
 {
 
 }
@@ -91,36 +118,60 @@ Channel::Channel(const Channel &value)
 std::string Channel::toString() const
 {
     std::stringstream ss;
-    ss << "{\"frequency\": " << frequency  // frequency in Hz
-       << ", \"minDR\": " << minDR
-       << ", \"maxDR\": " << maxDR
-       << ", \"enabled\": " << (enabled ? STR_TRUE_FALSE)
-       << ", \"custom\": " << (custom ? STR_TRUE_FALSE)
+    ss << "{\"frequency\": " << value.frequency  // frequency in Hz
+       << ", \"minDR\": " << value.minDR
+       << ", \"maxDR\": " << value.maxDR
+       << ", \"enabled\": " << (value.enabled ? STR_TRUE_FALSE)
+       << ", \"custom\": " << (value.custom ? STR_TRUE_FALSE)
        << "}";
     return ss.str();
 }
 
 void Channel::setValue(int aFrequency, int aMinDR, int aMaxDR, bool aEnabled, bool aCustom)
 {
-    frequency = aFrequency;
-    minDR = aMinDR;
-    maxDR = aMaxDR;
-    enabled = aEnabled;
-    custom = aCustom;
+    value.frequency = aFrequency;
+    value.minDR = aMinDR;
+    value.maxDR = aMaxDR;
+    value.enabled = aEnabled;
+    value.custom = aCustom;
 }
 
 BandDefaults::BandDefaults()
-    : RX2Frequency(0), RX2DataRate(0), ReceiveDelay1(0),
-    ReceiveDelay2(0), JoinAcceptDelay1(0), JoinAcceptDelay2(0)
+    : value { .RX2Frequency = 0, .RX2DataRate = 0, .ReceiveDelay1 = 0,
+        .ReceiveDelay2 = 0, .JoinAcceptDelay1 = 0, .JoinAcceptDelay2 = 0 }
 {
 
 }
 
-BandDefaults::BandDefaults(const BandDefaults& value)
-    : RX2Frequency(value.RX2Frequency), RX2DataRate(value.RX2DataRate), ReceiveDelay1(value.ReceiveDelay1),
-    ReceiveDelay2(value.ReceiveDelay2), JoinAcceptDelay1(value.JoinAcceptDelay1), JoinAcceptDelay2(value.JoinAcceptDelay2)
+BandDefaults::BandDefaults(const BandDefaults& val)
+    : value { .RX2Frequency = val.value.RX2Frequency, .RX2DataRate = val.value.RX2DataRate,
+          .ReceiveDelay1 = val.value.ReceiveDelay1, .ReceiveDelay2 = val.value.ReceiveDelay2,
+          .JoinAcceptDelay1 = val.value.JoinAcceptDelay1, .JoinAcceptDelay2 = val.value.JoinAcceptDelay2 }
 {
 
+}
+
+BandDefaults::BandDefaults(
+    const BAND_DEFAULTS &val
+)
+    : value { .RX2Frequency = val.RX2Frequency, .RX2DataRate = val.RX2DataRate,
+        .ReceiveDelay1 = val.ReceiveDelay1, .ReceiveDelay2 = val.ReceiveDelay2,
+        .JoinAcceptDelay1 = val.JoinAcceptDelay1, .JoinAcceptDelay2 = val.JoinAcceptDelay2 }
+{
+
+}
+
+BandDefaults &BandDefaults::operator=(
+    const BandDefaults &val
+)
+{
+    value.RX2Frequency = val.value.RX2Frequency;
+    value.RX2DataRate = val.value.RX2DataRate;
+    value.ReceiveDelay1 = val.value.ReceiveDelay1;
+    value.ReceiveDelay2 = val.value.ReceiveDelay2;
+    value.JoinAcceptDelay1 = val.value.JoinAcceptDelay1;
+    value.JoinAcceptDelay2 = val.value.JoinAcceptDelay2;
+    return *this;
 }
 
 void BandDefaults::setValue(
@@ -131,35 +182,54 @@ void BandDefaults::setValue(
     int aJoinAcceptDelay1,
     int aJoinAcceptDelay2
 ) {
-    RX2Frequency = aRX2Frequency;
-    RX2DataRate = aRX2DataRate;
-    ReceiveDelay1 = aReceiveDelay1;
-    ReceiveDelay2 = aReceiveDelay2;
-    JoinAcceptDelay1 = aJoinAcceptDelay1;
-    JoinAcceptDelay2 = aJoinAcceptDelay2;
+    value.RX2Frequency = aRX2Frequency;
+    value.RX2DataRate = aRX2DataRate;
+    value.ReceiveDelay1 = aReceiveDelay1;
+    value.ReceiveDelay2 = aReceiveDelay2;
+    value.JoinAcceptDelay1 = aJoinAcceptDelay1;
+    value.JoinAcceptDelay2 = aJoinAcceptDelay2;
 }
 
 std::string BandDefaults::toString() const
 {
     std::stringstream ss;
-    ss << "{\"RX2Frequency\": " << RX2Frequency
-        << ", \"RX2DataRate\": " << RX2DataRate
-        << ", \"ReceiveDelay1\": " << ReceiveDelay1
-        << ", \"ReceiveDelay2\": " << ReceiveDelay2
-        << ", \"JoinAcceptDelay1\": " << JoinAcceptDelay1
-        << ", \"JoinAcceptDelay2\": " << JoinAcceptDelay2
+    ss << "{\"RX2Frequency\": " << value.RX2Frequency
+        << ", \"RX2DataRate\": " << value.RX2DataRate
+        << ", \"ReceiveDelay1\": " << value.ReceiveDelay1
+        << ", \"ReceiveDelay2\": " << value.ReceiveDelay2
+        << ", \"JoinAcceptDelay1\": " << value.JoinAcceptDelay1
+        << ", \"JoinAcceptDelay2\": " << value.JoinAcceptDelay2
         << "}";
     return ss.str();
 }
 
 MaxPayloadSize::MaxPayloadSize()
-    : m(0), n(0)
+    : value { .m = 0, .n = 0 }
 {
 
 }
 
-MaxPayloadSize::MaxPayloadSize(const MaxPayloadSize &value)
-    : m(value.m), n(value.n)
+MaxPayloadSize::MaxPayloadSize(
+    const MaxPayloadSize &val
+)
+    : value { . m = val.value.m, .n = val.value.n }
+{
+
+}
+
+MaxPayloadSize::MaxPayloadSize(
+    const MAX_PAYLOAD_SIZE &val
+)
+    : value { . m = val.m, .n = val.n }
+{
+
+}
+
+MaxPayloadSize::MaxPayloadSize(
+    uint8_t aM,
+    uint8_t aN
+)
+    : value { .m = aM, .n = aN }
 {
 
 }
@@ -167,43 +237,70 @@ MaxPayloadSize::MaxPayloadSize(const MaxPayloadSize &value)
 std::string MaxPayloadSize::toString() const
 {
     std::stringstream ss;
-    ss << "{\"m\": " << (int) m
-       << ", \"n\": " << (int) n
+    ss << "{\"m\": " << (int) value.m
+       << ", \"n\": " << (int) value.n
        << "}";
     return ss.str();
 }
 
 void MaxPayloadSize::setValue(uint8_t am, uint8_t an) {
-    m = am;
-    n = an;
+    value.m = am;
+    value.n = an;
 }
 
 RegionalParameterChannelPlan::RegionalParameterChannelPlan()
-    : id(0), supportsExtraChannels(false), defaultRegion(false),
-        maxUplinkEIRP(0.0f), pingSlotFrequency(0), defaultDownlinkTXPower(0), implementsTXParamSetup(false)
+    : value { .id = 0, .maxUplinkEIRP = 0.0, .defaultDownlinkTXPower = 0,
+        .pingSlotFrequency = 0, .implementsTXParamSetup = false, .defaultRegion = false, .supportsExtraChannels = false
+    }
 {
 }
 
-RegionalParameterChannelPlan::RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value)
-    : id(value.id), name(value.name), cn(value.cn),
-    maxUplinkEIRP(value.maxUplinkEIRP), defaultDownlinkTXPower(value.defaultDownlinkTXPower),
-    pingSlotFrequency(value.pingSlotFrequency), implementsTXParamSetup(value.implementsTXParamSetup),
-    supportsExtraChannels(value.supportsExtraChannels), defaultRegion(value.defaultRegion),
-    bandDefaults(value.bandDefaults),
-    uplinkChannels(value.uplinkChannels), downlinkChannels(value.downlinkChannels),
-    txPowerOffsets(value.txPowerOffsets)
+RegionalParameterChannelPlan::RegionalParameterChannelPlan(
+    const REGIONAL_PARAMETER_CHANNEL_PLAN &val
+)
+    : value {
+        .id = val.id, .name = val.name, .cn = val.cn, .maxUplinkEIRP = val.maxUplinkEIRP,
+        .defaultDownlinkTXPower = val.defaultDownlinkTXPower,
+        .pingSlotFrequency = val.pingSlotFrequency, .implementsTXParamSetup = val.implementsTXParamSetup,
+        .defaultRegion = val.defaultRegion, .supportsExtraChannels = val.supportsExtraChannels, .bandDefaults = val.bandDefaults,
+
+        .txPowerOffsets = val.txPowerOffsets,
+        .uplinkChannels = val.uplinkChannels,
+        .downlinkChannels = val.downlinkChannels
+    }
+{
+    for (int i = 0; i < DATA_RATE_SIZE; i++) {
+        value.dataRates[i] = val.dataRates[i];
+        value.maxPayloadSizePerDataRate[i] = val.maxPayloadSizePerDataRate[i];
+        value.maxPayloadSizePerDataRateRepeater[i] = val.maxPayloadSizePerDataRateRepeater[i];
+        value.rx1DataRateOffsets[i] = val.rx1DataRateOffsets[i];
+    }
+}
+
+RegionalParameterChannelPlan::RegionalParameterChannelPlan(
+    const RegionalParameterChannelPlan &val
+)
+    : value {
+        .id = val.value.id, .name = val.value.name, .cn = val.value.cn,
+        .maxUplinkEIRP = val.value.maxUplinkEIRP, .defaultDownlinkTXPower = val.value.defaultDownlinkTXPower,
+        .pingSlotFrequency = val.value.pingSlotFrequency, .implementsTXParamSetup = val.value.implementsTXParamSetup,
+        .defaultRegion = val.value.defaultRegion,
+        .supportsExtraChannels = val.value.supportsExtraChannels,
+        .bandDefaults = val.value.bandDefaults, .txPowerOffsets = val.value.txPowerOffsets,
+        .uplinkChannels = val.value.uplinkChannels, .downlinkChannels = val.value.downlinkChannels }
+
 {
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        dataRates[i] = value.dataRates[i];
+        value.dataRates[i] = value.dataRates[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        maxPayloadSizePerDataRate[i] = value.maxPayloadSizePerDataRate[i];
+        value.maxPayloadSizePerDataRate[i] = value.maxPayloadSizePerDataRate[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        maxPayloadSizePerDataRateRepeater[i] = value.maxPayloadSizePerDataRateRepeater[i];
+        value.maxPayloadSizePerDataRateRepeater[i] = value.maxPayloadSizePerDataRateRepeater[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        rx1DataRateOffsets[i] = value.rx1DataRateOffsets[i];
+        value.rx1DataRateOffsets[i] = value.rx1DataRateOffsets[i];
     }
 }
 
@@ -294,59 +391,64 @@ static void rx1DataRateOffsetsAppendJSON(std::ostream &strm, const std::vector<u
 std::string RegionalParameterChannelPlan::toString() const
 {
     std::stringstream ss;
-    ss << "{\"id\": " << (int) id
-       << ", \"name\": \"" << name
-       << "\", \"cn\": \"" << cn
-       << "\", \"implementsTXParamSetup\": " << (implementsTXParamSetup ? STR_TRUE_FALSE)
-       << ", \"maxUplinkEIRP\": " << maxUplinkEIRP
-       << ", \"pingSlotFrequency\": " << pingSlotFrequency
-       << ", \"defaultDownlinkTXPower\": " << defaultDownlinkTXPower
-       << ", \"supportsExtraChannels\": " << (supportsExtraChannels ? STR_TRUE_FALSE)
-       << ", \"defaultRegion\": " << (defaultRegion ? STR_TRUE_FALSE)
-       << ", \"bandDefaults\": " << bandDefaults.toString()
+    ss << "{\"id\": " << (int) value.id
+       << ", \"name\": \"" << value.name
+       << "\", \"cn\": \"" << value.cn
+       << "\", \"implementsTXParamSetup\": " << (value.implementsTXParamSetup ? STR_TRUE_FALSE)
+       << ", \"maxUplinkEIRP\": " << value.maxUplinkEIRP
+       << ", \"pingSlotFrequency\": " << value.pingSlotFrequency
+       << ", \"defaultDownlinkTXPower\": " << value.defaultDownlinkTXPower
+       << ", \"supportsExtraChannels\": " << (value.supportsExtraChannels ? STR_TRUE_FALSE)
+       << ", \"defaultRegion\": " << (value.defaultRegion ? STR_TRUE_FALSE)
+       << ", \"bandDefaults\": " << value.bandDefaults.toString()
        << ", \"dataRates\": ";
-    arrayAppendJSON(ss, dataRates);
+    arrayAppendJSON(ss, value.dataRates);
     ss << ", \"uplinkChannels\": ";
 
-    vectorAppendJSON(ss, uplinkChannels);
+    vectorAppendJSON(ss, value.uplinkChannels);
     ss << ", \"downlinkChannels\": ";
-    vectorAppendJSON(ss, downlinkChannels);
+    vectorAppendJSON(ss, value.downlinkChannels);
 
     ss << ", \"maxPayloadSizePerDataRate\": ";
-    arrayAppendJSON(ss, maxPayloadSizePerDataRate);
+    arrayAppendJSON(ss, value.maxPayloadSizePerDataRate);
     ss << ", \"maxPayloadSizePerDataRateRepeater\": ";
-    arrayAppendJSON(ss, maxPayloadSizePerDataRateRepeater);
+    arrayAppendJSON(ss, value.maxPayloadSizePerDataRateRepeater);
     ss << ", \"rx1DataRateOffsets\": ";
     // ss << "[]";
-    rx1DataRateOffsetsAppendJSON(ss, rx1DataRateOffsets);
+    rx1DataRateOffsetsAppendJSON(ss, value.rx1DataRateOffsets);
     ss << ", \"txPowerOffsets\": ";
-    txPowerOffsetsAppendJSON(ss, txPowerOffsets);
+    txPowerOffsetsAppendJSON(ss, value.txPowerOffsets);
 
     ss << "}";
     return ss.str();
 }
 
-void RegionalParameterChannelPlan::setTxPowerOffsets(int count, ...)
+void RegionalParameterChannelPlan::setTxPowerOffsets(
+    int count, ...
+)
 {
     if (count >= TX_POWER_OFFSET_MAX_SIZE)
         count = TX_POWER_OFFSET_MAX_SIZE;
     va_list ap;
     va_start(ap, count);
     for (int i = 0; i < count; i++) {
-        txPowerOffsets.push_back(va_arg(ap, int));
+        value.txPowerOffsets.push_back(va_arg(ap, int));
     }
     va_end(ap);
 }
 
-void RegionalParameterChannelPlan::setRx1DataRateOffsets(int dataRateIndex, int count, ...)
+void RegionalParameterChannelPlan::setRx1DataRateOffsets(
+    int dataRateIndex,
+    int count, ...
+)
 {
     if (dataRateIndex >= DATA_RATE_SIZE)
         return;
     va_list ap;
     va_start(ap, count);
-    rx1DataRateOffsets[dataRateIndex].clear();
+    value.rx1DataRateOffsets[dataRateIndex].clear();
     for (int i = 0; i < count; i++) {
-        rx1DataRateOffsets[dataRateIndex].push_back(va_arg(ap, int));
+        value.rx1DataRateOffsets[dataRateIndex].push_back(va_arg(ap, int));
     }
     va_end(ap);
 }
@@ -365,16 +467,19 @@ int RegionalParameterChannelPlan::joinAcceptDelay2() const
 std::string RegionalParameterChannelPlan::toDescriptionTableString() const {
     std::stringstream ss;
     ss  << std::fixed << std::setprecision(2)
-        << "name: " << name << std::endl
-        << "Frequency, MHz. RX2 " << bandDefaults.RX2Frequency / 1000000. << std::endl;
+        << "name: " << value.name << std::endl
+        << "Frequency, MHz. RX2 " << value.bandDefaults.value.RX2Frequency / 1000000. << std::endl;
     int c = 0;
-    for (std::vector<Channel>::const_iterator it(uplinkChannels.begin()); it != uplinkChannels.end(); it++) {
-        ss << "Uplink channel " << c << "    " << it->frequency / 1000000. << std::endl;
+    for (std::vector<Channel>::const_iterator it(value.uplinkChannels.begin()); it != value.uplinkChannels.end(); it++) {
+        ss << "Uplink channel " << c << "    " << it->value.frequency / 1000000. << std::endl;
         c++;
     }
     return ss.str();
 }
 
+/*
+maxUplinkEIRP
+ */
 void RegionalParameterChannelPlan::toHeader(
     std::ostream &strm,
     int tabs
@@ -382,26 +487,26 @@ void RegionalParameterChannelPlan::toHeader(
     std::string prefix = std::string(tabs, '\t');
     strm << prefix << "{\n";
     prefix += '\t';
-    strm << prefix << ".id = " << (int) id << ",\n"
-         << prefix << ".name = \"" << name << "\",\n"
-         << prefix << ".cn = \"" << cn << "\",\n"
-         << prefix << ".implementsTXParamSetup = " << (implementsTXParamSetup ? STR_TRUE_FALSE) << ",\n"
-         << prefix << ".maxUplinkEIRP = " << maxUplinkEIRP << ",\n"
-         << prefix << ".pingSlotFrequency = " << pingSlotFrequency << ",\n"
-         << prefix << ".defaultDownlinkTXPower = " << defaultDownlinkTXPower << ",\n"
-         << prefix << ".supportsExtraChannels = " << supportsExtraChannels << ",\n"
-         << prefix << ".defaultRegion = " << defaultRegion << ",\n"
-         << prefix << ".bandDefaults = {\n";
+    strm << prefix << ".id = " << (int) value.id << ",\n"
+        << prefix << ".name = \"" << value.name << "\",\n"
+        << prefix << ".cn = \"" << value.cn << "\",\n"
+        << prefix << ".maxUplinkEIRP = " << value.maxUplinkEIRP << ",\n"
+        << prefix << ".defaultDownlinkTXPower = " << value.defaultDownlinkTXPower << ",\n"
+        << prefix << ".pingSlotFrequency = " << value.pingSlotFrequency << ",\n"
+        << prefix << ".implementsTXParamSetup = " << (value.implementsTXParamSetup ? STR_TRUE_FALSE) << ",\n"
+        << prefix << ".defaultRegion = " << value.defaultRegion << ",\n"
+        << prefix << ".supportsExtraChannels = " << value.supportsExtraChannels << ",\n"
+        << prefix << ".bandDefaults = BandDefaults({\n";
     prefix += '\t';
-    strm << prefix << ".RX2Frequency = " << bandDefaults.RX2Frequency << ",\n"
-         << prefix << ".RX2DataRate = " << bandDefaults.RX2DataRate << ",\n"
-         << prefix << ".ReceiveDelay1 = " << bandDefaults.ReceiveDelay1 << ",\n"
-         << prefix << ".JoinAcceptDelay1 = " << bandDefaults.JoinAcceptDelay1 << ",\n"
-         << prefix << ".JoinAcceptDelay2 = " << bandDefaults.JoinAcceptDelay2 << "\n";
+    strm << prefix << ".RX2Frequency = " << value.bandDefaults.value.RX2Frequency << ",\n"
+         << prefix << ".RX2DataRate = " << value.bandDefaults.value.RX2DataRate << ",\n"
+         << prefix << ".ReceiveDelay1 = " << value.bandDefaults.value.ReceiveDelay1 << ",\n"
+         << prefix << ".JoinAcceptDelay1 = " << value.bandDefaults.value.JoinAcceptDelay1 << ",\n"
+         << prefix << ".JoinAcceptDelay2 = " << value.bandDefaults.value.JoinAcceptDelay2 << "\n";
     prefix.erase(prefix.size() - 1);
-    strm << prefix << "},\n";
+    strm << prefix << "}),\n";
 
-    strm << prefix << ".dataRates = [";
+    strm << prefix << ".dataRates = {";
     prefix += '\t';
     bool f = true;
     for (int i = 0; i < DATA_RATE_SIZE; i++) {
@@ -410,64 +515,39 @@ void RegionalParameterChannelPlan::toHeader(
             strm << "\n";
         } else
             strm << ",\n";
-        strm << prefix << "{\n";
+        strm << prefix << "DataRate({\n";
         prefix += '\t';
-        strm << prefix << ".uplink = " << (dataRates[i].uplink ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".downlink = " << (dataRates[i].downlink ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".modulation = (MODULATION) " << (int) dataRates[i].modulation << ",\n"
-             << prefix << ".bandwidth = (BANDWIDTH) " << (int) dataRates[i].bandwidth << ",\n"
-             << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) dataRates[i].spreadingFactor << "\n";
+        strm << prefix << ".uplink = " << (value.dataRates[i].value.uplink ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".downlink = " << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".modulation = (MODULATION) " << (int) value.dataRates[i].value.modulation << ",\n"
+             << prefix << ".bandwidth = (BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ",\n"
+             << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
+        strm << prefix << "})";
     };
     prefix.erase(prefix.size() - 1);
-    strm << "\n" << prefix << "],\n";
+    strm << "\n" << prefix << "},\n";
 
-    strm << prefix << ".uplinkChannels: [";
+    strm << prefix << ".maxPayloadSizePerDataRate = {";
     prefix += '\t';
     f = true;
-    for (auto &uplink: uplinkChannels) {
+    for (int i = 0; i < DATA_RATE_SIZE; i++) {
         if (f) {
             f = false;
             strm << "\n";
         } else
             strm << ",\n";
-        strm << prefix << "{\n";
+        strm << prefix << "MaxPayloadSize({\n";
         prefix += '\t';
-        strm << prefix << ".frequency = " << uplink.frequency << ",\n"
-            << prefix << ".minDR = " << uplink.minDR << ",\n"
-            << prefix << ".maxDR = " << uplink.maxDR << ",\n"
-            << prefix << ".enabled = " << (uplink.enabled ? STR_TRUE_FALSE) << ",\n"
-            << prefix << ".custom = " << (uplink.custom ? STR_TRUE_FALSE) << "\n";
+        strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRate[i].value.m << ",\n"
+             << prefix << ".n = " << (int) value.maxPayloadSizePerDataRate[i].value.n << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
+        strm << prefix << "})";
     };
     prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "],\n";
+    strm << '\n' << prefix << "},\n";
 
-    strm << prefix << ".downlinkChannels: [";
-    prefix += '\t';
-    f = true;
-    for (auto &downlink: downlinkChannels) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "{\n";
-        prefix += '\t';
-        strm << prefix << ".frequency = " << downlink.frequency << ",\n"
-             << prefix << ".minDR = " << downlink.minDR << ",\n"
-             << prefix << ".maxDR = " << downlink.maxDR << ",\n"
-             << prefix << ".enabled = " << (downlink.enabled ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".custom = " << (downlink.custom ? STR_TRUE_FALSE) << "\n";
-        prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "],\n";
-
-    strm << prefix << ".maxPayloadSizePerDataRate: [";
+    strm << prefix << ".maxPayloadSizePerDataRateRepeater = {";
     prefix += '\t';
     f = true;
     for (int i = 0; i < DATA_RATE_SIZE; i++) {
@@ -478,34 +558,15 @@ void RegionalParameterChannelPlan::toHeader(
             strm << ",\n";
         strm << prefix << "{\n";
         prefix += '\t';
-        strm << prefix << ".m = " << (int) maxPayloadSizePerDataRate[i].m << ",\n"
-             << prefix << ".n = " << (int) maxPayloadSizePerDataRate[i].n << "\n";
+        strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.m << ",\n"
+             << prefix << ".n = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.n << "\n";
         prefix.erase(prefix.size() - 1);
         strm << prefix << "}";
     };
     prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "],\n";
+    strm << '\n' << prefix << "},\n";
 
-    strm << prefix << ".maxPayloadSizePerDataRateRepeater: [";
-    prefix += '\t';
-    f = true;
-    for (int i = 0; i < DATA_RATE_SIZE; i++) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "{\n";
-        prefix += '\t';
-        strm << prefix << ".m = " << (int) maxPayloadSizePerDataRateRepeater[i].m << ",\n"
-             << prefix << ".n = " << (int) maxPayloadSizePerDataRateRepeater[i].n << "\n";
-        prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "],\n";
-
-    strm << prefix << ".rx1DataRateOffsets: [";
+    strm << prefix << ".rx1DataRateOffsets = {";
     prefix += '\t';
     f = true;
     for (int i = 0; i < DATA_RATE_SIZE; i++) {
@@ -514,25 +575,25 @@ void RegionalParameterChannelPlan::toHeader(
         } else
             strm << ", ";
 
-        strm << "[";
+        strm << "{";
 
         bool f1 = true;
-        for (auto & rxDROffset: rx1DataRateOffsets[i]) {
+        for (auto & rxDROffset: value.rx1DataRateOffsets[i]) {
             if (f1) {
                 f1 = false;
             } else
                 strm << ", ";
             strm << (int) rxDROffset;
         }
-        strm << "]";
+        strm << "}";
     };
-    strm << "],\n";
+    strm << "},\n";
     prefix.erase(prefix.size() - 1);
 
-    strm << prefix << ".txPowerOffsets: [";
+    strm << prefix << ".txPowerOffsets = {";
     prefix += '\t';
     f = true;
-    for (auto &txPO: txPowerOffsets) {
+    for (auto &txPO: value.txPowerOffsets) {
         if (f) {
             f = false;
         } else
@@ -540,16 +601,60 @@ void RegionalParameterChannelPlan::toHeader(
         strm << (int) txPO;
     };
     prefix.erase(prefix.size() - 1);
-    strm << "],\n";
+    strm << "}\n";
     prefix.erase(prefix.size() - 1);
 
-    strm << "}\n";
+    strm << prefix << ".uplinkChannels = {";
+    prefix += '\t';
+    f = true;
+    for (auto &uplink: value.uplinkChannels) {
+        if (f) {
+            f = false;
+            strm << "\n";
+        } else
+            strm << ",\n";
+        strm << prefix << "{\n";
+        prefix += '\t';
+        strm << prefix << ".frequency = " << uplink.value.frequency << ",\n"
+            << prefix << ".minDR = " << uplink.value.minDR << ",\n"
+            << prefix << ".maxDR = " << uplink.value.maxDR << ",\n"
+            << prefix << ".enabled = " << (uplink.value.enabled ? STR_TRUE_FALSE) << ",\n"
+            << prefix << ".custom = " << (uplink.value.custom ? STR_TRUE_FALSE) << "\n";
+        prefix.erase(prefix.size() - 1);
+        strm << prefix << "}";
+    };
+    prefix.erase(prefix.size() - 1);
+    strm << '\n' << prefix << "},\n";
+
+    strm << prefix << ".downlinkChannels = {";
+    prefix += '\t';
+    f = true;
+    for (auto &downlink: value.downlinkChannels) {
+        if (f) {
+            f = false;
+            strm << "\n";
+        } else
+            strm << ",\n";
+        strm << prefix << "{\n";
+        prefix += '\t';
+        strm << prefix << ".frequency = " << downlink.value.frequency << ",\n"
+             << prefix << ".minDR = " << downlink.value.minDR << ",\n"
+             << prefix << ".maxDR = " << downlink.value.maxDR << ",\n"
+             << prefix << ".enabled = " << (downlink.value.enabled ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".custom = " << (downlink.value.custom ? STR_TRUE_FALSE) << "\n";
+        prefix.erase(prefix.size() - 1);
+        strm << prefix << "}";
+    };
+    prefix.erase(prefix.size() - 1);
+    strm << '\n' << prefix << "},\n";
+
+    strm << prefix << "}\n";
 }
 
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const
 {
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(bands.begin()); it != bands.end(); it++) {
-        if (it->name == name) {
+        if (it->value.name == name) {
             return &*it;
         }
     }
@@ -587,4 +692,14 @@ RegionBands::RegionBands()
 RegionBands::RegionBands(const RegionBands &value)
     : regionalParametersVersion(value.regionalParametersVersion), bands(value.bands)
 {
+}
+
+RegionBands::RegionBands(
+    const std::vector<REGIONAL_PARAMETER_CHANNEL_PLAN> &aBands
+)
+    : regionalParametersVersion({ 0, 0, 0 })
+{
+    for(auto b : aBands) {
+        bands.push_back(RegionalParameterChannelPlan(b));
+    }
 }

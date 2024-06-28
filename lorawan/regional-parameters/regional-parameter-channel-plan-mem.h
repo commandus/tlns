@@ -9,6 +9,7 @@ class RegionalParameterChannelPlanMem : public RegionalParameterChannelPlans {
 	public:
         RegionBands storage;
         RegionalParameterChannelPlanMem();
+        explicit RegionalParameterChannelPlanMem(const std::vector<REGIONAL_PARAMETER_CHANNEL_PLAN> &bands);
 		~RegionalParameterChannelPlanMem() override;
 
         virtual const RegionalParameterChannelPlan *get(const std::string &name) const override;

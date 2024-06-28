@@ -18,6 +18,8 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h"
 #include "lorawan/lorawan-msg.h"
 
+#include "gen/regional-parameters-3.h"
+
 // i18n
 // #include <libintl.h>
 // #define _(String) gettext (String)
@@ -106,14 +108,14 @@ static void addPrefixHeader(
         strm << file << " ";
     }
     strm << "\n *\n */\n\n"
-            "#include \"lorawan/regional-parameters/regional-parameter-channel-plans.h\"\n\n"
-            "RegionalParameterChannelPlanMem regionalParameterChannelPlanMem = {\n\t.storage = {";
+        "#include \"lorawan/regional-parameters/regional-parameter-channel-plan-mem.h\"\n\n"
+        "RegionalParameterChannelPlanMem regionalParameterChannelPlanMem = {\n\t.storage = {";
 }
 
 static void addSuffixHeader(
         std::ostream &strm
 ) {
-    strm << "\t};\n};\n";
+    strm << "\t}\n};\n";
 }
 
 static void addFilePrefixHeader(
@@ -148,7 +150,7 @@ int main(int argc, char **argv)
         if (config.verbosity > 1) {
             std::cerr << _("Regions: ");
             for (auto &b: rpfj.storage.bands) {
-                std::cerr << b.cn << " ";
+                std::cerr << b.value.cn << " ";
             }
             std::cerr << std::endl;
         }

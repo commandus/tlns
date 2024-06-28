@@ -11,19 +11,22 @@ public:
     virtual std::string toString() const = 0;
 };
 
-// DataRate defines a data rate
-class DataRate : public StringifyIntf {
-public:
+typedef struct DATA_RATE {
     bool uplink;                        // data-rate can be used for uplink
     bool downlink;                      // data-rate can be used for downlink
-
     MODULATION modulation;
     BANDWIDTH bandwidth;                // in kHz, used for LoRa
     SPREADING_FACTOR spreadingFactor;   // used for LoRa
     uint32_t bps;       				// FSK bits per second
+} DATA_RATE;
 
+// DataRate defines a data rate
+class DataRate : public StringifyIntf {
+public:
+    DATA_RATE value;
     DataRate();
     DataRate(const DataRate &value);
+    explicit DataRate(const DATA_RATE &value);
     // Lora modulation
     DataRate(BANDWIDTH bandwidth, SPREADING_FACTOR spreadingFactor);
     // FSK modulation
@@ -33,24 +36,27 @@ public:
     std::string toString() const override;
 };
 
-// Channel
-class Channel : public StringifyIntf {
-public:
+typedef struct RADIO_CHANNEL {
     int frequency;  // frequency in Hz
     int minDR;
     int maxDR;
     bool enabled;
     bool custom;    // this channel was configured by the user
+} RADIO_CHANNEL;
+
+// Channel
+class Channel : public StringifyIntf {
+public:
+    RADIO_CHANNEL value;
     Channel();
     Channel(const Channel &value);
+    explicit Channel(const RADIO_CHANNEL &value);
     std::string toString() const override;
 
     void setValue(int frequency, int minDR, int maxDR, bool enabled, bool custom);
 };
 
-// BandDefaults defines the default bands defined by a band.
-class BandDefaults : public StringifyIntf {
-public:
+typedef struct BAND_DEFAULTS {
     // fixed frequency for the RX2 receive window
     int RX2Frequency;
     // fixed data-rate for the RX2 receive window
@@ -63,32 +69,46 @@ public:
     int JoinAcceptDelay1;
     // JOIN_ACCEPT_DELAY2 default value.
     int JoinAcceptDelay2;
+} BAND_DEFAULTS;
+
+// BandDefaults defines the default bands defined by a band.
+class BandDefaults : public StringifyIntf {
+public:
+    BAND_DEFAULTS value;
     BandDefaults();
     BandDefaults(const BandDefaults &value);
+    explicit BandDefaults(const BAND_DEFAULTS &value);
+    BandDefaults &operator=(const BandDefaults &value);
     void setValue(
         int RX2Frequency,
         int RX2DataRate,
         int ReceiveDelay1,
         int ReceiveDelay2,
         int JoinAcceptDelay1,
-        int JoinAcceptDelay2);
+        int JoinAcceptDelay2
+    );
     std::string toString() const override;
 };
+
+typedef struct MAX_PAYLOAD_SIZE {
+    uint8_t m;  // The maximum MACPayload size length
+    uint8_t n;  // The maximum application payload length in the absence of the optional FOpt control field
+} MAX_PAYLOAD_SIZE;
 
 // MaxPayloadSize defines the max payload size
 class MaxPayloadSize : public StringifyIntf {
 public:
-    uint8_t m;  // The maximum MACPayload size length
-    uint8_t n;  // The maximum application payload length in the absence of the optional FOpt control field
+    MAX_PAYLOAD_SIZE value;
     MaxPayloadSize();
     MaxPayloadSize(const MaxPayloadSize &value);
+    explicit MaxPayloadSize(const MAX_PAYLOAD_SIZE &value);
+    MaxPayloadSize(uint8_t m, uint8_t n);
     std::string toString() const override;
 
     void setValue(uint8_t m, uint8_t n);
 };
 
-class RegionalParameterChannelPlan : public StringifyIntf {
-public:
+typedef struct REGIONAL_PARAMETER_CHANNEL_PLAN {
     uint8_t id;             // 1..14
     std::string name;       // channel plan name
     std::string cn;         // common name
@@ -107,12 +127,18 @@ public:
     std::vector<int8_t> txPowerOffsets;
     std::vector<Channel> uplinkChannels;
     std::vector<Channel> downlinkChannels;
+} REGIONAL_PARAMETER_CHANNEL_PLAN;
+
+class RegionalParameterChannelPlan : public StringifyIntf {
+public:
+    REGIONAL_PARAMETER_CHANNEL_PLAN value;
     // Join Accept delay
     int joinAcceptDelay1() const; // 5s
     int joinAcceptDelay2() const; // 6s
 
     RegionalParameterChannelPlan();
-    RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value);
+    explicit RegionalParameterChannelPlan(const REGIONAL_PARAMETER_CHANNEL_PLAN &value);
+    explicit RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value);
     std::string toString() const override;
 
     void setTxPowerOffsets(int count, ...);
@@ -129,6 +155,7 @@ public:
     std::vector<RegionalParameterChannelPlan> bands;
     RegionBands();
     RegionBands(const RegionBands &value);
+    explicit RegionBands(const std::vector<REGIONAL_PARAMETER_CHANNEL_PLAN> &bands);
     const RegionalParameterChannelPlan* get(const std::string &name) const;
     std::string toString() const override;
     bool setRegionalParametersVersion(const std::string &value);

@@ -1,8 +1,16 @@
-#include "regional-parameter-channel-plan-mem.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-conv.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan-mem.h"
 
 RegionalParameterChannelPlanMem::RegionalParameterChannelPlanMem()
+{
+
+}
+
+RegionalParameterChannelPlanMem::RegionalParameterChannelPlanMem(
+    const std::vector<REGIONAL_PARAMETER_CHANNEL_PLAN> &bands
+)
+    : storage(bands)
 {
 
 }
@@ -15,7 +23,7 @@ RegionalParameterChannelPlanMem::~RegionalParameterChannelPlanMem()
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::getDefault() const
 {
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->defaultRegion)
+        if (it->value.defaultRegion)
             return &*it;
     }
     return nullptr;
@@ -26,7 +34,7 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(
 ) const
 {
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->name == name)
+        if (it->value.name == name)
             return &*it;
     }
     return getDefault();
@@ -35,7 +43,7 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(int id) const
 {
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->id == id)
+        if (it->value.id == id)
             return &*it;
     }
     return getDefault();;

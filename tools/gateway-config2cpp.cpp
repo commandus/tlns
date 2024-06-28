@@ -165,7 +165,7 @@ int main(int argc, char **argv)
             std::cerr << gwcfj.toString();
         std::string vn = fileName2VarName(*it);
 
-        addFilePrefixHeader(std::cout, nullptr);
+        addFilePrefixHeader(std::cout);
         gwcfj.toHeader(std::cout, vn);
     }
     addSuffixHeader(std::cout);

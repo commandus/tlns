@@ -2,6 +2,8 @@
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan-mem.h"
 
+#include <lorawan/lorawan-error.h>
+
 RegionalParameterChannelPlanMem::RegionalParameterChannelPlanMem()
 {
 
@@ -54,6 +56,7 @@ int RegionalParameterChannelPlanMem::init(
 	void *data
 )
 {
+    return CODE_OK;
 }
 
 void RegionalParameterChannelPlanMem::flush()

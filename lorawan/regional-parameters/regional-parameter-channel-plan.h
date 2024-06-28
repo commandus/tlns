@@ -30,7 +30,7 @@ public:
     // Lora modulation
     DataRate(BANDWIDTH bandwidth, SPREADING_FACTOR spreadingFactor);
     // FSK modulation
-    explicit DataRate(uint32_t bps);
+    DataRate(uint32_t bps);
     void setLora(BANDWIDTH bandwidth, SPREADING_FACTOR spreadingFactor);
     void setFSK(uint32_t bps);
     std::string toString() const override;
@@ -52,7 +52,6 @@ public:
     Channel(const Channel &value);
     explicit Channel(const RADIO_CHANNEL &value);
     std::string toString() const override;
-
     void setValue(int frequency, int minDR, int maxDR, bool enabled, bool custom);
 };
 
@@ -100,9 +99,7 @@ class MaxPayloadSize : public StringifyIntf {
 public:
     MAX_PAYLOAD_SIZE value;
     MaxPayloadSize();
-    MaxPayloadSize(const MaxPayloadSize &value);
     explicit MaxPayloadSize(const MAX_PAYLOAD_SIZE &value);
-    MaxPayloadSize(uint8_t m, uint8_t n);
     std::string toString() const override;
 
     void setValue(uint8_t m, uint8_t n);
@@ -138,7 +135,7 @@ public:
 
     RegionalParameterChannelPlan();
     explicit RegionalParameterChannelPlan(const REGIONAL_PARAMETER_CHANNEL_PLAN &value);
-    explicit RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value);
+    RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value);
     std::string toString() const override;
 
     void setTxPowerOffsets(int count, ...);

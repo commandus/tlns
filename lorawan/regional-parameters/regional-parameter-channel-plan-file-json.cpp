@@ -580,7 +580,7 @@ public :
     }
 
     bool string(string_t& str) override {
-        std::string s(str);
+        const std::string s(str);
         switch(keyIndex) {
             case JK_REGIONALPARAMETERSVERSION:
                 if (state == JRB_ROOT) {
@@ -842,11 +842,11 @@ int RegionalParameterChannelPlanFileJson::buildIndex()
     nameIndex.clear();
     idIndex.clear();
     defaultRegionBand = nullptr;
-    for (std::vector<RegionalParameterChannelPlan>::const_iterator it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        nameIndex[it->value.name] = &*it;
-        idIndex[it->value.id] = &*it;
-        if (it->value.defaultRegion)
-            defaultRegionBand = &*it;
+    for (const auto & band : storage.bands) {
+        nameIndex[band.value.name] = &band;
+        idIndex[band.value.id] = &band;
+        if (band.value.defaultRegion)
+            defaultRegionBand = &band;
     }
     // Assign default regional settings
     if (!defaultRegionBand) {
@@ -862,7 +862,7 @@ int RegionalParameterChannelPlanFileJson::buildIndex()
 
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanFileJson::get(const std::string &name) const
 {
-    std::map<std::string, const RegionalParameterChannelPlan*>::const_iterator it(nameIndex.find(name));
+    auto it(nameIndex.find(name));
     if (it == nameIndex.end())
         return defaultRegionBand;
     return it->second;
@@ -870,7 +870,7 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanFileJson::get(co
 
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanFileJson::get(int id) const
 {
-    std::map<int, const RegionalParameterChannelPlan*>::const_iterator it(idIndex.find(id));
+    auto it(idIndex.find(id));
     if (it == idIndex.end())
         return defaultRegionBand;
     return it->second;
@@ -948,20 +948,20 @@ void RegionalParameterChannelPlanFileJson::toHeader(
 ) const
 {
     if (isFirstFile) {
+        /*
         strm << "\t\t.regionalParametersVersion = {\n"
             << "\t\t\t.major = " << (int) storage.regionalParametersVersion.major << ",\n"
             << "\t\t\t.minor = " << (int) storage.regionalParametersVersion.minor << ",\n"
             << "\t\t\t.release = " << (int) storage.regionalParametersVersion.release << "\n"
             << "\t\t},\n";
+        */
     }
     bool isFirst = true;
-    strm << "\t\t.bands = {\n";
-    for (auto it = storage.bands.begin(); it != storage.bands.end(); it++) {
+    for (const auto & band : storage.bands) {
         if (isFirst)
             isFirst = false;
         else
             strm << "\t\t,\n";
-        it->toHeader(strm, 3);
+        band.toHeader(strm, 2);
     }
-    strm << "\t\t}\n";
 }

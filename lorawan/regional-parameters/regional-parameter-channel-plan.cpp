@@ -210,26 +210,9 @@ MaxPayloadSize::MaxPayloadSize()
 }
 
 MaxPayloadSize::MaxPayloadSize(
-    const MaxPayloadSize &val
-)
-    : value { . m = val.value.m, .n = val.value.n }
-{
-
-}
-
-MaxPayloadSize::MaxPayloadSize(
     const MAX_PAYLOAD_SIZE &val
 )
     : value { . m = val.m, .n = val.n }
-{
-
-}
-
-MaxPayloadSize::MaxPayloadSize(
-    uint8_t aM,
-    uint8_t aN
-)
-    : value { .m = aM, .n = aN }
 {
 
 }
@@ -494,8 +477,8 @@ void RegionalParameterChannelPlan::toHeader(
         << prefix << ".defaultDownlinkTXPower = " << value.defaultDownlinkTXPower << ",\n"
         << prefix << ".pingSlotFrequency = " << value.pingSlotFrequency << ",\n"
         << prefix << ".implementsTXParamSetup = " << (value.implementsTXParamSetup ? STR_TRUE_FALSE) << ",\n"
-        << prefix << ".defaultRegion = " << value.defaultRegion << ",\n"
-        << prefix << ".supportsExtraChannels = " << value.supportsExtraChannels << ",\n"
+        << prefix << ".defaultRegion = " << (value.defaultRegion ? STR_TRUE_FALSE) << ",\n"
+        << prefix << ".supportsExtraChannels = " << (value.supportsExtraChannels ? STR_TRUE_FALSE) << ",\n"
         << prefix << ".bandDefaults = BandDefaults({\n";
     prefix += '\t';
     strm << prefix << ".RX2Frequency = " << value.bandDefaults.value.RX2Frequency << ",\n"
@@ -556,12 +539,12 @@ void RegionalParameterChannelPlan::toHeader(
             strm << "\n";
         } else
             strm << ",\n";
-        strm << prefix << "{\n";
+        strm << prefix << "MaxPayloadSize({\n";
         prefix += '\t';
         strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.m << ",\n"
              << prefix << ".n = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.n << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
+        strm << prefix << "})";
     };
     prefix.erase(prefix.size() - 1);
     strm << '\n' << prefix << "},\n";
@@ -601,7 +584,7 @@ void RegionalParameterChannelPlan::toHeader(
         strm << (int) txPO;
     };
     prefix.erase(prefix.size() - 1);
-    strm << "}\n";
+    strm << "},\n";
     prefix.erase(prefix.size() - 1);
 
     strm << prefix << ".uplinkChannels = {";
@@ -613,7 +596,7 @@ void RegionalParameterChannelPlan::toHeader(
             strm << "\n";
         } else
             strm << ",\n";
-        strm << prefix << "{\n";
+        strm << prefix << "Channel({\n";
         prefix += '\t';
         strm << prefix << ".frequency = " << uplink.value.frequency << ",\n"
             << prefix << ".minDR = " << uplink.value.minDR << ",\n"
@@ -621,7 +604,7 @@ void RegionalParameterChannelPlan::toHeader(
             << prefix << ".enabled = " << (uplink.value.enabled ? STR_TRUE_FALSE) << ",\n"
             << prefix << ".custom = " << (uplink.value.custom ? STR_TRUE_FALSE) << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
+        strm << prefix << "})";
     };
     prefix.erase(prefix.size() - 1);
     strm << '\n' << prefix << "},\n";
@@ -635,7 +618,7 @@ void RegionalParameterChannelPlan::toHeader(
             strm << "\n";
         } else
             strm << ",\n";
-        strm << prefix << "{\n";
+        strm << prefix << "Channel({\n";
         prefix += '\t';
         strm << prefix << ".frequency = " << downlink.value.frequency << ",\n"
              << prefix << ".minDR = " << downlink.value.minDR << ",\n"
@@ -643,11 +626,11 @@ void RegionalParameterChannelPlan::toHeader(
              << prefix << ".enabled = " << (downlink.value.enabled ? STR_TRUE_FALSE) << ",\n"
              << prefix << ".custom = " << (downlink.value.custom ? STR_TRUE_FALSE) << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "}";
+        strm << prefix << "})";
     };
     prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "},\n";
-
+    strm << '\n' << prefix << "}\n";
+    prefix.erase(prefix.size() - 1);
     strm << prefix << "}\n";
 }
 

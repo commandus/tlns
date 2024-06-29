@@ -13,7 +13,7 @@ static std::string STR_FALSE("false");
 
 DataRate::DataRate()
     : value { .uplink = true, .downlink = true, .modulation = MODULATION_LORA,
-      .bandwidth = BANDWIDTH_INDEX_125KHZ, .spreadingFactor = DRLORA_SF11, .bps = 00 }
+      .bandwidth = BANDWIDTH_INDEX_125KHZ, .spreadingFactor = DRLORA_SF11, .bps = 0 }
 {
 
 }
@@ -552,7 +552,7 @@ void RegionalParameterChannelPlan::toHeader(
     strm << prefix << ".rx1DataRateOffsets = {";
     prefix += '\t';
     f = true;
-    for (int i = 0; i < DATA_RATE_SIZE; i++) {
+    for (const auto & rx1DataRateOffset : value.rx1DataRateOffsets) {
         if (f) {
             f = false;
         } else
@@ -561,7 +561,7 @@ void RegionalParameterChannelPlan::toHeader(
         strm << "{";
 
         bool f1 = true;
-        for (auto & rxDROffset: value.rx1DataRateOffsets[i]) {
+        for (auto & rxDROffset: rx1DataRateOffset) {
             if (f1) {
                 f1 = false;
             } else
@@ -585,7 +585,6 @@ void RegionalParameterChannelPlan::toHeader(
     };
     prefix.erase(prefix.size() - 1);
     strm << "},\n";
-    prefix.erase(prefix.size() - 1);
 
     strm << prefix << ".uplinkChannels = {";
     prefix += '\t';
@@ -631,7 +630,7 @@ void RegionalParameterChannelPlan::toHeader(
     prefix.erase(prefix.size() - 1);
     strm << '\n' << prefix << "}\n";
     prefix.erase(prefix.size() - 1);
-    strm << prefix << "}\n";
+    strm << prefix << "}";
 }
 
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const

@@ -961,7 +961,7 @@ void RegionalParameterChannelPlanFileJson::toHeader(
         if (isFirst)
             isFirst = false;
         else
-            strm << "\t\t,\n";
+            strm << ",\n";
         band.toHeader(strm, 2);
     }
 }

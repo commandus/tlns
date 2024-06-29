@@ -116,7 +116,7 @@ static void addPrefixHeader(
 static void addSuffixHeader(
         std::ostream &strm
 ) {
-    strm << "});\n#endif\n";
+    strm << "\n\t}\n);\n#endif\n";
 }
 
 static void addFilePrefixHeader(
@@ -148,6 +148,11 @@ int main(int argc, char **argv)
             std::cerr << ERR_MESSAGE << rpfj.errCode << ": " << strerror_lorawan_ns(rpfj.errCode) << std::endl;
             continue;
         }
+
+        std::cout <<"\n\n\nJSON:\n" << rpfj.toJsonString();
+
+        std::cout <<"\n-----------------------\n";
+
         if (config.verbosity > 1) {
             std::cerr << _("Regions: ");
             for (auto &b: rpfj.storage.bands) {
@@ -161,4 +166,8 @@ int main(int argc, char **argv)
         isFirst = false;
     }
     addSuffixHeader(std::cout);
+
+
+    std::cout <<"\n\n\nMemory:\n";
+    std::cout << regionalParameterChannelPlanMem.toJsonString();
 }

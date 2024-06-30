@@ -274,16 +274,16 @@ RegionalParameterChannelPlan::RegionalParameterChannelPlan(
 
 {
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        value.dataRates[i] = value.dataRates[i];
+        value.dataRates[i] = val.value.dataRates[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        value.maxPayloadSizePerDataRate[i] = value.maxPayloadSizePerDataRate[i];
+        value.maxPayloadSizePerDataRate[i] = val.value.maxPayloadSizePerDataRate[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        value.maxPayloadSizePerDataRateRepeater[i] = value.maxPayloadSizePerDataRateRepeater[i];
+        value.maxPayloadSizePerDataRateRepeater[i] = val.value.maxPayloadSizePerDataRateRepeater[i];
     }
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
-        value.rx1DataRateOffsets[i] = value.rx1DataRateOffsets[i];
+        value.rx1DataRateOffsets[i] = val.value.rx1DataRateOffsets[i];
     }
 }
 
@@ -501,10 +501,11 @@ void RegionalParameterChannelPlan::toHeader(
         strm << prefix << "DataRate({\n";
         prefix += '\t';
         strm << prefix << ".uplink = " << (value.dataRates[i].value.uplink ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".downlink = " << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".modulation = (MODULATION) " << (int) value.dataRates[i].value.modulation << ",\n"
-             << prefix << ".bandwidth = (BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ",\n"
-             << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor << "\n";
+            << prefix << ".downlink = " << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ",\n"
+            << prefix << ".modulation = (MODULATION) " << (int) value.dataRates[i].value.modulation << ",\n"
+            << prefix << ".bandwidth = (BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ",\n"
+            << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor << ",\n"
+            << prefix << ".bps = " << value.dataRates[i].value.bps << "\n";
         prefix.erase(prefix.size() - 1);
         strm << prefix << "})";
     };

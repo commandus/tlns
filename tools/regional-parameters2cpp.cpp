@@ -16,8 +16,7 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h"
 #include "lorawan/lorawan-msg.h"
 
-#include "gen/regional-parameters-3.h"
-
+// #include "gen/regional-parameters-3.h"
 
 // i18n
 // #include <libintl.h>
@@ -149,10 +148,6 @@ int main(int argc, char **argv)
             continue;
         }
 
-        std::cout <<"\n\n\nJSON:\n" << rpfj.toJsonString();
-
-        std::cout <<"\n-----------------------\n";
-
         if (config.verbosity > 1) {
             std::cerr << _("Regions: ");
             for (auto &b: rpfj.storage.bands) {
@@ -166,8 +161,4 @@ int main(int argc, char **argv)
         isFirst = false;
     }
     addSuffixHeader(std::cout);
-
-
-    std::cout <<"\n\n\nMemory:\n";
-    std::cout << regionalParameterChannelPlanMem.toJsonString();
 }

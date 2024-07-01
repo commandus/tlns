@@ -22,7 +22,7 @@
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
-      parser(nullptr), running(false),
+      parser(nullptr), regionalPlan(nullptr), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
 {
     queue.setDispatcher(this);
@@ -32,7 +32,7 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : controlSocket(nullptr), taskResponse(value.taskResponse), thread(value.thread),
-      parser(value.parser), queue(value.queue), running(value.running),
+      parser(value.parser), regionalPlan(nullptr), queue(value.queue), running(value.running),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
 {
 }
@@ -393,4 +393,11 @@ void MessageTaskDispatcher::setParser(
     ProtoGwParser *aParser)
 {
     parser = aParser;
+}
+
+void MessageTaskDispatcher::setRegionalParameterChannelPlan(
+    const RegionalParameterChannelPlan *aRegionalPlan
+)
+{
+    regionalPlan = aRegionalPlan;
 }

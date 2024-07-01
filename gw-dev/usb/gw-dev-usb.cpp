@@ -31,13 +31,13 @@
 // #define _(String) gettext (String)
 #define _(String) (String)
 
-static std::string getRegionNames()
+static void printRegionNames(
+    std::ostream &strm
+)
 {
-    std::stringstream ss;
     for (auto & lorawanGatewaySetting : lorawanGatewaySettings) {
-        ss << "\"" << lorawanGatewaySetting.name << "\" ";
+        strm << "\"" << lorawanGatewaySetting.name << "\" ";
     }
-    return ss.str();
 }
 
 size_t findRegionIndex(
@@ -188,8 +188,9 @@ int parseCmd(
         arg_print_syntax(stderr, argtable, "\n");
         std::cerr << MSG_PROG_NAME_GATEWAY_USB << std::endl;
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
-        std::cerr << _("  region name: ")
-            << getRegionNames() << std::endl;
+        std::cerr << _("  region name: ");
+        printRegionNames(std::cerr);
+        std::cerr << std::endl;
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
         return ERR_CODE_PARAM_INVALID;
     }

@@ -25,6 +25,7 @@ SRC_LIBLORAWAN = \
     lorawan/regional-parameters/regional-parameter-channel-plan.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
+    lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
@@ -134,6 +135,7 @@ nobase_dist_include_HEADERS = \
     lorawan/regional-parameters/regional-parameter-channel-plan.h \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
+    lorawan/regional-parameters/regional-parameter-channel-plan-mem.h \
     lorawan/helper/file-helper.h \
     lorawan/helper/thread-helper.h \
     lorawan/helper/ip-address.h \

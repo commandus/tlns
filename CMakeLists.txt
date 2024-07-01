@@ -118,6 +118,7 @@ else()
 		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
 		lorawan/proto/gw/set-gateway-metadata.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
+		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp

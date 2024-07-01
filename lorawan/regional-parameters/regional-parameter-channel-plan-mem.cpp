@@ -3,6 +3,7 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan-mem.h"
 
 #include <lorawan/lorawan-error.h>
+#include <algorithm>
 
 RegionalParameterChannelPlanMem::RegionalParameterChannelPlanMem()
 {
@@ -35,8 +36,16 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(
     const std::string &name
 ) const
 {
+    std::string upperName(name);
+    std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->value.name == name)
+        std::string valUpperCN(it->value.cn);
+        std::transform(valUpperCN.begin(), valUpperCN.end(), valUpperCN.begin(), ::toupper);
+        std::string valUpperName(it->value.name);
+        std::transform(valUpperName.begin(), valUpperName.end(), valUpperName.begin(), ::toupper);
+        if (valUpperCN.find(upperName) != std::string::npos)
+            return &*it;
+        if (valUpperName.find(upperName) != std::string::npos)
             return &*it;
     }
     return getDefault();

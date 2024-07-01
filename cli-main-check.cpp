@@ -16,6 +16,8 @@
 #include "lorawan/task/task-unix-control-socket.h"
 #include "lorawan/proto/gw/basic-udp.h"
 
+#include "gen/regional-parameters-3.h"
+
 // i18n
 // #include <libintl.h>
 // #define _(String) gettext (String)
@@ -23,10 +25,21 @@
 
 const char *programName = "tlns-check";
 const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";
+
+static void printRegionNames(
+    std::ostream &strm
+)
+{
+    for (auto & regionalPlan : regionalParameterChannelPlanMem.storage.bands) {
+        strm << "\"" << regionalPlan.value.cn << "\" ";
+    }
+}
+
 // global parameters keep command line arguments
 class CheckParams {
 public:
     int verbose;
+    std::string regionName;
     int32_t retCode;
 
     CheckParams()
@@ -40,6 +53,8 @@ public:
         ss << _("Verbose: ") << verbose << "\n";
         return ss.str();
     }
+
+    const RegionalParameterChannelPlan *regionalParameterChannelPlan;
 };
 
 static CheckParams params;
@@ -91,6 +106,13 @@ static void run() {
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };
+
+    if (params.verbose) {
+        std::cout << _("Region") << '\t' << params.regionalParameterChannelPlan->value.cn << std::endl;
+    }
+
+    dispatcher.setRegionalParameterChannelPlan(params.regionalParameterChannelPlan);
+
     // dispatcher 'll destroy sockets in destructor
     // dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
     // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
@@ -120,11 +142,12 @@ static void run() {
 
 int main(int argc, char **argv) {
     struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));
+    struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
     struct arg_lit *a_help = arg_lit0("h", "help", _("Show this help"));
 	struct arg_end *a_end = arg_end(20);
 
 	void* argtable[] = {
-        a_verbose,
+        a_region_name, a_verbose,
 		a_help, a_end
 	};
 
@@ -138,6 +161,20 @@ int main(int argc, char **argv) {
 
     params.verbose = a_verbose->count;
 
+    if (a_region_name->count)
+        params.regionName = *a_region_name->sval;
+    else
+        params.regionName = "";
+
+    auto region= regionalParameterChannelPlanMem.get(params.regionName);
+
+    if (!region) {
+        errorCount++;
+        std::cerr << _("Region ") << params.regionName << " " << _("not found") << std::endl;
+    }
+
+    params.regionalParameterChannelPlan = region;
+
     // special case: '--help' takes precedence over error reporting
 	if ((a_help->count) || errorCount) {
 		if (errorCount)
@@ -146,6 +183,9 @@ int main(int argc, char **argv) {
 		arg_print_syntax(stderr, argtable, "\n");
 		std::cerr << _("tlns check utility") << std::endl;
 		arg_print_glossary(stderr, argtable, "  %-27s %s\n");
+        std::cerr << _("Regions: ");
+        printRegionNames(std::cerr);
+        std::cerr << std::endl;
 		arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 		return ERR_CODE_COMMAND_LINE;
 	}

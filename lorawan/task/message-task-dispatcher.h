@@ -10,6 +10,7 @@
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/task/task-socket.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -89,6 +90,7 @@ public:
     OnDestroyProc onDestroy;
 
     ProtoGwParser* parser;
+    const RegionalParameterChannelPlan *regionalPlan;
 
     int run();
 
@@ -128,6 +130,9 @@ public:
 
     void setParser(ProtoGwParser *parser);
 
+    void setRegionalParameterChannelPlan(
+        const RegionalParameterChannelPlan *aRegionalPlan
+    );
 };
 
 #endif

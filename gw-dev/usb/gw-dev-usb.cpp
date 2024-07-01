@@ -8,6 +8,8 @@
 #ifdef _MSC_VER
 #else
 #include <execinfo.h>
+#include <algorithm>
+
 #endif
 
 #include "argtable3/argtable3.h"
@@ -44,8 +46,12 @@ size_t findRegionIndex(
     const std::string &namePrefix
 )
 {
+    std::string upperPrefix(namePrefix);
+    std::transform(upperPrefix.begin(), upperPrefix.end(), upperPrefix.begin(), ::toupper);
     for (size_t i = 0; i < sizeof(lorawanGatewaySettings) / sizeof(GatewaySettings); i++) {
-        if (lorawanGatewaySettings[i].name.find(namePrefix) != std::string::npos) {
+        std::string upperName(lorawanGatewaySettings[i].name);
+        std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
+        if (upperName.find(upperPrefix) != std::string::npos) {
             return i;
         }
     }
@@ -65,6 +71,7 @@ public:
     bool daemonize;
     int verbosity;
     std::string pidfile;
+    std::string unixSocketFileName;
     LocalGatewayConfiguration()
         : regionIdx(0), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0) {
 
@@ -82,7 +89,7 @@ class StdErrLog: public Log {
 private:
     MessageTaskDispatcher *dispatcher;
 public:
-    StdErrLog(
+    explicit StdErrLog(
             MessageTaskDispatcher *aDispatcher
     )
             : dispatcher(aDispatcher)
@@ -135,7 +142,7 @@ int parseCmd(
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
-    struct arg_str *a_unix_socket_file = arg_str0("u", "socket-name", _("<file>"), _("UNIX socket file name. Default /tmp/gw-usb.socket"));
+    struct arg_str *a_unix_socket_file = arg_str0("u", "socket-name", _("<file>"), _("UNIX socket file name. Default /tmp/usb.socket"));
     struct arg_str *a_pidfile = arg_str0("p", "pidfile", _("<file>"), _("Check whether a process has created the file pidfile"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
@@ -144,7 +151,8 @@ int parseCmd(
     void *argtable[] = {
         a_device_path, a_region_name, a_identity_file_name,
         a_enable_send, a_enable_beacon,
-        a_daemonize, a_pidfile, a_verbosity, a_help, a_end
+        a_daemonize, a_unix_socket_file,
+        a_pidfile, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -177,6 +185,11 @@ int parseCmd(
         config->pidfile = *a_pidfile->sval;
     else
         config->pidfile = "";
+
+    if (a_unix_socket_file->count)
+        config->unixSocketFileName = *a_unix_socket_file->sval;
+    else
+        config->unixSocketFileName = "/tmp/usb.socket";
 
     config->verbosity = a_verbosity->count;
 
@@ -318,15 +331,14 @@ static void run()
         delete dispatcher->parser;
     };
 
-    std::string socketFileName = "/tmp/usb.socket";
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 
-    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, socketFileName, settings, &errLog,
+    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, localConfig.unixSocketFileName, settings, &errLog,
         localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
-    TaskSocket *taskControlSocket = new TaskUnixControlSocket(socketFileName);
+    TaskSocket *taskControlSocket = new TaskUnixControlSocket(localConfig.unixSocketFileName);
     dispatcher.sockets.push_back(taskControlSocket);
     dispatcher.setControlSocket(taskControlSocket);
 

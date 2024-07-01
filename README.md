@@ -12,17 +12,16 @@ If there 2 or more gateways, message can received twice or more.
 
 Network server collects metadata sent by gateways to choose gateway with the best signal/noise ratio to send response. 
 
-## Tools
+## Prerequisites
 
 - Visual Code
 - CMake
-- Draw.io Integration Visual Code plugin
 - For ESP32 install Visual Code "Espressif IDF" plugin and configure ESP-IDF 
 - gettext (optional)
+- Draw.io Integration Visual Code plugin (optional)
 
-## Prereqisites
+Install
 
-Install tools
 ```
 sudo apt install cmake gettext
 ```
@@ -175,4 +174,38 @@ loop
   then run dispatcher
   else Receiver.receive
 end loop
+```
+
+## Tools
+
+- gateway-config2cpp
+- 
+
+### gateway-config2cpp
+
+gateway-config2cpp utility read gateway regional settings for specific region in JSON format
+and generate C++ gateway-usb-conf.h header file.
+
+gateway-usb-conf.h header file then used in the gw-dev/usb/gw-dev-usb gateway to setup frequencies etc.
+
+You can obtain JSON files from Semtech's gateway GitHub repository.
+
+Each Semtech's gateway JSON file contains settings for specific region.
+
+Usage:
+
+```
+./gateway-config2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > gateway-usb-conf.h
+```
+
+### regional-parameters2cpp
+
+regional-parameters2cpp read regional settings from the JSON file and
+generate C++ gen/regional-parameters-3.h header file.
+
+Then gen/regional-parameters-3.h is included in tlns source files.
+
+Usage:
+```
+./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters-3.h
 ```

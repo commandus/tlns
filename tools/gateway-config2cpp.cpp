@@ -4,7 +4,7 @@
  *
  * MIT license
  * Usage:
- *   ./gateway-config2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > gateway_usb_conf.cpp
+ *   ./gateway-config2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > gateway-usb-conf.h
  *   ./gateway-config2cpp ~/src/rak_common_for_gateway/lora/rak2287/packet_forwarder/lora_pkt_fwd/global_conf/ *.json
  * @file /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/
  */

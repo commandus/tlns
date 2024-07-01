@@ -215,8 +215,9 @@ TESTS = $(check_PROGRAMS)
 #
 configdir = $(datadir)
 dist_config_DATA = \
-    gen/gateway_usb_conf.cpp \
+    gen/gateway-usb-conf.h \
     gen/regional-parameters.json \
+    gen/regional-parameters-3.h \
 	autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
 	gw-dev/usb/CMakeLists.txt \
 	third-party/argtable3/README.argtable3 \

@@ -4,7 +4,6 @@
  *
  * MIT license
  * Usage:
- *   ./regional-parameters2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > regional-settings.h
  *   ./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters.h
  */
 #include <string>

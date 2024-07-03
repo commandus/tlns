@@ -45,9 +45,7 @@ uint32_t DEVADDR2int(
 	const DEVADDR &value
 )
 {
-    uint32_t retval;
-    *((uint32_t*) &retval) = NTOH4(*((uint32_t*) &value));
-    return retval;
+    return NTOH4(value.u);
 }
 
 void int2DEVADDR(
@@ -55,8 +53,8 @@ void int2DEVADDR(
 	uint32_t value
 )
 {
-	// *((uint32_t*) &retval) = NTOH4(value);
-	*((uint32_t*) &retval) = value;
+	// retval.u = NTOH4(value);
+	retval.u = value;
 }
 
 uint32_t NETID2int(
@@ -115,22 +113,22 @@ void ntoh_DEVADDR(
     DEVADDR &value
 )
 {
-    *((uint32_t*) &value.u) = NTOH4(*((uint32_t*) &value.u));
+    value.u = NTOH4(value.u);
 }
 
 void ntoh_DEVEUI(
     DEVEUI &value
 )
 {
-    *((uint64_t*) &value.u) = NTOH8(*((uint64_t*) &value.u));
+    value.u = NTOH8(value.u);
 }
 
 void ntoh_SEMTECH_PREFIX_GW(
     SEMTECH_PREFIX_GW &value
 )
 {
-    *((uint16_t*) &value.token) = NTOH2(*((uint16_t*) &value.token));
-    *((uint64_t*) &value.mac.u) = NTOH8(*((uint64_t*) &value.mac.u));
+    value.token = NTOH2(value.token);
+    value.mac.u = NTOH8(value.mac.u);
 }
 
 void ntoh_RFM_HEADER(

@@ -673,8 +673,8 @@ void string2DEVADDR(
 		len = sizeof(DEVADDR);
 	memmove(&retVal.u, str.c_str(), len);
 	if (len < sizeof(DEVADDR))
-		memset(&retVal.u + len, 0, sizeof(DEVADDR) - len);
-	*((uint32_t*) &retVal.u) = NTOH4(*((uint32_t*) &retVal.u));
+		memset(&retVal.c + len, 0, sizeof(DEVADDR) - len);
+	retVal.u = NTOH4(retVal.u);
 }
 
 void string2DEVEUI(
@@ -1032,6 +1032,8 @@ std::string codingRate2string(
 )
 {
     switch (codingRate) {
+        case CRLORA_0FF:
+            return "";
         case CRLORA_4_5:
             return "4/5";
         case CRLORA_4_6:

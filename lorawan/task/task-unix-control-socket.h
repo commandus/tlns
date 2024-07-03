@@ -15,7 +15,6 @@ public:
     /**
      * Task Unix domain socket
      * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
-     * @param devicePath Gateway device file name e.g. "/dev/ttyACM0"
      */
     TaskUnixControlSocket(
         const std::string &socketFileName

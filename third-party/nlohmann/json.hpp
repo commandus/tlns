@@ -5303,7 +5303,7 @@ template<typename IteratorType> class iteration_proxy_value
     }
 };
 
-/// proxy class for the items() function
+/// proxy class for the receivedMessages() function
 template<typename IteratorType> class iteration_proxy
 {
   private:
@@ -9745,7 +9745,7 @@ class binary_reader
                 return get_cbor_string(s) && sax->string(s);
             }
 
-            // array (0x00..0x17 data items follow)
+            // array (0x00..0x17 data receivedMessages follow)
             case 0x80:
             case 0x81:
             case 0x82:
@@ -9800,7 +9800,7 @@ class binary_reader
             case 0x9F: // array (indefinite length)
                 return get_cbor_array(static_cast<std::size_t>(-1), tag_handler);
 
-            // map (0x00..0x17 pairs of data items follow)
+            // map (0x00..0x17 pairs of data receivedMessages follow)
             case 0xA0:
             case 0xA1:
             case 0xA2:
@@ -19872,7 +19872,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 // flatten the current json_value to a heap-allocated stack
                 std::vector<basic_json> stack;
 
-                // move the top-level items to stack
+                // move the top-level receivedMessages to stack
                 if (t == value_t::array)
                 {
                     stack.reserve(array->size());
@@ -22161,10 +22161,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
   public:
     /// @brief wrapper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/items/
+    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
     /// @deprecated This function is deprecated since 3.1.0 and will be removed in
-    ///             version 4.0.0 of the library. Please use @ref items() instead;
-    ///             that is, replace `json::iterator_wrapper(j)` with `j.items()`.
+    ///             version 4.0.0 of the library. Please use @ref receivedMessages() instead;
+    ///             that is, replace `json::iterator_wrapper(j)` with `j.receivedMessages()`.
     JSON_HEDLEY_DEPRECATED_FOR(3.1.0, items())
     static iteration_proxy<iterator> iterator_wrapper(reference ref) noexcept
     {
@@ -22172,10 +22172,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /// @brief wrapper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/items/
+    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
     /// @deprecated This function is deprecated since 3.1.0 and will be removed in
-    ///         version 4.0.0 of the library. Please use @ref items() instead;
-    ///         that is, replace `json::iterator_wrapper(j)` with `j.items()`.
+    ///         version 4.0.0 of the library. Please use @ref receivedMessages() instead;
+    ///         that is, replace `json::iterator_wrapper(j)` with `j.receivedMessages()`.
     JSON_HEDLEY_DEPRECATED_FOR(3.1.0, items())
     static iteration_proxy<const_iterator> iterator_wrapper(const_reference ref) noexcept
     {
@@ -22183,14 +22183,14 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /// @brief helper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/items/
+    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
     iteration_proxy<iterator> items() noexcept
     {
         return iteration_proxy<iterator>(*this);
     }
 
     /// @brief helper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/items/
+    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
     iteration_proxy<const_iterator> items() const noexcept
     {
         return iteration_proxy<const_iterator>(*this);

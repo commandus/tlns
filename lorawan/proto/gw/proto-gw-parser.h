@@ -45,6 +45,20 @@ public:
         size_t size,
         TASK_TIME receivedTime
     ) = 0;
+    /**
+     * Create ACK packet
+     * @param retBuf buffer
+     * @param retSize buffer size
+     * @param packetForwarderPacket received packet
+     * @param size received packet size
+     * @return size of ACK packet. 0- no ACK packet, <0 error code e.g. buffer size is too small
+     */
+    virtual ssize_t ack(
+        char *retBuf,
+        size_t retSize,
+        const char *packetForwarderPacket,
+        size_t size
+    ) = 0;
     virtual ~ProtoGwParser();
 };
 

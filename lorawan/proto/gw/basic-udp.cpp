@@ -466,3 +466,20 @@ GatewayBasicUdpProtocol::GatewayBasicUdpProtocol(
 {
 
 }
+
+ssize_t GatewayBasicUdpProtocol::ack(
+    char *retBuf,
+    size_t retSize,
+    const char *packet,
+    size_t packetSize
+)
+{
+    if (packetSize < SIZE_SEMTECH_ACK)
+        return ERR_CODE_SEND_ACK;
+    SEMTECH_ACK ack;
+    memmove(retBuf, packet, SIZE_SEMTECH_ACK);
+    if (((SEMTECH_ACK *) retBuf)->version != 2)
+        return ERR_CODE_SEND_ACK;
+    ((SEMTECH_ACK *) retBuf)->tag++;
+    return SIZE_SEMTECH_ACK;
+}

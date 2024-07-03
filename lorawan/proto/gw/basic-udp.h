@@ -69,6 +69,13 @@ public:
         TASK_TIME receivedTime
     ) override;
 
+    ssize_t ack(
+        char *retBuf,
+        size_t retSize,
+        const char *packetForwarderPacket,
+        size_t size
+    ) override;
+
     GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
 };
 

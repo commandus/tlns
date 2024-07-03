@@ -2,6 +2,8 @@
 #define MESSAGE_QUEUE_H
 
 #include <map>
+#include <set>
+#include <ostream>
 
 #include "message-queue-item.h"
 #include "lorawan/proto/gw/gw.h"
@@ -9,12 +11,26 @@
 class TaskSocket;
 class MessageTaskDispatcher;
 
+class TimeAddr {
+public:
+    TASK_TIME startTime;
+    DEVADDR addr;
+    bool operator==(const TimeAddr &rhs) const;
+    bool operator>(const TimeAddr &rhs) const;
+    bool operator<(const TimeAddr &rhs) const;
+    bool operator!=(const TimeAddr &rhs) const;
+};
+
 class MessageQueue {
 protected:
-    MessageTaskDispatcher *dispatcher;                      ///< parent dispatcher
+    MessageTaskDispatcher *dispatcher;                          ///< parent dispatcher
 public:
-    std::map <DEVADDR, MessageQueueItem> items;             ///< data packets
-    std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;  ///< join packets
+    std::map <DEVADDR, MessageQueueItem> receivedMessages;      ///< data packets received from devices
+    std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;      ///< join packets
+
+    // sorted by time
+    std::set <TimeAddr> time2ResponseAddr;
+
     MessageQueue();
     virtual ~MessageQueue();
     void step();
@@ -65,6 +81,17 @@ public:
     MessageQueueItem *findByJoinRequest(
         const JOIN_REQUEST_FRAME *joinRequestFrame
     );
+    /**
+     * Print out debug information to specified stream
+     * @param strm stream to output
+     */
+    void printStateDebug(
+        std::ostream &strm
+    ) const;
+
+    long waitTimeMicroseconds(
+        TASK_TIME since
+    ) const;
 };
 
 #endif

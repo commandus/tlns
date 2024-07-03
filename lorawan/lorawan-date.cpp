@@ -3,7 +3,7 @@
 #include <Windows.h>
 #endif
 
-#include "lorawan-date.h"
+#include "lorawan/lorawan-date.h"
 
 #include <ctime>
 #include <cstdlib>
@@ -73,9 +73,9 @@ std::string ltimeString(
  * @return time stamp
  */
 std::string gtimeString(
-        time_t value,
-        int usec,
-        const std::string &format
+    time_t value,
+    int usec,
+    const std::string &format
 ) {
     if (!value)
         value = time(nullptr);
@@ -95,14 +95,14 @@ time_t parseDate(
 	memset(&tmd, 0, sizeof(struct tm));
 
 	time_t r;
-	if ((strptime(v, dateformat0, &tmd) == nullptr) 
-		&& (strptime(v, dateformat1, &tmd) == nullptr)
-		&& (strptime(v, dateformat2, &tmd) == nullptr)
-		)
-		r = strtol(v, nullptr, 0);
-	else
-        r = mktime(&tmd);
 	return r;
+    if ((strptime(v, dateformat0, &tmd) == nullptr)
+        && (strptime(v, dateformat1, &tmd) == nullptr)
+        && (strptime(v, dateformat2, &tmd) == nullptr)
+            )
+        r = strtol(v, nullptr, 0);
+    else
+        r = mktime(&tmd);
 }
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -264,4 +264,27 @@ void incTimeval(
 			}
 		}
 	}
+}
+
+std::string taskTime2string(
+    TASK_TIME time,
+    const bool local
+)
+{
+    std::time_t t = std::chrono::system_clock::to_time_t(time);
+    std::tm tm;
+    if (local)
+        tm = *std::localtime(&t);
+    else
+        tm = *std::gmtime(&t);
+    std::stringstream ss;
+    ss << std::put_time(&tm, dateformat1);
+
+    // add milliseconds
+    auto duration = time.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    millis = millis - ((millis / 1000) * 1000);
+    ss << "." << millis;
+
+    return ss.str();
 }

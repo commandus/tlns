@@ -19,6 +19,7 @@
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
+#define MAX_ACK_SIZE    8
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
@@ -235,7 +236,10 @@ int MessageTaskDispatcher::run()
                     continue;
                     // sz = read(cfd, buffer, sizeof(buffer));
                 } else {
-                    sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
+                    if (s->accept == SA_EVENTFD)
+                        sz = read(s->sock, buffer, sizeof(buffer));
+                    else
+                        sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 }
                 if (sz < 0) {
                     std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
@@ -338,14 +342,13 @@ ssize_t MessageTaskDispatcher::sendACK(
     const char *packet,
     ssize_t packetSize
 ) {
-    if (packetSize < SIZE_SEMTECH_ACK)
+    char ack[MAX_ACK_SIZE];
+    if (!this->parser)
         return ERR_CODE_SEND_ACK;
-    SEMTECH_ACK ack;
-    memmove(&ack, packet, SIZE_SEMTECH_ACK);
-    if (ack.version != 2)
-        return ERR_CODE_SEND_ACK;
-    ack.tag++;
-    return sendto(taskSocket->sock, (const char *)  &ack, SIZE_SEMTECH_ACK, 0, &destAddr, destAddrLen);
+    ssize_t sz = this->parser->ack(ack, MAX_ACK_SIZE, packet, packetSize);
+    if (sz <= 0)
+        return sz;
+    return sendto(taskSocket->sock, (const char *)  &ack, sz, 0, &destAddr, destAddrLen);
 }
 
 ssize_t MessageTaskDispatcher::sendConfirm(

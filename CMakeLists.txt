@@ -125,7 +125,7 @@ else()
 		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp
 		lorawan/task/task-unix-socket.cpp
 		lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
-		lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp
+		lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp lorawan/task/task-eventfd-control-socket.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
 		${AES_SRC}

@@ -4,6 +4,8 @@
 #include <string>
 #include <cinttypes>
 
+#include "lorawan/task/task-platform.h"
+
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <stdint.h> // portable: uint64_t   MSVC: __int64
 #else
@@ -70,6 +72,12 @@ void incTimeval(
 	int seconds,
 	int usec = 0
 );
+
+std::string taskTime2string(
+    TASK_TIME time,
+    const bool local = false
+);
+
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 int gettimeofday(struct timeval* tp, struct timezone* tzp);

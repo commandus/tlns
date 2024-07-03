@@ -41,6 +41,7 @@ public:
     int verbose;
     std::string regionName;
     int32_t retCode;
+    const RegionalParameterChannelPlan *regionalParameterChannelPlan;
 
     CheckParams()
         : verbose(0), retCode(0)
@@ -54,7 +55,6 @@ public:
         return ss.str();
     }
 
-    const RegionalParameterChannelPlan *regionalParameterChannelPlan;
 };
 
 static CheckParams params;
@@ -111,6 +111,7 @@ static void run() {
         std::cout << _("Region") << '\t' << params.regionalParameterChannelPlan->value.cn << std::endl;
     }
 
+    // set selected regional parameters e.g. frequency
     dispatcher.setRegionalParameterChannelPlan(params.regionalParameterChannelPlan);
 
     // dispatcher 'll destroy sockets in destructor
@@ -118,6 +119,7 @@ static void run() {
     // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
     dispatcher.sockets.push_back(new TaskUnixSocket(FILE_NAME_UNIX_SOCKET));
     dispatcher.setControlSocket(new TaskUnixControlSocket(FILE_NAME_UNIX_SOCKET));
+    // dispatcher.setControlSocket(new TaskEventFDControlSocket());
     dispatcher.start();
 
     // TaskResponseThreaded response;

@@ -1,6 +1,6 @@
 #include <string>
-#include "lorawan-types.h"
-#include "lorawan-packet-storage.h"
+#include "lorawan/lorawan-types.h"
+#include "lorawan/lorawan-packet-storage.h"
 
 std::string replaceAll(std::string str, const std::string& from, const std::string& to);
 

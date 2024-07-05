@@ -22,19 +22,20 @@
 #define MAX_ACK_SIZE    8
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : controlSocket(nullptr), taskResponse(nullptr), thread(nullptr),
+    : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
       parser(nullptr), regionalPlan(nullptr), running(false),
       onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
 {
     queue.setDispatcher(this);
+    sockets.push_back(timerSocket);
 }
 
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : controlSocket(nullptr), taskResponse(value.taskResponse), thread(value.thread),
-      parser(value.parser), regionalPlan(nullptr), queue(value.queue), running(value.running),
-      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr)
+    : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse), thread(value.thread),
+      parser(value.parser), regionalPlan(value.regionalPlan), queue(value.queue), running(value.running),
+      onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck), onDestroy(value.onDestroy)
 {
 }
 
@@ -142,6 +143,8 @@ bool MessageTaskDispatcher::openSockets()
             break;
         }
     }
+    if (timerSocket)
+        timerSocket->openSocket();
     return r;
 }
 
@@ -150,6 +153,10 @@ void MessageTaskDispatcher::closeSockets()
     // close all sockets
     for (auto s : sockets) {
         s->closeSocket();
+    }
+    if (timerSocket) {
+        timerSocket->closeSocket();
+        timerSocket = nullptr;
     }
 }
 
@@ -223,85 +230,91 @@ int MessageTaskDispatcher::run()
         std::vector<SOCKET> acceptedSockets;
         std::vector<TaskSocket*> removedSockets;
 
+        struct sockaddr srcAddr;
+        socklen_t srcAddrLen = sizeof(srcAddr);
+
         for (auto s : sockets) {
-            if (FD_ISSET(s->sock, &workingSocketSet)) {
-                struct sockaddr srcAddr;
-                socklen_t srcAddrLen = sizeof(srcAddr);
-                ssize_t sz;
-                if (s->accept == SA_REQUIRE) {
+            if (!FD_ISSET(s->sock, &workingSocketSet))
+                continue;
+            ssize_t sz;
+            switch (s->accept) {
+                case SA_REQUIRE: {
                     // TCP, UNIX sockets require create accept socket and create a new paired socket
                     SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
                     if (cfd > 0)
                         acceptedSockets.push_back(cfd); // do not modify vector using iterator, do it after
                     continue;
-                    // sz = read(cfd, buffer, sizeof(buffer));
-                } else {
-                    if (s->accept == SA_EVENTFD)
-                        sz = read(s->sock, buffer, sizeof(buffer));
-                    else
-                        sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
                 }
-                if (sz < 0) {
-                    std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
-                        << " socket " << s->sock
-                        << std::endl;
-                    if (s->accept == SA_ACCEPTED) {
-                        // close client connection
-                        removedSockets.push_back(s); // do not modify vector using iterator, do it after
-                    }
+                case SA_TIMER:
+                    sendQueue();
+                    updateTimer();
                     continue;
+                case SA_EVENTFD:
+                    sz = read(s->sock, buffer, sizeof(buffer));
+                    break;
+                default:
+                    sz = recvfrom(s->sock, buffer, sizeof(buffer), 0, &srcAddr, &srcAddrLen);
+            }
+            if (sz < 0) {
+                std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
+                    << " socket " << s->sock
+                    << std::endl;
+                if (s->accept == SA_ACCEPTED) {
+                    // close client connection
+                    removedSockets.push_back(s); // do not modify vector using iterator, do it after
                 }
-                if (sz > 0) {
-                    // send ACK immediately
-                    if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
-                        // inform
+                continue;
+            }
+            if (sz > 0) {
+                // send ACK immediately
+                if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
+                    // inform
+                }
+                switch (sz) {
+                    case 1:
+                    {
+                        char *a = (char *) buffer;
+                        switch (*a) {
+                            case 'q':
+                                running = false;
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                    switch (sz) {
-                        case 1:
-                        {
-                            char *a = (char *) buffer;
-                            switch (*a) {
-                                case 'q':
-                                    running = false;
-                                    break;
-                                default:
-                                    break;
-                            }
+                        break;
+                    case SIZE_DEVADDR:      // something happens on device (by address)
+                    {
+                        auto *a = (DEVADDR *) buffer;
+                        // process message queue
+                        MessageQueueItem *item = queue.findByDevAddr(a);
+                        if (item) {
+                            if (onPushData)
+                                onPushData(this, item);
                         }
-                            break;
-                        case SIZE_DEVADDR:      // something happens on device (by address)
-                        {
-                            auto *a = (DEVADDR *) buffer;
-                            // process message queue
-                            MessageQueueItem *item = queue.findByDevAddr(a);
-                            if (item) {
-                                if (onPushData)
-                                    onPushData(this, item);
+                        break;
+                    }
+                    default: {
+                        if (parser) {
+                            int r = parser->parse(pr, buffer, sz, receivedTime);
+                            if (r == CODE_OK) {
+                                switch (pr.tag) {
+                                    case SEMTECH_GW_PUSH_DATA:
+                                        pushData(pr.gwPushData, receivedTime);
+                                        break;
+                                    case SEMTECH_GW_PULL_RESP:
+                                        if (onPullResp)
+                                            onPullResp(this, pr.gwPullResp);
+                                        break;
+                                    case SEMTECH_GW_TX_ACK:
+                                        onTxPkAck(this, pr.code);
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
-                            break;
-                        }
-                        default: {
-                            if (parser) {
-                                int r = parser->parse(pr, buffer, sz, receivedTime);
-                                if (r == CODE_OK) {
-                                    switch (pr.tag) {
-                                        case SEMTECH_GW_PUSH_DATA:
-                                            pushData(pr.gwPushData);
-                                            break;
-                                        case SEMTECH_GW_PULL_RESP:
-                                            if (onPullResp)
-                                                onPullResp(this, pr.gwPullResp);
-                                            break;
-                                        case SEMTECH_GW_TX_ACK:
-                                            onTxPkAck(this, pr.code);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                                if (r < 0) {
-                                    // inform
-                                }
+                            if (r < 0) {
+                                // inform
                             }
                         }
                     }
@@ -373,7 +386,8 @@ void MessageTaskDispatcher::setControlSocket(
 }
 
 void MessageTaskDispatcher::pushData(
-    GwPushData &pushData
+    GwPushData &pushData,
+    TASK_TIME receivedTime
 ) {
     queueMutex.lock();
     bool isNew = queue.put(pushData);
@@ -384,11 +398,7 @@ void MessageTaskDispatcher::pushData(
     if (a)
         send(a, SIZE_DEVADDR);  // pass address of just added item
     if (pushData.needConfirmation()) {
-        // send confirmation
-        std::cout << "** NEED CONFIRMATION **" << std::endl;
-        queueMutex.lock();
-        bool isNew = queue.put(pushData);
-        queueMutex.unlock();
+        prepareSendConfirmation(a, receivedTime);
     }
 }
 
@@ -403,4 +413,25 @@ void MessageTaskDispatcher::setRegionalParameterChannelPlan(
 )
 {
     regionalPlan = aRegionalPlan;
+}
+
+bool MessageTaskDispatcher::sendQueue() {
+    return false;
+}
+
+void MessageTaskDispatcher::updateTimer() {
+    TASK_TIME t;
+    timerSocket->setStartupTime(t);
+}
+
+void MessageTaskDispatcher::prepareSendConfirmation(
+    const DEVADDR *addr,
+    TASK_TIME receivedTime
+)
+{
+    std::cout << "< prepare CONFIRMATION **" << std::endl;
+    queue.printStateDebug(std::cout);
+    queue.time2ResponseAddr.push(*addr, receivedTime);
+    queue.printStateDebug(std::cout);
+    std::cout << "** prepare CONFIRMATION >" << std::endl;
 }

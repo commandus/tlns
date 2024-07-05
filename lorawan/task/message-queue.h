@@ -7,19 +7,10 @@
 
 #include "message-queue-item.h"
 #include "lorawan/proto/gw/gw.h"
+#include "lorawan/task/task-time-addr.h"
 
 class TaskSocket;
 class MessageTaskDispatcher;
-
-class TimeAddr {
-public:
-    TASK_TIME startTime;
-    DEVADDR addr;
-    bool operator==(const TimeAddr &rhs) const;
-    bool operator>(const TimeAddr &rhs) const;
-    bool operator<(const TimeAddr &rhs) const;
-    bool operator!=(const TimeAddr &rhs) const;
-};
 
 class MessageQueue {
 protected:
@@ -28,8 +19,7 @@ public:
     std::map <DEVADDR, MessageQueueItem> receivedMessages;      ///< data packets received from devices
     std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;      ///< join packets
 
-    // sorted by time
-    std::set <TimeAddr> time2ResponseAddr;
+    TimeAddrSet time2ResponseAddr;
 
     MessageQueue();
     virtual ~MessageQueue();
@@ -87,10 +77,6 @@ public:
      */
     void printStateDebug(
         std::ostream &strm
-    ) const;
-
-    long waitTimeMicroseconds(
-        TASK_TIME since
     ) const;
 };
 

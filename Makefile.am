@@ -30,7 +30,7 @@ SRC_LIBLORAWAN = \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
     lorawan/task/task-socket.cpp lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp \
-    lorawan/task/task-eventfd-control-socket.cpp \
+    lorawan/task/task-eventfd-control-socket.cpp lorawan/task/task-timer-socket.cpp lorawan/task/task-time-addr.cpp \
     lorawan/task/task-accepted-socket.cpp lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp \
     third-party/strptime.cpp \
     third-party/base64/base64.cpp \
@@ -147,10 +147,11 @@ nobase_dist_include_HEADERS = \
     lorawan/lorawan-date.h \
     lorawan/lorawan-msg.h \
     lorawan/lorawan-types.h \
-    lorawan/task/message-queue.h            lorawan/task/task-accepted-socket.h  lorawan/task/task-response.h            lorawan/task/task-udp-socket.h \
-    lorawan/task/message-queue-item.h       lorawan/task/task-descriptor.h       lorawan/task/task-socket.h              lorawan/task/task-unix-control-socket.h \
-    lorawan/task/message-task-dispatcher.h  lorawan/task/task-platform.h         lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
-    lorawan/task/task-eventfd-control-socket.h \
+    lorawan/task/message-queue.h lorawan/task/task-accepted-socket.h lorawan/task/task-response.h \
+    lorawan/task/task-udp-socket.h lorawan/task/message-queue-item.h lorawan/task/task-descriptor.h \
+    lorawan/task/task-socket.h lorawan/task/task-unix-control-socket.h lorawan/task/message-task-dispatcher.h \
+    lorawan/task/task-platform.h lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
+    lorawan/task/task-eventfd-control-socket.h lorawan/task/task-timer-socket.h lorawan/task/task-time-addr.h \
     lorawan/lorawan-string.h
 
 #

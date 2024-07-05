@@ -5,35 +5,6 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
 
-bool TimeAddr::operator==(
-    const TimeAddr &rhs
-) const
-{
-    return startTime == rhs.startTime && addr == rhs.addr;
-}
-
-bool TimeAddr::operator>(
-    const TimeAddr &rhs
-) const
-{
-    return (startTime > rhs.startTime) || ((startTime == rhs.startTime) && (addr > rhs.addr));
-}
-
-bool TimeAddr::operator<(
-    const TimeAddr &rhs
-) const
-{
-    return (startTime < rhs.startTime) || ((startTime == rhs.startTime) && (addr < rhs.addr));
-}
-
-bool TimeAddr::operator!=(
-    const TimeAddr &rhs
-) const
-{
-    return (startTime != rhs.startTime) || (addr != rhs.addr);
-}
-
-
 MessageQueue::MessageQueue()
 {
 }
@@ -190,20 +161,9 @@ void MessageQueue::printStateDebug(
 
     // Device addresses wait for ACK or response sorted by time
     strm << "Server waiting for " << time2ResponseAddr.size() << " messages from the gateways before sending response:\n";
-    for (auto t : time2ResponseAddr) {
-        strm << DEVADDR2string(t.addr) << "\t"
-            << taskTime2string(t.startTime) << "\n";
+    for (auto t : time2ResponseAddr.timeAddr) {
+        strm << DEVADDR2string(t.second) << "\t"
+            << taskTime2string(t.first) << "\n";
     }
-    strm << "Waiting time " << waitTimeMicroseconds(now) << " us\n";
-}
-
-long MessageQueue::waitTimeMicroseconds(
-    TASK_TIME since
-) const
-{
-    auto ta = time2ResponseAddr.begin();
-    if (ta != time2ResponseAddr.end())
-        return -1;
-    auto delta = std::chrono::duration_cast<std::chrono::microseconds>(since - ta->startTime);
-    return delta.count();
+    strm << "Waiting time " << time2ResponseAddr.waitTimeMicroseconds(now) << " us\n";
 }

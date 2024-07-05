@@ -1,5 +1,5 @@
-#ifndef LORA_RADIO_CONST_H_
-#define LORA_RADIO_CONST_H_	1
+#ifndef LORAWAN_CONST_H_
+#define LORAWAN_CONST_H_	1
 
 typedef enum {
     MODULATION_UNDEFINED = 0,

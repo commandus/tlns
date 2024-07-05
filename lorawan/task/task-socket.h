@@ -9,7 +9,8 @@ enum ENUM_SOCKET_ACCEPT {
     SA_NONE,        ///< socket do not require accept()
     SA_REQUIRE,     ///< socket require accept()
     SA_ACCEPTED,    ///< socket require accept() and already accepted
-    SA_EVENTFD
+    SA_TIMER,       ///< timer
+    SA_EVENTFD      ///< reserved
 };
 
 /**

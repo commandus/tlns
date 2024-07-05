@@ -11,6 +11,7 @@
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/task/task-socket.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
+#include "task-timer-socket.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -58,6 +59,7 @@ class MessageTaskDispatcher {
 private:
     std::mutex queueMutex;
     TaskSocket *controlSocket;
+    TaskTimerSocket *timerSocket;
     /**
      * Set descriptor set
      * @param retValReadSet
@@ -69,7 +71,6 @@ private:
 protected:
     TaskResponse *taskResponse;
     std::thread *thread;    ///< main loop thread
-    ///< protocol parser
     bool openSockets();
     /**
      * close all sockets
@@ -126,12 +127,21 @@ public:
         TaskSocket *socket
     );
 
-    void pushData(GwPushData &pushData);
+    void pushData(GwPushData &pushData, TASK_TIME point);
 
     void setParser(ProtoGwParser *parser);
 
     void setRegionalParameterChannelPlan(
         const RegionalParameterChannelPlan *aRegionalPlan
+    );
+
+    bool sendQueue();
+
+    void updateTimer();
+
+    void prepareSendConfirmation(
+        const DEVADDR *addr,
+        TASK_TIME receivedTime
     );
 };
 

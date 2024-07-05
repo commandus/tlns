@@ -1,3 +1,6 @@
+#ifndef LORAWAN_CONV_H_
+#define LORAWAN_CONV_H_	1
+
 #include "lorawan-types.h"
 
 /*
@@ -110,3 +113,5 @@ void ntoh_SEMTECH_PREFIX_GW(SEMTECH_PREFIX_GW &value);
 BANDWIDTH int2BANDWIDTH(int value);
 
 BANDWIDTH double2BANDWIDTH(double value);
+
+#endif

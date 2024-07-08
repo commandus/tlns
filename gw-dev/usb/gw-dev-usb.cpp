@@ -286,6 +286,19 @@ void setSignalHandler()
 
 static void run()
 {
+    dispatcher.onReceiveRawData = [] (
+        MessageTaskDispatcher* aDispatcher,
+        const char *buffer,
+        size_t bufferSize,
+        TASK_TIME receivedTime
+    )
+    {
+        if (localConfig.verbosity)
+            std::cout << hexString(buffer, bufferSize) << std::endl;
+        // filter messages: set false to block packet, true to start processing
+        return true;
+    };
+
     dispatcher.onPushData = [] (
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item

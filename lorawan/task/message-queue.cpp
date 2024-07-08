@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iomanip>
 
 #include "message-queue.h"
 #include "message-task-dispatcher.h"
@@ -45,6 +46,7 @@ MessageQueueItem *MessageQueue::get (
 }
 
 void MessageQueue::put(
+    TASK_TIME time,
     const LORAWAN_MESSAGE_STORAGE &radioPacket,
     uint64_t gwId,
     const SEMTECH_PROTOCOL_METADATA_RX &metadata
@@ -57,7 +59,7 @@ void MessageQueue::put(
             // update metadata
             f->second.metadata[gwId] = metadata;
         } else {
-            MessageQueueItem qi;
+            MessageQueueItem qi(this, time);
             qi.metadata[gwId] = metadata;
             auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
         }
@@ -71,12 +73,13 @@ void MessageQueue::put(
 }
 
 bool MessageQueue::put(
+    TASK_TIME time,
     TaskSocket *taskSocket,
     const struct sockaddr *gwAddr,
     const char *buffer,
     size_t size
 ) {
-    MessageQueueItem qi;
+    MessageQueueItem qi(this, time);
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *a = qi.getAddr();
     // TODO parse buffer
@@ -90,10 +93,11 @@ bool MessageQueue::put(
  * @return
  */
 bool MessageQueue::put(
-    GwPushData & pushData
+    TASK_TIME time,
+    GwPushData &pushData
 )
 {
-    MessageQueueItem qi;
+    MessageQueueItem qi(this, time);
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *addr = pushData.rxData.getAddr();
     auto f = receivedMessages.find(*addr);
@@ -165,5 +169,6 @@ void MessageQueue::printStateDebug(
         strm << DEVADDR2string(t.second) << "\t"
             << taskTime2string(t.first) << "\n";
     }
-    strm << "Waiting time " << time2ResponseAddr.waitTimeMicroseconds(now) << " us\n";
+    strm << "Waiting time " << std::fixed << std::setprecision(6) <<
+        time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now) / 1000000. << " s\n";
 }

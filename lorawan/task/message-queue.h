@@ -35,6 +35,7 @@ public:
     MessageQueueItem *get(const DEVADDR &addr);
     MessageQueueItem *get(const JOIN_REQUEST_FRAME &addr);
     void put(
+        TASK_TIME time,
         const LORAWAN_MESSAGE_STORAGE &radioPacket,
         uint64_t gwId,
         const SEMTECH_PROTOCOL_METADATA_RX &metadata
@@ -48,6 +49,7 @@ public:
      * @return false if packet is invalid
      */
     bool put(
+        TASK_TIME time,
         TaskSocket *taskSocket,
         const struct sockaddr *gwAddr,
         const char *buffer,
@@ -55,6 +57,7 @@ public:
     );
 
     bool put(
+        TASK_TIME time,
         GwPushData & pushData
     );
     void rm(

@@ -75,7 +75,7 @@ void incTimeval(
 
 std::string taskTime2string(
     TASK_TIME time,
-    const bool local = false
+    const bool local = true
 );
 
 

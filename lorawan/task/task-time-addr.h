@@ -9,6 +9,8 @@ class TimeAddr {
 public:
     TASK_TIME startTime;
     DEVADDR addr;
+    TimeAddr();
+    TimeAddr(const TimeAddr &value);
     bool operator==(const TimeAddr &rhs) const;
     bool operator>(const TimeAddr &rhs) const;
     bool operator<(const TimeAddr &rhs) const;
@@ -38,7 +40,7 @@ public:
      */
     void clear(TASK_TIME *expiration);
     size_t size() const;
-    long waitTimeMicroseconds(TASK_TIME since) const;
+    long waitTimeForAllGatewaysInMicroseconds(TASK_TIME since) const;
 };
 
 #endif

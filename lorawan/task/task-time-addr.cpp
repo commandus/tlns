@@ -1,5 +1,24 @@
 #include "lorawan/task/task-time-addr.h"
 
+// set for 1s
+#define DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS   1000000
+// set for 1/2s
+#define WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS   500000
+
+TimeAddr::TimeAddr()
+    : startTime {}, addr(0)
+{
+
+}
+
+TimeAddr::TimeAddr(
+    const TimeAddr &value
+)
+    : startTime(value.startTime), addr(value.addr)
+{
+
+}
+
 bool TimeAddr::operator==(
     const TimeAddr &rhs
 ) const
@@ -65,34 +84,36 @@ bool TimeAddrSet::pop(
     TimeAddr *retVal
 )
 {
-    auto ta = addrTime.begin();
-    bool b = ta != addrTime.end();
+    auto ta = timeAddr.begin();
+    bool b = ta != timeAddr.end();
     if (b) {
         if (retVal) {
-            retVal->addr = ta->first;
-            retVal->startTime = ta->second;
+            retVal->addr = ta->second;
+            retVal->startTime = ta->first;
         }
-        addrTime.erase(ta);
-        for (auto t = timeAddr.begin(); t != timeAddr.end(); t++) {
-            if (t->second == ta->first) {
-                timeAddr.erase(t);
-                break;
-            }
-        }
+        timeAddr.erase(ta);
 
+        auto f = addrTime.find(ta->second);
+        if (f == addrTime.end()) {
+            addrTime.erase(f);
+        }
     }
     return b;
 }
 
-long TimeAddrSet::waitTimeMicroseconds(
+long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
     TASK_TIME since
 ) const
 {
     auto ta = timeAddr.begin();
-    if (ta != timeAddr.end())
-        return -1;
-    auto delta = std::chrono::duration_cast<std::chrono::microseconds>(since - ta->first);
-    return delta.count();
+    if (ta == timeAddr.end())
+        return DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS;
+    auto delta = std::chrono::duration_cast<std::chrono::microseconds>(ta->first
+            + std::chrono::microseconds(WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS) - since);
+    auto r = delta.count();
+    if (r < 0)
+        return 0;
+    return r;
 }
 
 bool TimeAddrSet::has(
@@ -126,7 +147,15 @@ void TimeAddrSet::clear(
         addrTime.clear();
         timeAddr.clear();
     } else {
-
+        for (auto it(timeAddr.begin()); it != timeAddr.end();) {
+            if (it->first.time_since_epoch() >= expiration->time_since_epoch()) {
+                auto f = addrTime.find(it->second);
+                if (f != addrTime.end())
+                    addrTime.erase(f);
+                it = timeAddr.erase(it);
+            } else
+                it++;
+        }
     }
 }
 

@@ -17,7 +17,7 @@ static void onPushData(
     GwPushData pd;
     setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
     pd.rxMetadata = metadata;
-    dispatcher->pushData(pd, TASK_TIME());
+    dispatcher->pushData(pd, std::chrono::system_clock::now());
 }
 
 /**

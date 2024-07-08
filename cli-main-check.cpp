@@ -51,13 +51,26 @@ public:
 
     std::string toString() const {
         std::stringstream ss;
-        ss << _("Verbose: ") << verbose << "\n";
+        ss << _("Verbose: ") << (verbose ? "true":"false") << "\n";
         return ss.str();
     }
 
 };
 
 static CheckParams params;
+
+bool onReceiveRawData(
+    MessageTaskDispatcher* dispatcher,
+    const char *buffer,
+    size_t bufferSize,
+    TASK_TIME receivedTime
+)
+{
+    if (params.verbose)
+        std::cout << hexString(buffer, bufferSize) << std::endl;
+    // filter messages: set false to block packet, true to start processing
+    return true;
+}
 
 static void run() {
     MessageTaskDispatcher dispatcher;
@@ -119,6 +132,7 @@ static void run() {
     // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
     dispatcher.sockets.push_back(new TaskUnixSocket(FILE_NAME_UNIX_SOCKET));
     dispatcher.setControlSocket(new TaskUnixControlSocket(FILE_NAME_UNIX_SOCKET));
+    dispatcher.onReceiveRawData = onReceiveRawData;
     // dispatcher.setControlSocket(new TaskEventFDControlSocket());
     dispatcher.start();
 

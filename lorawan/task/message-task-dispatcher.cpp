@@ -10,6 +10,7 @@
 #endif
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/proto/gw/basic-udp.h"
@@ -24,7 +25,7 @@
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
       parser(nullptr), regionalPlan(nullptr), running(false),
-      onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
+      onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
 {
     queue.setDispatcher(this);
     sockets.push_back(timerSocket);
@@ -35,7 +36,8 @@ MessageTaskDispatcher::MessageTaskDispatcher(
 )
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse), thread(value.thread),
       parser(value.parser), regionalPlan(value.regionalPlan), queue(value.queue), running(value.running),
-      onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck), onDestroy(value.onDestroy)
+      onReceiveRawData(value.onReceiveRawData), onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
+      onDestroy(value.onDestroy)
 {
 }
 
@@ -233,6 +235,7 @@ int MessageTaskDispatcher::run()
         struct sockaddr srcAddr;
         socklen_t srcAddrLen = sizeof(srcAddr);
 
+        // read socket(s)
         for (auto s : sockets) {
             if (!FD_ISSET(s->sock, &workingSocketSet))
                 continue;
@@ -246,8 +249,9 @@ int MessageTaskDispatcher::run()
                     continue;
                 }
                 case SA_TIMER:
+                    std::cout << "Timer event" << std::endl;
                     sendQueue();
-                    updateTimer();
+                    updateTimer(receivedTime);
                     continue;
                 case SA_EVENTFD:
                     sz = read(s->sock, buffer, sizeof(buffer));
@@ -269,6 +273,10 @@ int MessageTaskDispatcher::run()
                 // send ACK immediately
                 if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
                     // inform
+                }
+                switch (pr.tag) {
+                    default:
+                        updateTimer(receivedTime);
                 }
                 switch (sz) {
                     case 1:
@@ -295,6 +303,9 @@ int MessageTaskDispatcher::run()
                         break;
                     }
                     default: {
+                        if (onReceiveRawData)
+                            if (!onReceiveRawData(this, buffer, sz, receivedTime))
+                                continue;
                         if (parser) {
                             int r = parser->parse(pr, buffer, sz, receivedTime);
                             if (r == CODE_OK) {
@@ -390,7 +401,7 @@ void MessageTaskDispatcher::pushData(
     TASK_TIME receivedTime
 ) {
     queueMutex.lock();
-    bool isNew = queue.put(pushData);
+    bool isNew = queue.put(receivedTime, pushData);
     queueMutex.unlock();
     // wake up
     // if (isNew) {
@@ -419,9 +430,16 @@ bool MessageTaskDispatcher::sendQueue() {
     return false;
 }
 
-void MessageTaskDispatcher::updateTimer() {
-    TASK_TIME t;
-    timerSocket->setStartupTime(t);
+void MessageTaskDispatcher::updateTimer(
+    TASK_TIME now
+)
+{
+    auto d = queue.time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now);
+    std::cout << "Set queue startup timeout "
+              << std::fixed << std::setprecision(6)
+              << d / 1000000.  << " s\n";
+    now += std::chrono::microseconds(d);
+    timerSocket->setStartupTime(now);
 }
 
 void MessageTaskDispatcher::prepareSendConfirmation(
@@ -435,3 +453,4 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     queue.printStateDebug(std::cout);
     std::cout << "** prepare CONFIRMATION >" << std::endl;
 }
+

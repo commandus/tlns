@@ -20,6 +20,13 @@ typedef void(*OnPushDataProc)(
     size_t size
 );
 
+typedef bool (*OnReceiveRawData)(
+    MessageTaskDispatcher* dispatcher,
+    const char *buffer,
+    size_t bufferSize,
+    TASK_TIME receivedTime
+);
+
 typedef void(*OnPushMessageQueueItem)(
     MessageTaskDispatcher* dispatcher,
     MessageQueueItem *item
@@ -85,6 +92,7 @@ public:
     std::vector<TaskSocket*> sockets;   ///< task socket array
     bool running;    ///< true- loop thread is running
 
+    OnReceiveRawData onReceiveRawData;
     OnPushMessageQueueItem onPushData;
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
@@ -137,7 +145,7 @@ public:
 
     bool sendQueue();
 
-    void updateTimer();
+    void updateTimer(TASK_TIME now);
 
     void prepareSendConfirmation(
         const DEVADDR *addr,

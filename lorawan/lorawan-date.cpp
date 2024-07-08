@@ -284,7 +284,7 @@ std::string taskTime2string(
     auto duration = time.time_since_epoch();
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     millis = millis - ((millis / 1000) * 1000);
-    ss << "." << millis;
+    ss << "." << std::setw(3) << std::setfill('0') << millis;
 
     return ss.str();
 }

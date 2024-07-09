@@ -42,6 +42,14 @@ typedef void(*OnTxpkAckProc)(
     ERR_CODE_TX code
 );
 
+typedef void(*OnErrorProc)(
+    MessageTaskDispatcher* dispatcher,
+    int level,
+    const std::string &module,
+    int code,
+    const std::string &message
+);
+
 typedef void(*OnDestroyProc)(
     MessageTaskDispatcher* dispatcher
 );
@@ -97,6 +105,7 @@ public:
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
     OnDestroyProc onDestroy;
+    OnErrorProc onError;
 
     ProtoGwParser* parser;
     const RegionalParameterChannelPlan *regionalPlan;
@@ -143,14 +152,16 @@ public:
         const RegionalParameterChannelPlan *aRegionalPlan
     );
 
-    bool sendQueue();
+    void sendQueue(TASK_TIME now);
 
-    void updateTimer(TASK_TIME now);
+    bool isTimeProcessQueueOrSetTimer(TASK_TIME now);
 
     void prepareSendConfirmation(
         const DEVADDR *addr,
         TASK_TIME receivedTime
     );
+
+    void cleanupOldMessages(TASK_TIME now);
 };
 
 #endif

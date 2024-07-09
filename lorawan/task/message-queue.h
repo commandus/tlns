@@ -81,6 +81,13 @@ public:
     void printStateDebug(
         std::ostream &strm
     ) const;
+
+    /**
+     * Clear old messages
+     * @param since time to delete from
+     * @return count of removed items
+     */
+    size_t clearOldMessages(TASK_TIME since);
 };
 
 #endif

@@ -1,4 +1,6 @@
+#include <iostream>
 #include "lorawan/task/task-time-addr.h"
+#include "lorawan/lorawan-date.h"
 
 // set for 1s
 #define DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS   1000000
@@ -45,6 +47,10 @@ bool TimeAddr::operator!=(
 ) const
 {
     return (startTime != rhs.startTime) || (addr != rhs.addr);
+}
+
+std::string TimeAddr::toString() {
+    return addr.toString() + '\t' + taskTime2string(startTime);
 }
 
 TimeAddrSet::TimeAddrSet()
@@ -101,6 +107,42 @@ bool TimeAddrSet::pop(
     return b;
 }
 
+bool TimeAddrSet::pop(
+    TimeAddr &retVal,
+    TASK_TIME time
+)
+{
+    auto ta = timeAddr.begin();
+    bool b = ta != timeAddr.end();
+    if (b) {
+        std::cout << "## Pop now " << taskTime2string(time) << " ";
+        time -= std::chrono::microseconds(WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS);
+        std::cout << " - " << taskTime2string(time) << " " << taskTime2string(ta->first) << "\n";
+        if (ta->first > time)
+            return false;
+        retVal.addr = ta->second;
+        retVal.startTime = ta->first;
+        timeAddr.erase(ta);
+
+        std::cout << "timeAddr erased\n";
+
+        auto f = addrTime.find(ta->second);
+        if (f == addrTime.end()) {
+            std::cout << "addrTime erased\n";
+            addrTime.erase(f);
+        }
+    }
+    return b;
+}
+
+/**
+ * Calculate time in microseconds after "since" parameter when response must be send.
+ * There is WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS time server wait until messages
+ * received from all gateways before response must be send.
+ * @param since current time
+ * @return  if no messages to respond, return DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS.
+ * Otherwise it is time of the oldest message plus required delay.
+ */
 long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
     TASK_TIME since
 ) const

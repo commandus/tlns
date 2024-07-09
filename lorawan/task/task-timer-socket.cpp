@@ -31,15 +31,25 @@ TaskTimerSocket::~TaskTimerSocket()
     closeSocket();
 }
 
-void TaskTimerSocket::setStartupTime(
+/**
+ * Set expiration time for timer
+ * @param time time to set
+ * @return true if success
+ */
+bool TaskTimerSocket::setStartupTime(
     TASK_TIME time
 )
 {
+    // get seconds
     auto s = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
+    // get nanoseconds: extract seconds from the time
     auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
+    ns -= s;
+    // set timer structure
     struct itimerspec t = {
         .it_interval = { .tv_sec = 0, .tv_nsec = 0},
         .it_value = { .tv_sec = s.count(), .tv_nsec = ns.count()}
     };
-    timerfd_settime(sock, CLOCK_REALTIME, &t, nullptr);
+    // return false if failed
+    return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr) == 0;
 }

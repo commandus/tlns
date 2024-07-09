@@ -17,15 +17,18 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-msg.h"
 #include "task-accepted-socket.h"
+#include "lorawan/lorawan-date.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
 #define MAX_ACK_SIZE    8
+#define MIN_TIMER_IN_MICROSECONDS   9000
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
       parser(nullptr), regionalPlan(nullptr), running(false),
-      onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr)
+      onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
+      onError(nullptr)
 {
     queue.setDispatcher(this);
     sockets.push_back(timerSocket);
@@ -37,7 +40,7 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse), thread(value.thread),
       parser(value.parser), regionalPlan(value.regionalPlan), queue(value.queue), running(value.running),
       onReceiveRawData(value.onReceiveRawData), onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
-      onDestroy(value.onDestroy)
+      onDestroy(value.onDestroy), onError(nullptr)
 {
 }
 
@@ -250,10 +253,16 @@ int MessageTaskDispatcher::run()
                 }
                 case SA_TIMER:
                     std::cout << "Timer event" << std::endl;
-                    sendQueue();
-                    updateTimer(receivedTime);
+                    sz = read(s->sock, buffer, sizeof(buffer)); // 8 bytes, timer counter value
+                    sendQueue(receivedTime);
+                    if (isTimeProcessQueueOrSetTimer(receivedTime)) {
+                        // try send again
+                        sendQueue(receivedTime);
+                    }
+                    cleanupOldMessages(receivedTime);
                     continue;
                 case SA_EVENTFD:
+                    // not used
                     sz = read(s->sock, buffer, sizeof(buffer));
                     break;
                 default:
@@ -276,7 +285,10 @@ int MessageTaskDispatcher::run()
                 }
                 switch (pr.tag) {
                     default:
-                        updateTimer(receivedTime);
+                        if (isTimeProcessQueueOrSetTimer(receivedTime)) {
+                            // try send again
+                            sendQueue(receivedTime);
+                        }
                 }
                 switch (sz) {
                     case 1:
@@ -426,20 +438,34 @@ void MessageTaskDispatcher::setRegionalParameterChannelPlan(
     regionalPlan = aRegionalPlan;
 }
 
-bool MessageTaskDispatcher::sendQueue() {
-    return false;
+void MessageTaskDispatcher::sendQueue(
+    TASK_TIME now
+) {
+    TimeAddr ta;
+    std::cout << "== Try to pop and send from queue " << taskTime2string(now) << "\n";
+    while (queue.time2ResponseAddr.pop(ta, now)) {
+        std::cout << "Pop and send from queue " << ta.toString() << "\n";
+    }
+    std::cout << "==\n";
 }
 
-void MessageTaskDispatcher::updateTimer(
+bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
     TASK_TIME now
 )
 {
     auto d = queue.time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now);
+    if (d < MIN_TIMER_IN_MICROSECONDS)
+        return true;
     std::cout << "Set queue startup timeout "
               << std::fixed << std::setprecision(6)
               << d / 1000000.  << " s\n";
     now += std::chrono::microseconds(d);
-    timerSocket->setStartupTime(now);
+    if (!timerSocket->setStartupTime(now)) {
+        if (onError)
+            onError(this, LOG_CRIT, "Set timer", errno, strerror(errno));
+        return true;
+    }
+    return false;
 }
 
 void MessageTaskDispatcher::prepareSendConfirmation(
@@ -452,5 +478,14 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     queue.time2ResponseAddr.push(*addr, receivedTime);
     queue.printStateDebug(std::cout);
     std::cout << "** prepare CONFIRMATION >" << std::endl;
+}
+
+void MessageTaskDispatcher::cleanupOldMessages(
+    TASK_TIME now
+)
+{
+    std::cout << "** Cleanup" << std::endl;
+    queue.clearOldMessages(now + std::chrono::seconds(1));
+    std::cout << "**" << std::endl;
 }
 

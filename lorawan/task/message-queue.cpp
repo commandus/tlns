@@ -172,3 +172,20 @@ void MessageQueue::printStateDebug(
     strm << "Waiting time " << std::fixed << std::setprecision(6) <<
         time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now) / 1000000. << " s\n";
 }
+
+/**
+ * Clear old messages
+ * @param since time to delete from
+ * @return count of removed items
+ */
+size_t MessageQueue::clearOldMessages(
+    TASK_TIME since
+)
+{
+    for (auto m(receivedMessages.begin()); m != receivedMessages.end();) {
+        if (m->second.firstGatewayReceived > since) {
+            m = receivedMessages.erase(m);
+        } else
+            m++;
+    }
+}

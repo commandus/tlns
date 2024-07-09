@@ -11,7 +11,6 @@ private:
     MessageTaskDispatcher *dispatcher;
     std::string socketPath;
     LoraGatewayListener listener;
-    bool stopped;
 public:
     /**
      * Open Unix domain socket

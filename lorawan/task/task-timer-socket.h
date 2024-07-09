@@ -22,7 +22,7 @@ public:
     void closeSocket() override;
     virtual ~TaskTimerSocket();
     TASK_TIME getStartupTime();
-    void setStartupTime(TASK_TIME time);
+    bool setStartupTime(TASK_TIME time);
 };
 
 #endif

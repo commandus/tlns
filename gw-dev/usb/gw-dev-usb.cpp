@@ -334,14 +334,25 @@ static void run()
         ERR_CODE_TX code
     ) {
         std::cout
-                << "{\"txPkAck\": \""
-                << ERR_CODE_TX2string(code)
-                << "\"}" << std::endl;
+            << "{\"txPkAck\": \""
+            << ERR_CODE_TX2string(code)
+            << "\"}" << std::endl;
     };
+
     dispatcher.onDestroy = [] (
         MessageTaskDispatcher* dispatcher
     ) {
         delete dispatcher->parser;
+    };
+
+    dispatcher.onError = [] (
+        MessageTaskDispatcher* dispatcher,
+        int level,
+        const std::string &module,
+        int code,
+        const std::string &message
+    ) {
+        std::cerr << ERR_MESSAGE << code << ": " << message << " ("<< module<< ")" << std::endl;
     };
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);

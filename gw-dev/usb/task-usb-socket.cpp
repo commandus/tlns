@@ -34,8 +34,7 @@ TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
     bool enableBeacon,
     int verbosity
 )
-    : dispatcher(aDispatcher), TaskSocket(SA_REQUIRE),
-    socketPath(socketFileName)
+    : TaskSocket(SA_REQUIRE), dispatcher(aDispatcher), socketPath(socketFileName)
 {
     if (!aLog)
         verbosity = 0;

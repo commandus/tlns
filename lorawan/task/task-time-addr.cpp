@@ -1,9 +1,6 @@
-#include <iostream>
 #include "lorawan/task/task-time-addr.h"
 #include "lorawan/lorawan-date.h"
 
-// set for 1s
-#define DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS   1000000
 // set for 1/2s
 #define WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS   500000
 
@@ -115,9 +112,7 @@ bool TimeAddrSet::pop(
     auto ta = timeAddr.begin();
     bool b = ta != timeAddr.end();
     if (b) {
-        std::cout << "## Pop now " << taskTime2string(time) << " ";
         time -= std::chrono::microseconds(WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS);
-        std::cout << " - " << taskTime2string(time) << " " << taskTime2string(ta->first) << "\n";
         if (ta->first > time)
             return false;
         retVal.addr = ta->second;

@@ -94,6 +94,76 @@ std::string LORAWAN_MESSAGE_STORAGE::toString() const
     return ss.str();
 }
 
+/**
+ * If buf parameter is NULL, calculate required buffer size.
+ * @param buf Returning value can be NULL.
+ * @param size buffer size. If buffer size is too small, check returning required size.
+ * @return required buffer size
+ */
+size_t LORAWAN_MESSAGE_STORAGE::toArray(
+    void *buf,
+    size_t size
+)
+{
+    size_t retSize = 1;
+    uint8_t *b = (uint8_t*) buf;
+    if (b && (size < retSize)) {
+        *b = mhdr.i;
+        b++;
+    }
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_JOIN_REQUEST:
+        case MTYPE_REJOIN_REQUEST:
+            retSize += SIZE_JOIN_REQUEST_FRAME; // 18 bytes
+            if (b && (size < retSize)) {
+                memmove(b, &data.joinRequest, SIZE_JOIN_REQUEST_FRAME);
+                b += SIZE_JOIN_REQUEST_FRAME;
+            }
+            break;
+        case MTYPE_JOIN_ACCEPT:
+            retSize += SIZE_JOIN_ACCEPT_FRAME;  // 16 bytes
+            if (b && (size < retSize)) {
+                memmove(b, &data.joinResponse, SIZE_JOIN_ACCEPT_FRAME);
+                b += SIZE_JOIN_ACCEPT_FRAME;
+            }
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 5 bytes
+            if (b && (size < retSize)) {
+                memmove(b, &data.uplink, SIZE_UPLINK_EMPTY_STORAGE);
+                b += SIZE_UPLINK_EMPTY_STORAGE;
+            }
+            if (packetSize) {
+                retSize += packetSize;
+                if (b && (size < retSize)) {
+                    memmove(b, &data.uplink.optsNpayload, packetSize);
+                    b += packetSize;
+                }
+            }
+            break;
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 5 bytes
+            if (b && (size < retSize)) {
+                memmove(b, &data.downlink, SIZE_DOWNLINK_EMPTY_STORAGE);
+                b += SIZE_DOWNLINK_EMPTY_STORAGE;
+            }
+            if (packetSize) {
+                retSize += packetSize;
+                if (b && (size < retSize)) {
+                    memmove(b, &data.downlink.optsNpayload, packetSize);
+                    b += packetSize;
+                }
+            }
+            break;
+        default:
+            // case MTYPE_PROPRIETARYRADIO:
+            break;
+    }
+    return retSize;
+}
+
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const
 {
     if (mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP

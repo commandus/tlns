@@ -7,6 +7,7 @@
 #include "lorawan/lorawan-date.h"
 
 MessageQueue::MessageQueue()
+    : dispatcher(nullptr)
 {
 }
 
@@ -158,13 +159,13 @@ void MessageQueue::printStateDebug(
     strm << "Time " << taskTime2string(now) << "\n";
     // data packets received from devices
     strm << receivedMessages.size() << " received messages\n";
-    for (auto m : receivedMessages) {
+    for (const auto& m : receivedMessages) {
         strm << DEVADDR2string(m.first) << "\t" << taskTime2string(m.second.firstGatewayReceived) << "\n";
     }
 
     // Device addresses wait for ACK or response sorted by time
     strm << "Server waiting for " << time2ResponseAddr.size() << " messages from the gateways before sending response:\n";
-    for (auto t : time2ResponseAddr.timeAddr) {
+    for (const auto& t : time2ResponseAddr.timeAddr) {
         strm << DEVADDR2string(t.second) << "\t"
             << taskTime2string(t.first) << "\n";
     }
@@ -181,10 +182,13 @@ size_t MessageQueue::clearOldMessages(
     TASK_TIME since
 )
 {
+    size_t r = 0;
     for (auto m(receivedMessages.begin()); m != receivedMessages.end();) {
         if (m->second.firstGatewayReceived > since) {
             m = receivedMessages.erase(m);
+            r++;
         } else
             m++;
     }
+    return r;
 }

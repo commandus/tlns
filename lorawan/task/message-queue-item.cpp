@@ -95,3 +95,8 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
     }
     return r;
 }
+
+bool MessageQueueItem::needConfirmation() {
+    return (this->radioPacket.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_UP)
+        || (this->radioPacket.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN);
+}

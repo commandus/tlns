@@ -18,6 +18,7 @@
 #include "lorawan/lorawan-msg.h"
 #include "task-accepted-socket.h"
 #include "lorawan/lorawan-date.h"
+#include "lorawan/lorawan-builder.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -167,9 +168,8 @@ void MessageTaskDispatcher::closeSockets()
 
 void MessageTaskDispatcher::clearSockets()
 {
-    for (auto s : sockets) {
+    for (auto s : sockets)
         delete s;
-    }
     // clear container
     sockets.clear();
 }
@@ -419,9 +419,8 @@ void MessageTaskDispatcher::pushData(
     auto a = pushData.rxData.getAddr();
     if (a)
         send(a, SIZE_DEVADDR);  // pass address of just added item
-    if (pushData.needConfirmation()) {
+    if (pushData.needConfirmation())
         prepareSendConfirmation(a, receivedTime);
-    }
 }
 
 void MessageTaskDispatcher::setParser(
@@ -443,6 +442,12 @@ void MessageTaskDispatcher::sendQueue(
     TimeAddr ta;
     while (queue.time2ResponseAddr.pop(ta, now)) {
         std::cout << "Pop and send from queue " << ta.toString() << "\n";
+        auto m = queue.receivedMessages.find(ta.addr);
+        if (m == queue.receivedMessages.end())
+            continue;
+        if (m->second.needConfirmation()) {
+            ConfirmationMessage confirmationMessage(m->second.radioPacket);
+        }
     }
 }
 
@@ -467,6 +472,11 @@ bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
     return false;
 }
 
+/**
+ * Put address to the queue and set timer to start send confirmation after 0.5s after first message
+ * @param addr address
+ * @param receivedTime receive time
+ */
 void MessageTaskDispatcher::prepareSendConfirmation(
     const DEVADDR *addr,
     TASK_TIME receivedTime

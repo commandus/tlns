@@ -113,7 +113,7 @@ else()
 	set(SRC_LIBLORAWAN
 		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp
-		lorawan/lorawan-packet-storage.cpp
+		lorawan/lorawan-packet-storage.cpp lorawan/lorawan-builder.cpp
 		lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp
 		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
 		lorawan/proto/gw/set-gateway-metadata.cpp

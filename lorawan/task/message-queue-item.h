@@ -57,6 +57,7 @@ public:
         float *retvalLsnr
     ) const;
 
+    bool needConfirmation();
 };
 
 #endif

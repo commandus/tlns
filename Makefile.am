@@ -19,6 +19,7 @@ SRC_AES = third-party/system/crypto/aes.c third-party/system/crypto/cmac.c
 SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
+    lorawan/lorawan-builder.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
     lorawan/proto/gw/basic-udp.cpp \
@@ -137,22 +138,15 @@ nobase_dist_include_HEADERS = \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.h \
-    lorawan/helper/file-helper.h \
-    lorawan/helper/thread-helper.h \
-    lorawan/helper/ip-address.h \
-    lorawan/lorawan-conv.h \
-    lorawan/lorawan-mac.h \
-    lorawan/lorawan-const.h \
-    lorawan/lorawan-error.h \
-    lorawan/lorawan-date.h \
-    lorawan/lorawan-msg.h \
-    lorawan/lorawan-types.h \
+    lorawan/helper/file-helper.h lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
+    lorawan/lorawan-conv.h lorawan/lorawan-mac.h lorawan/lorawan-const.h lorawan/lorawan-error.h \
+    lorawan/lorawan-date.h lorawan/lorawan-msg.h lorawan/lorawan-types.h \
     lorawan/task/message-queue.h lorawan/task/task-accepted-socket.h lorawan/task/task-response.h \
     lorawan/task/task-udp-socket.h lorawan/task/message-queue-item.h lorawan/task/task-descriptor.h \
     lorawan/task/task-socket.h lorawan/task/task-unix-control-socket.h lorawan/task/message-task-dispatcher.h \
     lorawan/task/task-platform.h lorawan/task/task-udp-control-socket.h  lorawan/task/task-unix-socket.h \
     lorawan/task/task-eventfd-control-socket.h lorawan/task/task-timer-socket.h lorawan/task/task-time-addr.h \
-    lorawan/lorawan-string.h
+    lorawan/lorawan-string.h lorawan/lorawan-builder.h
 
 #
 # Libraries

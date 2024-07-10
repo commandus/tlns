@@ -69,6 +69,7 @@ PACK(
         LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
         LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
         std::string toString() const;
+        size_t toArray(void *buf, size_t size);
         const DEVADDR* getAddr() const;
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;

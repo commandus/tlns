@@ -79,7 +79,8 @@ public:
      * @param strm stream to output
      */
     void printStateDebug(
-        std::ostream &strm
+        std::ostream &strm,
+        TASK_TIME now
     ) const;
 
     /**

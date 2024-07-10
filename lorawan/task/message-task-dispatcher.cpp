@@ -252,12 +252,11 @@ int MessageTaskDispatcher::run()
                     continue;
                 }
                 case SA_TIMER:
-                    std::cout << "Timer event" << std::endl;
+                    std::cout << "Timer event " << taskTime2string(receivedTime) << std::endl;
                     sz = read(s->sock, buffer, sizeof(buffer)); // 8 bytes, timer counter value
                     sendQueue(receivedTime);
                     if (isTimeProcessQueueOrSetTimer(receivedTime)) {
-                        // try send again
-                        sendQueue(receivedTime);
+                        // nothing to do
                     }
                     cleanupOldMessages(receivedTime);
                     continue;
@@ -442,11 +441,9 @@ void MessageTaskDispatcher::sendQueue(
     TASK_TIME now
 ) {
     TimeAddr ta;
-    std::cout << "== Try to pop and send from queue " << taskTime2string(now) << "\n";
     while (queue.time2ResponseAddr.pop(ta, now)) {
         std::cout << "Pop and send from queue " << ta.toString() << "\n";
     }
-    std::cout << "==\n";
 }
 
 bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
@@ -454,12 +451,14 @@ bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
 )
 {
     auto d = queue.time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now);
+    if (d < 0)
+        return false;
+
     if (d < MIN_TIMER_IN_MICROSECONDS)
         return true;
-    std::cout << "Set queue startup timeout "
-              << std::fixed << std::setprecision(6)
-              << d / 1000000.  << " s\n";
+
     now += std::chrono::microseconds(d);
+
     if (!timerSocket->setStartupTime(now)) {
         if (onError)
             onError(this, LOG_CRIT, "Set timer", errno, strerror(errno));
@@ -473,19 +472,13 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     TASK_TIME receivedTime
 )
 {
-    std::cout << "< prepare CONFIRMATION **" << std::endl;
-    queue.printStateDebug(std::cout);
     queue.time2ResponseAddr.push(*addr, receivedTime);
-    queue.printStateDebug(std::cout);
-    std::cout << "** prepare CONFIRMATION >" << std::endl;
 }
 
 void MessageTaskDispatcher::cleanupOldMessages(
     TASK_TIME now
 )
 {
-    std::cout << "** Cleanup" << std::endl;
     queue.clearOldMessages(now + std::chrono::seconds(1));
-    std::cout << "**" << std::endl;
 }
 

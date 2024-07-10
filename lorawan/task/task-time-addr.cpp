@@ -124,11 +124,8 @@ bool TimeAddrSet::pop(
         retVal.startTime = ta->first;
         timeAddr.erase(ta);
 
-        std::cout << "timeAddr erased\n";
-
         auto f = addrTime.find(ta->second);
-        if (f == addrTime.end()) {
-            std::cout << "addrTime erased\n";
+        if (f != addrTime.end()) {
             addrTime.erase(f);
         }
     }
@@ -140,7 +137,7 @@ bool TimeAddrSet::pop(
  * There is WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS time server wait until messages
  * received from all gateways before response must be send.
  * @param since current time
- * @return  if no messages to respond, return DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS.
+ * @return  if no messages to respond, return -1
  * Otherwise it is time of the oldest message plus required delay.
  */
 long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
@@ -149,7 +146,7 @@ long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
 {
     auto ta = timeAddr.begin();
     if (ta == timeAddr.end())
-        return DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS;
+        return -1;
     auto delta = std::chrono::duration_cast<std::chrono::microseconds>(ta->first
             + std::chrono::microseconds(WAIT_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS) - since);
     auto r = delta.count();

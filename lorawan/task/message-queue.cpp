@@ -151,11 +151,10 @@ MessageQueueItem *MessageQueue::findByJoinRequest(
 }
 
 void MessageQueue::printStateDebug(
-    std::ostream &strm
+    std::ostream &strm,
+    TASK_TIME now
 ) const
 {
-    TASK_TIME now = std::chrono::system_clock::now();
-
     strm << "Time " << taskTime2string(now) << "\n";
     // data packets received from devices
     strm << receivedMessages.size() << " received messages\n";

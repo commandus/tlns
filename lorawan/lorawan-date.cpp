@@ -272,19 +272,19 @@ std::string taskTime2string(
 )
 {
     std::time_t t = std::chrono::system_clock::to_time_t(time);
-    std::tm tm;
+    std::tm *tm;
     if (local)
-        tm = *std::localtime(&t);
+        tm = std::localtime(&t);
     else
-        tm = *std::gmtime(&t);
+        tm = std::gmtime(&t);
     std::stringstream ss;
-    ss << std::put_time(&tm, dateformat1);
+
+    ss << std::put_time(tm, dateformat1);
 
     // add milliseconds
     auto duration = time.time_since_epoch();
-    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    millis = millis - ((millis / 1000) * 1000);
-    ss << "." << std::setw(3) << std::setfill('0') << millis;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration) - std::chrono::duration_cast<std::chrono::seconds>(duration);
+    ss << "." << std::setw(3) << std::setfill('0') << ms.count();
 
     return ss.str();
 }

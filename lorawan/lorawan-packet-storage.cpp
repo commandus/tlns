@@ -6,6 +6,7 @@
 #include "lorawan/lorawan-string.h"
 
 #include "base64/base64.h"
+#include "lorawan-conv.h"
 
 LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE()
     : data {}
@@ -98,11 +99,13 @@ std::string LORAWAN_MESSAGE_STORAGE::toString() const
  * If buf parameter is NULL, calculate required buffer size.
  * @param buf Returning value can be NULL.
  * @param size buffer size. If buffer size is too small, check returning required size.
+ * @param identity if provided, cipher data and add message integrity code (MIC)
  * @return required buffer size
  */
 size_t LORAWAN_MESSAGE_STORAGE::toArray(
     void *buf,
-    size_t size
+    size_t size,
+    const NetworkIdentity *identity
 )
 {
     size_t retSize = 1;
@@ -161,6 +164,12 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             // case MTYPE_PROPRIETARYRADIO:
             break;
     }
+    if (identity) {
+        // first apply host to network byte order
+        // applyNetworkByteOrder(buf, size);
+        // cipher data
+        // add MIC
+    }
     return retSize;
 }
 
@@ -214,6 +223,42 @@ LORAWAN_MESSAGE_STORAGE& LORAWAN_MESSAGE_STORAGE::operator=(
     memmove(&data, &value.data, sizeof(data));
     packetSize = value.packetSize;
     return *this;
+}
+
+void applyNetworkByteOrder(
+    void *buffer,
+    size_t size
+) {
+    if (size < 1)
+        return;
+    MHDR *mhdr = (MHDR *) buffer;
+    uint8_t *b = (uint8_t *) buffer;
+
+    switch(mhdr->f.mtype) {
+        case MTYPE_JOIN_REQUEST:
+        case MTYPE_REJOIN_REQUEST:
+            if (size >= SIZE_JOIN_REQUEST_FRAME)
+                break;
+            b++;
+            ntoh_JOIN_REQUEST_FRAME(*(JOIN_REQUEST_FRAME*) b);
+            break;
+        case MTYPE_JOIN_ACCEPT:
+            if (size >= SIZE_JOIN_ACCEPT_FRAME_HEADER)
+                break;
+            b++;
+            ntoh_JOIN_ACCEPT_FRAME_HEADER(*(JOIN_ACCEPT_FRAME_HEADER*) b);
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            ntoh_RFM_HEADER(*(RFM_HEADER *) b);
+            break;
+        case MTYPE_PROPRIETARYRADIO:
+            break;
+        default:
+            break;
+    }
 }
 
 bool UPLINK_STORAGE::operator==(

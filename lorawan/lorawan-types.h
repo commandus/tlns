@@ -679,4 +679,6 @@ PACK(class PROFILEID {
          bool operator!=(const PROFILEID &rhs) const;
 });
 
+#define SIZE_CONFIRMATION_EMPTY_DOWN 16
+
 #endif

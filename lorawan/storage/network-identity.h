@@ -31,7 +31,7 @@ public:
 	DEVEUI appEUI;			///< OTAA application identifier
 	KEY128 appKey;			///< OTAA application private key
     KEY128 nwkKey;          ///< OTAA network key
-    DEVNONCE devNonce{};      ///< last device nonce
+    DEVNONCE devNonce{};    ///< last device nonce
 	JOINNONCE joinNonce;    ///< last Join nonce
 	// added for searching
 	DEVICENAME name;

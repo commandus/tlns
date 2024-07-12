@@ -123,6 +123,13 @@ void ntoh_DEVEUI(
     value.u = NTOH8(value.u);
 }
 
+void ntoh_DEVNONCE(
+    DEVNONCE &value
+)
+{
+    value.u = NTOH2(value.u);
+}
+
 void ntoh_SEMTECH_PREFIX_GW(
     SEMTECH_PREFIX_GW &value
 )
@@ -137,6 +144,46 @@ void ntoh_RFM_HEADER(
 {
     ntoh_DEVADDR(value->devaddr);
     value->fcnt = NTOH2(value->fcnt);	// frame counter 0..65535
+}
+
+void ntoh_JOIN_REQUEST_HEADER(
+    JOIN_REQUEST_HEADER &value
+)
+{
+    ntoh_JOIN_REQUEST_FRAME(value.frame);
+    value.mic = NTOH4(value.mic);
+}
+
+void ntoh_JOIN_REQUEST_FRAME(
+    JOIN_REQUEST_FRAME &value
+)
+{
+    ntoh_DEVEUI(value.joinEUI);
+    ntoh_DEVEUI(value.devEUI);
+    ntoh_DEVNONCE(value.devNonce);
+}
+
+void ntoh_JOIN_ACCEPT_FRAME_HEADER(
+    JOIN_ACCEPT_FRAME_HEADER &value
+)
+{
+    ntoh_DEVADDR(value.devAddr);
+}
+
+void ntoh_JOIN_ACCEPT_FRAME(
+    JOIN_ACCEPT_FRAME &value
+)
+{
+    ntoh_JOIN_ACCEPT_FRAME_HEADER(value.hdr);
+    NTOH4(value.mic);
+}
+
+void ntoh_RFM_HEADER(
+    RFM_HEADER &value
+)
+{
+    ntoh_DEVADDR(value.devaddr);
+    value.fcnt = NTOH2(value.fcnt);
 }
 
 #endif

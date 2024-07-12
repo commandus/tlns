@@ -10,7 +10,6 @@
 #endif
 #include <cstring>
 #include <iostream>
-#include <iomanip>
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/proto/gw/basic-udp.h"
@@ -446,7 +445,9 @@ void MessageTaskDispatcher::sendQueue(
         if (m == queue.receivedMessages.end())
             continue;
         if (m->second.needConfirmation()) {
-            ConfirmationMessage confirmationMessage(m->second.radioPacket);
+            ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
+            char buffer[SIZE_CONFIRMATION_EMPTY_DOWN];
+            size_t sz = confirmationMessage.get(buffer, SIZE_CONFIRMATION_EMPTY_DOWN);
         }
     }
 }

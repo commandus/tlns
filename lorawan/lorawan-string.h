@@ -29,7 +29,7 @@ std::string toUpperCase(const std::string &value);
 std::string DEVICENAME2string(const DEVICENAME &value);
 std::string gatewayId2str(uint64_t value);
 std::string MHDR2String(const MHDR &value);
-std::string MIC2String(uint16_t value);
+std::string MIC2String(uint32_t value);
 std::string DEVADDR2string(const DEVADDR &value);
 std::string DEVEUI2string(const DEVEUI &value);
 std::string KEY2string(const KEY128 &value);

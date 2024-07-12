@@ -3,11 +3,14 @@
 
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
+#include "lorawan/task/task-descriptor.h"
 
 class MessageBuilder {
 public:
     LORAWAN_MESSAGE_STORAGE msg; // minimum 12 bytes
-    MessageBuilder();
+    const TaskDescriptor &taskDescriptor;
+    explicit MessageBuilder(const TaskDescriptor &taskDescriptor);
+    size_t get(void *buffer, size_t size);
 };
 
 /**
@@ -16,7 +19,8 @@ public:
 class ConfirmationMessage : public MessageBuilder {
 public:
     explicit ConfirmationMessage(
-        const LORAWAN_MESSAGE_STORAGE &message2confirm
+        const LORAWAN_MESSAGE_STORAGE &message2confirm,
+        const TaskDescriptor &taskDescriptor
     );
 };
 

@@ -166,10 +166,12 @@ std::string MHDR2String(
     return ss.str();
 }
 
-std::string MIC2String(uint16_t value)
+std::string MIC2String(
+    uint32_t value
+)
 {
     // hex string is MSB first, swap if need it
-    value = NTOH2(value);
+    value = NTOH4(value);
     return hexString(&value, sizeof(value));
 }
 

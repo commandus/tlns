@@ -2,6 +2,7 @@
 #define LORAWAN_PACKET_STORAGE_H_
 
 #include "lorawan/lorawan-types.h"
+#include "lorawan/storage/network-identity.h"
 
 PACK(
     class DOWNLINK_STORAGE {
@@ -69,7 +70,7 @@ PACK(
         LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
         LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
         std::string toString() const;
-        size_t toArray(void *buf, size_t size);
+        size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity = nullptr);
         const DEVADDR* getAddr() const;
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;

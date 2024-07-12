@@ -1,16 +1,30 @@
 #include "lorawan/lorawan-builder.h"
 
-MessageBuilder::MessageBuilder()
-    : msg {}
+MessageBuilder::MessageBuilder(
+    const TaskDescriptor &aTaskDescriptor
+)
+    : msg {}, taskDescriptor(aTaskDescriptor)
 {
 
 }
 
-ConfirmationMessage::ConfirmationMessage(
-    const LORAWAN_MESSAGE_STORAGE &message2confirm
+size_t MessageBuilder::get(
+    void *buffer,
+    size_t size
 )
 {
+    return msg.toArray(buffer, size, &taskDescriptor.deviceId);
+}
+
+ConfirmationMessage::ConfirmationMessage(
+    const LORAWAN_MESSAGE_STORAGE &message2confirm,
+    const TaskDescriptor &taskDescriptor
+)
+    : MessageBuilder(taskDescriptor)
+{
     msg = message2confirm;
+    // set direction
+    msg.mhdr.f.mtype = MTYPE_CONFIRMED_DATA_DOWN;
     // remove options by settings size to 0
     msg.data.downlink.f.foptslen = 0;
     // remove payload by settings size to 0

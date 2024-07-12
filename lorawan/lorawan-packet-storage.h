@@ -54,6 +54,8 @@ PACK(
     public:
         MHDR mhdr;
         PACK( union {
+            // as array
+            uint8_t u[1];
             // Join request
             JOIN_REQUEST_FRAME joinRequest;
             // Join response
@@ -68,7 +70,7 @@ PACK(
         uint16_t packetSize;
         LORAWAN_MESSAGE_STORAGE();
         LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
-        LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
+        explicit LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
         std::string toString() const;
         size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity = nullptr);
         const DEVADDR* getAddr() const;

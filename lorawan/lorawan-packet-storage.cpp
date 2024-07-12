@@ -9,7 +9,7 @@
 #include "lorawan-conv.h"
 
 LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE()
-    : data {}
+    : mhdr{}, data {}, packetSize(0)
 {
 }
 
@@ -18,13 +18,13 @@ LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE(
 )
     : mhdr(value.mhdr), data{}, packetSize(value.packetSize)
 {
-    memmove(&data, &value.data, sizeof(data));
+    memmove(&data.u, &value.data.u, sizeof(data));
 }
 
 LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE(
     const std::string &base64string
 )
-    : data {}
+    : mhdr{}, data {}, packetSize(0)
 {
     decodeBase64ToLORAWAN_MESSAGE_STORAGE(*this, base64string);
 }
@@ -61,7 +61,7 @@ bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
             sz = sizeof(LORAWAN_MESSAGE_STORAGE) - 2;
         memmove(&retVal.mhdr, s.c_str(), sz);
         retVal.packetSize = (uint16_t) sz;
-    } catch (std::runtime_error &e) {
+    } catch (std::runtime_error &) {
         return false;
     }
     return true;
@@ -109,7 +109,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
 )
 {
     size_t retSize = 1;
-    uint8_t *b = (uint8_t*) buf;
+    auto b = (uint8_t*) buf;
     if (b && (size < retSize)) {
         *b = mhdr.i;
         b++;
@@ -126,7 +126,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_JOIN_ACCEPT:
             retSize += SIZE_JOIN_ACCEPT_FRAME;  // 16 bytes
             if (b && (size < retSize)) {
-                memmove(b, &data.joinResponse, SIZE_JOIN_ACCEPT_FRAME);
+                memmove(b, &data.u, SIZE_JOIN_ACCEPT_FRAME);
                 b += SIZE_JOIN_ACCEPT_FRAME;
             }
             break;
@@ -134,7 +134,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_CONFIRMED_DATA_UP:
             retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 5 bytes
             if (b && (size < retSize)) {
-                memmove(b, &data.uplink, SIZE_UPLINK_EMPTY_STORAGE);
+                memmove(b, &data.u, SIZE_UPLINK_EMPTY_STORAGE);
                 b += SIZE_UPLINK_EMPTY_STORAGE;
             }
             if (packetSize) {
@@ -149,7 +149,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_CONFIRMED_DATA_DOWN:
             retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 5 bytes
             if (b && (size < retSize)) {
-                memmove(b, &data.downlink, SIZE_DOWNLINK_EMPTY_STORAGE);
+                memmove(b, &data.u, SIZE_DOWNLINK_EMPTY_STORAGE);
                 b += SIZE_DOWNLINK_EMPTY_STORAGE;
             }
             if (packetSize) {
@@ -220,7 +220,7 @@ LORAWAN_MESSAGE_STORAGE& LORAWAN_MESSAGE_STORAGE::operator=(
 )
 {
     mhdr = value.mhdr;
-    memmove(&data, &value.data, sizeof(data));
+    memmove(&data.u, &value.data.u, sizeof(data));
     packetSize = value.packetSize;
     return *this;
 }
@@ -232,18 +232,18 @@ void applyNetworkByteOrder(
     if (size < 1)
         return;
     MHDR *mhdr = (MHDR *) buffer;
-    uint8_t *b = (uint8_t *) buffer;
+    auto b = (uint8_t *) buffer;
 
     switch(mhdr->f.mtype) {
         case MTYPE_JOIN_REQUEST:
         case MTYPE_REJOIN_REQUEST:
-            if (size >= SIZE_JOIN_REQUEST_FRAME)
+            if (size < SIZE_JOIN_REQUEST_FRAME)
                 break;
             b++;
             ntoh_JOIN_REQUEST_FRAME(*(JOIN_REQUEST_FRAME*) b);
             break;
         case MTYPE_JOIN_ACCEPT:
-            if (size >= SIZE_JOIN_ACCEPT_FRAME_HEADER)
+            if (size < SIZE_JOIN_ACCEPT_FRAME_HEADER)
                 break;
             b++;
             ntoh_JOIN_ACCEPT_FRAME_HEADER(*(JOIN_ACCEPT_FRAME_HEADER*) b);
@@ -252,6 +252,8 @@ void applyNetworkByteOrder(
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_DOWN:
+            if (size < SIZE_RFM_HEADER)
+                break;
             ntoh_RFM_HEADER(*(RFM_HEADER *) b);
             break;
         case MTYPE_PROPRIETARYRADIO:
@@ -265,12 +267,12 @@ bool UPLINK_STORAGE::operator==(
     const UPLINK_STORAGE &rhs
 ) const
 {
-    return memcmp(this, &rhs, SIZE_UPLINK_STORAGE);
+    return memcmp(this, &rhs, SIZE_UPLINK_STORAGE) == 0;
 }
 
 bool DOWNLINK_STORAGE::operator==(
     const DOWNLINK_STORAGE &rhs
 ) const
 {
-    return memcmp(this, &rhs, SIZE_DOWNLINK_STORAGE);
+    return memcmp(this, &rhs, SIZE_DOWNLINK_STORAGE) == 0;
 }

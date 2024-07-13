@@ -19,7 +19,8 @@ SRC_AES = third-party/system/crypto/aes.c third-party/system/crypto/cmac.c
 SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
-    lorawan/lorawan-builder.cpp \
+    lorawan/lorawan-builder.cpp lorawan/task/lorawan-mic.cpp lorawan/lorawan-key.cpp lorawan/helper/key128gen.cpp \
+    lorawan/helper/aes-helper.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
     lorawan/proto/gw/basic-udp.cpp \
@@ -140,7 +141,8 @@ nobase_dist_include_HEADERS = \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.h \
     lorawan/helper/file-helper.h lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
     lorawan/lorawan-conv.h lorawan/lorawan-mac.h lorawan/lorawan-const.h lorawan/lorawan-error.h \
-    lorawan/lorawan-date.h lorawan/lorawan-msg.h lorawan/lorawan-types.h \
+    lorawan/lorawan-date.h lorawan/lorawan-msg.h lorawan/lorawan-types.h lorawan/task/lorawan-mic.h \
+    lorawan/lorawan-key.h lorawan/helper/key128gen.h lorawan/helper/aes-helper.h \
     lorawan/task/message-queue.h lorawan/task/task-accepted-socket.h lorawan/task/task-response.h \
     lorawan/task/task-udp-socket.h lorawan/task/message-queue-item.h lorawan/task/task-descriptor.h \
     lorawan/task/task-socket.h lorawan/task/task-unix-control-socket.h lorawan/task/message-task-dispatcher.h \

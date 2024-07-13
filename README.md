@@ -8,7 +8,7 @@ The working release of [https://github.com/commandus/lorawan-network-server](htt
 
 Network server can serve 1, 2 or more gateways.
 
-If there 2 or more gateways, message can received twice or more. 
+If there are 2 or more gateways, message can receive twice or more. 
 
 Network server collects metadata sent by gateways to choose gateway with the best signal/noise ratio to send response. 
 
@@ -55,7 +55,7 @@ Service must put task in internal queue. When task is complete, service move tas
 
 Message queue is map accessed by the device address.
 
-Each element is an vector or map accessed by message sequence number.
+Each element is a vector or map accessed by message sequence number.
 
 Each element consist of
 
@@ -78,16 +78,18 @@ There is 4 operations on the queue:
 
 Receiver object adds a new messages to the queue, receive network and app keys over program interfaces and update received keys in the task descriptor.
 
-If receiver successfully receives key for address, it access message in the queue by the address and set key in the task descriptor. 
+If receiver successfully receives key for address, it accesses message in the queue by the address and set key in the task descriptor. 
 Then it increment task stage to the "got key"
 
-Sender object iterates messages in the queue with "got key" and initiate decipher packet. Decipher can be run in the main thread or runt in another thread, when it done, the Receiver must be receive result.
+Sender object iterates messages in the queue with "got key" and initiate decipher packet. Decipher can be run in the 
+main thread or runt in another thread, when it's done, the Receiver must be received result.
 
 Sender looks what stage is and initiates tasks to obtain keys by initiate sending requests.
 
-Sender initiate send response to the gateway. When response is successfully sent or sent with errors task descriptor must indicates response success or failure. 
+Sender initiate send response to the gateway. When response is successfully sent or sent with errors task descriptor 
+must indicate response success or failure. 
 
-MAC processor can create a message to be send to the end-device over best gateway.
+MAC processor can create a message to be sent to the end-device over best gateway.
 
 ### Task descriptor
 
@@ -133,7 +135,7 @@ Receiver object read
 - packets from gateways and try to parse received packet
 - network and app keys from the socket or file and then update message stage in the queue.
 - end-device recommendation what gateway it the best for end-device, last received sequence number
-- receives message to be send to the end-device from the app server
+- receives message to be sent to the end-device from the app server
 
 Receiver wait until socket or file descriptor indicates data arrived using select() call.
 
@@ -186,7 +188,7 @@ end loop
 gateway-config2cpp utility read gateway regional settings for specific region in JSON format
 and generate C++ gateway-usb-conf.h header file.
 
-gateway-usb-conf.h header file then used in the gw-dev/usb/gw-dev-usb gateway to setup frequencies etc.
+gateway-usb-conf.h header file then used in the gw-dev/usb/gw-dev-usb gateway to set up frequencies etc.
 
 You can obtain JSON files from Semtech's gateway GitHub repository.
 

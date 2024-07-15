@@ -665,18 +665,19 @@ DEVICECLASS string2deviceclass(
 }
 
 void string2DEVADDR(
+    DEVADDR &retVal,
+    const char *value
+)
+{
+    retVal.u = strtoul(value, nullptr, 16);
+}
+
+void string2DEVADDR(
 	DEVADDR &retVal,
 	const std::string &value
 )
 {
-	std::string str = hex2string(value);
-	size_t len = str.size();
-	if (len > sizeof(DEVADDR))
-		len = sizeof(DEVADDR);
-	memmove(&retVal.u, str.c_str(), len);
-	if (len < sizeof(DEVADDR))
-		memset(&retVal.c + len, 0, sizeof(DEVADDR) - len);
-	retVal.u = NTOH4(retVal.u);
+    retVal.u = strtoul(value.c_str(), nullptr, 16);
 }
 
 void string2DEVEUI(
@@ -684,14 +685,15 @@ void string2DEVEUI(
 	const std::string &value
 )
 {
-	std::string str = hex2string(value);
-	size_t len = str.size();
-	if (len > sizeof(DEVEUI))
-		len = sizeof(DEVEUI);
-	memmove(&retval, str.c_str(), len);
-	if (len < sizeof(DEVEUI))
-		memset(&retval.c + len, 0, sizeof(DEVEUI) - len);
-	*((uint64_t*) &retval) = SWAP_BYTES_8(*((uint64_t*) &retval));
+    retval.u = strtoull(value.c_str(), nullptr, 16);
+}
+
+void string2DEVEUI(
+    DEVEUI &retval,
+    const char *value
+)
+{
+    retval.u = strtoull(value, nullptr, 16);
 }
 
 void string2KEY(

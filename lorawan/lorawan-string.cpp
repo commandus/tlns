@@ -511,19 +511,19 @@ std::string fctrl2string(
         return "";
     std::stringstream ss;
     // frame-options length actual length of FOpts
-    ss << (unsigned int) hdr->fctrl.f.foptslen << DLMT;
+    ss << (unsigned int) hdr->fhdr.fctrl.f.foptslen << DLMT;
     // 1- gateway has more data pending to be sent
     if (isDownlink(hdr->macheader))
-        ss << (hdr->fctrl.f.fpending == 0?"not-":"") << "pending" << DLMT;
+        ss << (hdr->fhdr.fctrl.f.fpending == 0?"not-":"") << "pending" << DLMT;
 
     if (isUplink(hdr->macheader))
-        ss << (hdr->fctrl.fup.classb == 0?"no-":"") << "classB" << DLMT;
-    ss << (hdr->fctrl.f.ack == 0?"no ":"") << "ACK" << DLMT;
+        ss << (hdr->fhdr.fctrl.fup.classb == 0?"no-":"") << "classB" << DLMT;
+    ss << (hdr->fhdr.fctrl.f.ack == 0?"no ":"") << "ACK" << DLMT;
     // validate that the network still receives the uplink frames.
     if (isUplink(hdr->macheader))
-        ss << (hdr->fctrl.fup.addrackreq == 0?"no-":"") << "addrACKrequest" << DLMT;
+        ss << (hdr->fhdr.fctrl.fup.addrackreq == 0?"no-":"") << "addrACKrequest" << DLMT;
     // network will control the data rate of the end-device through the MAC commands
-    ss << (hdr->fctrl.f.adr == 0?"no ":"") << "adr";
+    ss << (hdr->fhdr.fctrl.f.adr == 0?"no ":"") << "adr";
     return ss.str();
 }
 
@@ -562,9 +562,9 @@ std::string rfm_header2string(
     std::stringstream ss;
     ss
         << mhdr2string(value->macheader) << DLMT
-        << DEVADDR2string(value->devaddr) << DLMT
+        << DEVADDR2string(value->fhdr.devaddr) << DLMT
         << fctrl2string(value) << DLMT
-        << value->fcnt;     // frame counter
+        << value->fhdr.fcnt;     // frame counter
     return ss.str();
 }
 

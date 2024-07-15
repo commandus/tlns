@@ -120,14 +120,12 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             retSize += SIZE_JOIN_REQUEST_FRAME; // 18 bytes
             if (b && (size < retSize)) {
                 memmove(b, &data.joinRequest, SIZE_JOIN_REQUEST_FRAME);
-                b += SIZE_JOIN_REQUEST_FRAME;
             }
             break;
         case MTYPE_JOIN_ACCEPT:
             retSize += SIZE_JOIN_ACCEPT_FRAME;  // 16 bytes
             if (b && (size < retSize)) {
                 memmove(b, &data.u, SIZE_JOIN_ACCEPT_FRAME);
-                b += SIZE_JOIN_ACCEPT_FRAME;
             }
             break;
         case MTYPE_UNCONFIRMED_DATA_UP:
@@ -135,13 +133,11 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 5 bytes
             if (b && (size < retSize)) {
                 memmove(b, &data.u, SIZE_UPLINK_EMPTY_STORAGE);
-                b += SIZE_UPLINK_EMPTY_STORAGE;
             }
             if (packetSize) {
                 retSize += packetSize;
                 if (b && (size < retSize)) {
                     memmove(b, &data.uplink.optsNpayload, packetSize);
-                    b += packetSize;
                 }
             }
             break;
@@ -150,13 +146,11 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 5 bytes
             if (b && (size < retSize)) {
                 memmove(b, &data.u, SIZE_DOWNLINK_EMPTY_STORAGE);
-                b += SIZE_DOWNLINK_EMPTY_STORAGE;
             }
             if (packetSize) {
                 retSize += packetSize;
                 if (b && (size < retSize)) {
                     memmove(b, &data.downlink.optsNpayload, packetSize);
-                    b += packetSize;
                 }
             }
             break;
@@ -164,14 +158,16 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             // case MTYPE_PROPRIETARYRADIO:
             break;
     }
-    if (identity) {
-        // first apply host to network byte order
-        // applyNetworkByteOrder(buf, size);
+    // apply host to network byte order
+    applyNetworkByteOrder(buf, size);
+    if (identity && packetSize > 0) {
         // cipher data
+        encryptFrmPayload(buf, size, packetSize, *identity);
         // add MIC
     }
     return retSize;
 }
+
 
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const
 {
@@ -223,44 +219,6 @@ LORAWAN_MESSAGE_STORAGE& LORAWAN_MESSAGE_STORAGE::operator=(
     memmove(&data.u, &value.data.u, sizeof(data));
     packetSize = value.packetSize;
     return *this;
-}
-
-void applyNetworkByteOrder(
-    void *buffer,
-    size_t size
-) {
-    if (size < 1)
-        return;
-    MHDR *mhdr = (MHDR *) buffer;
-    auto b = (uint8_t *) buffer;
-
-    switch(mhdr->f.mtype) {
-        case MTYPE_JOIN_REQUEST:
-        case MTYPE_REJOIN_REQUEST:
-            if (size < SIZE_JOIN_REQUEST_FRAME)
-                break;
-            b++;
-            ntoh_JOIN_REQUEST_FRAME(*(JOIN_REQUEST_FRAME*) b);
-            break;
-        case MTYPE_JOIN_ACCEPT:
-            if (size < SIZE_JOIN_ACCEPT_FRAME_HEADER)
-                break;
-            b++;
-            ntoh_JOIN_ACCEPT_FRAME_HEADER(*(JOIN_ACCEPT_FRAME_HEADER*) b);
-            break;
-        case MTYPE_UNCONFIRMED_DATA_UP:
-        case MTYPE_UNCONFIRMED_DATA_DOWN:
-        case MTYPE_CONFIRMED_DATA_UP:
-        case MTYPE_CONFIRMED_DATA_DOWN:
-            if (size < SIZE_RFM_HEADER)
-                break;
-            ntoh_RFM_HEADER(*(RFM_HEADER *) b);
-            break;
-        case MTYPE_PROPRIETARYRADIO:
-            break;
-        default:
-            break;
-    }
 }
 
 bool UPLINK_STORAGE::operator==(

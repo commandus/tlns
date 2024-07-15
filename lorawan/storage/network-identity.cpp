@@ -84,3 +84,34 @@ void NetworkIdentity::set(
 	memmove(&name, &value.name, sizeof(DEVICENAME));
 	memmove(&version, &value.version, sizeof(LORAWAN_VERSION));
 }
+
+void encryptFrmPayload(
+    void *buf,
+    size_t size,
+    size_t packetSize,
+    const NetworkIdentity &identity
+)
+{
+    if (!buf || size < SIZE_FHDR + 2)
+        return;
+    size_t retSize = 1;
+    auto b = (uint8_t*) buf;
+    switch (*((MTYPE*) buf)) {
+        case MTYPE_JOIN_REQUEST:
+        case MTYPE_REJOIN_REQUEST:
+        case MTYPE_JOIN_ACCEPT:
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            retSize += SIZE_FHDR;  // 7+ bytes
+            if (size < retSize) {
+                encryptFrmPayload();
+            }
+            break;
+        default:
+            // case MTYPE_PROPRIETARYRADIO:
+            break;
+    }
+}

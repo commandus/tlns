@@ -17,9 +17,9 @@ int hasFPort(
 {
     if (!value || size <= SIZE_RFM_HEADER)
         return -1;
-    if (size < SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fctrl.f.foptslen)
+    if (size < SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen)
         return -1;
-    return ((uint8_t*) value)[SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fctrl.f.foptslen];
+    return ((uint8_t*) value)[SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen];
 }
 
 char* hasPayload(
@@ -29,8 +29,8 @@ char* hasPayload(
 {
     if (!value || size <= SIZE_RFM_HEADER)
         return nullptr;
-    if (size > SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fctrl.f.foptslen + 1)
-        return ((char *) value) + SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fctrl.f.foptslen + 1;
+    if (size > SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + 1)
+        return ((char *) value) + SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + 1;
     return nullptr;
 }
 
@@ -38,7 +38,7 @@ uint8_t getFPort(
     const void *value
 )
 {
-    return ((uint8_t*) value)[SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fctrl.f.foptslen];
+    return ((uint8_t*) value)[SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen];
 }
 
 uint32_t DEVADDR2int(
@@ -142,8 +142,8 @@ void ntoh_RFM_HEADER(
     RFM_HEADER *value
 )
 {
-    ntoh_DEVADDR(value->devaddr);
-    value->fcnt = NTOH2(value->fcnt);	// frame counter 0..65535
+    ntoh_DEVADDR(value->fhdr.devaddr);
+    value->fhdr.fcnt = NTOH2(value->fhdr.fcnt);	// frame counter 0..65535
 }
 
 void ntoh_JOIN_REQUEST_HEADER(
@@ -178,12 +178,20 @@ void ntoh_JOIN_ACCEPT_FRAME(
     NTOH4(value.mic);
 }
 
-void ntoh_RFM_HEADER(
-    RFM_HEADER &value
+void ntoh_FHDR(
+    FHDR &value
 )
 {
     ntoh_DEVADDR(value.devaddr);
     value.fcnt = NTOH2(value.fcnt);
+}
+
+
+void ntoh_RFM_HEADER(
+    RFM_HEADER &value
+)
+{
+    ntoh_FHDR(value.fhdr);
 }
 
 #endif
@@ -242,5 +250,41 @@ BANDWIDTH double2BANDWIDTH(double value)
         if (value >= 500000)
             return BANDWIDTH_INDEX_500KHZ;
         return BANDWIDTH_INDEX_7KHZ;
+    }
+}
+
+void applyNetworkByteOrder(
+    void *buf,
+    size_t size
+)
+{
+    size_t retSize = 1;
+    auto b = (uint8_t*) buf;
+    switch (*((MTYPE*) buf)) {
+        case MTYPE_JOIN_REQUEST:
+        case MTYPE_REJOIN_REQUEST:
+            retSize += SIZE_JOIN_REQUEST_FRAME; // 18 bytes
+            if (b && (size < retSize)) {
+                ntoh_JOIN_REQUEST_FRAME(*(JOIN_REQUEST_FRAME *) b);
+            }
+            break;
+        case MTYPE_JOIN_ACCEPT:
+            retSize += SIZE_JOIN_ACCEPT_FRAME;  // 16 bytes
+            if (b && (size < retSize)) {
+                ntoh_JOIN_ACCEPT_FRAME(*(JOIN_ACCEPT_FRAME *) b);
+            }
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            retSize += SIZE_FHDR;  // 7+ bytes
+            if (b && (size < retSize)) {
+                ntoh_FHDR((*(FHDR *) b));
+            }
+            break;
+        default:
+            // case MTYPE_PROPRIETARYRADIO:
+            break;
     }
 }

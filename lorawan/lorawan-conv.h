@@ -109,6 +109,8 @@ void ntoh_JOIN_REQUEST_FRAME(JOIN_REQUEST_FRAME &value);
 void ntoh_JOIN_ACCEPT_FRAME_HEADER(JOIN_ACCEPT_FRAME_HEADER &value);
 void ntoh_JOIN_ACCEPT_FRAME(JOIN_ACCEPT_FRAME &value);
 void ntoh_RFM_HEADER(RFM_HEADER &value);
+void ntoh_FHDR(FHDR &value);
+
 #else
 #define ntoh_DEVADDR(a) {}
 #define ntoh_DEVEUI(e) {}
@@ -119,10 +121,13 @@ void ntoh_RFM_HEADER(RFM_HEADER &value);
 #define ntoh_JOIN_REQUEST_FRAME(v) {}
 #define ntoh_JOIN_ACCEPT_FRAME(v) {}
 #define ntoh_RFM_HEADER(v) {}
+#define ntoh_FHDR(FHDR v) {}
 #endif
 
 BANDWIDTH int2BANDWIDTH(int value);
 
 BANDWIDTH double2BANDWIDTH(double value);
+
+void applyNetworkByteOrder(void *buf, size_t size);
 
 #endif

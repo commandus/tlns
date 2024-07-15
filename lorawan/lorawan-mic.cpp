@@ -17,6 +17,9 @@ static uint32_t calculateMICRev103(
 	unsigned char blockB[16];
 	// blockB
 	blockB[0] = 0x49;
+    // 4.4.1 ConfFCnt Network Server and the ACK bit of the downlink frame is set, meaning this frame is acknowledging an uplink “confirmed” frame,
+    // then ConfFCnt is the frame counter value modulo 2^16 of the “confirmed” uplink frame that
+    // is being acknowledged. In all other cases ConfFCnt = 0x0000.
 	blockB[1] = 0x00;
 	blockB[2] = 0x00;
 	blockB[3] = 0x00;
@@ -124,6 +127,8 @@ uint32_t calculateMICJoinRequest(
  * Calculate Join Response MIC OptNeg is unset (version 1.0)
  * MHDR | JoinNonce | NetID | DevAddr | DLSettings |RxDelay | [CFList]
  * @see 6.2.3 Join-accept message
+ * @param frame Join Response message
+ * @param key networrk key
  */
 uint32_t calculateMICJoinResponse(
     const JOIN_ACCEPT_FRAME &frame,

@@ -22,6 +22,13 @@
  * FC Frame control
  * CN Frame counter
  * FP Frame port
+ * @param data message buffer
+ * @param size message buffer size
+ * @param frameCounter
+ * @param direction 1- downlink
+ * @param devAddr device address
+ * @param key network session key
+ * @return MIC
  */
 uint32_t calculateMIC(
 	const unsigned char *data,

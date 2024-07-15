@@ -43,4 +43,6 @@ public:
     std::string toJsonString() const;
 };
 
+void encryptFrmPayload(void *buf, size_t size, size_t packetSize, const NetworkIdentity &identity);
+
 #endif

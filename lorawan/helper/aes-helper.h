@@ -9,6 +9,15 @@
  * @see https://os.mbed.com/teams/Semtech/code/LoRaWAN-lib//file/2426a05fe29e/LoRaMacCrypto.cpp/
  */
 void encryptPayload(
+    void *payload,
+    size_t size,
+    unsigned int frameCounter,
+    unsigned char direction,
+    const DEVADDR &devAddr,
+    const KEY128 &appSKey
+);
+
+void encryptPayloadString(
     std::string &payload,
     unsigned int frameCounter,
     unsigned char direction,
@@ -16,7 +25,11 @@ void encryptPayload(
     const KEY128 &appSKey
 );
 
-void decryptPayload(
+#define decryptPayload(payload, size, frameCounter, direction, devAddr,appSKey) enryptPayload(payload, size, frameCounter, direction, devAddr,appSKey)
+#define decryptPayloadString(payload, frameCounter, direction, devAddr,appSKey) enryptPayload(payload, frameCounter, direction, devAddr,appSKey)
+
+
+void decryptPayloadStrimg(
     std::string &payload,
     unsigned int frameCounter,
     unsigned char direction,
@@ -28,7 +41,13 @@ void decryptPayload(
  * Decrypt Join Accept LoRaWAN message
  * @see 6.2.3 Join-accept message
  */
-std::string decryptJoinAccept(
+void decryptJoinAccept(
+    void *payload,
+    size_t size,
+    const KEY128 &key
+);
+
+void decryptJoinAcceptString(
     const std::string &payload,
     const KEY128 &key
 );

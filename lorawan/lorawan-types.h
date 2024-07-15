@@ -401,6 +401,35 @@ public:
 } );			// 1 byte
 
 #define SIZE_MHDR 1
+
+typedef PACK( struct {
+    // Frame header (FHDR)
+    DEVADDR devaddr;			// MAC address
+    union {
+        uint8_t i;
+        // downlink
+        struct {
+            uint8_t foptslen: 4;
+            uint8_t fpending: 1;
+            uint8_t ack: 1;
+            uint8_t rfu: 1;
+            uint8_t adr: 1;
+        } f;
+        // uplink
+        struct {
+            uint8_t foptslen: 4;
+            uint8_t classb: 1;
+            uint8_t ack: 1;
+            uint8_t addrackreq: 1;
+            uint8_t adr: 1;
+        } fup;
+    } fctrl;	// frame control
+    uint16_t fcnt;	// frame counter 0..65535
+    // FOpts 0..15
+} ) FHDR;			// 7+ bytes
+
+#define SIZE_FHDR   7
+
 /**
  * MHDR + FHDR
  */ 
@@ -408,28 +437,7 @@ typedef PACK( struct {
 	// MAC header byte: message type, RFU, Major
 	MHDR macheader;			    // 0x40 unconfirmed uplink
 	// Frame header (FHDR)
-	DEVADDR devaddr;			// MAC address
-	union {
-		uint8_t i;
-		// downlink
-		struct {
-			uint8_t foptslen: 4;
-			uint8_t fpending: 1;
-			uint8_t ack: 1;
-			uint8_t rfu: 1;
-			uint8_t adr: 1;
-		} f;
-		// uplink
-		struct {
-			uint8_t foptslen: 4;
-			uint8_t classb: 1;
-			uint8_t ack: 1;
-			uint8_t addrackreq: 1;
-			uint8_t adr: 1;
-		} fup;
-	} fctrl;	// frame control
-	uint16_t fcnt;	// frame counter 0..65535
-	// FOpts 0..15
+	FHDR fhdr;			        // Frame header 7+
 } ) RFM_HEADER;			// 8 bytes, +1
 
 #define SIZE_RFM_HEADER 8

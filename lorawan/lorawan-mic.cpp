@@ -75,7 +75,7 @@ static uint32_t calculateMICRev103(
  * CN Frame counter
  * FP Frame port
  */
-uint32_t calculateMIC(
+uint32_t calculateMICFrmPayload(
 	const unsigned char *data,
 	unsigned char size,
 	unsigned int frameCounter,

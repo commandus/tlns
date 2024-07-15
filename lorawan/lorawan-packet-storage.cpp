@@ -163,11 +163,15 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     if (identity && packetSize > 0) {
         // cipher data
         encryptFrmPayload(buf, size, packetSize, *identity);
-        // add MIC
+    }
+    // add MIC
+    retSize += SIZE_MIC;
+    if (b && (size < retSize)) {
+        uint32_t mic = calculateMIC(buf, size, *identity);
+        memmove(b, &data.u, SIZE_MIC);
     }
     return retSize;
 }
-
 
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const
 {

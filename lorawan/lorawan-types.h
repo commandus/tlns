@@ -465,7 +465,6 @@ typedef PACK( struct {
 } ) JOIN_REQUEST_HEADER;	// 1 + 18 + 4 = 23 bytes
 
 #define SIZE_JOIN_REQUEST_HEADER 23
-
 #define SIZE_MIC    4
 
 typedef PACK( struct {

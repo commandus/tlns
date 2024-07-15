@@ -30,7 +30,7 @@
  * @param key network session key
  * @return MIC
  */
-uint32_t calculateMIC(
+uint32_t calculateMICFrmPayload(
 	const unsigned char *data,
 	unsigned char size,
 	unsigned int frameCounter,
@@ -42,6 +42,11 @@ uint32_t calculateMIC(
 /**
  * Calculate ReJoin Request MIC
  * @see 6.2.5 Join-request frame
+ *
+ * @param header
+ * @param key network session key
+ * @param rejoinType 0 or 2
+ * @return MIC
  */
 uint32_t calculateMICReJoinRequest(
     const JOIN_REQUEST_HEADER *header,

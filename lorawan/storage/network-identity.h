@@ -45,4 +45,10 @@ public:
 
 void encryptFrmPayload(void *buf, size_t size, size_t packetSize, const NetworkIdentity &identity);
 
+uint32_t calculateMIC(
+    const void *data,
+    size_t size,
+    const NetworkIdentity &identity
+);
+
 #endif

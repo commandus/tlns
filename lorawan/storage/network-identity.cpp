@@ -4,7 +4,8 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-conv.h"
-#include "network-identity.h"
+#include "lorawan/storage/network-identity.h"
+#include "lorawan/lorawan-mic.h"
 
 NetworkIdentity::NetworkIdentity() = default;
 
@@ -106,12 +107,63 @@ void encryptFrmPayload(
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
             retSize += SIZE_FHDR;  // 7+ bytes
-            if (size < retSize) {
-                encryptFrmPayload();
+            retSize += packetSize;
+            if (size <= retSize) {
+                encryptFrmPayload((void *) b, size, packetSize, identity);
             }
             break;
         default:
             // case MTYPE_PROPRIETARYRADIO:
             break;
     }
+}
+
+uint32_t calculateMIC(
+    const void *buf,
+    size_t size,
+    const NetworkIdentity &identity
+)
+{
+    if (!buf || size < SIZE_MHDR)
+        return 0;
+    size_t retSize = 1;
+    auto b = (uint8_t*) buf;
+    switch (*((MTYPE*) buf)) {
+        case MTYPE_JOIN_REQUEST:
+            if (!buf || size < SIZE_MHDR + SIZE_JOIN_REQUEST_FRAME )
+                return 0;
+            return calculateMICJoinRequest((JOIN_REQUEST_HEADER *) (b + 1), identity.nwkSKey);
+        case MTYPE_REJOIN_REQUEST:
+            if (!buf || size < SIZE_MHDR + SIZE_JOIN_REQUEST_FRAME )
+                return 0;
+            {
+                int rejoinType = 0;
+                return calculateMICReJoinRequest((JOIN_REQUEST_HEADER *) (b + 1), identity.nwkSKey, rejoinType);
+            }
+        case MTYPE_JOIN_ACCEPT:
+            if (!buf || size < SIZE_MHDR + SIZE_JOIN_ACCEPT_FRAME )
+                return 0;
+            return calculateMICJoinResponse(*(JOIN_ACCEPT_FRAME *) (b + 1), identity.nwkSKey);
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP: {
+            if (!buf || size < SIZE_MHDR + SIZE_FHDR )
+                return 0;
+            return calculateMICFrmPayload(b, size,
+                ((FHDR *) (b + 1))->fcnt, 0, identity.devaddr, identity.nwkSKey
+            );
+        }
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN: {
+            if (!buf || size < SIZE_MHDR + SIZE_FHDR )
+                return 0;
+            return calculateMICFrmPayload(b, size,
+                ((FHDR *) (b + 1))->fcnt, 1, identity.devaddr, identity.nwkSKey
+            );
+        }
+        default:
+            // case MTYPE_PROPRIETARYRADIO:
+            break;
+    }
+    return 0;
 }

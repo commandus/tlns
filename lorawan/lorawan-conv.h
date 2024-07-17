@@ -84,6 +84,17 @@ uint8_t getFPort(const void *value);
  */
 char* hasPayload(const void *value, size_t size);
 
+/**
+ * Return payload size (except FOpts)
+ * @param value buffer with MIC
+ * @param size buffer size
+ * @return 0 if not
+ */
+uint8_t payloadSize(
+    const void *value,
+    size_t size
+);
+
 uint32_t DEVADDR2int(const DEVADDR &value);
 void int2DEVADDR(DEVADDR &retval, uint32_t value);
 

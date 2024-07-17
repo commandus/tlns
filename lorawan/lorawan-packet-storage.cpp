@@ -110,7 +110,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
 {
     size_t retSize = 1;
     auto b = (uint8_t*) buf;
-    if (b && (size < retSize)) {
+    if (b && (size >= retSize)) {
         *b = mhdr.i;
         b++;
     }
@@ -118,25 +118,25 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_JOIN_REQUEST:
         case MTYPE_REJOIN_REQUEST:
             retSize += SIZE_JOIN_REQUEST_FRAME; // 18 bytes
-            if (b && (size < retSize)) {
+            if (b && (size >= retSize)) {
                 memmove(b, &data.joinRequest, SIZE_JOIN_REQUEST_FRAME);
             }
             break;
         case MTYPE_JOIN_ACCEPT:
             retSize += SIZE_JOIN_ACCEPT_FRAME;  // 16 bytes
-            if (b && (size < retSize)) {
+            if (b && (size >= retSize)) {
                 memmove(b, &data.u, SIZE_JOIN_ACCEPT_FRAME);
             }
             break;
         case MTYPE_UNCONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_UP:
             retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 5 bytes
-            if (b && (size < retSize)) {
+            if (b && (size >= retSize)) {
                 memmove(b, &data.u, SIZE_UPLINK_EMPTY_STORAGE);
             }
             if (packetSize) {
                 retSize += packetSize;
-                if (b && (size < retSize)) {
+                if (b && (size >= retSize)) {
                     memmove(b, &data.uplink.optsNpayload, packetSize);
                 }
             }
@@ -144,12 +144,12 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
             retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 5 bytes
-            if (b && (size < retSize)) {
+            if (b && (size >= retSize)) {
                 memmove(b, &data.u, SIZE_DOWNLINK_EMPTY_STORAGE);
             }
             if (packetSize) {
                 retSize += packetSize;
-                if (b && (size < retSize)) {
+                if (b && (size >= retSize)) {
                     memmove(b, &data.downlink.optsNpayload, packetSize);
                 }
             }
@@ -166,7 +166,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     }
     // add MIC
     retSize += SIZE_MIC;
-    if (b && (size < retSize)) {
+    if (b && (size >= retSize)) {
         uint32_t mic = calculateMIC(buf, size, *identity);
         memmove(b, &data.u, SIZE_MIC);
     }

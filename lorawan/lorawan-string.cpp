@@ -569,7 +569,7 @@ std::string mac2string(
         sz = bufferSize;
     if (!sz)
         return "";
-    return hexString((char *) value, sz) + "(" + cid2string(*(const char *) value) + ")";
+    return hexString((char *) value, sz) + " (" + cid2string(*(const char *) value) + ")";
 }
 
 std::string rfm_header2string(

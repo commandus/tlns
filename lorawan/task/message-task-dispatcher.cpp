@@ -258,6 +258,7 @@ int MessageTaskDispatcher::run()
                     std::cout << "Timer event " << taskTime2string(receivedTime) << std::endl;
                     sz = read(s->sock, buffer, sizeof(buffer)); // 8 bytes, timer counter value
                     sendQueue(receivedTime);
+                    // set timer
                     if (isTimeProcessQueueOrSetTimer(receivedTime)) {
                         // nothing to do
                     }
@@ -452,6 +453,7 @@ void MessageTaskDispatcher::sendQueue(
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
             char buffer[SIZE_CONFIRMATION_EMPTY_DOWN];
             size_t sz = confirmationMessage.get(buffer, SIZE_CONFIRMATION_EMPTY_DOWN);
+            std::cout << hexString(buffer, sz) << std::endl;
         }
     }
 }

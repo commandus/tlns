@@ -22,6 +22,12 @@ int hasFPort(
     return ((uint8_t*) value)[SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen];
 }
 
+/**
+ * Return payload except FOpts
+ * @param value buffer with MIC
+ * @param size buffer size
+ * @return pointer to the payload, NULL if not
+ */
 char* hasPayload(
     const void *value,
     size_t size
@@ -29,9 +35,28 @@ char* hasPayload(
 {
     if (!value || size <= SIZE_RFM_HEADER)
         return nullptr;
-    if (size > SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + 1)
-        return ((char *) value) + SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + 1;
+    if (size >= SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + SIZE_FPORT + SIZE_MIC)
+        return ((char *) value) + SIZE_RFM_HEADER + ((const RFM_HEADER*) value)->fhdr.fctrl.f.foptslen + SIZE_FPORT;
     return nullptr;
+}
+
+/**
+ * Return payload size (except FOpts)
+ * @param value buffer with MIC
+ * @param size buffer size
+ * @return 0 if not
+ */
+uint8_t payloadSize(
+    const void *value,
+    size_t size
+)
+{
+    if (!value || size <= SIZE_RFM_HEADER)
+        return 0;
+    int sz = size - SIZE_RFM_HEADER - SIZE_FPORT - SIZE_MIC;
+    if (sz > 0)
+        return (uint8_t) sz;
+    return 0;
 }
 
 uint8_t getFPort(

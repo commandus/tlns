@@ -429,6 +429,7 @@ typedef PACK( struct {
 } ) FHDR;			// 7+ bytes
 
 #define SIZE_FHDR   7
+#define SIZE_FPORT  1
 
 /**
  * MHDR + FHDR

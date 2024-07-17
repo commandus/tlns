@@ -184,7 +184,7 @@ size_t MessageQueue::clearOldMessages(
 {
     size_t r = 0;
     for (auto m(receivedMessages.begin()); m != receivedMessages.end();) {
-        if (m->second.firstGatewayReceived > since) {
+        if (m->second.firstGatewayReceived < since) {
             m = receivedMessages.erase(m);
             r++;
         } else

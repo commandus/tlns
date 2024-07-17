@@ -226,10 +226,14 @@ int MessageTaskDispatcher::run()
         int rc = select(maxFD1, &workingSocketSet, nullptr, nullptr, &timeout);
         if (rc < 0)     // select error
             break;
-        if (rc == 0)    // select() timed out.
-            continue;
+
         // get timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
+
+        if (rc == 0) {   // select() timed out.
+            cleanupOldMessages(receivedTime);
+            continue;
+        }
 
         std::vector<SOCKET> acceptedSockets;
         std::vector<TaskSocket*> removedSockets;
@@ -490,6 +494,6 @@ void MessageTaskDispatcher::cleanupOldMessages(
     TASK_TIME now
 )
 {
-    queue.clearOldMessages(now + std::chrono::seconds(1));
+    queue.clearOldMessages(now - std::chrono::seconds(1));
 }
 

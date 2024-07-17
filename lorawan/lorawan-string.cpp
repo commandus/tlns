@@ -21,65 +21,77 @@
 /**
  * @see https://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
  */
-std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
-	size_t start_pos = 0;
-	while((start_pos = str.find(from, start_pos)) != std::string::npos) {
-		str.replace(start_pos, from.length(), to);
-		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-	}
-	return str;
+std::string replaceAll(
+        std::string str,
+        const std::string& from,
+        const std::string& to
+) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
 }
 
 std::string uint64_t2string(
-	const uint64_t &value
+        const uint64_t &value
 ) {
-	uint64_t v;
-	memmove(&v, &value, sizeof(v));
-	// hex string is MSB first, swap if need it
-	v = NTOH8(v);
-	return hexString(&v, sizeof(v));
+    uint64_t v;
+    memmove(&v, &value, sizeof(v));
+    // hex string is MSB first, swap if need it
+    v = NTOH8(v);
+    return hexString(&v, sizeof(v));
 }
 
 bool isHex(
-	const std::string &value
+        const std::string &value
 ) {
-	return value.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
+    return value.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
 }
 
 // http://stackoverflow.com/questions/673240/how-do-i-print-an-unsigned-char-as-hex-in-c-using-ostream
 struct HexCharStruct
 {
-	unsigned char c;
-	explicit HexCharStruct(unsigned char _c) : c(_c) { }
+    unsigned char c;
+    explicit HexCharStruct(unsigned char _c) : c(_c) { }
 };
 
 inline std::ostream& operator<<(std::ostream& o, const HexCharStruct& hs)
 {
-	return (o << std::setfill('0') << std::setw(2) << std::hex << (int) hs.c);
+    return (o << std::setfill('0') << std::setw(2) << std::hex << (int) hs.c);
 }
 
-inline HexCharStruct hex(unsigned char c)
+inline HexCharStruct hex(
+        unsigned char c
+)
 {
-	return HexCharStruct(c);
+    return HexCharStruct(c);
 }
 
-static void bufferPrintHex(std::ostream &ostream, const void* value, size_t size)
+static void bufferPrintHex(
+        std::ostream &ostream,
+        const void* value, size_t size
+)
 {
-	if (!value)
-		return;
-	auto *p = (unsigned char*) value;
-	for (size_t i = 0; i < size; i++)
-	{
-		ostream << hex(*p);
-		p++;
-	}
+    if (!value)
+        return;
+    auto *p = (unsigned char*) value;
+    for (size_t i = 0; i < size; i++)
+    {
+        ostream << hex(*p);
+        p++;
+    }
 }
 
-std::string hexString(const void *buffer, size_t size)
+std::string hexString(
+        const void *buffer,
+        size_t size
+)
 {
-	std::stringstream r;
-	bufferPrintHex(r, buffer, size);
-	return r.str();
+    std::stringstream r;
+    bufferPrintHex(r, buffer, size);
+    return r.str();
 }
 
 /**
@@ -88,35 +100,38 @@ std::string hexString(const void *buffer, size_t size)
  * @return
  */
 std::string hexString(
-    const std::string &data
+        const std::string &data
 )
 {
-	return hexString((void *) data.c_str(), data.size());
+    return hexString((void *) data.c_str(), data.size());
 }
 
-static std::string readHex(std::istream &s)
+static std::string readHex(
+        std::istream &s
+)
 {
-	std::stringstream r;
-	s >> std::noskipws;
-	char c[3] = {0, 0, 0};
-	while (s >> c[0])
-	{
-		if (!(s >> c[1]))
-			break;
-		auto x = (unsigned char) strtol(c, nullptr, 16);
-		r << x;
-	}
-	return r.str();
+    std::stringstream r;
+    s >> std::noskipws;
+    char c[3] = {0, 0, 0};
+    while (s >> c[0]) {
+        if (!(s >> c[1]))
+            break;
+        auto x = (unsigned char) strtol(c, nullptr, 16);
+        r << x;
+    }
+    return r.str();
 }
 
-std::string hex2string(const std::string &hex)
+std::string hex2string(
+        const std::string &hex
+)
 {
-	std::stringstream ss(hex);
+    std::stringstream ss(hex);
     return readHex(ss);
 }
 
 std::string toUpperCase(
-    const std::string &value
+        const std::string &value
 )
 {
     std::string r;
@@ -139,35 +154,35 @@ std::string toUpperCase(
 }
 
 std::string DEVICENAME2string(
-	const DEVICENAME &value
+        const DEVICENAME &value
 )
 {
-	size_t sz = strnlen(value.c, sizeof(DEVICENAME::c));
-	return std::string(value.c, sz);
+    size_t sz = strnlen(value.c, sizeof(DEVICENAME::c));
+    return std::string(value.c, sz);
 }
 
 std::string gatewayId2str(
-    uint64_t value
+        uint64_t value
 ) {
-	std::stringstream ss;
-	ss << std::hex << value;
-	return ss.str();
+    std::stringstream ss;
+    ss << std::hex << value;
+    return ss.str();
 }
 
 std::string MHDR2String(
-    const MHDR &value
+        const MHDR &value
 )
 {
     std::stringstream ss;
     ss << "{\"mtype\": " << (int) value.f.mtype
-        << ", \"major\": " << (int) value.f.major
-        << ", \"rfu\": " << (int) value.f.rfu
-        << "}";
+       << ", \"major\": " << (int) value.f.major
+       << ", \"rfu\": " << (int) value.f.rfu
+       << "}";
     return ss.str();
 }
 
 std::string MIC2String(
-    uint32_t value
+        uint32_t value
 )
 {
     // hex string is MSB first, swap if need it
@@ -176,50 +191,50 @@ std::string MIC2String(
 }
 
 std::string DEVADDR2string(
-	const DEVADDR &value
+        const DEVADDR &value
 )
 {
-	uint32_t v = value.u;
-	// hex string is MSB first
+    uint32_t v = value.u;
+    // hex string is MSB first
     v = SWAP_BYTES_4(v);
-	return hexString(&v, sizeof(v));
+    return hexString(&v, sizeof(v));
 }
 
 std::string DEVEUI2string(
-	const DEVEUI &value
+        const DEVEUI &value
 )
 {
-	// EUI stored in memory as 8-bit integer x86 LSB first, ARM MSB first
-	uint64_t v;
-	memmove(&v, &value, sizeof(DEVEUI));
-	// hex string is MSB first, swap if need it
-	v = SWAP_BYTES_8(v);
-	return hexString(&v, sizeof(v));
+    // EUI stored in memory as 8-bit integer x86 LSB first, ARM MSB first
+    uint64_t v;
+    memmove(&v, &value, sizeof(DEVEUI));
+    // hex string is MSB first, swap if need it
+    v = SWAP_BYTES_8(v);
+    return hexString(&v, sizeof(v));
 }
 
 std::string KEY2string(
-	const KEY128 &value
+        const KEY128 &value
 )
 {
-	return hexString(&value, sizeof(value));
+    return hexString(&value, sizeof(value));
 }
 
 std::string DEVNONCE2string(
-    const DEVNONCE &value
+        const DEVNONCE &value
 )
 {
     return hexString(&value, sizeof(value));
 }
 
 std::string JOINNONCE2string(
-    const JOINNONCE &value
+        const JOINNONCE &value
 )
 {
     return hexString(&value, sizeof(value));
 }
 
 DEVNONCE string2DEVNONCE(
-    const std::string &value
+        const std::string &value
 )
 {
     DEVNONCE r;
@@ -229,7 +244,7 @@ DEVNONCE string2DEVNONCE(
 }
 
 std::string JOIN_ACCEPT_FRAME_HEADER2string(
-    const JOIN_ACCEPT_FRAME_HEADER &value
+        const JOIN_ACCEPT_FRAME_HEADER &value
 ) {
     std::stringstream ss;
     ss << R"({"joinNonce": ")" << JOINNONCE2string(value.joinNonce)
@@ -245,15 +260,17 @@ std::string JOIN_ACCEPT_FRAME_HEADER2string(
 }
 
 std::string JOIN_ACCEPT_FRAME2string(
-    const JOIN_ACCEPT_FRAME &value
+        const JOIN_ACCEPT_FRAME &value
 ) {
     std::stringstream ss;
     ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr)
-        << R"(, "mic": ")" << MIC2String(value.mic) << "\"}";
+       << R"(, "mic": ")" << MIC2String(value.mic) << "\"}";
     return ss.str();
 }
 
-std::string CFLIST2string(const CFLIST &value)
+std::string CFLIST2string(
+        const CFLIST &value
+)
 {
     std::stringstream ss;
 
@@ -269,15 +286,15 @@ std::string CFLIST2string(const CFLIST &value)
 }
 
 std::string JOIN_REQUEST_FRAME2string(
-    const JOIN_REQUEST_FRAME &value
+        const JOIN_REQUEST_FRAME &value
 ) {
     return R"({"joinEUI": ")" + DEVEUI2string(value.joinEUI) + "\", "
-       + R"("devEUI": ")" + DEVEUI2string(value.devEUI) + "\", "
-       + R"("devNonce": ")" + DEVNONCE2string(value.devNonce) + "\"}";
+           + R"("devEUI": ")" + DEVEUI2string(value.devEUI) + "\", "
+           + R"("devNonce": ")" + DEVNONCE2string(value.devNonce) + "\"}";
 }
 
 std::string JOIN_ACCEPT_FRAME_CFLIST2string(
-    const JOIN_ACCEPT_FRAME_CFLIST &value
+        const JOIN_ACCEPT_FRAME_CFLIST &value
 ) {
     std::stringstream ss;
     ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr) << ", "
@@ -287,8 +304,8 @@ std::string JOIN_ACCEPT_FRAME_CFLIST2string(
 }
 
 std::string DOWNLINK_STORAGE2String(
-    const DOWNLINK_STORAGE &value,
-    int size
+        const DOWNLINK_STORAGE &value,
+        int size
 )
 {
     std::stringstream ss;
@@ -296,22 +313,22 @@ std::string DOWNLINK_STORAGE2String(
     if (payloadSize > 255)
         payloadSize = 255;
     else
-        if (payloadSize < 0)
-            payloadSize = 0;
+    if (payloadSize < 0)
+        payloadSize = 0;
     ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
-        << R"(", "foptslen": )" << (int) value.f.foptslen
-        << ", \"fpending\": " << (value.f.fpending ? "true" : "false")
-        << ", \"ack\": " << (value.f.ack ? "true" : "false")
-        << ", \"rfu\": " << (int) value.f.rfu
-        << ", \"adr\": " << (value.f.adr ? "true" : "false")
-        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
-        << "\"}";
+       << R"(", "foptslen": )" << (int) value.f.foptslen
+       << ", \"fpending\": " << (value.f.fpending ? "true" : "false")
+       << ", \"ack\": " << (value.f.ack ? "true" : "false")
+       << ", \"rfu\": " << (int) value.f.rfu
+       << ", \"adr\": " << (value.f.adr ? "true" : "false")
+       << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+       << "\"}";
     return ss.str();
 }
 
 std::string UPLINK_STORAGE2String(
-    const UPLINK_STORAGE &value,
-    int size
+        const UPLINK_STORAGE &value,
+        int size
 )
 {
     std::stringstream ss;
@@ -328,12 +345,12 @@ std::string UPLINK_STORAGE2String(
        << ", \"addrackreq\": " << (int) value.f.addrackreq
        << ", \"adr\": " << (value.f.adr ? "true" : "false")
        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
-        << "\"}";
+       << "\"}";
     return ss.str();
 }
 
 std::string NETID2String(
-    const NETID &value
+        const NETID &value
 )
 {
     uint32_t r = NETID2int(value);
@@ -343,12 +360,12 @@ std::string NETID2String(
 }
 
 static const char *ACTIVATION_NAMES[2] = {
-    "ABP",
-    "OTAA"
+        "ABP",
+        "OTAA"
 };
 
 std::string activation2string(
-    ACTIVATION value
+        ACTIVATION value
 )
 {
     if ((unsigned int) value > OTAA)
@@ -357,7 +374,7 @@ std::string activation2string(
 }
 
 std::string MODULATION2String(
-    MODULATION value
+        MODULATION value
 )
 {
     switch (value) {
@@ -370,7 +387,9 @@ std::string MODULATION2String(
     }
 }
 
-std::string BANDWIDTH2String(BANDWIDTH value) {
+std::string BANDWIDTH2String(
+        BANDWIDTH value
+) {
     switch (value) {
         case BANDWIDTH_INDEX_7KHZ:
             return "7.8";
@@ -396,57 +415,55 @@ std::string BANDWIDTH2String(BANDWIDTH value) {
     return "7.8";
 }
 
-std::string LORAWAN_VERSION2string
-(
-	LORAWAN_VERSION value
+std::string LORAWAN_VERSION2string(
+        LORAWAN_VERSION value
 )
 {
-	std::stringstream ss;
-	ss 
-		<< (int) value.major 
-		<< "." << (int) value.minor
-		<< "." << (int) value.release;
-	return ss.str();
+    std::stringstream ss;
+    ss  << (int) value.major
+        << "." << (int) value.minor
+        << "." << (int) value.release;
+    return ss.str();
 }
 
 std::string deviceclass2string(
-	DEVICECLASS value
+        DEVICECLASS value
 ) {
-	switch(value) {
-		case CLASS_A:
-			return "A";
-		case CLASS_B:
-			return "B";
-		default:
-			return "C";
-	}
+    switch(value) {
+        case CLASS_A:
+            return "A";
+        case CLASS_B:
+            return "B";
+        default:
+            return "C";
+    }
 }
 
 
 MTYPE string2mtype(
-	const std::string &value
+        const std::string &value
 ) {
-	if (value == "join-request")
-		return MTYPE_JOIN_REQUEST;
+    if (value == "join-request")
+        return MTYPE_JOIN_REQUEST;
     if (value == "join-accept")
-	 	return MTYPE_JOIN_ACCEPT;
- 	if (value == "unconfirmed-data-up")
-	 	return MTYPE_UNCONFIRMED_DATA_UP;
- 	if (value == "unconfirmed-data-down")
-	 	return MTYPE_UNCONFIRMED_DATA_DOWN;
-	if (value == "confirmed-data-up")
-		return MTYPE_CONFIRMED_DATA_UP;
+        return MTYPE_JOIN_ACCEPT;
+    if (value == "unconfirmed-data-up")
+        return MTYPE_UNCONFIRMED_DATA_UP;
+    if (value == "unconfirmed-data-down")
+        return MTYPE_UNCONFIRMED_DATA_DOWN;
+    if (value == "confirmed-data-up")
+        return MTYPE_CONFIRMED_DATA_UP;
     if (value == "confirmed-data-down")
-	 	return MTYPE_CONFIRMED_DATA_DOWN;
- 	if (value == "rejoin-request")
-		return MTYPE_REJOIN_REQUEST;
+        return MTYPE_CONFIRMED_DATA_DOWN;
+    if (value == "rejoin-request")
+        return MTYPE_REJOIN_REQUEST;
     if (value == "proprietary-radio")
-	 	return MTYPE_PROPRIETARYRADIO;
-	return MTYPE_JOIN_REQUEST;	//?!!
+        return MTYPE_PROPRIETARYRADIO;
+    return MTYPE_JOIN_REQUEST;	//?!!
 }
 
 std::string mtype2string(
-    MTYPE value
+        MTYPE value
 )
 {
     switch (value) {
@@ -472,7 +489,7 @@ std::string mtype2string(
 }
 
 MHDR string2mhdr(
-    const std::string &value
+        const std::string &value
 )
 {
     MHDR r{};
@@ -481,21 +498,21 @@ MHDR string2mhdr(
 }
 
 std::string mhdr2string(
-    MHDR value
+        MHDR value
 )
 {
     return mtype2string((MTYPE) value.f.mtype);
 }
 
 static bool isDownlink(
-    MHDR mhdr
+        MHDR mhdr
 )
 {
     return ((mhdr.f.mtype == MTYPE_UNCONFIRMED_DATA_DOWN) || (mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN));
 }
 
 static bool isUplink(
-    MHDR mhdr
+        MHDR mhdr
 )
 {
     return ((mhdr.f.mtype == MTYPE_UNCONFIRMED_DATA_UP) || (mhdr.f.mtype == MTYPE_CONFIRMED_DATA_UP));
@@ -504,7 +521,7 @@ static bool isUplink(
 #define DLMT    ", "
 
 std::string fctrl2string(
-    const RFM_HEADER* hdr
+        const RFM_HEADER* hdr
 )
 {
     if (!hdr)
@@ -535,16 +552,16 @@ std::string fctrl2string(
  * @return
  */
 static std::string cid2string(
-    char cid
+        char cid
 )
 {
     return getMACCommandName(cid);
 }
 
 std::string mac2string(
-    void *value,
-    uint8_t foptSize,
-    size_t bufferSize
+        void *value,
+        uint8_t foptSize,
+        size_t bufferSize
 )
 {
     size_t sz = foptSize;
@@ -556,12 +573,11 @@ std::string mac2string(
 }
 
 std::string rfm_header2string(
-    const RFM_HEADER* value
+        const RFM_HEADER* value
 )
 {
     std::stringstream ss;
-    ss
-        << mhdr2string(value->macheader) << DLMT
+    ss  << mhdr2string(value->macheader) << DLMT
         << DEVADDR2string(value->fhdr.devaddr) << DLMT
         << fctrl2string(value) << DLMT
         << value->fhdr.fcnt;     // frame counter
@@ -569,17 +585,17 @@ std::string rfm_header2string(
 }
 
 ACTIVATION string2activation(
-	const std::string &value
+        const std::string &value
 )
 {
-	if (value == "OTAA")
-		return OTAA;
-	else
-		return ABP;
+    if (value == "OTAA")
+        return OTAA;
+    else
+        return ABP;
 }
 
 ACTIVATION pchar2activation(
-    const char *name
+        const char *name
 )
 {
     for (int i = 0; i < 2; i++) {
@@ -591,19 +607,19 @@ ACTIVATION pchar2activation(
 }
 
 MODULATION string2MODULATION(
-    const char *value
+        const char *value
 )
 {
     if (strcmp(value, "FSK") == 0)
         return MODULATION_FSK;
     else
-        if (strcmp(value, "LORA") == 0)
-            return MODULATION_LORA;
+    if (strcmp(value, "LORA") == 0)
+        return MODULATION_LORA;
     return MODULATION_UNDEFINED;
 }
 
 BANDWIDTH string2BANDWIDTH(
-    const char *value
+        const char *value
 )
 {
     if (strcmp(value, "7.8") == 0)
@@ -630,102 +646,111 @@ BANDWIDTH string2BANDWIDTH(
 }
 
 LORAWAN_VERSION string2LORAWAN_VERSION(
-	const std::string &value
+        const std::string &value
 )
 {
-	std::stringstream ss(value);
-	int ma = 1, mi = 0, re = 0;
+    std::stringstream ss(value);
+    int ma = 1, mi = 0, re = 0;
     char dot;
-	if (!ss.eof ())
-		ss >> ma;
-	if (!ss.eof ())
-		ss >> dot;
-	if (!ss.eof ())
-		ss >> mi;
-	if (!ss.eof ())
-		ss >> dot;
-	if (!ss.eof ())
-		ss >> re;
-	LORAWAN_VERSION r = { (uint8_t) (ma & 3), (uint8_t) (mi & 3), (uint8_t) (re & 0xf) };
-	return r;
+    if (!ss.eof ())
+        ss >> ma;
+    if (!ss.eof ())
+        ss >> dot;
+    if (!ss.eof ())
+        ss >> mi;
+    if (!ss.eof ())
+        ss >> dot;
+    if (!ss.eof ())
+        ss >> re;
+    LORAWAN_VERSION r = { (uint8_t) (ma & 3), (uint8_t) (mi & 3), (uint8_t) (re & 0xf) };
+    return r;
 }
 
 
 DEVICECLASS string2deviceclass(
-	const std::string &value
+        const std::string &value
 )
 {
-	if (value == "A")
-		return CLASS_A;
-	else
-		if (value == "B")
-			return CLASS_B;
-		else
-			return CLASS_C;
+    if (value == "A")
+        return CLASS_A;
+    else
+    if (value == "B")
+        return CLASS_B;
+    else
+        return CLASS_C;
 }
 
 void string2DEVADDR(
-    DEVADDR &retVal,
-    const char *value
+        DEVADDR &retVal,
+        const char *value
 )
 {
     retVal.u = strtoul(value, nullptr, 16);
 }
 
 void string2DEVADDR(
-	DEVADDR &retVal,
-	const std::string &value
+        DEVADDR &retVal,
+        const std::string &value
 )
 {
     retVal.u = strtoul(value.c_str(), nullptr, 16);
 }
 
 void string2DEVEUI(
-	DEVEUI &retval,
-	const std::string &value
+        DEVEUI &retval,
+        const std::string &value
 )
 {
     retval.u = strtoull(value.c_str(), nullptr, 16);
 }
 
 void string2DEVEUI(
-    DEVEUI &retval,
-    const char *value
+        DEVEUI &retval,
+        const char *value
 )
 {
     retval.u = strtoull(value, nullptr, 16);
 }
 
 void string2KEY(
-	KEY128 &retval,
-	const std::string &str
+        KEY128 &retVal,
+        const char *str
 )
 {
-	size_t len = str.size();
-	std::string v;
-	if (len > sizeof(KEY128))
-		v = hex2string(str);
-	else
-		v= str;
-	len = v.size();
-	if (len > sizeof(KEY128))
-		len = sizeof(KEY128);
-	memmove(&retval.c, v.c_str(), len);
-	if (len < sizeof(KEY128))
-		memset(&retval.c + len, 0, sizeof(KEY128) - len);
+    char c[3] = {0, 0, 0};
+    int i = 0;
+    while (*str) {
+        c[0] = *str;
+        str++;
+        if (!*str)
+            break;
+        c[1] = *str;
+        retVal.c[i] = (unsigned char) strtol(c, nullptr, 16);
+        i++;
+        if (i > 15)
+            break;
+    }
+}
+
+void string2KEY(
+        KEY128 &retVal,
+        const std::string &str
+)
+{
+    string2KEY(retVal, str.c_str());
 }
 
 void string2DEVICENAME(
-	DEVICENAME &retval,
-	const char *str
+        DEVICENAME &retval,
+        const char *str
 )
 {
-	strncpy(retval.c, str, sizeof(DEVICENAME::c));
+    strncpy(retval.c, str, sizeof(DEVICENAME::c));
 }
 
 void string2JOINNONCE(
-    JOINNONCE &retval,
-    const std::string &value
+        JOINNONCE &retval,
+        const std::string &value
 )
 {
     uint32_t r = strtol(value.c_str(), nullptr, 16);
@@ -735,54 +760,54 @@ void string2JOINNONCE(
 }
 
 void string2APPNONCE(
-	APPNONCE& retval,
-	const std::string& value
+        APPNONCE& retval,
+        const std::string& value
 )
 {
-	uint32_t r = strtol(value.c_str(), nullptr, 16);
-	retval.c[2] = r & 0xff;
-	retval.c[1] = (r >> 8) & 0xff;
-	retval.c[0] = (r >> 16) & 0xff;
+    uint32_t r = strtol(value.c_str(), nullptr, 16);
+    retval.c[2] = r & 0xff;
+    retval.c[1] = (r >> 8) & 0xff;
+    retval.c[0] = (r >> 16) & 0xff;
 }
 
 void string2NETID(
-	NETID &retVal,
-	const char *value
+        NETID &retVal,
+        const char *value
 ) {
-	std::string str = hex2string(value);
-	size_t len = str.size();
-	if (len > sizeof(NETID))
-		len = sizeof(NETID);
-	memmove(&retVal.c, str.c_str(), len);
-	if (len < sizeof(NETID))
-		memset(&retVal.c + len, 0, sizeof(NETID) - len);
+    std::string str = hex2string(value);
+    size_t len = str.size();
+    if (len > sizeof(NETID))
+        len = sizeof(NETID);
+    memmove(&retVal.c, str.c_str(), len);
+    if (len < sizeof(NETID))
+        memset(&retVal.c + len, 0, sizeof(NETID) - len);
 }
 
 void string2FREQUENCY(
-	FREQUENCY &retVal,
-	const char *value
+        FREQUENCY &retVal,
+        const char *value
 ) {
-	std::string str = hex2string(value);
-	size_t len = str.size();
-	if (len > sizeof(FREQUENCY))
-		len = sizeof(FREQUENCY);
-	memmove(&retVal, str.c_str(), len);
-	if (len < sizeof(FREQUENCY))
-		memset(&retVal + len, 0, sizeof(FREQUENCY) - len);
+    std::string str = hex2string(value);
+    size_t len = str.size();
+    if (len > sizeof(FREQUENCY))
+        len = sizeof(FREQUENCY);
+    memmove(&retVal, str.c_str(), len);
+    if (len < sizeof(FREQUENCY))
+        memset(&retVal + len, 0, sizeof(FREQUENCY) - len);
 }
 
 uint64_t string2gatewayId(
-    const std::string& value
+        const std::string& value
 )
 {
     return strtoull(value.c_str(), nullptr, 16);
 }
 
 static void setIdentity(
-    NETWORKIDENTITY &retVal,
-    int fieldNo,
-    char *start,
-    char *finish
+        NETWORKIDENTITY &retVal,
+        int fieldNo,
+        char *start,
+        char *finish
 ) {
     std::string s(start, finish - start);
     switch (fieldNo) {
@@ -831,8 +856,8 @@ static void setIdentity(
 }
 
 bool string2NETWORKIDENTITY(
-    NETWORKIDENTITY &retVal,
-    const char *identityString
+        NETWORKIDENTITY &retVal,
+        const char *identityString
 )
 {
     int c = 0;
@@ -850,21 +875,21 @@ bool string2NETWORKIDENTITY(
 }
 
 const std::string ERR_CODE_TX_STR[] {
-    "NONE",             // 0
-    "TOO_LATE",
-    "TOO_EARLY",
-    "FULL",
-    "EMPTY",
-    "COLLISION_PACKET", // 5
-    "COLLISION_BEACON",
-    "TX_FREQ",
-    "TX_POWER",
-    "GPS_UNLOCKED",
-    "INVALID"           // 10
+        "NONE",             // 0
+        "TOO_LATE",
+        "TOO_EARLY",
+        "FULL",
+        "EMPTY",
+        "COLLISION_PACKET", // 5
+        "COLLISION_BEACON",
+        "TX_FREQ",
+        "TX_POWER",
+        "GPS_UNLOCKED",
+        "INVALID"           // 10
 };
 
 const std::string& ERR_CODE_TX2string(
-    ERR_CODE_TX code
+        ERR_CODE_TX code
 )
 {
     if (code > JIT_TX_ERROR_INVALID)
@@ -873,7 +898,7 @@ const std::string& ERR_CODE_TX2string(
 }
 
 ERR_CODE_TX string2ERR_CODE_TX(
-    const std::string &value
+        const std::string &value
 )
 {
     for (int c = 0; c <= JIT_TX_ERROR_INVALID; c++) {
@@ -890,8 +915,8 @@ ERR_CODE_TX string2ERR_CODE_TX(
  * @returns preading factor
  */
 SPREADING_FACTOR string2datr(
-    BANDWIDTH &bandwidth,
-    const std::string &value
+        BANDWIDTH &bandwidth,
+        const std::string &value
 )
 {
     size_t sz = value.size();
@@ -947,8 +972,8 @@ SPREADING_FACTOR string2datr(
  * @return LoRa datarate identifier e.g. "SF7BW125"
  */
 std::string datr2string(
-    SPREADING_FACTOR spreadingFactor,
-    BANDWIDTH bandwidth
+        SPREADING_FACTOR spreadingFactor,
+        BANDWIDTH bandwidth
 )
 {
     int bandwidthValue;
@@ -998,7 +1023,7 @@ std::string datr2string(
  * @param LoRa LoRa ECC coding rate identifier e.g. "4/6"
  */
 CODING_RATE string2codingRate(
-    const std::string &value
+        const std::string &value
 )
 {
     size_t sz = value.size();
@@ -1032,7 +1057,7 @@ CODING_RATE string2codingRate(
 }
 
 std::string codingRate2string(
-    CODING_RATE codingRate
+        CODING_RATE codingRate
 )
 {
     switch (codingRate) {
@@ -1057,29 +1082,29 @@ std::string codingRate2string(
 }
 
 std::string SEMTECH_PROTOCOL_METADATA_RX2string(
-    const SEMTECH_PROTOCOL_METADATA_RX &value
+        const SEMTECH_PROTOCOL_METADATA_RX &value
 )
 {
     std::stringstream ss;
     ss << R"({"gatewayId": ")" << gatewayId2str(value.gatewayId)
-        << R"(", "time": ")" << time2string(value.t)
-        << R"(", "tmst": )" << value.tmst
-        << ", \"chan\": " << (int) value.chan
-        << ", \"rfch\": " << (int) value.rfch
-        << ", \"freq\": " << value.freq
-        << ", \"stat\": " << (int) value.stat
-        << R"(, "modu": ")" << MODULATION2String(value.modu)
-        << R"(", "datr": ")" <<  datr2string(value.spreadingFactor, value.bandwidth)
-        << R"(", "codr": ")" << codingRate2string(value.codingRate)
-        << R"(", "bps": )" << value.bps
-        << ", \"rssi\": " << value.rssi
-        << ", \"lsnr\": " << std::fixed << std::setprecision(2) << value.lsnr
-        << "}";
+       << R"(", "time": ")" << time2string(value.t)
+       << R"(", "tmst": )" << value.tmst
+       << ", \"chan\": " << (int) value.chan
+       << ", \"rfch\": " << (int) value.rfch
+       << ", \"freq\": " << value.freq
+       << ", \"stat\": " << (int) value.stat
+       << R"(, "modu": ")" << MODULATION2String(value.modu)
+       << R"(", "datr": ")" <<  datr2string(value.spreadingFactor, value.bandwidth)
+       << R"(", "codr": ")" << codingRate2string(value.codingRate)
+       << R"(", "bps": )" << value.bps
+       << ", \"rssi\": " << value.rssi
+       << ", \"lsnr\": " << std::fixed << std::setprecision(2) << value.lsnr
+       << "}";
     return ss.str();
 }
 
 std::string SEMTECH_PROTOCOL_METADATA_TX2string(
-    const SEMTECH_PROTOCOL_METADATA_TX &value
+        const SEMTECH_PROTOCOL_METADATA_TX &value
 )
 {
     std::stringstream ss;
@@ -1097,18 +1122,18 @@ std::string SEMTECH_PROTOCOL_METADATA_TX2string(
         << ", \"ncrc\": " << (value.no_crc? "true" : "false")
         << ", \"no_header\": " << (value.no_header? "true" : "false")
         << ", \"size\": " << value.size
-       << "}";
+        << "}";
     return ss.str();
 }
 
 std::string REGIONAL_PARAMETERS_VERSION2string(
-    REGIONAL_PARAMETERS_VERSION value
+        REGIONAL_PARAMETERS_VERSION value
 ) {
     return LORAWAN_VERSION2string(*(LORAWAN_VERSION*) &value);
 }
 
 REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
-    const std::string &value
+        const std::string &value
 ) {
     std::stringstream ss(value);
     int ma = 1, mi = 0, re = 0;
@@ -1128,7 +1153,7 @@ REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
 }
 
 static std::string file2string(
-    std::istream &strm
+        std::istream &strm
 )
 {
     if (!strm)
@@ -1137,7 +1162,7 @@ static std::string file2string(
 }
 
 std::string file2string(
-    const char *filename
+        const char *filename
 )
 {
     if (!filename)
@@ -1147,8 +1172,8 @@ std::string file2string(
 }
 
 bool string2file(
-    const std::string &filename,
-    const std::string &value
+        const std::string &filename,
+        const std::string &value
 )
 {
     FILE* f = fopen(filename.c_str(), "w");

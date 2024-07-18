@@ -51,7 +51,7 @@ else()
 		file(GLOB PO_FILES ${PO_PATH}/*.po)
 		# Generated file list
 		set(MO_FILES)
-		set(PRG lorawan-service)
+		set(PRG tlns)
 		set(LOCALE_INSTALL_DIR /usr/share/locale)
 		foreach(_poFile ${PO_FILES})
 			GET_FILENAME_COMPONENT(_poFileName ${_poFile} NAME)
@@ -202,7 +202,7 @@ else()
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	add_executable(gateway-config2cpp
-		tools/gateway-config2cpp.cpp
+		util/gateway-config2cpp.cpp
 		lorawan/proto/gw/gateway-file-json.cpp
 		${ARGTABLE}
 	)
@@ -213,7 +213,7 @@ else()
 	)
 
 	add_executable(regional-parameters2cpp
-		tools/regional-parameters2cpp.cpp
+		util/regional-parameters2cpp.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
 		${ARGTABLE}
 	)

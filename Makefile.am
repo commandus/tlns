@@ -193,12 +193,12 @@ gw_dev_usb_LDADD = -L. -llorawan -lloragw
 gw_dev_usb_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
 
-gateway_config2cpp_SOURCES = tools/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp \
+gateway_config2cpp_SOURCES = util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp \
     $(SRC_ARGTABLE)
 gateway_config2cpp_LDADD = -L. -llorawan -lloragw
 gateway_config2cpp_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
-regional_parameters2cpp_SOURCES = tools/regional-parameters2cpp.cpp \
+regional_parameters2cpp_SOURCES = util/regional-parameters2cpp.cpp \
     $(SRC_ARGTABLE)
 regional_parameters2cpp_LDADD = -L. -llorawan
 regional_parameters2cpp_CPPFLAGS = $(EXTRA_DEF)

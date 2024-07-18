@@ -1,0 +1,37 @@
+#: util/regional-parameters2cpp.cpp:51
+msgid "Regional parameters JSON file name"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:51
+msgid "<file>"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:52
+msgid "Set verbosity level"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:53
+msgid "Show this help"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:76
+msgid "Usage: "
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:80
+msgid "Convert regional parameters JSON file(s) to c++ source e.g.\n"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:81
+msgid ""
+"\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-"
+"parameters.h"
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:140
+msgid "File: "
+msgstr ""
+
+#: util/regional-parameters2cpp.cpp:151
+msgid "Regions: "
+msgstr ""

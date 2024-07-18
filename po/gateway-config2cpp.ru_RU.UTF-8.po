@@ -1,0 +1,29 @@
+#: util/gateway-config2cpp.cpp:54
+msgid "<file>"
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:54
+msgid "Gateway config JSON file name"
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:55
+msgid "Set verbosity level"
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:56
+msgid "Show this help"
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:79
+msgid "Usage: "
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:83
+msgid "Convert gateway JSON config file to c++ source e.g.\n"
+msgstr ""
+
+#: util/gateway-config2cpp.cpp:84
+msgid ""
+"\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/"
+"global_conf_usb/*.json > gateway_usb_conf.h"
+msgstr ""

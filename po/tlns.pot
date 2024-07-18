@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-18 10:53+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cli-main-check.cpp:54
+msgid "Verbose: "
+msgstr ""
+
+#: cli-main-check.cpp:124
+msgid "Region"
+msgstr ""
+
+#: cli-main-check.cpp:142
+msgid "Enter packet (hex string) or  'q' to stop"
+msgstr ""
+
+#: cli-main-check.cpp:160
+msgid "-v verbose -vv debug"
+msgstr ""
+
+#: cli-main-check.cpp:161
+msgid "<region-name>"
+msgstr ""
+
+#: cli-main-check.cpp:161
+msgid "Region name, e.g. \"EU433\" or \"US\""
+msgstr ""
+
+#: cli-main-check.cpp:162
+msgid "Show this help"
+msgstr ""
+
+#: cli-main-check.cpp:189
+msgid "Region "
+msgstr ""
+
+#: cli-main-check.cpp:189
+msgid "not found"
+msgstr ""
+
+#: cli-main-check.cpp:198
+msgid "Usage: "
+msgstr ""
+
+#: cli-main-check.cpp:200
+msgid "tlns check utility"
+msgstr ""
+
+#: cli-main-check.cpp:202
+msgid "Regions: "
+msgstr ""

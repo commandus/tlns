@@ -1,0 +1,47 @@
+#: cli-main-check.cpp:54
+msgid "Verbose: "
+msgstr ""
+
+#: cli-main-check.cpp:124
+msgid "Region"
+msgstr ""
+
+#: cli-main-check.cpp:142
+msgid "Enter packet (hex string) or  'q' to stop"
+msgstr ""
+
+#: cli-main-check.cpp:160
+msgid "-v verbose -vv debug"
+msgstr ""
+
+#: cli-main-check.cpp:161
+msgid "<region-name>"
+msgstr ""
+
+#: cli-main-check.cpp:161
+msgid "Region name, e.g. \"EU433\" or \"US\""
+msgstr ""
+
+#: cli-main-check.cpp:162
+msgid "Show this help"
+msgstr ""
+
+#: cli-main-check.cpp:189
+msgid "Region "
+msgstr ""
+
+#: cli-main-check.cpp:189
+msgid "not found"
+msgstr ""
+
+#: cli-main-check.cpp:198
+msgid "Usage: "
+msgstr ""
+
+#: cli-main-check.cpp:200
+msgid "tlns check utility"
+msgstr ""
+
+#: cli-main-check.cpp:202
+msgid "Regions: "
+msgstr ""

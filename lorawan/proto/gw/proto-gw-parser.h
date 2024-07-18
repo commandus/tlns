@@ -4,6 +4,7 @@
 #include "lorawan/task/task-platform.h"
 #include "lorawan/task/message-task-dispatcher.h"
 #include "lorawan/proto/gw/gw.h"
+#include "lorawan/lorawan-builder.h"
 
 /**
  * ProtoGwParser::parse return result in ParseResult structure
@@ -59,6 +60,14 @@ public:
         const char *packetForwarderPacket,
         size_t size
     ) = 0;
+
+    virtual ssize_t makeMessage2Gateway(
+        char *retBuf,
+        size_t retSize,
+        MessageBuilder &msgBuilder,
+        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+    ) = 0;
+
     virtual ~ProtoGwParser();
 };
 

@@ -76,6 +76,13 @@ public:
         size_t size
     ) override;
 
+    ssize_t makeMessage2Gateway(
+        char *retBuf,
+        size_t retSize,
+        MessageBuilder &msgBuilder,
+        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+    ) override;
+
     GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
 };
 

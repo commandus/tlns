@@ -73,11 +73,11 @@ const JOIN_REQUEST_FRAME * MessageQueueItem::getJoinRequestFrame() const {
 
 /**
  * Return gateway MAC address as int with best SNR
- * @param retvalLsnr if provided, return SNR
+ * @param retValMetadata RX metadata
  * @return 0 if not found
  */
 uint64_t MessageQueueItem::getBestGatewayAddress(
-    float *retvalLsnr
+    SEMTECH_PROTOCOL_METADATA_RX &retValMetadata
 ) const
 {
     float f = -3.402823466E+38f;
@@ -86,11 +86,8 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
     {
         if (it->second.lsnr > f)
         {
-            f = it->second.lsnr;
             r = it->first;
-            if (retvalLsnr) {
-                *retvalLsnr = f;
-            }
+            retValMetadata = it->second;
         }
     }
     return r;

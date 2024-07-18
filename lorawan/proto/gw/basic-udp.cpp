@@ -483,3 +483,13 @@ ssize_t GatewayBasicUdpProtocol::ack(
     ((SEMTECH_ACK *) retBuf)->tag++;
     return SIZE_SEMTECH_ACK;
 }
+
+ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
+    char *retBuf,
+    size_t retSize,
+    MessageBuilder &msgBuilder,
+    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+)
+{
+    return 0;
+}

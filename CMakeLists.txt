@@ -35,13 +35,19 @@ else()
 	# Setting up i18l & l10n
 	# see https://stackoverflow.com/questions/10521635/using-intltool-with-cmake
 	#
-	find_package(Intl)
-	find_package(Gettext)
-	if(Intl_LIBRARY)
-		set(LIBINTL Intl::Intl)
+	find_package(Gettext REQUIRED)
+	find_package(Intl REQUIRED)
+
+	if (CMAKE_VERSION VERSION_GREATER "3.20.0")
+	set(LIBINTL Intl::Intl)
+	else()
+	set(LIBINTL Intl::Intl)
 	endif()
+
+	include_directories(${Intl_INCLUDE_DIRS})
 	link_directories(${Intl_LIBRARY_DIRS})
 	find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt)
+
 	if(NOT GETTEXT_MSGFMT_EXECUTABLE)
 		message("NOTE: msgfmt not found. Translations will *not* be installed")
 	else()
@@ -53,35 +59,35 @@ else()
 		set(MO_FILES)
 		set(PRG tlns)
 		set(LOCALE_INSTALL_DIR /usr/share/locale)
-		foreach(_poFile ${PO_FILES})
-			GET_FILENAME_COMPONENT(_poFileName ${_poFile} NAME)
-			STRING(REGEX REPLACE "^${PRG}\\." "" _langCode ${_poFileName} )
-			STRING(REGEX REPLACE "\\.UTF-8\\.po$" "" _langCode ${_langCode} )
-			STRING(REGEX REPLACE "_..$" "" _langCode ${_langCode} )
-			if( _langCode )
-				message("** PO file ${_poFileName} LANG ${_langCode} LIBDIR ${Intl_LIBRARY_DIRS} INCDIR ${Intl_INCLUDE_DIRS}")
-				GET_FILENAME_COMPONENT(_lang ${_poFile} NAME_WE)
+		FOREACH(_poFile ${PO_FILES})
+		GET_FILENAME_COMPONENT(_poFileName ${_poFile} NAME)
+		STRING(REGEX REPLACE "^${PRG}\\." "" _langCode ${_poFileName} )
+		STRING(REGEX REPLACE "\\.UTF-8\\.po$" "" _langCode ${_langCode} )
+		STRING(REGEX REPLACE "_..$" "" _langCode ${_langCode} )
+		IF( _langCode )
+			MESSAGE("** PO file ${_poFileName} LANG ${_langCode} LIBDIR ${INTL_LIBRARY_DIRS} INCDIR ${INTL_INCLUDE_DIRS}")
+			GET_FILENAME_COMPONENT(_lang ${_poFile} NAME_WE)
 
-				set(_moPath ${CMAKE_CURRENT_SOURCE_DIR}/locale/${_langCode}/LC_MESSAGES)
-				set(_moFile ${_moPath}/${PRG}.mo)
-				message("** ** ${_moFile} install to ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/${PRG}.mo")
-				#	mkdir -p ${_moPath} ; ${GETTEXT_MSGFMT_EXECUTABLE} -o ${_moFile} ${_poFile}
-				if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-					message("** powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE}
-						${_moPath} ${_moFile} ${_poFile}")
-					add_custom_command(OUTPUT ${_moFile}
-						command powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE}
-							${_moPath} ${_moFile} ${_poFile} DEPENDS ${_poFile})
-				else()
-					message("** ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}")
-					add_custom_command(OUTPUT ${_moFile}
-						command ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}
-							DEPENDS ${_poFile})
-				endif()
-				#			install(FILES ${_moFile} DESTINATION ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/ RENAME ${PRG}.mo)
-				list(APPEND MO_FILES ${_moFile})
-			endif()
-		endforeach(_poFile ${PO_FILES})
+			SET(_moPath ${CMAKE_CURRENT_SOURCE_DIR}/locale/${_langCode}/LC_MESSAGES)
+			SET(_moFile ${_moPath}/${PRG}.mo)
+			MESSAGE("** ** ${_moFile} install to ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/${PRG}.mo")
+#	mkdir -p ${_moPath} ; ${GETTEXT_MSGFMT_EXECUTABLE} -o ${_moFile} ${_poFile}
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	MESSAGE("** powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}")
+	ADD_CUSTOM_COMMAND(OUTPUT ${_moFile}
+		COMMAND powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}
+		DEPENDS ${_poFile})
+else()
+	MESSAGE("** ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}")
+	ADD_CUSTOM_COMMAND(OUTPUT ${_moFile}
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}
+		DEPENDS ${_poFile})
+endif()
+#			INSTALL(FILES ${_moFile} DESTINATION ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/ RENAME ${PRG}.mo)
+			LIST(APPEND MO_FILES ${_moFile})
+		ENDIF()
+	ENDFOREACH(_poFile ${PO_FILES})
+
 		add_custom_target(translations ALL DEPENDS ${MO_FILES})
 	endif()
 

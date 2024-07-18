@@ -20,6 +20,11 @@
 #include "lorawan/proto/gw/gateway-file-json.h"
 #include "lorawan/lorawan-msg.h"
 
+// i18n
+#include <libintl.h>
+#define _(String) gettext (String)
+// #define _(String) (String)
+
 const std::string programName = "gateway-config2cpp";
 
 #ifdef _MSC_VER
@@ -46,9 +51,9 @@ int parseCmd(
         char *argv[])
 {
     // device path
-    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, "<file>", 1, 100, "Gateway config JSON file name");
-    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, "Set verbosity level");
-    struct arg_lit *a_help = arg_lit0("?", "help", "Show this help");
+    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, _("<file>"), 1, 100, _("Gateway config JSON file name"));
+    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, _("Set verbosity level"));
+    struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
@@ -71,12 +76,12 @@ int parseCmd(
     if ((a_help->count) || nerrors) {
         if (nerrors)
             arg_print_errors(stderr, a_end, programName.c_str());
-        std::cerr << "Usage: " << programName << std::endl;
+        std::cerr << _("Usage: ") << programName << std::endl;
         arg_print_syntax(stderr, argtable, "\n");
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
         std::cerr
-                << "Convert gateway JSON config file to c++ source e.g.\n"
-                   "\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/*.json > gateway_usb_conf.h"
+                << _("Convert gateway JSON config file to c++ source e.g.\n")
+                << _("\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/*.json > gateway_usb_conf.h")
                 << std::endl;
 
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));

@@ -18,9 +18,9 @@
 // #include "gen/regional-parameters-3.h"
 
 // i18n
-// #include <libintl.h>
-// #define _(String) gettext (String)
-#define _(String) (String)
+#include <libintl.h>
+#define _(String) gettext (String)
+// #define _(String) (String)
 
 const std::string programName = "regional-parameters2cpp";
 
@@ -48,9 +48,9 @@ int parseCmd(
         char *argv[])
 {
     // device path
-    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, "<file>", 1, 100, "Regional parameters JSON file name");
-    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, "Set verbosity level");
-    struct arg_lit *a_help = arg_lit0("?", "help", "Show this help");
+    struct arg_str *a_file_names = arg_strn(nullptr, nullptr, _("<file>"), 1, 100, _("Regional parameters JSON file name"));
+    struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, _("Set verbosity level"));
+    struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
@@ -73,12 +73,12 @@ int parseCmd(
     if ((a_help->count) || nerrors) {
         if (nerrors)
             arg_print_errors(stderr, a_end, programName.c_str());
-        std::cerr << "Usage: " << programName << std::endl;
+        std::cerr << _("Usage: ") << programName << std::endl;
         arg_print_syntax(stderr, argtable, "\n");
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
         std::cerr
-                << "Convert regional parameters JSON file(s) to c++ source e.g.\n"
-                   "\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters.h"
+                << _("Convert regional parameters JSON file(s) to c++ source e.g.\n")
+                << _("\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters.h")
                 << std::endl;
 
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));

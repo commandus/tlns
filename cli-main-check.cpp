@@ -19,9 +19,9 @@
 #include "gen/regional-parameters-3.h"
 
 // i18n
-// #include <libintl.h>
-// #define _(String) gettext (String)
-#define _(String) (String)
+#include <libintl.h>
+#define _(String) gettext (String)
+/// #define _(String) (String)
 
 const char *programName = "tlns-check";
 const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";

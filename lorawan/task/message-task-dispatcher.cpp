@@ -257,7 +257,7 @@ int MessageTaskDispatcher::run()
                 case SA_TIMER:
                     std::cout << "Timer event " << taskTime2string(receivedTime) << std::endl;
                     sz = read(s->sock, buffer, sizeof(buffer)); // 8 bytes, timer counter value
-                    sendQueue(receivedTime);
+                    sendQueue(receivedTime, pr.token);
                     // set timer
                     if (isTimeProcessQueueOrSetTimer(receivedTime)) {
                         // nothing to do
@@ -290,7 +290,7 @@ int MessageTaskDispatcher::run()
                     default:
                         if (isTimeProcessQueueOrSetTimer(receivedTime)) {
                             // try send again
-                            sendQueue(receivedTime);
+                            sendQueue(receivedTime, pr.token);
                         }
                 }
                 switch (sz) {
@@ -441,7 +441,8 @@ void MessageTaskDispatcher::setRegionalParameterChannelPlan(
 }
 
 void MessageTaskDispatcher::sendQueue(
-    TASK_TIME now
+    TASK_TIME now,
+    uint8_t token
 ) {
     TimeAddr ta;
     while (queue.time2ResponseAddr.pop(ta, now)) {
@@ -451,15 +452,14 @@ void MessageTaskDispatcher::sendQueue(
             continue;
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
+            char sb[1024];
 
-            char buffer[SIZE_CONFIRMATION_EMPTY_DOWN];
-            size_t sz = confirmationMessage.get(buffer, SIZE_CONFIRMATION_EMPTY_DOWN);
-            std::cout << hexString(buffer, sz) << std::endl;
+            size_t sz = confirmationMessage.get(sb, SIZE_CONFIRMATION_EMPTY_DOWN);
+            std::cout << hexString(sb, sz) << std::endl;
 
             SEMTECH_PROTOCOL_METADATA_RX rx;
             if (m->second.getBestGatewayAddress(rx)) {
-                char sb[1024];
-                this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, &rx);
+                this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
             }
         }
     }

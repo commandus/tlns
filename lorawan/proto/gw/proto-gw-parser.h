@@ -12,6 +12,7 @@
 class ParseResult {
 public:
     uint8_t tag;
+    uint16_t token;
     GwPushData gwPushData;
     GwPullResp gwPullResp;
     ERR_CODE_TX code;           ///< code
@@ -52,6 +53,7 @@ public:
      * @param retSize buffer size
      * @param packetForwarderPacket received packet
      * @param size received packet size
+     * @param regionalPlan optional regional plan
      * @return size of ACK packet. 0- no ACK packet, <0 error code e.g. buffer size is too small
      */
     virtual ssize_t ack(
@@ -62,10 +64,11 @@ public:
     ) = 0;
 
     virtual ssize_t makeMessage2Gateway(
-        char *retBuf,
-        size_t retSize,
+        char *retBuf, size_t retSize,
         MessageBuilder &msgBuilder,
-        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+        uint16_t token,
+        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const RegionalParameterChannelPlan *regionalPlan
     ) = 0;
 
     virtual ~ProtoGwParser();

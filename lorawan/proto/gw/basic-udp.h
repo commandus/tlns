@@ -80,7 +80,9 @@ public:
         char *retBuf,
         size_t retSize,
         MessageBuilder &msgBuilder,
-        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+        uint16_t token,
+        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const RegionalParameterChannelPlan *pPlan
     ) override;
 
     GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);

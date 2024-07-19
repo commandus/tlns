@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "nlohmann/json.hpp"
 
 #include "lorawan/proto/gw/basic-udp.h"
@@ -386,6 +387,7 @@ int GatewayBasicUdpProtocol::parse(
     if (p->version != 2)
         return ERR_CODE_INVALID_PACKET;
     retVal.tag = p->tag;
+    retVal.token = p->token;
     int r = 0;
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
@@ -488,8 +490,35 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
     char *retBuf,
     size_t retSize,
     MessageBuilder &msgBuilder,
-    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata
+    uint16_t token,
+    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const RegionalParameterChannelPlan *regionalPlan
 )
 {
+    std::stringstream ss;
+    SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
+    /*
+    ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
+       << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
+    if (receivedTime == 0)
+        ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
+    else {
+        uint32_t sendTime = receivedTime + 1000000;
+        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << sendTime;
+    }
+
+    ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << metadata[metadataIdx].frequency()       // "868.900"
+       // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
+       << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
+       << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << power									// TX output power in dBm (unsigned integer, dBm precision)
+       << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\"" << metadata[metadataIdx].modulation()	// Modulation identifier "LORA" or "FSK"
+       << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\"" << metadata[metadataIdx].datr()
+       << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << metadata[metadataIdx].codr()
+       << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" 									// Lora modulation polarization inversion
+       << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false" 									// Check CRC
+       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << payloadString.size()
+       << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << base64_encode(payloadString) << "\"}}";
+
+    */
     return 0;
 }

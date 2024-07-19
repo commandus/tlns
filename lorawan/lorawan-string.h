@@ -116,13 +116,17 @@ CODING_RATE string2codingRate(const std::string &value);
  */
 std::string codingRate2string(CODING_RATE codingRate);
 
-std::string SEMTECH_PROTOCOL_METADATA_RX2string(const SEMTECH_PROTOCOL_METADATA_RX &value);
+std::string SEMTECH_PROTOCOL_METADATA_RX2string(
+    const SEMTECH_PROTOCOL_METADATA_RX &value
+);
 /**
  * Return JSON string
  * @param value
  * @return JSON string
  */
-std::string SEMTECH_PROTOCOL_METADATA_TX2string(const SEMTECH_PROTOCOL_METADATA_TX &value);
+std::string SEMTECH_PROTOCOL_METADATA_TX2string(
+    const SEMTECH_PROTOCOL_METADATA_TX &value
+);
 
 std::string REGIONAL_PARAMETERS_VERSION2string(
     REGIONAL_PARAMETERS_VERSION value

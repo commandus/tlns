@@ -152,7 +152,7 @@ public:
         const RegionalParameterChannelPlan *aRegionalPlan
     );
 
-    void sendQueue(TASK_TIME now);
+    void sendQueue(TASK_TIME now, uint8_t token);
 
     bool isTimeProcessQueueOrSetTimer(TASK_TIME now);
 

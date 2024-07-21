@@ -1,29 +1,31 @@
 #: util/gateway-config2cpp.cpp:54
 msgid "<file>"
-msgstr ""
+msgstr "<файл>"
 
 #: util/gateway-config2cpp.cpp:54
 msgid "Gateway config JSON file name"
-msgstr ""
+msgstr "имя файла конфигурации шлюза (JSON)"
 
 #: util/gateway-config2cpp.cpp:55
 msgid "Set verbosity level"
-msgstr ""
+msgstr "Задать уровень детализации вывода"
 
 #: util/gateway-config2cpp.cpp:56
 msgid "Show this help"
-msgstr ""
+msgstr "Показать эту справку"
 
 #: util/gateway-config2cpp.cpp:79
 msgid "Usage: "
-msgstr ""
+msgstr "Использование: "
 
 #: util/gateway-config2cpp.cpp:83
 msgid "Convert gateway JSON config file to c++ source e.g.\n"
-msgstr ""
+msgstr "Создать C++ файл из файла конфигурации шлюза (JSON), например\n"
 
 #: util/gateway-config2cpp.cpp:84
 msgid ""
 "\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/"
 "global_conf_usb/*.json > gateway_usb_conf.h"
 msgstr ""
+"\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/"
+"global_conf_usb/*.json > gateway_usb_conf.h"

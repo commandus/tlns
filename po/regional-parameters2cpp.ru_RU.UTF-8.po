@@ -1,37 +1,39 @@
 #: util/regional-parameters2cpp.cpp:51
-msgid "Regional parameters JSON file name"
-msgstr ""
+msgid "<file>"
+msgstr "<файл>"
 
 #: util/regional-parameters2cpp.cpp:51
-msgid "<file>"
-msgstr ""
+msgid "Regional parameters JSON file name"
+msgstr "имя файла региональных параметров LoRaWAN (JSON)"
 
 #: util/regional-parameters2cpp.cpp:52
 msgid "Set verbosity level"
-msgstr ""
+msgstr "Задать уровень детализации вывода"
 
 #: util/regional-parameters2cpp.cpp:53
 msgid "Show this help"
-msgstr ""
+msgstr "Показать эту справку"
 
 #: util/regional-parameters2cpp.cpp:76
 msgid "Usage: "
-msgstr ""
+msgstr "Использование: "
 
 #: util/regional-parameters2cpp.cpp:80
 msgid "Convert regional parameters JSON file(s) to c++ source e.g.\n"
-msgstr ""
+msgstr "Создать C++ файл из файла региональных параметров LoRaWAN (JSON), например\n"
 
 #: util/regional-parameters2cpp.cpp:81
 msgid ""
 "\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-"
 "parameters.h"
 msgstr ""
+"\t./regional-parameters2cpp gen/regional-parameters.json > gen/regional-"
+"parameters.h"
 
 #: util/regional-parameters2cpp.cpp:140
 msgid "File: "
-msgstr ""
+msgstr "Файл: "
 
 #: util/regional-parameters2cpp.cpp:151
 msgid "Regions: "
-msgstr ""
+msgstr "Регионгы: "

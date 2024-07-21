@@ -1,47 +1,47 @@
 #: cli-main-check.cpp:54
 msgid "Verbose: "
-msgstr ""
+msgstr "Детализация: "
 
 #: cli-main-check.cpp:124
 msgid "Region"
-msgstr ""
+msgstr "Регион"
 
 #: cli-main-check.cpp:142
 msgid "Enter packet (hex string) or  'q' to stop"
-msgstr ""
+msgstr "Введите пакет (шестнадцатиричными цифрами) или  'q' для остановки"
 
 #: cli-main-check.cpp:160
 msgid "-v verbose -vv debug"
-msgstr ""
+msgstr "-v подробно -vv отладочная информация"
 
 #: cli-main-check.cpp:161
 msgid "<region-name>"
-msgstr ""
+msgstr "<имя-региона>"
 
 #: cli-main-check.cpp:161
 msgid "Region name, e.g. \"EU433\" or \"US\""
-msgstr ""
+msgstr "Имя региона, например \"EU433\" или \"US\""
 
 #: cli-main-check.cpp:162
 msgid "Show this help"
-msgstr ""
+msgstr "Показать эту справку"
 
 #: cli-main-check.cpp:189
 msgid "Region "
-msgstr ""
+msgstr "Регион "
 
 #: cli-main-check.cpp:189
 msgid "not found"
-msgstr ""
+msgstr "не найден"
 
 #: cli-main-check.cpp:198
 msgid "Usage: "
-msgstr ""
+msgstr "Использование: "
 
 #: cli-main-check.cpp:200
 msgid "tlns check utility"
-msgstr ""
+msgstr "tlns проверочная утилита"
 
 #: cli-main-check.cpp:202
 msgid "Regions: "
-msgstr ""
+msgstr "Регионы: "

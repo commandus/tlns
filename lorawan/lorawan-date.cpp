@@ -288,3 +288,10 @@ std::string taskTime2string(
 
     return ss.str();
 }
+
+uint32_t microsecondsAdd(
+        uint32_t value,
+        uint32_t addValue)
+{
+    return 0;
+}

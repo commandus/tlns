@@ -23,6 +23,15 @@
 
 #define INVALID_ID 0xffffffff
 
+static std::string STR_TRUE("true");
+static std::string STR_FALSE("false");
+#define STR_TRUE_FALSE STR_TRUE : STR_FALSE
+
+class StringifyIntf {
+public:
+    virtual std::string toString() const = 0;
+};
+
 // typedef unsigned char NETID[3];
 PACK(class NETID {
 private:
@@ -688,5 +697,30 @@ PACK(class PROFILEID {
 });
 
 #define SIZE_CONFIRMATION_EMPTY_DOWN 16
+
+typedef struct DATA_RATE {
+    bool uplink;                        // data-rate can be used for uplink
+    bool downlink;                      // data-rate can be used for downlink
+    MODULATION modulation;
+    BANDWIDTH bandwidth;                // in kHz, used for LoRa
+    SPREADING_FACTOR spreadingFactor;   // used for LoRa
+    uint32_t bps;       				// FSK bits per second
+} DATA_RATE;
+
+// DataRate defines a data rate
+class DataRate {
+public:
+    DATA_RATE value;
+    DataRate();
+    DataRate(const DataRate &value);
+    explicit DataRate(const DATA_RATE &value);
+    // Lora modulation
+    DataRate(BANDWIDTH bandwidth, SPREADING_FACTOR spreadingFactor);
+    // FSK modulation
+    DataRate(uint32_t bps);
+    void setLora(BANDWIDTH bandwidth, SPREADING_FACTOR spreadingFactor);
+    void setFSK(uint32_t bps);
+    std::string toString() const;
+};
 
 #endif

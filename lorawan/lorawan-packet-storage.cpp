@@ -225,6 +225,23 @@ LORAWAN_MESSAGE_STORAGE& LORAWAN_MESSAGE_STORAGE::operator=(
     return *this;
 }
 
+std::string LORAWAN_MESSAGE_STORAGE::payloadBase64() const
+{
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            return base64_encode(std::string((char *) data.uplink.optsNpayload + data.uplink.f.foptslen,
+                packetSize - data.uplink.f.foptslen));
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            return base64_encode(std::string((char *) data.downlink.optsNpayload + data.downlink.f.foptslen,
+                packetSize - data.downlink.f.foptslen));
+        default:
+            break;
+    }
+    return "";
+}
+
 bool UPLINK_STORAGE::operator==(
     const UPLINK_STORAGE &rhs
 ) const

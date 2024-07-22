@@ -7,6 +7,7 @@
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
+#include "lorawan/power-dbm.h"
 
 /**
  * 	Section 3.3
@@ -486,6 +487,45 @@ ssize_t GatewayBasicUdpProtocol::ack(
     return SIZE_SEMTECH_ACK;
 }
 
+void GatewayBasicUdpProtocol::makeMessage2GatewayStream(
+    std::ostream &ss,
+    MessageBuilder &msgBuilder,
+    uint16_t token,
+    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const RegionalParameterChannelPlan *aRegionalPlan
+)
+{
+    if (!rxMetadata)
+        return;
+    SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
+    ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
+       << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
+    // tmst
+    if (rxMetadata->tmst) {
+        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << microsecondsAdd(rxMetadata->tmst, 500000);
+    }
+    /*
+    if (receivedTime == 0)
+        ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
+    else {
+        uint32_t sendTime = receivedTime + 1000000;
+        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << sendTime;
+    }
+    */
+
+    ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
+       // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
+       << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
+       << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << gwPower(rxMetadata, aRegionalPlan)									// TX output power in dBm (unsigned integer, dBm precision)
+       << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\"" << MODULATION2String(rxMetadata->modu)	// Modulation identifier "LORA" or "FSK"
+       << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\"" << DATA_RATE2string(rxMetadata->bandwidth, rxMetadata->spreadingFactor)
+       << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
+       << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
+       << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
+       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.msg.packetSize
+       << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << msgBuilder.msg.payloadBase64()  << "\"}}";
+}
+
 ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
     char *retBuf,
     size_t retSize,
@@ -496,29 +536,10 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
 )
 {
     std::stringstream ss;
-    SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
-    /*
-    ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
-       << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
-    if (receivedTime == 0)
-        ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
-    else {
-        uint32_t sendTime = receivedTime + 1000000;
-        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << sendTime;
-    }
-
-    ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << metadata[metadataIdx].frequency()       // "868.900"
-       // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
-       << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
-       << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << power									// TX output power in dBm (unsigned integer, dBm precision)
-       << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\"" << metadata[metadataIdx].modulation()	// Modulation identifier "LORA" or "FSK"
-       << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\"" << metadata[metadataIdx].datr()
-       << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << metadata[metadataIdx].codr()
-       << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" 									// Lora modulation polarization inversion
-       << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false" 									// Check CRC
-       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << payloadString.size()
-       << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << base64_encode(payloadString) << "\"}}";
-
-    */
-    return 0;
+    makeMessage2GatewayStream(ss, msgBuilder, token, rxMetadata, regionalPlan);
+    std::string s(ss.str());
+    auto sz = s.size();
+    if (retBuf && retSize <= sz)
+        memmove(retBuf, s.c_str(), sz);
+    return sz;
 }

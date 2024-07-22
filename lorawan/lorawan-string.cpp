@@ -796,6 +796,23 @@ void string2FREQUENCY(
         memset(&retVal + len, 0, sizeof(FREQUENCY) - len);
 }
 
+std::string frequency2string(
+    const FREQUENCY &value
+)
+{
+    return freq2string(FREQUENCY2int(value));
+}
+
+std::string freq2string(
+    const uint32_t freq
+)
+{
+    std::stringstream ss;
+    int mhz = freq / 1000000;
+    ss << mhz << "." << (freq - (mhz * 1000000));
+    return ss.str();
+};
+
 uint64_t string2gatewayId(
         const std::string& value
 )
@@ -1182,4 +1199,158 @@ bool string2file(
     fwrite(value.c_str(), value.size(), 1, f);
     fclose(f);
     return true;
+}
+
+/**
+ * @return  LoRa datarate identifier e.g. "SF7BW125"
+ */
+std::string DATA_RATE2string(
+    const DATA_RATE &value
+)
+{
+    int bandwithValue;
+    switch (value.bandwidth) {
+        case BANDWIDTH_INDEX_7KHZ:
+            bandwithValue = 7; // 7.8
+            break;
+        case BANDWIDTH_INDEX_10KHZ:
+            bandwithValue = 10; // 10.4
+            break;
+        case BANDWIDTH_INDEX_15KHZ:
+            bandwithValue = 15; // 15.6
+            break;
+        case BANDWIDTH_INDEX_20KHZ:
+            bandwithValue = 20; // 20.8
+            break;
+        case BANDWIDTH_INDEX_31KHZ:
+            bandwithValue = 31; // 31.2
+            break;
+        case BANDWIDTH_INDEX_41KHZ:
+            bandwithValue = 41; // 41.6
+            break;
+        case BANDWIDTH_INDEX_62KHZ:
+            bandwithValue = 62; // 62.5
+            break;
+        case BANDWIDTH_INDEX_125KHZ:
+            bandwithValue = 125; // 125
+            break;
+        case BANDWIDTH_INDEX_250KHZ:
+            bandwithValue = 250; // 250
+            break;
+        case BANDWIDTH_INDEX_500KHZ:
+            bandwithValue = 500; // 500
+            break;
+        default:
+            bandwithValue = 250;
+            break;
+    }
+    std::stringstream ss;
+    // e.g. SF7BW203
+    ss << "SF" << (int) value.spreadingFactor
+       << "BW"  << bandwithValue;
+    return ss.str();
+}
+
+std::string DATA_RATE2string(
+    BANDWIDTH bandwidth,
+    SPREADING_FACTOR spreadingFactor
+)
+{
+    int bandwithValue;
+    switch (bandwidth) {
+        case BANDWIDTH_INDEX_7KHZ:
+            bandwithValue = 7; // 7.8
+            break;
+        case BANDWIDTH_INDEX_10KHZ:
+            bandwithValue = 10; // 10.4
+            break;
+        case BANDWIDTH_INDEX_15KHZ:
+            bandwithValue = 15; // 15.6
+            break;
+        case BANDWIDTH_INDEX_20KHZ:
+            bandwithValue = 20; // 20.8
+            break;
+        case BANDWIDTH_INDEX_31KHZ:
+            bandwithValue = 31; // 31.2
+            break;
+        case BANDWIDTH_INDEX_41KHZ:
+            bandwithValue = 41; // 41.6
+            break;
+        case BANDWIDTH_INDEX_62KHZ:
+            bandwithValue = 62; // 62.5
+            break;
+        case BANDWIDTH_INDEX_125KHZ:
+            bandwithValue = 125; // 125
+            break;
+        case BANDWIDTH_INDEX_250KHZ:
+            bandwithValue = 250; // 250
+            break;
+        case BANDWIDTH_INDEX_500KHZ:
+            bandwithValue = 500; // 500
+            break;
+        default:
+            bandwithValue = 250;
+            break;
+    }
+    std::stringstream ss;
+    // e.g. SF7BW203
+    ss << "SF" << (int) spreadingFactor
+       << "BW"  << bandwithValue;
+    return ss.str();
+}
+
+/**
+ * @param retVal return value
+ * @param value LoRa data rate identifier e.g. "SF7BW125"
+ */
+void string2DATA_RATE(
+    DATA_RATE &retVal,
+    const std::string &value
+)
+{
+    size_t sz = value.size();
+    if (sz < 3)
+        return;
+    std::size_t p = value.find('B');
+    if (p == std::string::npos)
+        return;
+    std::string s = value.substr(2, p - 2);
+    retVal.spreadingFactor = static_cast<SPREADING_FACTOR>(atoi(s.c_str()));
+    s = value.substr(p + 2);
+    int bandwithValue = atoi(s.c_str());
+    switch (bandwithValue) {
+        case 7:
+            retVal.bandwidth = BANDWIDTH_INDEX_7KHZ; // 7.8
+            break;
+        case 10:
+            retVal.bandwidth = BANDWIDTH_INDEX_10KHZ; // 10.4
+            break;
+        case 15:
+            retVal.bandwidth = BANDWIDTH_INDEX_15KHZ; // 15.6
+            break;
+        case 20:
+            retVal.bandwidth = BANDWIDTH_INDEX_20KHZ; // 20.8
+            break;
+        case 31:
+            retVal.bandwidth = BANDWIDTH_INDEX_31KHZ; // 31.2
+            break;
+        case 41:
+            retVal.bandwidth = BANDWIDTH_INDEX_41KHZ; // 41.6
+            break;
+        case 62:
+            retVal.bandwidth = BANDWIDTH_INDEX_62KHZ; // 62.5
+            break;
+        case 125:
+            retVal.bandwidth = BANDWIDTH_INDEX_125KHZ; // 125
+            break;
+        case 250:
+            retVal.bandwidth = BANDWIDTH_INDEX_250KHZ;
+            break;
+        case 500:
+            retVal.bandwidth = BANDWIDTH_INDEX_500KHZ;
+            break;
+        default:
+            retVal.bandwidth = BANDWIDTH_INDEX_250KHZ;
+            break;
+    }
 }

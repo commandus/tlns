@@ -55,6 +55,14 @@ int parseTxAck(
  * @see https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT#L133C1-L147C58
  */
 class GatewayBasicUdpProtocol : public ProtoGwParser {
+protected:
+    void makeMessage2GatewayStream(
+        std::ostream &retStrm,
+        MessageBuilder &msgBuilder,
+        uint16_t token,
+        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const RegionalParameterChannelPlan *aRegionalPlan
+    );
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
      * @param packetForwarderPacket

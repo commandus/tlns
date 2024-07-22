@@ -67,6 +67,9 @@ PACK(
             // proprietary radio
             PROPRIETARY_STORAGE proprietary;
         } ) data;
+        /**
+         * payload size
+         */
         uint16_t packetSize;
         LORAWAN_MESSAGE_STORAGE();
         LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
@@ -79,6 +82,7 @@ PACK(
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
+        std::string payloadBase64() const;
     }
 );
 

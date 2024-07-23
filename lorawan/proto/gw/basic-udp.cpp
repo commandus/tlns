@@ -78,10 +78,10 @@ public:
     bool number_integer(number_integer_t val) override {
         switch (nameIndex) {
             case 11: // rssi
-                item->rxMetadata.rssi = val;
+                item->rxMetadata.rssi = (int16_t ) val;
                 break;
             case 12: // lsnr
-                item->rxMetadata.lsnr = val;
+                item->rxMetadata.lsnr = (float) val;
                 break;
         }
         return true;
@@ -105,16 +105,16 @@ public:
                 item->rxMetadata.rfch = val;
                 break;
             case 7: // stat
-                item->rxMetadata.stat = val;
+                item->rxMetadata.stat = (int8_t) val;
                 break;
             case 9: // datr, MODULATION_FSK bits per second
                 item->rxMetadata.bps = val;
                 break;
             case 11: // rssi
-                item->rxMetadata.rssi = val;
+                item->rxMetadata.rssi = (int16_t) val;
                 break;
             case 12: // lsnr
-                item->rxMetadata.lsnr = val;
+                item->rxMetadata.lsnr = (float) val;
                 break;
             case 13: // size
                 break;
@@ -125,10 +125,10 @@ public:
     bool number_float(number_float_t val, const string_t &s) override {
         switch (nameIndex) {
             case 4: // freq
-                item->rxMetadata.freq = val * 1000000;
+                item->rxMetadata.freq = (uint16_t) (val * 1000000);
                 break;
             case 12: // lsnr
-                item->rxMetadata.lsnr = val;
+                item->rxMetadata.lsnr = (float) val;
                 break;
         }
         return true;
@@ -287,7 +287,7 @@ public:
                 item->txMetadata.rf_chain = (uint8_t) val;
                 break;
             case 6: // "powe" TX output power in dBm (dBm precision)
-                item->txMetadata.rf_power = val;
+                item->txMetadata.rf_power = (int8_t) val;
                 break;
             case 8: // "datr" MODULATION_FSK data rate in bits per second
                 item->txMetadata.datarate = val; // bits pre second FSK
@@ -384,16 +384,16 @@ int GatewayBasicUdpProtocol::parse(
 {
     if (size <= sizeof(SEMTECH_PREFIX)) // at least 4 bytes
         return ERR_CODE_INVALID_PACKET;
-    SEMTECH_PREFIX *p = (SEMTECH_PREFIX *) packetForwarderPacket;
+    auto *p = (SEMTECH_PREFIX *) packetForwarderPacket;
     if (p->version != 2)
         return ERR_CODE_INVALID_PACKET;
     retVal.tag = p->tag;
     retVal.token = p->token;
-    int r = 0;
+    int r;
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
         {
-            SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
             r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
                 size - SIZE_SEMTECH_PREFIX_GW, pGw->mac, receivedTime); // +12 bytes
@@ -401,7 +401,7 @@ int GatewayBasicUdpProtocol::parse(
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
         {
-            SEMTECH_PREFIX_GW *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
             r = parsePullResp(&retVal.gwPullResp, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
                 pGw->mac); // +4 bytes
@@ -479,7 +479,6 @@ ssize_t GatewayBasicUdpProtocol::ack(
 {
     if (packetSize < SIZE_SEMTECH_ACK)
         return ERR_CODE_SEND_ACK;
-    SEMTECH_ACK ack;
     memmove(retBuf, packet, SIZE_SEMTECH_ACK);
     if (((SEMTECH_ACK *) retBuf)->version != 2)
         return ERR_CODE_SEND_ACK;
@@ -502,17 +501,10 @@ void GatewayBasicUdpProtocol::makeMessage2GatewayStream(
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
     // tmst
     if (rxMetadata->tmst) {
-        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << microsecondsAdd(rxMetadata->tmst, 500000);
-    }
-    /*
-    if (receivedTime == 0)
+        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << tmstAddMS(rxMetadata->tmst, 1000);
+    } else {
         ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
-    else {
-        uint32_t sendTime = receivedTime + 1000000;
-        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << sendTime;
     }
-    */
-
     ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
        // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
        << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
@@ -541,5 +533,5 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
     auto sz = s.size();
     if (retBuf && retSize <= sz)
         memmove(retBuf, s.c_str(), sz);
-    return sz;
+    return (ssize_t) sz;
 }

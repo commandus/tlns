@@ -78,7 +78,7 @@ std::string taskTime2string(
     const bool local = true
 );
 
-uint32_t microsecondsAdd(uint32_t value, uint32_t addValue);
+uint32_t tmstAddMS(uint32_t value, uint32_t addValue);
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 int gettimeofday(struct timeval* tp, struct timezone* tzp);

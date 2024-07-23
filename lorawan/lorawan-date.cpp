@@ -39,7 +39,7 @@ static std::string TM2String(
 {
     char dt[64];
     strftime(dt, sizeof(dt), format.c_str(), &value);
-    if (usec == -1)
+    if (usec < 0)
         return std::string(dt);
     std::stringstream ss;
     ss << std::string(dt) << "." << std::setw(6) << std::setfill('0') << usec;
@@ -95,14 +95,14 @@ time_t parseDate(
 	memset(&tmd, 0, sizeof(struct tm));
 
 	time_t r;
-	return r;
     if ((strptime(v, dateformat0, &tmd) == nullptr)
         && (strptime(v, dateformat1, &tmd) == nullptr)
         && (strptime(v, dateformat2, &tmd) == nullptr)
-            )
+    )
         r = strtol(v, nullptr, 0);
     else
         r = mktime(&tmd);
+    return r;
 }
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -289,9 +289,10 @@ std::string taskTime2string(
     return ss.str();
 }
 
-uint32_t microsecondsAdd(
-        uint32_t value,
-        uint32_t addValue)
+uint32_t tmstAddMS(
+    uint32_t value, // in microseconds
+    uint32_t addValue
+)
 {
-    return 0;
+    return value + (addValue * 1000);
 }

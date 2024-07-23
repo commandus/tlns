@@ -16,6 +16,7 @@ public:
     GwPushData gwPushData;
     GwPullResp gwPullResp;
     ERR_CODE_TX code;           ///< code
+    ParseResult();
 };
 
 /**

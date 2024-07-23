@@ -459,7 +459,8 @@ void MessageTaskDispatcher::sendQueue(
 
             SEMTECH_PROTOCOL_METADATA_RX rx;
             if (m->second.getBestGatewayAddress(rx)) {
-                this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
+                auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
+                std::cout << std::string(sb, sz) << std::endl;
             }
         }
     }

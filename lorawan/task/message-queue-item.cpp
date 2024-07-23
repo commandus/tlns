@@ -82,12 +82,11 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
 {
     float f = -3.402823466E+38f;
     uint64_t r = 0;
-    for (std::map <uint64_t, SEMTECH_PROTOCOL_METADATA_RX>::const_iterator it(metadata.begin()); it != metadata.end(); it++)
-    {
-        if (it->second.lsnr > f)
-        {
+    for (std::map <uint64_t, SEMTECH_PROTOCOL_METADATA_RX>::const_iterator it(metadata.begin()); it != metadata.end(); it++) {
+        if (it->second.lsnr > f) {
             r = it->first;
             retValMetadata = it->second;
+            f = it->second.lsnr;
         }
     }
     return r;

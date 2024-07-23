@@ -125,9 +125,9 @@ bool sameSocketAddress(
         }
         case AF_INET6:
         {
-                auto *ai = (struct sockaddr_in6 *) a;
-                auto *bi = (struct sockaddr_in6 *) b;
-                return (ai->sin6_port == bi->sin6_port) && (memcmp(&ai->sin6_addr, &bi->sin6_addr, 16) == 0);
+            auto *ai = (struct sockaddr_in6 *) a;
+            auto *bi = (struct sockaddr_in6 *) b;
+            return (ai->sin6_port == bi->sin6_port) && (memcmp(&ai->sin6_addr, &bi->sin6_addr, 16) == 0);
         }
         case AF_UNIX:
         {

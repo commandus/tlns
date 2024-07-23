@@ -10,7 +10,8 @@ public:
     LORAWAN_MESSAGE_STORAGE msg; // minimum 12 bytes
     const TaskDescriptor &taskDescriptor;
     explicit MessageBuilder(const TaskDescriptor &taskDescriptor);
-    size_t get(void *buffer, size_t size);
+    size_t get(void *buffer, size_t size) const;
+    std::string base64() const;
 };
 
 /**

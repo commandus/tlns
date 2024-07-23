@@ -505,6 +505,7 @@ bool GatewayBasicUdpProtocol::makeMessage2GatewayStream(
     } else {
         ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
     }
+    std::string radioPacketBase64 = msgBuilder.base64();
     ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
        // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
        << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
@@ -514,9 +515,9 @@ bool GatewayBasicUdpProtocol::makeMessage2GatewayStream(
        << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
        << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
        << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
-       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.msg.packetSize;
-    if (msgBuilder.msg.packetSize)
-       ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << msgBuilder.msg.payloadBase64();
+       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << radioPacketBase64.size();
+    if (!radioPacketBase64.empty())
+       ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
     ss << "\"}}";
     return true;
 }

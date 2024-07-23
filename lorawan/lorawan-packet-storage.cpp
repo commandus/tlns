@@ -106,8 +106,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     void *buf,
     size_t size,
     const NetworkIdentity *identity
-)
-{
+) const {
     size_t retSize = 1;
     auto b = (uint8_t*) buf;
     if (b && (size >= retSize)) {

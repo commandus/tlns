@@ -76,7 +76,7 @@ PACK(
         explicit LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
         std::string toString() const;
 
-        size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity);
+        size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity) const;
 
         const DEVADDR* getAddr() const;
         const JOIN_REQUEST_FRAME *getJoinRequest() const;

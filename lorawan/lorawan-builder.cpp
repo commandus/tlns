@@ -1,4 +1,5 @@
 #include "lorawan/lorawan-builder.h"
+#include "base64/base64.h"
 
 MessageBuilder::MessageBuilder(
     const TaskDescriptor &aTaskDescriptor
@@ -11,9 +12,16 @@ MessageBuilder::MessageBuilder(
 size_t MessageBuilder::get(
     void *buffer,
     size_t size
-)
+) const
 {
     return msg.toArray(buffer, size, &taskDescriptor.deviceId);
+}
+
+std::string MessageBuilder::base64() const
+{
+    char buffer[300];
+    auto sz = msg.toArray(buffer, sizeof(buffer), &taskDescriptor.deviceId);
+    return base64_encode(std::string(buffer, sz));
 }
 
 ConfirmationMessage::ConfirmationMessage(

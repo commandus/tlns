@@ -56,7 +56,7 @@ int parseTxAck(
  */
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 protected:
-    void makeMessage2GatewayStream(
+    bool makeMessage2GatewayStream(
         std::ostream &retStrm,
         MessageBuilder &msgBuilder,
         uint16_t token,

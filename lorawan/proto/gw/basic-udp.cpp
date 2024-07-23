@@ -486,7 +486,7 @@ ssize_t GatewayBasicUdpProtocol::ack(
     return SIZE_SEMTECH_ACK;
 }
 
-void GatewayBasicUdpProtocol::makeMessage2GatewayStream(
+bool GatewayBasicUdpProtocol::makeMessage2GatewayStream(
     std::ostream &ss,
     MessageBuilder &msgBuilder,
     uint16_t token,
@@ -495,7 +495,7 @@ void GatewayBasicUdpProtocol::makeMessage2GatewayStream(
 )
 {
     if (!rxMetadata)
-        return;
+        return false;
     SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
     ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
@@ -514,8 +514,11 @@ void GatewayBasicUdpProtocol::makeMessage2GatewayStream(
        << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
        << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
        << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
-       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.msg.packetSize
-       << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << msgBuilder.msg.payloadBase64()  << "\"}}";
+       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.msg.packetSize;
+    if (msgBuilder.msg.packetSize)
+       ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << msgBuilder.msg.payloadBase64();
+    ss << "\"}}";
+    return true;
 }
 
 ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
@@ -528,10 +531,11 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
 )
 {
     std::stringstream ss;
-    makeMessage2GatewayStream(ss, msgBuilder, token, rxMetadata, regionalPlan);
+    if (!makeMessage2GatewayStream(ss, msgBuilder, token, rxMetadata, regionalPlan))
+        return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();
-    if (retBuf && retSize <= sz)
+    if (retBuf && retSize >= sz)
         memmove(retBuf, s.c_str(), sz);
     return (ssize_t) sz;
 }

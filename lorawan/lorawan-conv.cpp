@@ -283,6 +283,8 @@ void applyNetworkByteOrder(
     size_t size
 )
 {
+    if (!buf)
+        return;
     size_t retSize = 1;
     auto b = (uint8_t*) buf;
     switch (*((MTYPE*) buf)) {

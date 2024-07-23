@@ -322,11 +322,11 @@ static void run()
         GwPullResp &item
     ) {
         std::cout
-                << "{\"metadata\": "
-                << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
-                << ", \"gwId\": " << gatewayId2str(item.gwId.u)
-                << ", \"txData\": " << item.txData.toString()
-                << "}" << std::endl;
+            << "{\"metadata\": "
+            << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
+            << ", \"gwId\": " << gatewayId2str(item.gwId.u)
+            << ", \"txData\": " << item.txData.toString()
+            << "}" << std::endl;
     };
 
     dispatcher.onTxPkAck = [] (

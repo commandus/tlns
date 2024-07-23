@@ -452,15 +452,14 @@ void MessageTaskDispatcher::sendQueue(
             continue;
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
-            char sb[1024];
-
-            size_t sz = confirmationMessage.get(sb, SIZE_CONFIRMATION_EMPTY_DOWN);
-            std::cout << hexString(sb, sz) << std::endl;
-
             SEMTECH_PROTOCOL_METADATA_RX rx;
             if (m->second.getBestGatewayAddress(rx)) {
+                char sb[512];
                 auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
-                std::cout << std::string(sb, sz) << std::endl;
+                std::cout << "Send " << std::string(sb, sz)
+                    << " to gateway " << m->second.task.gatewayId.toString()
+                    << std::endl;
+
             }
         }
     }

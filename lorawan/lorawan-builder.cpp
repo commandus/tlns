@@ -17,6 +17,11 @@ size_t MessageBuilder::get(
     return msg.toArray(buffer, size, &taskDescriptor.deviceId);
 }
 
+size_t MessageBuilder::size() const
+{
+    return msg.toArray(nullptr, 0, &taskDescriptor.deviceId);
+}
+
 std::string MessageBuilder::base64() const
 {
     char buffer[300];

@@ -8,6 +8,7 @@
 #include <ws2tcpip.h>
 #else
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <netinet/in.h>
 typedef int SOCKET;
 #endif

@@ -5,15 +5,18 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <arpa/inet.h>
+#include <sys/un.h>
 #endif
 
+// if not AF_UNIX is ised, it is INET6_ADDRSTRLEN
+#define MAXSOCKADDRLEN 108
 /**
  * @return address string
  */
 std::string sockaddr2string(
     const struct sockaddr *value
 ) {
-    char buf[INET6_ADDRSTRLEN];
+    char buf[MAXSOCKADDRLEN];
     int port;
     switch (value->sa_family) {
         case AF_INET:
@@ -27,11 +30,18 @@ std::string sockaddr2string(
             }
             port = ntohs(((struct sockaddr_in6 *) value)->sin6_port);
             break;
+
+        case AF_UNIX:
+            strncpy(buf, ((struct sockaddr_un *) value)->sun_path, MAXSOCKADDRLEN);
+            port = 0;
+            break;
         default:
             return "";
     }
     std::stringstream ss;
-    ss << buf << ":" << port;
+    ss << buf;
+    if (port)
+        ss << ":" << port;
     return ss.str();
 }
 

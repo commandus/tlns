@@ -515,7 +515,7 @@ bool GatewayBasicUdpProtocol::makeMessage2GatewayStream(
        << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
        << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
        << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
-       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << radioPacketBase64.size();
+       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
     if (!radioPacketBase64.empty())
        ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
     ss << "\"}}";

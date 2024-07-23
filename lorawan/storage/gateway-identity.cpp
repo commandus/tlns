@@ -23,7 +23,21 @@ GatewayIdentity::GatewayIdentity(
 )
     : gatewayId(value.gatewayId), sockaddr{}
 {
-	memmove(&sockaddr, &value.sockaddr, sockaddr.sa_family == AF_INET6 ? sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in));
+    size_t sz;
+    switch (sockaddr.sa_family) {
+        case AF_INET:
+            sz = sizeof(struct sockaddr_in);
+            break;
+        case AF_INET6:
+            sz = sizeof(struct sockaddr_in6);
+            break;
+        case AF_UNIX:
+            sz = sizeof(struct sockaddr_un);
+            break;
+        default:
+            sz = sizeof(sockaddr);
+    }
+	memmove(&sockaddr, &value.sockaddr, sz);
 }
 
 GatewayIdentity::GatewayIdentity(

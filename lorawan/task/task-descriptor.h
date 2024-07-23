@@ -43,6 +43,7 @@ public:
     GatewayIdentity gatewayId;              // best gateway address
 
     TaskDescriptor();
+    TaskDescriptor(const TaskDescriptor &value);
     virtual ~TaskDescriptor();
 };
 

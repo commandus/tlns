@@ -117,7 +117,8 @@ bool sameSocketAddress(
         return false;
 
     switch (a->sa_family) {
-        case AF_INET: {
+        case AF_INET:
+        {
             auto *ai = (struct sockaddr_in *) a;
             auto *bi = (struct sockaddr_in *) b;
             return (ai->sin_port == bi->sin_port) && (memcmp(&ai->sin_addr, &bi->sin_addr, 4) == 0);
@@ -127,6 +128,12 @@ bool sameSocketAddress(
                 auto *ai = (struct sockaddr_in6 *) a;
                 auto *bi = (struct sockaddr_in6 *) b;
                 return (ai->sin6_port == bi->sin6_port) && (memcmp(&ai->sin6_addr, &bi->sin6_addr, 16) == 0);
+        }
+        case AF_UNIX:
+        {
+            auto *ai = (struct sockaddr_un *) a;
+            auto *bi = (struct sockaddr_un *) b;
+            return strncmp(ai->sun_path, bi->sun_path, MAXSOCKADDRLEN) == 0;
         }
     }
     return false;

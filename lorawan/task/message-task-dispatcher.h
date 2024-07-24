@@ -163,6 +163,7 @@ public:
 
     void prepareSendConfirmation(
         const DEVADDR *addr,
+        const sockaddr &sockAddr,
         TASK_TIME receivedTime
     );
 

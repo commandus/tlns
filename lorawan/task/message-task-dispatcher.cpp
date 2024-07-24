@@ -425,7 +425,7 @@ void MessageTaskDispatcher::pushData(
     if (a)
         send(a, SIZE_DEVADDR);  // pass address of just added item
     if (pushData.needConfirmation())
-        prepareSendConfirmation(a, receivedTime);
+        prepareSendConfirmation(a, addr, receivedTime);
 }
 
 void MessageTaskDispatcher::setParser(
@@ -494,6 +494,7 @@ bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
  */
 void MessageTaskDispatcher::prepareSendConfirmation(
     const DEVADDR *addr,
+    const sockaddr &sockAddr,
     TASK_TIME receivedTime
 )
 {

@@ -37,6 +37,7 @@ public:
     void put(
         TASK_TIME time,
         const LORAWAN_MESSAGE_STORAGE &radioPacket,
+        const struct sockaddr &addr,
         uint64_t gwId,
         const SEMTECH_PROTOCOL_METADATA_RX &metadata
     );
@@ -58,6 +59,7 @@ public:
 
     bool put(
         TASK_TIME time,
+        const struct sockaddr &gwAddr,
         GwPushData & pushData
     );
     void rm(

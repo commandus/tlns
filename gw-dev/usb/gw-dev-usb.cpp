@@ -303,16 +303,19 @@ static void run()
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item
     ) {
+        std::cout << "{\"metadata\": {";
         bool f = true;
         for (auto it(item->metadata.begin()); it != item->metadata.end(); it++) {
             if (f)
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second);
+            std::cout
+                << "\"sock_addr\": " << sockaddr2string(&it->second.addr)
+                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second.rx);
         }
         std::cout
-            << ",\"rfm\": "
+            << "}, \"rfm\": "
             << item->radioPacket.toString()
             << "}" << std::endl;
     };

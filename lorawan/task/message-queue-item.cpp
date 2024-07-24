@@ -50,7 +50,7 @@ std::string MessageQueueItem::toString() const
     ss << time2string(t) << " " << radioPacket.toString();
     for (auto it : metadata) {
         ss << " " <<  gatewayId2str(it.first)
-            << ": " << BANDWIDTH2String(it.second.bandwidth);
+            << ": " << BANDWIDTH2String(it.second.rx.bandwidth);
     }
     return ss.str();
 }
@@ -82,11 +82,11 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
 {
     float f = -3.402823466E+38f;
     uint64_t r = 0;
-    for (std::map <uint64_t, SEMTECH_PROTOCOL_METADATA_RX>::const_iterator it(metadata.begin()); it != metadata.end(); it++) {
-        if (it->second.lsnr > f) {
+    for (std::map <uint64_t, GatewayMetadata>::const_iterator it(metadata.begin()); it != metadata.end(); it++) {
+        if (it->second.rx.lsnr > f) {
             r = it->first;
-            retValMetadata = it->second;
-            f = it->second.lsnr;
+            retValMetadata = it->second.rx;
+            f = it->second.rx.lsnr;
         }
     }
     return r;

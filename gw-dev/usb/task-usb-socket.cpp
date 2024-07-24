@@ -9,6 +9,7 @@
 
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
+    const sockaddr &sockAddr,
     SEMTECH_PROTOCOL_METADATA_RX metadata,
     void *radioPacket,
     size_t size
@@ -17,7 +18,7 @@ static void onPushData(
     GwPushData pd;
     setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
     pd.rxMetadata = metadata;
-    dispatcher->pushData(pd, std::chrono::system_clock::now());
+    dispatcher->pushData(sockAddr, pd, std::chrono::system_clock::now());
 }
 
 /**
@@ -36,6 +37,7 @@ TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
 )
     : TaskSocket(SA_REQUIRE), dispatcher(aDispatcher), socketPath(socketFileName)
 {
+    listener.socket = this;
     if (!aLog)
         verbosity = 0;
     listener.init(aSettings, aLog);

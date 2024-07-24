@@ -326,7 +326,7 @@ int MessageTaskDispatcher::run()
                             if (r == CODE_OK) {
                                 switch (pr.tag) {
                                     case SEMTECH_GW_PUSH_DATA:
-                                        pushData(pr.gwPushData, receivedTime);
+                                        pushData(srcAddr, pr.gwPushData, receivedTime);
                                         break;
                                     case SEMTECH_GW_PULL_RESP:
                                         if (onPullResp)
@@ -412,11 +412,12 @@ void MessageTaskDispatcher::setControlSocket(
 }
 
 void MessageTaskDispatcher::pushData(
+    const sockaddr &addr,
     GwPushData &pushData,
     TASK_TIME receivedTime
 ) {
     queueMutex.lock();
-    bool isNew = queue.put(receivedTime, pushData);
+    bool isNew = queue.put(receivedTime, addr, pushData);
     queueMutex.unlock();
     // wake up
     // if (isNew) {
@@ -458,8 +459,8 @@ void MessageTaskDispatcher::sendQueue(
                 auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
                 std::cout << "Send " << std::string(sb, sz)
                     << " to gateway " << gatewayId2str(rx.gatewayId)
+                    << " :: " << gatewayId2str(m->second.task.gatewayId.gatewayId)
                     << std::endl;
-
             }
         }
     }

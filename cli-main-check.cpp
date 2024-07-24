@@ -89,8 +89,9 @@ static void run() {
                 f = false;
             else
                 std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it.first);
-            std::cout << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second) << "}";
+            std::cout << "{\"gateway_id\": " << gatewayId2str(it.first)
+                << ", \"sock_addr\": " << sockaddr2string(&it.second.addr)
+                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second.rx) << "}";
         }
         std::cout
             << "],\n\"rfm\": "

@@ -899,8 +899,13 @@ void LoraGatewayListener::upstreamRunner()
         mqi.metadata[metadata.gatewayId] = metadata;
         setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
          */
+        struct sockaddr srcAddr;
+        if (socket) {
+            socklen_t sz = sizeof(srcAddr);
+            getsockname(socket->sock, &srcAddr, &sz);
+        }
         if (onPushData)
-            onPushData(dispatcher, metadata, p->payload, p->size);
+            onPushData(dispatcher, srcAddr, metadata, p->payload, p->size);
 
         measurements.inc(meas_up_dgram_sent);
         measurements.inc(meas_up_network_byte, p->size);    // no network traffic, return size of payload
@@ -1497,7 +1502,7 @@ LoraGatewayListener::LoraGatewayListener()
     gps_ref_valid(false), lastLgwCode(0), config(nullptr), flags(0), fdGpsTty(-1), eui(0),
     gpsCoordsLastSynced(0), gpsTimeLastSynced(0), gpsEnabled(false),
     xtal_correct_ok(false), xtal_correct(1.0),
-    threadStartFinish(nullptr)
+    threadStartFinish(nullptr), socket(nullptr)
 {
     // JIT queue initialization
     jit_queue_init(&jit_queue[0]);

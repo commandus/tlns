@@ -179,7 +179,8 @@ public:
     uint64_t eui;        ///< Gateway EUI
 
     LibLoragwHelper libLoragwHelper;
-
+    // parent socket
+    TaskSocket *socket;
     LoraGatewayListener();
     ~LoraGatewayListener();
 

@@ -49,20 +49,21 @@ MessageQueueItem *MessageQueue::get (
 void MessageQueue::put(
     TASK_TIME time,
     const LORAWAN_MESSAGE_STORAGE &radioPacket,
+    const struct sockaddr &addr,
     uint64_t gwId,
     const SEMTECH_PROTOCOL_METADATA_RX &metadata
 )
 {
-    auto addr = radioPacket.getAddr();
-    if (addr) {
-        auto f = receivedMessages.find(*addr);
+    auto loraAddr = radioPacket.getAddr();
+    if (loraAddr) {
+        auto f = receivedMessages.find(*loraAddr);
         if (f != receivedMessages.end()) {
             // update metadata
-            f->second.metadata[gwId] = metadata;
+            f->second.metadata[gwId] = { metadata, addr };
         } else {
             MessageQueueItem qi(this, time);
-            qi.metadata[gwId] = metadata;
-            auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
+            qi.metadata[gwId] = { metadata, addr };
+            auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*loraAddr, qi));
         }
     } else {
         // Join request
@@ -95,6 +96,7 @@ bool MessageQueue::put(
  */
 bool MessageQueue::put(
     TASK_TIME time,
+    const struct sockaddr &gwAddr,
     GwPushData &pushData
 )
 {
@@ -105,9 +107,13 @@ bool MessageQueue::put(
     bool isSame = (f != receivedMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {
         // update metadata
-        f->second.metadata[pushData.rxMetadata.gatewayId] = pushData.rxMetadata;
+        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, gwAddr };
     } else {
-        qi.metadata[pushData.rxMetadata.gatewayId] = pushData.rxMetadata;
+        qi.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, gwAddr };
+        qi.task.gatewayId = pushData.rxMetadata.gatewayId;
+        qi.task.deviceId.devaddr = *addr;
+        qi.task.repeats = 0;
+        qi.task.errorCode = 0;
         qi.radioPacket = pushData.rxData;
         auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*addr, qi));
     }

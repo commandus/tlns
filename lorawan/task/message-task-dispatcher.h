@@ -15,6 +15,7 @@
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
+    const sockaddr &addr,
     SEMTECH_PROTOCOL_METADATA_RX metadata,
     void *radioPacket,
     size_t size
@@ -144,7 +145,11 @@ public:
         TaskSocket *socket
     );
 
-    void pushData(GwPushData &pushData, TASK_TIME point);
+    void pushData(
+        const sockaddr &addr,
+        GwPushData &pushData,
+        TASK_TIME point
+    );
 
     void setParser(ProtoGwParser *parser);
 

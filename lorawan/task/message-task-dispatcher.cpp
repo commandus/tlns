@@ -459,7 +459,7 @@ void MessageTaskDispatcher::sendQueue(
                 auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
                 std::cout << "Send " << std::string(sb, sz)
                     << " to gateway " << gatewayId2str(rx.gatewayId)
-                    << " :: " << gatewayId2str(m->second.task.gatewayId.gatewayId)
+                    << " at " << sockaddr2string(&m->second.task.gatewayId.sockaddr)
                     << std::endl;
             }
         }

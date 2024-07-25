@@ -59,11 +59,11 @@ public:
 
     /**
      * Return gateway MAC address as int with best SNR
-     * @param retValMetadata RX metadata
+     * @param retValMetadata gateway metadata
      * @return 0 if not found
      */
     uint64_t getBestGatewayAddress(
-        SEMTECH_PROTOCOL_METADATA_RX &retValMetadata
+        GatewayMetadata &retValMetadata
     ) const;
 
     bool needConfirmation();

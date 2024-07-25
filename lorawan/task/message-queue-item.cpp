@@ -77,7 +77,7 @@ const JOIN_REQUEST_FRAME * MessageQueueItem::getJoinRequestFrame() const {
  * @return 0 if not found
  */
 uint64_t MessageQueueItem::getBestGatewayAddress(
-    SEMTECH_PROTOCOL_METADATA_RX &retValMetadata
+    GatewayMetadata &retValMetadata
 ) const
 {
     float f = -3.402823466E+38f;
@@ -85,7 +85,7 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
     for (std::map <uint64_t, GatewayMetadata>::const_iterator it(metadata.begin()); it != metadata.end(); it++) {
         if (it->second.rx.lsnr > f) {
             r = it->first;
-            retValMetadata = it->second.rx;
+            retValMetadata = it->second;
             f = it->second.rx.lsnr;
         }
     }

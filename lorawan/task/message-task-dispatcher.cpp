@@ -457,12 +457,13 @@ void MessageTaskDispatcher::sendQueue(
             continue;
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
-            SEMTECH_PROTOCOL_METADATA_RX rx;
-            if (m->second.getBestGatewayAddress(rx)) {
+            GatewayMetadata gwMetadata;
+            if (m->second.getBestGatewayAddress(gwMetadata)) {
                 char sb[512];
-                auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage, token, &rx, regionalPlan);
+                auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
+                    token, &gwMetadata.rx, regionalPlan);
                 std::cout << "Send " << std::string(sb, sz)
-                    << " to gateway " << gatewayId2str(rx.gatewayId)
+                    << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
                     << " at " << sockaddr2string(&m->second.task.gatewayId.sockaddr)
                     << std::endl;
             }

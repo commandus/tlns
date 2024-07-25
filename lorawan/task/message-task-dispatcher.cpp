@@ -15,7 +15,7 @@
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-msg.h"
-#include "task-accepted-socket.h"
+#include "lorawan/task/task-accepted-socket.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-builder.h"
 
@@ -324,19 +324,22 @@ int MessageTaskDispatcher::run()
                         if (parser) {
                             int r = parser->parse(pr, buffer, sz, receivedTime);
                             if (r == CODE_OK) {
-                                switch (pr.tag) {
-                                    case SEMTECH_GW_PUSH_DATA:
-                                        pushData(srcAddr, pr.gwPushData, receivedTime);
-                                        break;
-                                    case SEMTECH_GW_PULL_RESP:
-                                        if (onPullResp)
-                                            onPullResp(this, pr.gwPullResp);
-                                        break;
-                                    case SEMTECH_GW_TX_ACK:
-                                        onTxPkAck(this, pr.code);
-                                        break;
-                                    default:
-                                        break;
+                                r = validateGatewayAddress(pr, s, srcAddr);
+                                if (r == CODE_OK) {
+                                    switch (pr.tag) {
+                                        case SEMTECH_GW_PUSH_DATA:
+                                            pushData(s, srcAddr, pr.gwPushData, receivedTime);
+                                            break;
+                                        case SEMTECH_GW_PULL_RESP:
+                                            if (onPullResp)
+                                                onPullResp(this, pr.gwPullResp);
+                                            break;
+                                        case SEMTECH_GW_TX_ACK:
+                                            onTxPkAck(this, pr.code);
+                                            break;
+                                        default:
+                                            break;
+                                    }
                                 }
                             }
                             if (r < 0) {
@@ -412,12 +415,13 @@ void MessageTaskDispatcher::setControlSocket(
 }
 
 void MessageTaskDispatcher::pushData(
+    const TaskSocket *taskSocket,
     const sockaddr &addr,
     GwPushData &pushData,
-    TASK_TIME receivedTime
+    const TASK_TIME &receivedTime
 ) {
     queueMutex.lock();
-    bool isNew = queue.put(receivedTime, addr, pushData);
+    bool isNew = queue.put(receivedTime, taskSocket, addr, pushData);
     queueMutex.unlock();
     // wake up
     // if (isNew) {
@@ -508,3 +512,11 @@ void MessageTaskDispatcher::cleanupOldMessages(
     queue.clearOldMessages(now - std::chrono::seconds(1));
 }
 
+int MessageTaskDispatcher::validateGatewayAddress(
+    const ParseResult &parsedMsg,
+    const TaskSocket *taskSocket,
+    const sockaddr &srcSockAddr
+)
+{
+    return CODE_OK;
+}

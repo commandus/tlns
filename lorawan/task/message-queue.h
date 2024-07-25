@@ -35,32 +35,18 @@ public:
     MessageQueueItem *get(const DEVADDR &addr);
     MessageQueueItem *get(const JOIN_REQUEST_FRAME &addr);
     void put(
-        TASK_TIME time,
+        const TASK_TIME& time,
+        const TaskSocket *taskSocket,
         const LORAWAN_MESSAGE_STORAGE &radioPacket,
         const struct sockaddr &addr,
         uint64_t gwId,
         const SEMTECH_PROTOCOL_METADATA_RX &metadata
     );
-    /**
-     * Packet received from gateway
-     * @param taskSocket addr gateway address port gateway port
-     * @param gwAddr gateway socket address
-     * @param buffer radio packet buffer and JSON metadata
-     * @param size buffer size
-     * @return false if packet is invalid
-     */
     bool put(
-        TASK_TIME time,
-        TaskSocket *taskSocket,
-        const struct sockaddr *gwAddr,
-        const char *buffer,
-        size_t size
-    );
-
-    bool put(
-        TASK_TIME time,
-        const struct sockaddr &gwAddr,
-        GwPushData & pushData
+        const TASK_TIME& time,
+        const TaskSocket *taskSocket,
+        const struct sockaddr &srcAddr,
+        GwPushData &pushData
     );
     void rm(
         const DEVADDR &addr

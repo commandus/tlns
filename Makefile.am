@@ -23,7 +23,7 @@ SRC_LIBLORAWAN = \
     lorawan/helper/key128gen.cpp lorawan/helper/aes-helper.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
-    lorawan/proto/gw/basic-udp.cpp \
+    lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/parse-result.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
@@ -134,6 +134,7 @@ nobase_dist_include_HEADERS = \
     lorawan/proto/gw/proto-gw-parser.h \
     lorawan/proto/gw/basic-udp.h \
     lorawan/proto/gw/gateway-file-json.h \
+    lorawan/proto/gw/parse-result.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
     lorawan/regional-parameters/regional-parameter-channel-plan.h \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \

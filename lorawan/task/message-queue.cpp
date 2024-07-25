@@ -47,7 +47,8 @@ MessageQueueItem *MessageQueue::get (
 }
 
 void MessageQueue::put(
-    TASK_TIME time,
+    const TASK_TIME& time,
+    const TaskSocket *taskSocket,
     const LORAWAN_MESSAGE_STORAGE &radioPacket,
     const struct sockaddr &addr,
     uint64_t gwId,
@@ -59,10 +60,10 @@ void MessageQueue::put(
         auto f = receivedMessages.find(*loraAddr);
         if (f != receivedMessages.end()) {
             // update metadata
-            f->second.metadata[gwId] = { metadata, addr };
+            f->second.metadata[gwId] = { metadata, taskSocket, addr };
         } else {
             MessageQueueItem qi(this, time);
-            qi.metadata[gwId] = { metadata, addr };
+            qi.metadata[gwId] = { metadata, taskSocket, addr };
             auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*loraAddr, qi));
         }
     } else {
@@ -74,29 +75,15 @@ void MessageQueue::put(
     }
 }
 
-bool MessageQueue::put(
-    TASK_TIME time,
-    TaskSocket *taskSocket,
-    const struct sockaddr *gwAddr,
-    const char *buffer,
-    size_t size
-) {
-    MessageQueueItem qi(this, time);
-    qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
-    const DEVADDR *a = qi.getAddr();
-    // TODO parse buffer
-    receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*a, qi));
-    return true;
-}
-
 /**
  * Return true if first packet added, false if it is from another gateway (duplicate)
  * @param pushData
  * @return
  */
 bool MessageQueue::put(
-    TASK_TIME time,
-    const struct sockaddr &gwAddr,
+    const TASK_TIME &time,
+    const TaskSocket *taskSocket,
+    const struct sockaddr &srcAddr,
     GwPushData &pushData
 )
 {
@@ -107,9 +94,9 @@ bool MessageQueue::put(
     bool isSame = (f != receivedMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {
         // update metadata
-        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, gwAddr };
+        f->second.metadata[pushData.rxMetadata.gatewayId] = {pushData.rxMetadata, taskSocket, srcAddr };
     } else {
-        qi.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, gwAddr };
+        qi.metadata[pushData.rxMetadata.gatewayId] = {pushData.rxMetadata, taskSocket, srcAddr };
         qi.task.gatewayId = pushData.rxMetadata.gatewayId;
         qi.task.deviceId.devaddr = *addr;
         qi.task.repeats = 0;

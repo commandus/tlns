@@ -23,6 +23,8 @@
 #define SPECTRAL_SCAN_DELAY_MS  1000
 #define GPS_DELAY_MS            1000
 
+#define MAXSOCKADDRLEN          108
+
 const char *MEASUREMENT_NAME[MEASUREMENT_COUNT_SIZE] = {
     "Received",
     "CRC OK",
@@ -899,13 +901,14 @@ void LoraGatewayListener::upstreamRunner()
         mqi.metadata[metadata.gatewayId] = metadata;
         setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
          */
-        struct sockaddr srcAddr;
+        struct sockaddr_un srcAddr;
         if (socket) {
-            socklen_t sz = sizeof(srcAddr);
-            getsockname(socket->sock, &srcAddr, &sz);
+            socklen_t sz = sizeof(struct sockaddr_un);
+            // getsockname() anyway truncate address to ~14 bytes
+            getsockname(socket->sock, (struct sockaddr *) &srcAddr, &sz);
         }
         if (onPushData)
-            onPushData(dispatcher, srcAddr, metadata, p->payload, p->size);
+            onPushData(dispatcher, socket, (sockaddr &) srcAddr, metadata, p->payload, p->size);
 
         measurements.inc(meas_up_dgram_sent);
         measurements.inc(meas_up_network_byte, p->size);    // no network traffic, return size of payload

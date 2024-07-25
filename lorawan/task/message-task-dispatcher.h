@@ -9,12 +9,14 @@
 #include "lorawan/task/task-response.h"
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
+#include "lorawan/proto/gw/parse-result.h"
 #include "lorawan/task/task-socket.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
-#include "task-timer-socket.h"
+#include "lorawan/task/task-timer-socket.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
+    const TaskSocket *taskSocket,
     const sockaddr &addr,
     SEMTECH_PROTOCOL_METADATA_RX metadata,
     void *radioPacket,
@@ -146,9 +148,10 @@ public:
     );
 
     void pushData(
+        const TaskSocket *taskSocket,
         const sockaddr &addr,
         GwPushData &pushData,
-        TASK_TIME point
+        const TASK_TIME &receivedTime
     );
 
     void setParser(ProtoGwParser *parser);
@@ -168,6 +171,19 @@ public:
     );
 
     void cleanupOldMessages(TASK_TIME now);
+
+    /**
+     * Return 0 if message kas benn received from known gateways. Return <0 if message to reject
+     * @param parsedMsg parsed message (push or pull response)
+     * @param taskSocket socket received from
+     * @param srcSockAddr source address
+     * @return
+     */
+    int validateGatewayAddress(
+        const ParseResult &parsedMsg,
+        const TaskSocket *taskSocket,
+        const sockaddr &srcSockAddr
+    );
 };
 
 #endif

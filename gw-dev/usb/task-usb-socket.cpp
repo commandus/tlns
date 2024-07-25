@@ -9,6 +9,7 @@
 
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
+    const TaskSocket *taskSocket,
     const sockaddr &sockAddr,
     SEMTECH_PROTOCOL_METADATA_RX metadata,
     void *radioPacket,
@@ -18,7 +19,7 @@ static void onPushData(
     GwPushData pd;
     setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
     pd.rxMetadata = metadata;
-    dispatcher->pushData(sockAddr, pd, std::chrono::system_clock::now());
+    dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now());
 }
 
 /**

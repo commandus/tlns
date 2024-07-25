@@ -124,7 +124,7 @@ endif()
 		lorawan/lorawan-packet-storage.cpp lorawan/lorawan-builder.cpp
 		lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp
 		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp lorawan/proto/gw/basic-udp.cpp
-		lorawan/proto/gw/set-gateway-metadata.cpp
+		lorawan/proto/gw/set-gateway-metadata.cpp lorawan/proto/gw/parse-result.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
 		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp

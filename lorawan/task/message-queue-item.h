@@ -6,12 +6,14 @@
 #include "task-platform.h"
 #include "task-descriptor.h"
 #include "lorawan/lorawan-packet-storage.h"
+#include "task-socket.h"
 
 class MessageQueue;
 
 class GatewayMetadata {
 public:
     SEMTECH_PROTOCOL_METADATA_RX rx;
+    const TaskSocket *taskSocket;
     struct sockaddr addr;
 };
 

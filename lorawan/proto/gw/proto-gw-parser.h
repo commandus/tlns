@@ -5,19 +5,7 @@
 #include "lorawan/task/message-task-dispatcher.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/lorawan-builder.h"
-
-/**
- * ProtoGwParser::parse return result in ParseResult structure
- */
-class ParseResult {
-public:
-    uint8_t tag;
-    uint16_t token;
-    GwPushData gwPushData;
-    GwPullResp gwPullResp;
-    ERR_CODE_TX code;           ///< code
-    ParseResult();
-};
+#include "lorawan/proto/gw/parse-result.h"
 
 /**
   * MessageTaskDispatcher call ProtoGwParser::parse() method

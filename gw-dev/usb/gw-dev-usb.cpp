@@ -28,6 +28,7 @@
 #include "lorawan/task/task-unix-control-socket.h"
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/helper/tlns-cli-helper.h"
+#include "lorawan/storage/client/plugin-client.h"
 
 // i18n
 // #include <libintl.h>
@@ -184,7 +185,11 @@ int parseCmd(
         config->pluginGatewayClassName,
         *a_identity_plugin_file_n_class->sval)
     ) {
-            std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+            PluginClient pc(config->pluginFilePath, config->pluginIdentityClassName, config->pluginGatewayClassName);
+            if (!pc.svcIdentity || !pc.svcGateway) {
+                nErrors++;
+                std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+            }
     }
 
     if (a_identity_file_name->count)

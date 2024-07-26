@@ -27,6 +27,7 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/task-unix-control-socket.h"
 #include "lorawan/proto/gw/basic-udp.h"
+#include "lorawan/helper/tlns-cli-helper.h"
 
 // i18n
 // #include <libintl.h>
@@ -65,6 +66,10 @@ class LocalGatewayConfiguration {
 public:
     std::string devicePath;
     std::string identityFileName;
+    std::string pluginFilePath;
+    std::string pluginIdentityClassName;
+    std::string pluginGatewayClassName;
+
     size_t regionIdx;
     bool enableSend;
     bool enableBeacon;
@@ -138,6 +143,8 @@ int parseCmd(
     // device path
     struct arg_str *a_device_path = arg_str1(nullptr, nullptr, _("<device-name>"), _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
+
+    struct arg_str *a_identity_plugin_file_n_class = arg_str0("p", "plugin", _("<plugin>"), _("Default none"));
     struct arg_str *a_identity_file_name = arg_str0("i", "id", _("<id-file-name>"), _("Device identities JSON file name"));
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
@@ -149,7 +156,7 @@ int parseCmd(
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-        a_device_path, a_region_name, a_identity_file_name,
+        a_device_path, a_region_name, a_identity_plugin_file_n_class, a_identity_file_name,
         a_enable_send, a_enable_beacon,
         a_daemonize, a_unix_socket_file,
         a_pidfile, a_verbosity, a_help, a_end
@@ -167,6 +174,19 @@ int parseCmd(
         config->devicePath = std::string(*a_device_path->sval);
     else
         config->devicePath = "";
+
+    // try load shared library
+    if (a_identity_plugin_file_n_class->count > 0) {
+    }
+    if (!splitFileClass(
+        config->pluginFilePath,
+        config->pluginIdentityClassName,
+        config->pluginGatewayClassName,
+        *a_identity_plugin_file_n_class->sval)
+    ) {
+            std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+    }
+
     if (a_identity_file_name->count)
         config->identityFileName = *a_identity_file_name->sval;
     else
@@ -286,6 +306,8 @@ void setSignalHandler()
 
 static void run()
 {
+    NetworkIdentity *identity = nullptr;
+    dispatcher.setIdentity(identity);
     dispatcher.onReceiveRawData = [] (
         MessageTaskDispatcher* aDispatcher,
         const char *buffer,

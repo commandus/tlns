@@ -901,6 +901,7 @@ void LoraGatewayListener::upstreamRunner()
         mqi.metadata[metadata.gatewayId] = metadata;
         setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
          */
+        // gateway src address is unix domain name address because socket family is AF_UNIX
         struct sockaddr_un srcAddr;
         if (socket) {
             socklen_t sz = sizeof(struct sockaddr_un);

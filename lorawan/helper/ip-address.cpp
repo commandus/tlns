@@ -30,7 +30,6 @@ std::string sockaddr2string(
             }
             port = ntohs(((struct sockaddr_in6 *) value)->sin6_port);
             break;
-
         case AF_UNIX:
             strncpy(buf, ((struct sockaddr_un *) value)->sun_path, MAXSOCKADDRLEN);
             port = 0;

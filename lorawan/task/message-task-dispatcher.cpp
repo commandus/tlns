@@ -17,7 +17,6 @@
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/task/task-accepted-socket.h"
 #include "lorawan/lorawan-date.h"
-#include "lorawan/lorawan-builder.h"
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -26,7 +25,7 @@
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
-      parser(nullptr), regionalPlan(nullptr), running(false),
+      parser(nullptr), regionalPlan(nullptr), identity(nullptr), running(false),
       onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
       onError(nullptr)
 {
@@ -37,10 +36,11 @@ MessageTaskDispatcher::MessageTaskDispatcher()
 MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
-    : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse), thread(value.thread),
-      parser(value.parser), regionalPlan(value.regionalPlan), queue(value.queue), running(value.running),
-      onReceiveRawData(value.onReceiveRawData), onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
-      onDestroy(value.onDestroy), onError(nullptr)
+    : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
+        thread(value.thread), parser(value.parser), regionalPlan(value.regionalPlan), identity(value.identity),
+        queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
+        onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
+        onDestroy(value.onDestroy), onError(nullptr)
 {
 }
 
@@ -352,18 +352,18 @@ int MessageTaskDispatcher::run()
         }
         // accept connections
         if (!acceptedSockets.empty()) {
-            for (auto a = acceptedSockets.begin(); a != acceptedSockets.end(); a++) {
-                sockets.push_back(new TaskAcceptedSocket(*a));
+            for (int & acceptedSocket : acceptedSockets) {
+                sockets.push_back(new TaskAcceptedSocket(acceptedSocket));
             }
             acceptedSockets.clear();
             maxFD1 = getMaxDescriptor1(masterReadSocketSet);
         }
         // delete broken connections
         if (!removedSockets.empty()) {
-            for (auto a = removedSockets.begin(); a != removedSockets.end(); a++) {
+            for (auto & removedSocket : removedSockets) {
                 // get max socket
-                auto f = std::find_if(sockets.begin(), sockets.end(), [a](const TaskSocket *v) {
-                    return (*a == v);
+                auto f = std::find_if(sockets.begin(), sockets.end(), [&removedSocket](const TaskSocket *v) {
+                    return (removedSocket == v);
                 });
                 if (f != sockets.end())
                     sockets.erase(f);
@@ -520,4 +520,10 @@ int MessageTaskDispatcher::validateGatewayAddress(
 )
 {
     return CODE_OK;
+}
+
+void MessageTaskDispatcher::setIdentity(
+    NetworkIdentity *aIdentity
+) {
+    identity = aIdentity;
 }

@@ -20,7 +20,7 @@ SRC_LIBLORAWAN = \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/lorawan-builder.cpp lorawan/task/lorawan-mic.cpp lorawan/lorawan-key.cpp lorawan/power-dbm.cpp \
-    lorawan/helper/key128gen.cpp lorawan/helper/aes-helper.cpp \
+    lorawan/helper/key128gen.cpp lorawan/helper/aes-helper.cpp lorawan/helper/tlns-cli-helper.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
     lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/parse-result.cpp \
@@ -28,6 +28,8 @@ SRC_LIBLORAWAN = \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp \
+    lorawan/storage/client/direct-client.cpp lorawan/storage/client/plugin-client.cpp \
+    lorawan/storage/service/identity-service.cpp lorawan/storage/service/gateway-service.cpp \
     lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp \
     lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp \
     lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp \
@@ -127,8 +129,9 @@ nobase_dist_include_HEADERS = \
     gw-dev/usb/rak2287.h \
     gw-dev/usb/task-usb-socket.h \
     gw-dev/usb/log-intf.h \
-    lorawan/storage/network-identity.h \
-    lorawan/storage/gateway-identity.h \
+    lorawan/storage/client/direct-client.h lorawan/storage/client/plugin-client.h lorawan/storage/client/response-client.h \
+    lorawan/storage/service/identity-service.h lorawan/storage/service/gateway-service.h \
+    lorawan/storage/network-identity.h lorawan/storage/gateway-identity.h \
     lorawan/lorawan-packet-storage.h \
     lorawan/proto/gw/gw.h lorawan/proto/gw/set-gateway-metadata.h \
     lorawan/proto/gw/proto-gw-parser.h \
@@ -140,7 +143,7 @@ nobase_dist_include_HEADERS = \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.h \
-    lorawan/helper/file-helper.h lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
+    lorawan/helper/tlns-cli-helper.h lorawan/helper/file-helper.h lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
     lorawan/lorawan-conv.h lorawan/lorawan-mac.h lorawan/lorawan-const.h lorawan/lorawan-error.h \
     lorawan/lorawan-date.h lorawan/lorawan-msg.h lorawan/lorawan-types.h lorawan/task/lorawan-mic.h \
     lorawan/lorawan-key.h lorawan/power-dbm.h lorawan/helper/key128gen.h lorawan/helper/aes-helper.h \

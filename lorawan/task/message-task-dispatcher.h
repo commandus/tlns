@@ -112,6 +112,7 @@ public:
 
     ProtoGwParser* parser;
     const RegionalParameterChannelPlan *regionalPlan;
+    NetworkIdentity *identity;
 
     int run();
 
@@ -184,6 +185,8 @@ public:
         const TaskSocket *taskSocket,
         const sockaddr &srcSockAddr
     );
+
+    void setIdentity(NetworkIdentity *aIdentity);
 };
 
 #endif

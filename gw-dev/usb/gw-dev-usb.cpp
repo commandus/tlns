@@ -328,9 +328,13 @@ static void run()
     }
     identityClient.svcIdentity->init(localConfig.identityFileName, nullptr);
     identityClient.svcGateway->init(localConfig.gatewayFileName, nullptr);
+    if (localConfig.verbosity > 1) {
+        std::cout
+            << MSG_IDENTITIES << identityClient.svcIdentity->size() << '\n'
+            << MSG_GATEWAYS << identityClient.svcGateway->size() << std::endl;
+    }
 
-    NetworkIdentity *identity = nullptr;
-    dispatcher.setIdentity(identity);
+    dispatcher.setIdentityClient(&identityClient);
     dispatcher.onReceiveRawData = [] (
         MessageTaskDispatcher* aDispatcher,
         const char *buffer,

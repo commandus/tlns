@@ -522,8 +522,8 @@ int MessageTaskDispatcher::validateGatewayAddress(
     return CODE_OK;
 }
 
-void MessageTaskDispatcher::setIdentity(
-    NetworkIdentity *aIdentity
+void MessageTaskDispatcher::setIdentityClient(
+    DirectClient *aIdentitClient
 ) {
-    identity = aIdentity;
+    identity = aIdentitClient;
 }

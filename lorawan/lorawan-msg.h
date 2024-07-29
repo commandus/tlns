@@ -302,6 +302,8 @@
 #define MSG_WS_START_SUCCESS			"web service started successfully "
 #define MSG_IDENTITY_START				"Start identity service.."
 #define MSG_IDENTITY_INIT               "Initialize identity service NetId: "
+#define MSG_IDENTITIES                  "Identities: "
+#define MSG_GATEWAYS                    "Gateways: "
 #define MSG_GW_STAT_FILE_START          "Start gateway statistics service file.."
 #define MSG_GW_STAT_POST_START          "Start gateway statistics service post.."
 #define MSG_GW_STAT_INIT                "Initialize gateway statistics service.."

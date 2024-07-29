@@ -13,6 +13,7 @@
 #include "lorawan/task/task-socket.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/task/task-timer-socket.h"
+#include "lorawan/storage/client/direct-client.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -112,7 +113,7 @@ public:
 
     ProtoGwParser* parser;
     const RegionalParameterChannelPlan *regionalPlan;
-    NetworkIdentity *identity;
+    DirectClient *identity;
 
     int run();
 
@@ -186,7 +187,7 @@ public:
         const sockaddr &srcSockAddr
     );
 
-    void setIdentity(NetworkIdentity *aIdentity);
+    void setIdentityClient(DirectClient *aIdentityClient);
 };
 
 #endif

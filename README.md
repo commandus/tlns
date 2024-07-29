@@ -178,6 +178,23 @@ loop
 end loop
 ```
 
+## USB gateway
+
+For RAK2287 USB gateway
+gw-dev-usb based on Semtech's gateway source lora_pkt_fwd.c
+Copyright (C)2019 Semtech License: Revised BSD License (see LICENSE.Semtech.txt file include in the project in the gw-deb/usb folder)
+
+gw-dev-usb require access to identities via plugin shared library.
+
+For instance,
+
+```shell
+./gw-dev-usb -vvvvvvv -c ru -p /home/andrei/src/lorawan-storage/build/libstorage-json.so:json:json -i /home/andrei/src/lorawan-network-server/identity.json /dev/ttyACM1
+```
+
+option -p set /home/andrei/src/lorawan-storage/build/libstorage-json.so shared library, and json:json is part of 
+name of the function creates access object.
+
 ## Tools
 
 - gateway-config2cpp

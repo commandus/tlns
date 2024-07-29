@@ -27,6 +27,19 @@ NetworkIdentity::NetworkIdentity
 {
 }
 
+NetworkIdentity& NetworkIdentity::operator=(
+    const DEVICEID& value
+)
+{
+    activation = value.activation;
+    deviceclass = value.deviceclass;
+    devEUI = value.devEUI;
+    nwkSKey = value.nwkSKey;
+    appSKey = value.appSKey;
+    name = value.name;
+    return *this;
+}
+
 std::string NetworkIdentity::toString() const
 {
 	std::stringstream ss;

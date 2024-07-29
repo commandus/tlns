@@ -25,7 +25,7 @@
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
-      parser(nullptr), regionalPlan(nullptr), identity(nullptr), running(false),
+      parser(nullptr), regionalPlan(nullptr), identityClient(nullptr), running(false),
       onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
       onError(nullptr)
 {
@@ -37,10 +37,10 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
-        thread(value.thread), parser(value.parser), regionalPlan(value.regionalPlan), identity(value.identity),
-        queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
-        onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
-        onDestroy(value.onDestroy), onError(nullptr)
+      thread(value.thread), parser(value.parser), regionalPlan(value.regionalPlan), identityClient(value.identityClient),
+      queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
+      onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
+      onDestroy(value.onDestroy), onError(nullptr)
 {
 }
 
@@ -423,8 +423,11 @@ void MessageTaskDispatcher::pushData(
     queueMutex.lock();
     bool isNew = queue.put(receivedTime, taskSocket, addr, pushData);
     queueMutex.unlock();
+
     // wake up
-    // if (isNew) {
+    if (isNew) {
+    }
+
     auto a = pushData.rxData.getAddr();
     if (a)
         send(a, SIZE_DEVADDR);  // pass address of just added item
@@ -523,7 +526,7 @@ int MessageTaskDispatcher::validateGatewayAddress(
 }
 
 void MessageTaskDispatcher::setIdentityClient(
-    DirectClient *aIdentitClient
+    DirectClient *aIdentityClient
 ) {
-    identity = aIdentitClient;
+    identityClient = aIdentityClient;
 }

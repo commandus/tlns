@@ -39,6 +39,7 @@ public:
 	NetworkIdentity(const DEVADDR &a, const DEVICEID &id);
     explicit NetworkIdentity(const DEVICEID &id);
 	void set(const DEVADDR &addr, const DEVICEID &value);
+    NetworkIdentity& operator=(const DEVICEID& other);
 	std::string toString() const;
     std::string toJsonString() const;
 };

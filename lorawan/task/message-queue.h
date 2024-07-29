@@ -14,7 +14,7 @@ class MessageTaskDispatcher;
 
 class MessageQueue {
 protected:
-    MessageTaskDispatcher *dispatcher{};                          ///< parent dispatcher
+    MessageTaskDispatcher *dispatcher;                          ///< parent dispatcher
 public:
     std::map <DEVADDR, MessageQueueItem> receivedMessages;      ///< data packets received from devices
     std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;      ///< join packets

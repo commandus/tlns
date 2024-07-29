@@ -113,7 +113,7 @@ public:
 
     ProtoGwParser* parser;
     const RegionalParameterChannelPlan *regionalPlan;
-    DirectClient *identity;
+    DirectClient *identityClient;
 
     int run();
 

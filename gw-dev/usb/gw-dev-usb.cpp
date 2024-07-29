@@ -67,6 +67,7 @@ class LocalGatewayConfiguration {
 public:
     std::string devicePath;
     std::string identityFileName;
+    std::string gatewayFileName;
     std::string pluginFilePath;
     std::string pluginIdentityClassName;
     std::string pluginGatewayClassName;
@@ -145,8 +146,10 @@ int parseCmd(
     struct arg_str *a_device_path = arg_str1(nullptr, nullptr, _("<device-name>"), _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
 
-    struct arg_str *a_identity_plugin_file_n_class = arg_str0("p", "plugin", _("<plugin>"), _("Default none"));
+    struct arg_str *a_identity_plugin_file_n_class = arg_str0("p", "plugin", _("<plugin-file-name:class>"), _("Default none"));
     struct arg_str *a_identity_file_name = arg_str0("i", "id", _("<id-file-name>"), _("Device identities JSON file name"));
+    struct arg_str *a_gateway_file_name = arg_str0("g", "gw", _("<gw-file-name>"), _("Gateways JSON file name"));
+
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
@@ -157,7 +160,7 @@ int parseCmd(
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-        a_device_path, a_region_name, a_identity_plugin_file_n_class, a_identity_file_name,
+        a_device_path, a_region_name, a_identity_plugin_file_n_class, a_identity_file_name, a_gateway_file_name,
         a_enable_send, a_enable_beacon,
         a_daemonize, a_unix_socket_file,
         a_pidfile, a_verbosity, a_help, a_end
@@ -179,16 +182,19 @@ int parseCmd(
     // try load shared library
     if (a_identity_plugin_file_n_class->count > 0) {
     }
-    if (!splitFileClass(
+    if (splitFileClass(
         config->pluginFilePath,
         config->pluginIdentityClassName,
         config->pluginGatewayClassName,
         *a_identity_plugin_file_n_class->sval)
     ) {
-            PluginClient pc(config->pluginFilePath, config->pluginIdentityClassName, config->pluginGatewayClassName);
-            if (!pc.svcIdentity || !pc.svcGateway) {
+            if (!file::fileExists(config->pluginFilePath)) {
                 nErrors++;
-                std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+                std::cerr
+                    << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": "
+                    << ERR_LOAD_PLUGINS_FAILED
+                    << config->pluginFilePath
+                    << std::endl;
             }
     }
 
@@ -196,6 +202,10 @@ int parseCmd(
         config->identityFileName = *a_identity_file_name->sval;
     else
         config->identityFileName = "";
+    if (a_gateway_file_name->count)
+        config->gatewayFileName = *a_gateway_file_name->sval;
+    else
+        config->gatewayFileName = "";
 
     if (a_region_name->count)
         config->regionIdx = findRegionIndex(*a_region_name->sval);
@@ -311,6 +321,14 @@ void setSignalHandler()
 
 static void run()
 {
+    PluginClient identityClient(localConfig.pluginFilePath, localConfig.pluginIdentityClassName, localConfig.pluginGatewayClassName);
+    if (!identityClient.svcIdentity || !identityClient.svcGateway) {
+        std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+        return;
+    }
+    identityClient.svcIdentity->init(localConfig.identityFileName, nullptr);
+    identityClient.svcGateway->init(localConfig.gatewayFileName, nullptr);
+
     NetworkIdentity *identity = nullptr;
     dispatcher.setIdentity(identity);
     dispatcher.onReceiveRawData = [] (

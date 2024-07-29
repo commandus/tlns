@@ -52,8 +52,8 @@ int PluginClient::load(
     }
     fn = file::expandFileName(fn);
 
-    std::string makeIdentityClass = MAKE_FUNC_PREFIX + classIdentityName + MAKE_FUNC_IDENTITY_SUFFIX;
-    std::string makeGatewayClass = MAKE_FUNC_PREFIX + classGatewayName + MAKE_FUNC_GATEWAY_SUFFIX;
+    std::string makeIdentityClass = MAKE_FUNC_PREFIX + firstCharToUpperCase(classIdentityName) + MAKE_FUNC_IDENTITY_SUFFIX;
+    std::string makeGatewayClass = MAKE_FUNC_PREFIX + firstCharToUpperCase(classGatewayName) + MAKE_FUNC_GATEWAY_SUFFIX;
     handleSvc = dlopen(fn.c_str(), RTLD_LAZY);
     if (handleSvc) {
         auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, makeIdentityClass.c_str());

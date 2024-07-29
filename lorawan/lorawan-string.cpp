@@ -131,7 +131,7 @@ std::string hex2string(
 }
 
 std::string toUpperCase(
-        const std::string &value
+    const std::string &value
 )
 {
     std::string r;
@@ -151,6 +151,16 @@ std::string toUpperCase(
         return value;
     else
         return r;
+}
+
+std::string firstCharToUpperCase(
+    const std::string &value
+)
+{
+    std::string r(value);
+    if (!r.empty())
+        r[0] = std::toupper(r[0]);
+    return r;
 }
 
 std::string DEVICENAME2string(

@@ -36,7 +36,7 @@ enum ENUM_SOCKET_ACCEPT {
 class TaskSocket {
 public:
     SOCKET sock;
-    ENUM_SOCKET_ACCEPT accept;      ///< Does socket require accept()?
+    ENUM_SOCKET_ACCEPT socketAccept;      ///< Does socket require accept()?
     int lastError;                  ///< last error code. 0- success
     TaskSocket();
     TaskSocket(
@@ -57,6 +57,7 @@ public:
      */
     virtual void closeSocket() = 0;
     virtual ~TaskSocket();
+    std::string toString() const;
 };
 
 #endif

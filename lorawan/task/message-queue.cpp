@@ -97,6 +97,7 @@ bool MessageQueue::put(
         f->second.metadata[pushData.rxMetadata.gatewayId] = {pushData.rxMetadata, taskSocket, srcAddr };
     } else {
         if (dispatcher && dispatcher->identityClient) {
+            // get device identity
             DEVICEID did;
             dispatcher->identityClient->svcIdentity->get(did, *addr);
             qi.task.deviceId.set(*addr, did);

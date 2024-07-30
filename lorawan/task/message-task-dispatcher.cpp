@@ -246,7 +246,7 @@ int MessageTaskDispatcher::run()
             if (!FD_ISSET(s->sock, &workingSocketSet))
                 continue;
             ssize_t sz;
-            switch (s->accept) {
+            switch (s->socketAccept) {
                 case SA_REQUIRE: {
                     // TCP, UNIX sockets require create accept socket and create a new paired socket
                     SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
@@ -275,7 +275,7 @@ int MessageTaskDispatcher::run()
                 std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
                     << " socket " << s->sock
                     << std::endl;
-                if (s->accept == SA_ACCEPTED) {
+                if (s->socketAccept == SA_ACCEPTED) {
                     // close client connection
                     removedSockets.push_back(s); // do not modify vector using iterator, do it after
                 }
@@ -448,9 +448,14 @@ void MessageTaskDispatcher::setRegionalParameterChannelPlan(
     regionalPlan = aRegionalPlan;
 }
 
+/**
+ *
+ * @param now
+ * @param token random token
+ */
 void MessageTaskDispatcher::sendQueue(
     TASK_TIME now,
-    uint8_t token
+    uint16_t token
 ) {
     TimeAddr ta;
     while (queue.time2ResponseAddr.pop(ta, now)) {
@@ -467,7 +472,7 @@ void MessageTaskDispatcher::sendQueue(
                     token, &gwMetadata.rx, regionalPlan);
                 std::cout << "Send " << std::string(sb, sz)
                     << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
-                    << " at " << sockaddr2string(&m->second.task.gatewayId.sockaddr)
+                    << " over socket " << gwMetadata.taskSocket->toString()
                     << std::endl;
             }
         }

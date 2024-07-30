@@ -354,14 +354,14 @@ static void run()
     ) {
         std::cout << "{\"metadata\": {";
         bool f = true;
-        for (auto it(item->metadata.begin()); it != item->metadata.end(); it++) {
+        for (auto & it : item->metadata) {
             if (f)
                 f = false;
             else
                 std::cout << ", ";
             std::cout
-                << "\"sock_addr\": " << sockaddr2string(&it->second.addr)
-                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it->second.rx);
+                << "\"sock_addr\": " << sockaddr2string(&it.second.addr)
+                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second.rx);
         }
         std::cout
             << "}, \"rfm\": "
@@ -386,7 +386,7 @@ static void run()
         ERR_CODE_TX code
     ) {
         std::cout
-            << "{\"txPkAck\": \""
+            << R"({"txPkAck": ")"
             << ERR_CODE_TX2string(code)
             << "\"}" << std::endl;
     };

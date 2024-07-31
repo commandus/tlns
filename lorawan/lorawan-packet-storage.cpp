@@ -177,7 +177,9 @@ const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const
     if (mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP
         && mhdr.f.mtype <= MTYPE_CONFIRMED_DATA_DOWN) {
         return &data.downlink.devaddr;
-    }
+    } else
+        if (mhdr.f.mtype == MTYPE_JOIN_ACCEPT)
+            return &data.joinResponse.hdr.devAddr;
     return nullptr;
 }
 

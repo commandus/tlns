@@ -90,6 +90,8 @@ bool MessageQueue::put(
     MessageQueueItem qi(this, time);
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *addr = pushData.rxData.getAddr();
+    if (!addr)
+        return false;
     auto f = receivedMessages.find(*addr);
     bool isSame = (f != receivedMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {

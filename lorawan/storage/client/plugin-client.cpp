@@ -7,21 +7,11 @@
 
 #define PLUGIN_FILE_NAME_PREFIX "lib"
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define dlopen(fileName, opt) LoadLibraryA(fileName)
-#define dlclose FreeLibrary
-#define dlsym GetProcAddress
-#define PLUGIN_FILE_NAME_SUFFIX ".dll"
-#else
-#include <dlfcn.h>
-#include <algorithm>
-#define PLUGIN_FILE_NAME_SUFFIX ".so"
-#endif
 
 #ifdef ENABLE_DEBUG
 #include <iostream>
 #include <cstring>
-#include "lorawan-msg.h"
+#include "lorawan/lorawan-msg.h"
 #endif
 
 typedef IdentityService*(*makeIdentityServiceFunc)();

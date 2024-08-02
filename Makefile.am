@@ -17,6 +17,7 @@ AM_CPPFLAGS = $(COMMON_C_FLAGS)
 SRC_ARGTABLE = third-party/argtable3/argtable3.c
 SRC_AES = third-party/system/crypto/aes.c third-party/system/crypto/cmac.c
 SRC_LIBLORAWAN = \
+    lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/lorawan-builder.cpp lorawan/task/lorawan-mic.cpp lorawan/lorawan-key.cpp lorawan/power-dbm.cpp \
@@ -76,6 +77,7 @@ SRC_LIBLORAGW = \
     $(LIBLORAGW_ROOT)/jitqueue.c
 
 nobase_dist_include_HEADERS = \
+    lorawan/bridge/app-bridge.h lorawan/bridge/plugin-bridge.h \
     task-response-threaded.h \
     third-party/argtable3/argtable3.h \
     third-party/base64/base64.h \
@@ -143,7 +145,8 @@ nobase_dist_include_HEADERS = \
     lorawan/regional-parameters/regional-parameter-channel-plans.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.h \
-    lorawan/helper/tlns-cli-helper.h lorawan/helper/file-helper.h lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
+    lorawan/helper/plugin-helper.h lorawan/helper/tlns-cli-helper.h lorawan/helper/file-helper.h \
+    lorawan/helper/thread-helper.h lorawan/helper/ip-address.h \
     lorawan/lorawan-conv.h lorawan/lorawan-mac.h lorawan/lorawan-const.h lorawan/lorawan-error.h \
     lorawan/lorawan-date.h lorawan/lorawan-msg.h lorawan/lorawan-types.h lorawan/task/lorawan-mic.h \
     lorawan/lorawan-key.h lorawan/power-dbm.h lorawan/helper/key128gen.h lorawan/helper/aes-helper.h \

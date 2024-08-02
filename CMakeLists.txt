@@ -117,6 +117,7 @@ endif()
 	add_subdirectory("third-party/libloragw")
 
 	set(SRC_LIBLORAWAN
+		lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp
 		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-mic.cpp
 		lorawan/lorawan-key.cpp lorawan/power-dbm.cpp

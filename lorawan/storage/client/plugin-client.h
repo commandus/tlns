@@ -3,13 +3,8 @@
 
 #include <string>
 
-#include "direct-client.h"
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#include <Windows.h>
-#else
-typedef void * HINSTANCE;
-#endif
+#include "lorawan/storage/client/direct-client.h"
+#include "lorawan/helper/plugin-helper.h"
 
 /**
  * Class to load specific identity and gateway services from loadable modules (shared libraries)

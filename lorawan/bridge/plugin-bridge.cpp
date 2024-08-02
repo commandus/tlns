@@ -16,7 +16,7 @@
 typedef AppBridge*(*makeBridgeFunc)();
 
 const std::string MAKE_FUNC_PREFIX = "make";
-const std::string MAKE_FUNC_IDENTITY_SUFFIX = "AppBridge";
+const std::string MAKE_FUNC_IDENTITY_SUFFIX = "Bridge";
 
 int PluginBridge::load(
     const std::string &fileName,

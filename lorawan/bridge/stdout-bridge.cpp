@@ -4,12 +4,17 @@
 
 void StdoutBridge::onPayload(
     const void* dispatcher,   // MessageTaskDispatcher*
-    const MessageQueueItem *item, // network identity, gateway identifier and metadata etc.
+    const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
     const char *value,
     size_t size
 )
 {
-    if (item)
-        std::cout << "Payload " << item->toString() << std::endl;
+    if (messageItem)
+        std::cout << "Message " << messageItem->toString() << std::endl;
     std::cout << "Payload " << hexString(value, size) << std::endl;
+}
+
+EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
+{
+    return new StdoutBridge;
 }

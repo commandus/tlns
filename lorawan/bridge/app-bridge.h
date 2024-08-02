@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include "lorawan/task/message-queue-item.h"
+#include "lorawan/helper/plugin-helper.h"
 
 /**
  * Abstract class connects to

@@ -11,11 +11,13 @@
 #define dlclose FreeLibrary
 #define dlsym GetProcAddress
 #define PLUGIN_FILE_NAME_SUFFIX ".dll"
+#define EXPORT_SHARED_C_FUNC extern "C" __declspec(dllexport)
 #else
 typedef void * HINSTANCE;
 #include <dlfcn.h>
 #include <algorithm>
 #define PLUGIN_FILE_NAME_SUFFIX ".so"
+#define EXPORT_SHARED_C_FUNC extern "C"
 #endif
 
 #endif //TLNS_PLUGIN_HELPER_H

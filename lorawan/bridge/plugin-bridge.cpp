@@ -70,7 +70,29 @@ PluginBridge::PluginBridge(
     load(fileName, className);
 }
 
+bool PluginBridge::valid()
+{
+    return bridge != nullptr && handleSvc != nullptr;
+}
+
 PluginBridge::~PluginBridge()
 {
     unload();
 }
+
+PluginBridges::PluginBridges() = default;
+
+int PluginBridges::add(
+    const std::string &fileName,
+    const std::string &className
+)
+{
+    PluginBridge pb(fileName, className);
+    if (!pb.valid())
+        return ERR_CODE_LOAD_PLUGINS_FAILED;
+    bridges.push_back(std::move(pb));
+    return CODE_OK;
+}
+
+PluginBridges::~PluginBridges() = default;
+

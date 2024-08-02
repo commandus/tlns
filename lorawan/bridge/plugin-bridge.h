@@ -23,7 +23,20 @@ public:
         const std::string &fileName,
         const std::string &className
     );
+    bool valid();
     virtual ~PluginBridge();
+};
+
+class PluginBridges {
+private:
+    std::vector<PluginBridge> bridges;
+public:
+    PluginBridges();
+    int add(
+        const std::string &fileName,
+        const std::string &className
+    );
+    virtual ~PluginBridges();
 };
 
 #endif //TLNS_PLUGIN_BRIDGE_H

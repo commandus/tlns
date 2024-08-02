@@ -9,13 +9,12 @@ public:
     virtual ~StdoutBridge() = default;
     void onPayload(
         const void* dispatcher,   // MessageTaskDispatcher*
-        const MessageQueueItem *item, // network identity, gateway identifier and metadata etc.
+        const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
         const char *value,
         size_t size
     ) override;
 };
 
-// EXPORT_SHARED_C_FUNC StdoutBridge* makeStdoutBridgeBridge();
-
+EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge();
 
 #endif //TLNS_STDOUT_BRIDGE_H

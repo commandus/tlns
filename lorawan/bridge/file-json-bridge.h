@@ -3,10 +3,12 @@
 
 #include "lorawan/bridge/app-bridge.h"
 
-class StdoutBridge : public AppBridge {
+class FileJsonBridge : public AppBridge {
+protected:
+    std::string fileName;
 public:
-    StdoutBridge() = default;
-    virtual ~StdoutBridge() = default;
+    FileJsonBridge() = default;
+    virtual ~FileJsonBridge() = default;
     void onPayload(
         const void* dispatcher,   // MessageTaskDispatcher*
         const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
@@ -19,6 +21,6 @@ public:
     ) override;
 };
 
-EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge();
+EXPORT_SHARED_C_FUNC AppBridge* makeFileJsonBridge();
 
 #endif //TLNS_STDOUT_BRIDGE_H

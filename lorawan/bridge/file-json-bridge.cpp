@@ -1,8 +1,8 @@
 #include <iostream>
-#include "lorawan/bridge/stdout-bridge.h"
+#include "lorawan/bridge/file-json-bridge.h"
 #include "lorawan/lorawan-string.h"
 
-void StdoutBridge::onPayload(
+void FileJsonBridge::onPayload(
     const void* dispatcher,   // MessageTaskDispatcher*
     const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
     const char *value,
@@ -14,15 +14,15 @@ void StdoutBridge::onPayload(
     std::cout << "Payload " << hexString(value, size) << std::endl;
 }
 
-void StdoutBridge::init(
+void FileJsonBridge::init(
     const std::string& option,
     const void *option2
 )
 {
-
+    fileName = option;
 }
 
 EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
 {
-    return new StdoutBridge;
+    return new FileJsonBridge;
 }

@@ -17,7 +17,7 @@ AM_CPPFLAGS = $(COMMON_C_FLAGS)
 SRC_ARGTABLE = third-party/argtable3/argtable3.c
 SRC_AES = third-party/system/crypto/aes.c third-party/system/crypto/cmac.c
 SRC_LIBLORAWAN = \
-    lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp lorawan/bridge/stdout-bridge.cpp \
+    lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp \
     lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp \
     lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-packet-storage.cpp \
     lorawan/lorawan-builder.cpp lorawan/task/lorawan-mic.cpp lorawan/lorawan-key.cpp lorawan/power-dbm.cpp \
@@ -166,6 +166,11 @@ lib_LIBRARIES += libloragw.a
 endif
 
 #
+#
+#
+lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la
+
+#
 # Binaries
 #
 bin_PROGRAMS = cli-main-check regional-parameters2cpp
@@ -209,6 +214,19 @@ regional_parameters2cpp_SOURCES = util/regional-parameters2cpp.cpp \
     $(SRC_ARGTABLE)
 regional_parameters2cpp_LDADD = -L. -llorawan
 regional_parameters2cpp_CPPFLAGS = $(EXTRA_DEF)
+
+#
+# Plugins
+#
+libstdout_bridge_la_SOURCES = lorawan/bridge/stdout-bridge.cpp
+libstdout_bridge_la_LIBADD = -L. -llorawan
+libstdout_bridge_la_CPPFLAGS = -Ithird-party
+#libstdout_bridge_la_LDFLAGS = -version-info $(VERSION_INFO)
+
+libfile_json_bridge_la_SOURCES = lorawan/bridge/file-json-bridge.cpp
+libfile_json_bridge_la_LIBADD = -L. -llorawan
+libfile_json_bridge_la_CPPFLAGS = -Ithird-party
+#libfile_json_bridge_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 test_printf_SOURCES = tests/test-printf.cpp \
     third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp

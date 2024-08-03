@@ -20,6 +20,10 @@ public:
         const char *value,
         size_t size
     ) = 0;
+    virtual void init(
+        const std::string& option,
+        const void *option2
+    ) = 0;
 };
 
 #endif

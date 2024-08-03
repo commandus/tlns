@@ -117,7 +117,7 @@ endif()
 	add_subdirectory("third-party/libloragw")
 
 	set(SRC_LIBLORAWAN
-		lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp lorawan/bridge/stdout-bridge.cpp
+		lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp
 		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
 		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-mic.cpp
 		lorawan/lorawan-key.cpp lorawan/power-dbm.cpp
@@ -239,6 +239,19 @@ endif()
 		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 		set(OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
 	endif()
+
+	#
+	# Plugins
+	#
+	add_library(stdout-bridge SHARED lorawan/bridge/stdout-bridge.cpp)
+	target_link_libraries(stdout-bridge PRIVATE lorawan)
+	target_include_directories(stdout-bridge PRIVATE ".")
+	set_target_properties(stdout-bridge PROPERTIES SOVERSION ${VERSION_INFO})
+
+	add_library(file-json-bridge SHARED lorawan/bridge/file-json-bridge.cpp)
+	target_link_libraries(file-json-bridge PRIVATE lorawan)
+	target_include_directories(file-json-bridge PRIVATE ".")
+	set_target_properties(file-json-bridge PROPERTIES SOVERSION ${VERSION_INFO})
 
 	install(FILES README.md LICENSE HISTORY COPYING TODO CODE_OF_CONDUCT.md CONTRIBUTING.md DESTINATION doc)
 

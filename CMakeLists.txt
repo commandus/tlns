@@ -262,3 +262,5 @@ endif()
 	set(CPACK_PACKAGE_VERSION_MINOR "1")
 	include(CPack)
 endif()
+
+include_directories(bridge/mqtt)

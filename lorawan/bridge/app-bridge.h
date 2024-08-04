@@ -24,6 +24,7 @@ public:
         const std::string& option,
         const void *option2
     ) = 0;
+    virtual void done() = 0;
 };
 
 #endif

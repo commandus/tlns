@@ -19,6 +19,7 @@ public:
         const std::string& option,
         const void *option2
     ) override;
+    void done() override;
 };
 
 EXPORT_SHARED_C_FUNC AppBridge* makeFileJsonBridge();

@@ -22,6 +22,11 @@ void FileJsonBridge::init(
     fileName = option;
 }
 
+void FileJsonBridge::done()
+{
+
+}
+
 EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
 {
     return new FileJsonBridge;

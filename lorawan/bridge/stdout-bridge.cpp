@@ -22,6 +22,11 @@ void StdoutBridge::init(
 
 }
 
+void StdoutBridge::done()
+{
+
+}
+
 EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
 {
     return new StdoutBridge;

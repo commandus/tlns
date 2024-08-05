@@ -29,6 +29,8 @@
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/helper/tlns-cli-helper.h"
 #include "lorawan/storage/client/plugin-client.h"
+#include "lorawan/bridge/plugin-bridge.h"
+#include "lorawan/bridge/stdout-bridge.h"
 
 // i18n
 // #include <libintl.h>
@@ -69,6 +71,7 @@ public:
     std::string identityFileName;
     std::string gatewayFileName;
     std::string pluginFilePath;
+    std::vector<std::string> bridgePluginFiles;
 
     size_t regionIdx;
     bool enableSend;
@@ -148,6 +151,8 @@ int parseCmd(
     struct arg_str *a_identity_file_name = arg_str0("i", "id", _("<id-file-name>"), _("Device identities JSON file name"));
     struct arg_str *a_gateway_file_name = arg_str0("g", "gw", _("<gw-file-name>"), _("Gateways JSON file name"));
 
+    struct arg_str *a_bridge_plugin = arg_strn("o", "output", _("<directory>"), 0, 64, _("Output plugins directory"));
+
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
@@ -159,6 +164,7 @@ int parseCmd(
 
     void *argtable[] = {
             a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
+            a_bridge_plugin,
             a_enable_send, a_enable_beacon,
             a_daemonize, a_unix_socket_file,
             a_pidfile, a_verbosity, a_help, a_end
@@ -198,6 +204,9 @@ int parseCmd(
         config->gatewayFileName = *a_gateway_file_name->sval;
     else
         config->gatewayFileName = "";
+
+    for (int i = 0; i < a_bridge_plugin->count; i++)
+        config->bridgePluginFiles.push_back(a_bridge_plugin->sval[i]);
 
     if (a_region_name->count)
         config->regionIdx = findRegionIndex(*a_region_name->sval);
@@ -314,6 +323,17 @@ void setSignalHandler()
 static void run()
 {
     PluginClient identityClient(localConfig.pluginFilePath);
+
+    PluginBridges pluginBridges;
+    pluginBridges.add(localConfig.bridgePluginFiles);
+    for (auto &b : pluginBridges.bridges) {
+        dispatcher.addAppBridge(b.bridge);
+    }
+    if (dispatcher.appBridges.empty()) {
+        // add simple output bridge
+        dispatcher.addAppBridge(new StdoutBridge);
+    }
+
     if (!identityClient.svcIdentity || !identityClient.svcGateway) {
         std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
         return;
@@ -344,21 +364,8 @@ static void run()
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item
     ) {
-        std::cout << "{\"metadata\": {";
-        bool f = true;
-        for (auto & it : item->metadata) {
-            if (f)
-                f = false;
-            else
-                std::cout << ", ";
-            std::cout
-                << "\"sock_addr\": " << sockaddr2string(&it.second.addr)
-                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second.rx);
-        }
-        std::cout
-            << "}, \"rfm\": "
-            << item->radioPacket.toString()
-            << "}" << std::endl;
+        if (item)
+            std::cout << item->toJsonString();
     };
 
     dispatcher.onPullResp = [] (

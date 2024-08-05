@@ -12,12 +12,12 @@
 class PluginBridge {
 private:
     HINSTANCE handleSvc;
-    AppBridge *bridge;
     int load(
         const std::string &fileName
     );
     void unload();
 public:
+    AppBridge *bridge;
     explicit PluginBridge(
         const std::string &fileName
     );
@@ -26,12 +26,14 @@ public:
 };
 
 class PluginBridges {
-private:
-    std::vector<PluginBridge> bridges;
 public:
+    std::vector<PluginBridge> bridges;
     PluginBridges();
     int add(
         const std::string &fileName
+    );
+    void add(
+        const std::vector<std::string> &fileNames
     );
     virtual ~PluginBridges();
 };

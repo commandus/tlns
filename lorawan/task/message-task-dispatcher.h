@@ -14,6 +14,7 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/task/task-timer-socket.h"
 #include "lorawan/storage/client/direct-client.h"
+#include "lorawan/bridge/app-bridge.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -114,6 +115,7 @@ public:
     ProtoGwParser* parser;
     const RegionalParameterChannelPlan *regionalPlan;
     DirectClient *identityClient;
+    std::vector<AppBridge *> appBridges;
 
     int run();
 
@@ -191,6 +193,10 @@ public:
     );
 
     void setIdentityClient(DirectClient *aIdentityClient);
+
+    void addAppBridge(
+        AppBridge *appBridge
+    );
 };
 
 #endif

@@ -535,3 +535,10 @@ void MessageTaskDispatcher::setIdentityClient(
 ) {
     identityClient = aIdentityClient;
 }
+
+void MessageTaskDispatcher::addAppBridge(
+    AppBridge *appBridge
+)
+{
+    appBridges.push_back(appBridge);
+}

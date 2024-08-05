@@ -87,4 +87,15 @@ int PluginBridges::add(
     return CODE_OK;
 }
 
+void PluginBridges::add(
+    const std::vector<std::string> &fileNames
+)
+{
+    for (auto &fileName: fileNames) {
+        PluginBridge pb(fileName);
+        if (pb.valid())
+            bridges.push_back(pb);
+    }
+}
+
 PluginBridges::~PluginBridges() = default;

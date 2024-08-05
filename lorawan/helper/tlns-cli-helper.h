@@ -11,12 +11,22 @@
 #include "lorawan/lorawan-types.h"
 
 /**
- * Split @param address e.g. FILE:CLASS to @param retFile and @param retClass
+ * Split @param address e.g. FILE:CLASS to @param retFile, @param retIdentityClass, @param retGatewayClass
  */
 bool splitFileClass(
     std::string& retFile,
     std::string& retIdentityClass,
     std::string& retGatewayClass,
+    const std::string& value
+);
+
+/**
+ * Split @param value e.g. "user:password:topic" to @param retUser,  @param retPassword and @param retTopic
+ */
+bool splitUserPasswordTopic(
+    std::string& retUser,
+    std::string& retPassword,
+    std::string& retTopic,
     const std::string& value
 );
 

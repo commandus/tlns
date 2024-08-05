@@ -2,13 +2,10 @@
 #include <cstring>
 #include "tlns-cli-helper.h"
 
-/**
- * Split @param address e.g. FILE:CLASS to @param retFile and @param retClass
- */
-bool splitFileClass(
-    std::string& retFile,
-    std::string& retIdentityClass,
-    std::string& retGatewayClass,
+static bool split3(
+    std::string& retParam1,
+    std::string& retParam2,
+    std::string& retParam3,
     const std::string& value
 )
 {
@@ -17,15 +14,41 @@ bool splitFileClass(
         return false;
     size_t pos2 = value.find_last_of(':');
     if (pos2 == pos1) {
-        retFile = value.substr(0, pos1);
-        retIdentityClass = value.substr(pos1 + 1);
-        retGatewayClass = retIdentityClass;
+        retParam1 = value.substr(0, pos1);
+        retParam2 = value.substr(pos1 + 1);
+        retParam3 = retParam2;
         return true;
     }
-    retFile = value.substr(0, pos1);
-    retIdentityClass = value.substr(pos1 + 1, pos2 - pos1 - 1);
-    retGatewayClass = value.substr(pos2 + 1);
+    retParam1 = value.substr(0, pos1);
+    retParam2 = value.substr(pos1 + 1, pos2 - pos1 - 1);
+    retParam3 = value.substr(pos2 + 1);
     return true;
+}
+
+/**
+ * Split @param address e.g. FILE:CLASS to @param retFile, @param retIdentityClass, @param retGatewayClass
+ */
+bool splitFileClass(
+    std::string& retFile,
+    std::string& retIdentityClass,
+    std::string& retGatewayClass,
+    const std::string& value
+)
+{
+    return split3(retFile, retIdentityClass, retGatewayClass, value);
+}
+
+/**
+ * Split @param value e.g. "user:password:topic" to @param retUser,  @param retPassword and @param retTopic
+ */
+bool splitUserPasswordTopic(
+    std::string& retUser,
+    std::string& retPassword,
+    std::string& retTopic,
+    const std::string& value
+)
+{
+    return split3(retUser, retPassword, retTopic, value);
 }
 
 bool readNetId(

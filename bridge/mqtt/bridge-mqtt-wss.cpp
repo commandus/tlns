@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "bridge/mqtt/bridge-mqtt-wss.h"
+#include "lorawan/helper/tlns-cli-helper.h"
 
 // Assume a local server with websocket support on port 8080
 static mqtt::connect_options makeWSSClientConnectionOptions(
@@ -32,16 +33,16 @@ static mqtt::connect_options makeWSSClientConnectionOptions(
 }
 
 static int sendWSSSmth(
-    mqtt::async_client &client,
+    mqtt::async_client *client,
     int qos,
     const std::string &topic,
     const std::string &msgText
 ) {
-
     bool ok = false;
     try {
         auto msg = mqtt::make_message(topic, msgText, 1, false);
-        ok = client.publish(msg)->wait_for(std::chrono::seconds(2));
+        if (client)
+            ok = client->publish(msg)->wait_for(std::chrono::seconds(2));
     } catch (const mqtt::exception& exc) {
         std::cerr << exc.get_error_str() << std::endl;
         return -3;
@@ -56,10 +57,9 @@ void MqttWssBridge::onPayload(
     size_t size
 )
 {
-    if (messageItem)
-        std::cout << "Message " << messageItem->toString() << std::endl;
-    //int r = sendWSSSmth(cli, 1, topic, messageItem->toString());
-    int r = sendWSSSmth(*cli, 1, topic, std::string((const char *) value, size));
+    if (messageItem) {
+        errorCode = sendWSSSmth(cli, 1, topic, messageItem->toJsonString(value, size));
+    }
 }
 
 MqttWssBridge::MqttWssBridge()
@@ -68,15 +68,16 @@ MqttWssBridge::MqttWssBridge()
 }
 
 void MqttWssBridge::init(
-    const std::string& option,
-    const void *option2
+    const std::string& aWssUrl,
+    const std::string& aProxyUrl,
+    const void *userPasswordTopic
 )
 {
-    url = "";
-    proxyUrl = "";
-    user = "";
-    password = "";
-    topic = "";
+    url = aWssUrl;
+    proxyUrl = aProxyUrl;
+    if (userPasswordTopic) {
+        splitUserPasswordTopic(user, password, topic, *(std::string *) userPasswordTopic);
+    }
 
     auto connOpts = makeWSSClientConnectionOptions(proxyUrl, user, password);
     cli = new mqtt::async_client(url, "tlns-bridge-mqtt-wss-client");

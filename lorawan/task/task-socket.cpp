@@ -59,3 +59,31 @@ std::string TaskSocket::toString() const
     ss << sock;
     return ss.str();
 }
+
+std::string TaskSocket::toJsonString() const
+{
+    std::stringstream ss;
+    ss << "{\"accept\": \"";
+    switch (socketAccept) {
+        case SA_NONE:
+            ss << "\"none\"";
+            break;
+        case SA_REQUIRE:
+            ss << "\"require\"";
+            break;
+        case SA_ACCEPTED:
+            ss << "\"accepted\"";
+            break;
+        case SA_TIMER:
+            ss << "\"timer\"";
+            break;
+        case SA_EVENTFD:
+            ss << "\"event\"";
+            break;
+        default:
+            ss << "\"invalid\"";
+            break;
+    }
+    ss << "\", \"socket\": " << sock << "}";
+    return ss.str();
+}

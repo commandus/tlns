@@ -6,6 +6,7 @@
 class FileJsonBridge : public AppBridge {
 protected:
     std::string fileName;
+    std::fstream *strm;
 public:
     FileJsonBridge() = default;
     virtual ~FileJsonBridge() = default;
@@ -17,7 +18,8 @@ public:
     ) override;
     void init(
         const std::string& option,
-        const void *option2
+        const std::string& option2,
+        const void *option3
     ) override;
     void done() override;
 };

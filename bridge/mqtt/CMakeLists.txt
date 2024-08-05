@@ -10,12 +10,7 @@ set(VERSION_INFO 1.0.1)
 set (THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-#add_executable(test-tlns-mqtt-ws bridge-mqtt-wss.cpp)
-#target_link_libraries(test-tlns-mqtt-ws ${PAHO_LIB} paho-mqtt3as)
-#target_include_directories(test-tlns-mqtt-ws PRIVATE ${PAHO_INC})
-
 add_library(bridge-mqtt-wss SHARED bridge-mqtt-wss.cpp)
-target_link_libraries(bridge-mqtt-wss PRIVATE ../../lorawan)
-target_include_directories(bridge-mqtt-wss PRIVATE "." "../..")
+target_link_libraries(bridge-mqtt-wss PRIVATE lorawan)
+target_include_directories(bridge-mqtt-wss PRIVATE "." "../.." ${PAHO_INC})
 set_target_properties(bridge-mqtt-wss PROPERTIES SOVERSION ${VERSION_INFO})
-

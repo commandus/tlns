@@ -3,8 +3,19 @@
 #include "message-queue-item.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/helper/ip-address.h"
 
 #define DEF_MESSAGE_EXPIRATION_SEC  60
+
+std::string GatewayMetadata::toJsonString() const
+{
+    std::stringstream ss;
+    ss << "{\"taskSocket\": " << taskSocket->toJsonString()
+        << ", \"sockAddr\": \"" << sockaddr2string(&addr) << "\""
+        << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx)
+        << "}";
+    return ss.str();
+}
 
 MessageQueueItem::MessageQueueItem()
     : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now())
@@ -52,6 +63,36 @@ std::string MessageQueueItem::toString() const
         ss << " " <<  gatewayId2str(it.first)
             << ": " << BANDWIDTH2String(it.second.rx.bandwidth);
     }
+    return ss.str();
+}
+
+std::string MessageQueueItem::toJsonString(
+    const void *payload,
+    size_t size
+) const
+{
+    std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
+    std::stringstream ss;
+    ss << "{\"received\": " << time2string(t) << ", \"radio\": " << radioPacket.toString();
+    if (payload && size)
+        ss << ", \"payload\": \"" << hexString(payload, size) << "\"";
+
+    if (!metadata.empty()) {
+        ss << ", \"gateways\": [";
+        bool isFirst = true;
+        for (auto it: metadata) {
+            if (isFirst)
+                isFirst = false;
+            else
+                ss << ", ";
+            ss
+                    << "{\"gatewayId\": \"" << gatewayId2str(it.first)
+                    << "\", \"metadata\": " << it.second.toJsonString()
+                    << "}";
+        }
+        ss << "]";
+    }
+    ss << "}";
     return ss.str();
 }
 

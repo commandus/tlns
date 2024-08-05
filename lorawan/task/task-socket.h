@@ -58,6 +58,7 @@ public:
     virtual void closeSocket() = 0;
     virtual ~TaskSocket();
     std::string toString() const;
+    std::string toJsonString() const;
 };
 
 #endif

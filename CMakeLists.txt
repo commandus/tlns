@@ -263,4 +263,4 @@ endif()
 	include(CPack)
 endif()
 
-include_directories(bridge/mqtt)
+add_subdirectory(bridge/mqtt)

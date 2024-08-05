@@ -15,6 +15,8 @@ public:
     SEMTECH_PROTOCOL_METADATA_RX rx;
     const TaskSocket *taskSocket;
     struct sockaddr addr;
+
+    std::string toJsonString() const;
 };
 
 class MessageQueueItem {
@@ -43,6 +45,14 @@ public:
      * @return serialize item
      */
     std::string toString() const;
+    /**
+     * Serialize item to JSON
+     * @return serialize item
+     */
+    std::string toJsonString(
+        const void *payload = nullptr,
+        size_t size = 0
+    ) const;
     /**
      * Return network address
      * Return NULL if no address is provided (radio packet is JOIN)

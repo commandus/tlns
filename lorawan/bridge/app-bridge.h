@@ -22,7 +22,8 @@ public:
     ) = 0;
     virtual void init(
         const std::string& option,
-        const void *option2
+        const std::string& option2,
+        const void *option3
     ) = 0;
     virtual void done() = 0;
 };

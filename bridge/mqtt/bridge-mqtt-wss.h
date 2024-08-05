@@ -27,8 +27,9 @@ public:
         size_t size
     ) override;
     void init(
-        const std::string& option,
-        const void *option2
+        const std::string& wssUrl,
+        const std::string& proxyUrl,
+        const void *userPasswordTopic
     ) override;
     void done() override;
 };

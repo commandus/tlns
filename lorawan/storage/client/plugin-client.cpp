@@ -17,14 +17,8 @@
 typedef IdentityService*(*makeIdentityServiceFunc)();
 typedef GatewayService*(*makeGatewayServiceFunc)();
 
-const std::string MAKE_FUNC_PREFIX = "make";
-const std::string MAKE_FUNC_IDENTITY_SUFFIX = "IdentityService";
-const std::string MAKE_FUNC_GATEWAY_SUFFIX = "GatewayService";
-
 int PluginClient::load(
-    const std::string &fileName,
-    const std::string &classIdentityName,
-    const std::string &classGatewayName
+    const std::string &fileName
 )
 {
     if (fileName.empty())
@@ -42,12 +36,10 @@ int PluginClient::load(
     }
     fn = file::expandFileName(fn);
 
-    std::string makeIdentityClass = MAKE_FUNC_PREFIX + firstCharToUpperCase(classIdentityName) + MAKE_FUNC_IDENTITY_SUFFIX;
-    std::string makeGatewayClass = MAKE_FUNC_PREFIX + firstCharToUpperCase(classGatewayName) + MAKE_FUNC_GATEWAY_SUFFIX;
     handleSvc = dlopen(fn.c_str(), RTLD_LAZY);
     if (handleSvc) {
-        auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, makeIdentityClass.c_str());
-        auto fG = (makeGatewayServiceFunc) dlsym(handleSvc, makeGatewayClass.c_str());
+        auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, "makeIdentityClient");
+        auto fG = (makeGatewayServiceFunc) dlsym(handleSvc, "makeGatewayClient");
         if (fI && fG) {
             svcIdentity = fI();
             svcGateway = fG();
@@ -71,13 +63,11 @@ void PluginClient::unload()
 }
 
 PluginClient::PluginClient(
-    const std::string &fileName,
-    const std::string &classIdentityName,
-    const std::string &classGatewayName
+    const std::string &fileName
 )
 	: DirectClient(), handleSvc(nullptr)
 {
-    load(fileName, classIdentityName, classGatewayName);
+    load(fileName);
 }
 
 PluginClient::~PluginClient()

@@ -15,12 +15,8 @@
 
 typedef AppBridge*(*makeBridgeFunc)();
 
-const std::string MAKE_FUNC_PREFIX = "make";
-const std::string MAKE_FUNC_IDENTITY_SUFFIX = "Bridge";
-
 int PluginBridge::load(
-    const std::string &fileName,
-    const std::string &className
+    const std::string &fileName
 )
 {
     if (fileName.empty())
@@ -38,10 +34,9 @@ int PluginBridge::load(
     }
     fn = file::expandFileName(fn);
 
-    std::string makeIdentityClass = MAKE_FUNC_PREFIX + firstCharToUpperCase(className) + MAKE_FUNC_IDENTITY_SUFFIX;
     handleSvc = dlopen(fn.c_str(), RTLD_LAZY);
     if (handleSvc) {
-        auto fI = (makeBridgeFunc) dlsym(handleSvc, makeIdentityClass.c_str());
+        auto fI = (makeBridgeFunc) dlsym(handleSvc, "makeBridge");
         if (fI) {
             bridge = fI();
             return CODE_OK;
@@ -62,12 +57,11 @@ void PluginBridge::unload()
 }
 
 PluginBridge::PluginBridge(
-    const std::string &fileName,
-    const std::string &className
+    const std::string &fileName
 )
     : bridge(nullptr), handleSvc(nullptr)
 {
-    load(fileName, className);
+    load(fileName);
 }
 
 bool PluginBridge::valid()
@@ -83,11 +77,10 @@ PluginBridge::~PluginBridge()
 PluginBridges::PluginBridges() = default;
 
 int PluginBridges::add(
-    const std::string &fileName,
-    const std::string &className
+    const std::string &fileName
 )
 {
-    PluginBridge pb(fileName, className);
+    PluginBridge pb(fileName);
     if (!pb.valid())
         return ERR_CODE_LOAD_PLUGINS_FAILED;
     bridges.push_back(std::move(pb));
@@ -95,4 +88,3 @@ int PluginBridges::add(
 }
 
 PluginBridges::~PluginBridges() = default;
-

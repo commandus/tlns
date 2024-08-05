@@ -14,14 +14,12 @@ private:
     HINSTANCE handleSvc;
     AppBridge *bridge;
     int load(
-        const std::string &fileName,
-        const std::string &className
+        const std::string &fileName
     );
     void unload();
 public:
     explicit PluginBridge(
-        const std::string &fileName,
-        const std::string &className
+        const std::string &fileName
     );
     bool valid();
     virtual ~PluginBridge();
@@ -33,8 +31,7 @@ private:
 public:
     PluginBridges();
     int add(
-        const std::string &fileName,
-        const std::string &className
+        const std::string &fileName
     );
     virtual ~PluginBridges();
 };

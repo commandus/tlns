@@ -24,6 +24,6 @@ public:
     void done() override;
 };
 
-EXPORT_SHARED_C_FUNC AppBridge* makeFileJsonBridge();
+EXPORT_SHARED_C_FUNC AppBridge* makeBridge();
 
 #endif //TLNS_STDOUT_BRIDGE_H

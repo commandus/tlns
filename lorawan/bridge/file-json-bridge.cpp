@@ -37,7 +37,7 @@ void FileJsonBridge::done()
     }
 }
 
-EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
+EXPORT_SHARED_C_FUNC AppBridge* makeBridge()
 {
     return new FileJsonBridge;
 }

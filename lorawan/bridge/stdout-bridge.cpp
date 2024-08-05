@@ -10,8 +10,8 @@ void StdoutBridge::onPayload(
 )
 {
     if (messageItem)
-        std::cout << "Message " << messageItem->toString() << std::endl;
-    std::cout << "Payload " << hexString(value, size) << std::endl;
+        std::cout << messageItem->toString() << " "
+            << hexString(value, size) << std::endl;
 }
 
 void StdoutBridge::init(
@@ -28,7 +28,7 @@ void StdoutBridge::done()
 
 }
 
-EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
+EXPORT_SHARED_C_FUNC AppBridge* makeBridge()
 {
     return new StdoutBridge;
 }

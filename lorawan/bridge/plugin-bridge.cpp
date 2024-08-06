@@ -44,9 +44,9 @@ int PluginBridge::load(
         // in case of static linking function name differs by last number 1..9
         for (int i = 1; i < 10; i++) {
             std::string funcName = "makeBridge" + std::to_string(i);
-            auto fI = (makeBridgeFunc) dlsym(handleSvc, funcName.c_str());
-            if (fI) {
-                bridge = fI();
+            auto fIn = (makeBridgeFunc) dlsym(handleSvc, funcName.c_str());
+            if (fIn) {
+                bridge = fIn();
                 return CODE_OK;
             }
         }
@@ -66,9 +66,17 @@ void PluginBridge::unload()
 }
 
 PluginBridge::PluginBridge(
-    const std::string &fileName
+    const std::string &libFileName
 )
-    : bridge(nullptr), handleSvc(nullptr)
+    : fileName(libFileName), bridge(nullptr), handleSvc(nullptr)
+{
+    load(fileName);
+}
+
+PluginBridge::PluginBridge(
+    const PluginBridge &value
+)
+    : fileName(value.fileName), bridge(nullptr), handleSvc(nullptr)
 {
     load(fileName);
 }
@@ -103,7 +111,7 @@ void PluginBridges::add(
     for (auto &fileName: fileNames) {
         PluginBridge pb(fileName);
         if (pb.valid())
-            bridges.push_back(pb);
+            bridges.emplace_back(pb);
     }
 }
 

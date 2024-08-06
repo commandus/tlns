@@ -323,6 +323,10 @@ void setSignalHandler()
 static void run()
 {
     PluginClient identityClient(localConfig.pluginFilePath);
+    if (!identityClient.svcIdentity || !identityClient.svcGateway) {
+        std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+        return;
+    }
 
     PluginBridges pluginBridges;
     pluginBridges.add(localConfig.bridgePluginFiles);
@@ -334,10 +338,6 @@ static void run()
         dispatcher.addAppBridge(new StdoutBridge);
     }
 
-    if (!identityClient.svcIdentity || !identityClient.svcGateway) {
-        std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
-        return;
-    }
     identityClient.svcIdentity->init(localConfig.identityFileName, nullptr);
     identityClient.svcGateway->init(localConfig.gatewayFileName, nullptr);
     if (localConfig.verbosity > 1) {

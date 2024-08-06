@@ -11,6 +11,7 @@
  */
 class PluginBridge {
 private:
+    std::string fileName;
     HINSTANCE handleSvc;
     int load(
         const std::string &fileName
@@ -21,6 +22,7 @@ public:
     explicit PluginBridge(
         const std::string &fileName
     );
+    PluginBridge(const PluginBridge &value);
     bool valid();
     virtual ~PluginBridge();
 };

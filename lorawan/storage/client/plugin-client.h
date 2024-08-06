@@ -13,6 +13,7 @@
 class PluginClient : public DirectClient {
 private:
     HINSTANCE handleSvc;
+    std::string fileName;
     int load(
         const std::string &fileName
     );
@@ -21,6 +22,7 @@ public:
     explicit PluginClient(
         const std::string &fileName
     );
+    PluginClient(const PluginClient &value);
     ~PluginClient() override;
 };
 

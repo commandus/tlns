@@ -140,5 +140,6 @@ BANDWIDTH int2BANDWIDTH(int value);
 BANDWIDTH double2BANDWIDTH(double value);
 
 void applyNetworkByteOrder(void *buf, size_t size);
+#define applyHostByteOrder(b, s) applyNetworkByteOrder(b, s)
 
 #endif

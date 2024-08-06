@@ -172,6 +172,19 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     return retSize;
 }
 
+// decode message
+void LORAWAN_MESSAGE_STORAGE::decode(
+    const NetworkIdentity *aIdentity
+)
+{
+    // reapply network to host byte order
+    applyHostByteOrder(&mhdr, sizeof(LORAWAN_MESSAGE_STORAGE));
+    if (aIdentity && packetSize > 0) {
+        // decipher data
+        decryptFrmPayload(&mhdr, sizeof(LORAWAN_MESSAGE_STORAGE), packetSize, *aIdentity);
+    }
+}
+
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const
 {
     if (mhdr.f.mtype >= MTYPE_UNCONFIRMED_DATA_UP

@@ -77,6 +77,8 @@ PACK(
         std::string toString() const;
 
         size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity) const;
+        // decode message
+        void decode(const NetworkIdentity *aIdentity);
 
         const DEVADDR* getAddr() const;
         const JOIN_REQUEST_FRAME *getJoinRequest() const;

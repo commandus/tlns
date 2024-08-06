@@ -45,6 +45,7 @@ public:
 };
 
 void encryptFrmPayload(void *buf, size_t size, size_t packetSize, const NetworkIdentity &identity);
+#define decryptFrmPayload(b, sz, packetSize, identity) encryptFrmPayload(b, sz, packetSize, identity)
 
 uint32_t calculateMIC(
     const void *data,

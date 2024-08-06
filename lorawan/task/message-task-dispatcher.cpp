@@ -319,7 +319,7 @@ int MessageTaskDispatcher::run()
                     }
                     default: {
                         if (onReceiveRawData)
-                            if (!onReceiveRawData(this, buffer, sz, receivedTime))
+                            if (!onReceiveRawData(this, buffer, sz, receivedTime))  // filter raw messages
                                 continue;
                         if (parser) {
                             int r = parser->parse(pr, buffer, sz, receivedTime);
@@ -426,6 +426,7 @@ void MessageTaskDispatcher::pushData(
 
     // wake up
     if (isNew) {
+
     }
 
     auto a = pushData.rxData.getAddr();
@@ -541,4 +542,15 @@ void MessageTaskDispatcher::addAppBridge(
 )
 {
     appBridges.push_back(appBridge);
+}
+
+void MessageTaskDispatcher::sendPayloadOverBridge(
+    const MessageQueueItem *item,
+    const char *payload,
+    size_t size
+)
+{
+    for (auto b: appBridges) {
+        b->onPayload(this, item, payload, size);
+    }
 }

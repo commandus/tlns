@@ -41,6 +41,15 @@ int PluginBridge::load(
             bridge = fI();
             return CODE_OK;
         }
+        // in case of static linking function name differs by last number 1..9
+        for (int i = 1; i < 10; i++) {
+            std::string funcName = "makeBridge" + std::to_string(i);
+            auto fI = (makeBridgeFunc) dlsym(handleSvc, funcName.c_str());
+            if (fI) {
+                bridge = fI();
+                return CODE_OK;
+            }
+        }
     }
     return ERR_CODE_LOAD_PLUGINS_FAILED;
 }

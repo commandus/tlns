@@ -24,6 +24,6 @@ public:
     void done() override;
 };
 
-EXPORT_SHARED_C_FUNC AppBridge* makeBridge();
+EXPORT_SHARED_C_FUNC AppBridge* makeBridge2();
 
 #endif //TLNS_STDOUT_BRIDGE_H

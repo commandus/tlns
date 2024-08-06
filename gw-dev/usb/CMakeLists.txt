@@ -75,6 +75,8 @@ else()
 		../../task-response-threaded.cpp
 		../../lorawan/helper/file-helper.cpp
 		../../lorawan/helper/thread-helper.cpp
+		../../lorawan/bridge/app-bridge.cpp
+		../../lorawan/bridge/stdout-bridge.cpp
 		../../lorawan/task/task-accepted-socket.cpp
 		../../third-party/daemonize.cpp
 		../../third-party/libloragw/libloragw-helper.cpp

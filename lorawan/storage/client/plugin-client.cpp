@@ -45,6 +45,19 @@ int PluginClient::load(
             svcGateway = fG();
             return CODE_OK;
         }
+        // in case of static linking function name differs by last number 1..9
+        for (int i = 1; i < 10; i++) {
+            std::string n = std::to_string(i);
+            std::string funcNameI = "makeIdentityClient" + n;
+            std::string funcNameG = "makeGatewayClient" + n;
+            auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, funcNameI.c_str());
+            auto fG = (makeGatewayServiceFunc) dlsym(handleSvc, funcNameG.c_str());
+            if (fI && fG) {
+                svcIdentity = fI();
+                svcGateway = fG();
+                return CODE_OK;
+            }
+        }
     }
     return ERR_CODE_LOAD_PLUGINS_FAILED;
 }

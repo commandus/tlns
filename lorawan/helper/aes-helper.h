@@ -25,17 +25,9 @@ void encryptPayloadString(
     const KEY128 &appSKey
 );
 
-#define decryptPayload(payload, size, frameCounter, direction, devAddr,appSKey) enryptPayload(payload, size, frameCounter, direction, devAddr,appSKey)
-#define decryptPayloadString(payload, frameCounter, direction, devAddr,appSKey) enryptPayload(payload, frameCounter, direction, devAddr,appSKey)
-
-
-void decryptPayloadStrimg(
-    std::string &payload,
-    unsigned int frameCounter,
-    unsigned char direction,
-    const DEVADDR &devAddr,
-    const KEY128 &appSKey
-);
+#define decryptPayload(payload, size, frameCounter, direction, devAddr,appSKey) encryptPayload(payload, size, frameCounter, direction, devAddr,appSKey)
+#define encryptPayloadString(payload, frameCounter, direction, devAddr,appSKey) enryptPayload((void *) payload.c_str(), payload.size(), frameCounter, direction, devAddr,appSKey)
+#define decryptPayloadString(payload, frameCounter, direction, devAddr,appSKey) enryptPayloadString(payload, frameCounter, direction, devAddr,appSKey)
 
 /**
  * Decrypt Join Accept LoRaWAN message

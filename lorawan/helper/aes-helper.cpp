@@ -63,18 +63,6 @@ void encryptPayload(
     }
 }
 
-void encryptPayloadString(
-    std::string &payload,
-    unsigned int frameCounter,
-    unsigned char direction,
-    const DEVADDR &devAddr,
-    const KEY128 &appSKey
-)
-{
-    encryptPayload((void *) payload.c_str(), payload.size(), frameCounter,
-        direction, devAddr, appSKey);
-}
-
 /**
  * Decrypt Join Accept LoRaWAN message
  * @see 6.2.3 Join-accept message

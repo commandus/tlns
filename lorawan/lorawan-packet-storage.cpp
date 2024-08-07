@@ -4,6 +4,7 @@
 
 #include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/helper/aes-helper.h"
 
 #include "base64/base64.h"
 #include "lorawan-conv.h"
@@ -106,7 +107,8 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     void *buf,
     size_t size,
     const NetworkIdentity *identity
-) const {
+) const
+{
     size_t retSize = 1;
     auto b = (uint8_t*) buf;
     if (b && (size >= retSize)) {
@@ -161,7 +163,20 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     applyNetworkByteOrder(buf, size);
     if (identity && packetSize > 0) {
         // cipher data
-        encryptFrmPayload(buf, size, packetSize, *identity);
+        switch ((MTYPE) mhdr.f.mtype) {
+            case MTYPE_UNCONFIRMED_DATA_UP:
+            case MTYPE_CONFIRMED_DATA_UP:
+                encryptPayload((void *) &data.uplink.optsNpayload, (size_t) payloadSize,
+                               data.uplink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
+                break;
+            case MTYPE_UNCONFIRMED_DATA_DOWN:
+            case MTYPE_CONFIRMED_DATA_DOWN:
+                encryptPayload((void *) &data.downlink.optsNpayload, (size_t) payloadSize,
+                               data.downlink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
+                break;
+            default:
+                break;
+        }
     }
     // add MIC
     retSize += SIZE_MIC;
@@ -180,8 +195,25 @@ void LORAWAN_MESSAGE_STORAGE::decode(
     // reapply network to host byte order
     applyHostByteOrder(&mhdr, sizeof(LORAWAN_MESSAGE_STORAGE));
     if (aIdentity && packetSize > 0) {
-        // decipher data
-        decryptFrmPayload(&mhdr, sizeof(LORAWAN_MESSAGE_STORAGE), packetSize, *aIdentity);
+        switch (mhdr.f.mtype) {
+            case MTYPE_JOIN_REQUEST:
+            case MTYPE_REJOIN_REQUEST:
+            case MTYPE_JOIN_ACCEPT:
+                break;
+            case MTYPE_UNCONFIRMED_DATA_UP:
+            case MTYPE_CONFIRMED_DATA_UP:
+                decryptPayload((void *) &data.uplink.optsNpayload, packetSize,
+                    data.uplink.fcnt, LORAWAN_UPLINK, aIdentity->devaddr, aIdentity->appSKey);
+            break;
+            case MTYPE_UNCONFIRMED_DATA_DOWN:
+            case MTYPE_CONFIRMED_DATA_DOWN:
+                decryptPayload((void *) &data.downlink.optsNpayload, packetSize,
+                    data.uplink.fcnt, LORAWAN_DOWNLINK, aIdentity->devaddr, aIdentity->appSKey);
+                break;
+            default:
+                // case MTYPE_PROPRIETARYRADIO:
+                break;
+        }
     }
 }
 

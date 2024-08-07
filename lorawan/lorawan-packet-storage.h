@@ -15,13 +15,15 @@ PACK(
             uint8_t rfu: 1;
             uint8_t adr: 1;
         } f;                        // 1 byte
+        uint16_t fcnt;	// frame counter 0..65535
+        // FOpts 0..15
         uint8_t optsNpayload[255];  // 255 bytes
         bool operator==(const DOWNLINK_STORAGE &rhs) const;
     }
-);                                  // 4 1 255 =  260 bytes
+);                                  // 4 1 2 255 =  262 bytes
 
 #define SIZE_DOWNLINK_EMPTY_STORAGE 5
-#define SIZE_DOWNLINK_STORAGE 260
+#define SIZE_DOWNLINK_STORAGE 262
 
 PACK(
     class UPLINK_STORAGE {
@@ -35,12 +37,14 @@ PACK(
             uint8_t adr: 1;
         } f;                        // 1 byte
         uint8_t optsNpayload[255];  // 255 bytes
+        uint16_t fcnt;	// frame counter 0..65535
+        // FOpts 0..15
         bool operator==(const UPLINK_STORAGE &rhs) const;
     }
-);                                  // 4 1 255 = 260
+);                                  // 4 1 2 255 = 262
 
 #define SIZE_UPLINK_EMPTY_STORAGE 5
-#define SIZE_UPLINK_STORAGE 260
+#define SIZE_UPLINK_STORAGE 262
 
 PACK(
     class PROPRIETARY_STORAGE {

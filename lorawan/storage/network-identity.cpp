@@ -3,8 +3,7 @@
 
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/lorawan-conv.h"
-#include "lorawan/storage/network-identity.h"
+#include "lorawan/helper/aes-helper.h"
 #include "lorawan/lorawan-mic.h"
 
 NetworkIdentity::NetworkIdentity() = default;
@@ -97,38 +96,6 @@ void NetworkIdentity::set(
 	memmove(&joinNonce, &value.joinNonce, sizeof(JOINNONCE));
 	memmove(&name, &value.name, sizeof(DEVICENAME));
 	memmove(&version, &value.version, sizeof(LORAWAN_VERSION));
-}
-
-void encryptFrmPayload(
-    void *buf,
-    size_t size,
-    size_t packetSize,
-    const NetworkIdentity &identity
-)
-{
-    if (!buf || size < SIZE_FHDR + 2)
-        return;
-    size_t retSize = 1;
-    auto b = (uint8_t*) buf;
-    switch (*((MTYPE*) buf)) {
-        case MTYPE_JOIN_REQUEST:
-        case MTYPE_REJOIN_REQUEST:
-        case MTYPE_JOIN_ACCEPT:
-            break;
-        case MTYPE_UNCONFIRMED_DATA_UP:
-        case MTYPE_CONFIRMED_DATA_UP:
-        case MTYPE_UNCONFIRMED_DATA_DOWN:
-        case MTYPE_CONFIRMED_DATA_DOWN:
-            retSize += SIZE_FHDR;  // 7+ bytes
-            retSize += packetSize;
-            if (size <= retSize) {
-                encryptFrmPayload((void *) b, size, packetSize, identity);
-            }
-            break;
-        default:
-            // case MTYPE_PROPRIETARYRADIO:
-            break;
-    }
 }
 
 uint32_t calculateMIC(

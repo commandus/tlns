@@ -314,8 +314,8 @@ std::string JOIN_ACCEPT_FRAME_CFLIST2string(
 }
 
 std::string DOWNLINK_STORAGE2String(
-        const DOWNLINK_STORAGE &value,
-        int size
+    const DOWNLINK_STORAGE &value,
+    int size
 )
 {
     std::stringstream ss;
@@ -326,19 +326,20 @@ std::string DOWNLINK_STORAGE2String(
     if (payloadSize < 0)
         payloadSize = 0;
     ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
-       << R"(", "foptslen": )" << (int) value.f.foptslen
-       << ", \"fpending\": " << (value.f.fpending ? "true" : "false")
-       << ", \"ack\": " << (value.f.ack ? "true" : "false")
-       << ", \"rfu\": " << (int) value.f.rfu
-       << ", \"adr\": " << (value.f.adr ? "true" : "false")
-       << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
-       << "\"}";
+        << R"(", "foptslen": )" << (int) value.f.foptslen
+        << ", \"fpending\": " << (value.f.fpending ? "true" : "false")
+        << ", \"ack\": " << (value.f.ack ? "true" : "false")
+        << ", \"rfu\": " << (int) value.f.rfu
+        << ", \"adr\": " << (value.f.adr ? "true" : "false")
+        << ", \"fcnt\": " << value.fcnt
+        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << "\"}";
     return ss.str();
 }
 
 std::string UPLINK_STORAGE2String(
-        const UPLINK_STORAGE &value,
-        int size
+    const UPLINK_STORAGE &value,
+    int size
 )
 {
     std::stringstream ss;
@@ -349,13 +350,14 @@ std::string UPLINK_STORAGE2String(
     if (payloadSize < 0)
         payloadSize = 0;
     ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
-       << R"(", "foptslen": )" << (int) value.f.foptslen
-       << ", \"classb\": " << (value.f.classb ? "true" : "false")
-       << ", \"ack\": " << (value.f.ack ? "true" : "false")
-       << ", \"addrackreq\": " << (int) value.f.addrackreq
-       << ", \"adr\": " << (value.f.adr ? "true" : "false")
-       << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
-       << "\"}";
+        << R"(", "foptslen": )" << (int) value.f.foptslen
+        << ", \"classb\": " << (value.f.classb ? "true" : "false")
+        << ", \"ack\": " << (value.f.ack ? "true" : "false")
+        << ", \"addrackreq\": " << (int) value.f.addrackreq
+        << ", \"adr\": " << (value.f.adr ? "true" : "false")
+        << ", \"fcnt\": " << value.fcnt
+        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << "\"}";
     return ss.str();
 }
 

@@ -23,6 +23,10 @@
 
 #define INVALID_ID 0xffffffff
 
+// direction
+#define LORAWAN_UPLINK      0
+#define LORAWAN_DOWNLINK    1
+
 static std::string STR_TRUE("true");
 static std::string STR_FALSE("false");
 #define STR_TRUE_FALSE STR_TRUE : STR_FALSE

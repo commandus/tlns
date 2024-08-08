@@ -544,10 +544,11 @@ void MessageTaskDispatcher::addAppBridge(
 }
 
 void MessageTaskDispatcher::sendPayloadOverBridge(
-    const MessageQueueItem *item
+    MessageQueueItem *item
 )
 {
     for (auto b: appBridges) {
+        item->radioPacket.decode(&item->task.deviceId);
         b->onPayload(this, item);
     }
 }

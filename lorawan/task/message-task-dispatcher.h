@@ -198,7 +198,7 @@ public:
         AppBridge *appBridge
     );
     void sendPayloadOverBridge(
-        const MessageQueueItem *item
+        MessageQueueItem *item
     );
 };
 

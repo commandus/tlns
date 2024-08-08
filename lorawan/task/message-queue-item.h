@@ -49,10 +49,7 @@ public:
      * Serialize item to JSON
      * @return serialize item
      */
-    std::string toJsonString(
-        const void *payload = nullptr,
-        size_t size = 0
-    ) const;
+    std::string toJsonString() const;
     /**
      * Return network address
      * Return NULL if no address is provided (radio packet is JOIN)

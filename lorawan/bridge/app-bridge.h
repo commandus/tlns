@@ -15,10 +15,8 @@ public:
     AppBridge() = default;
     virtual ~AppBridge() = default;
     virtual void onPayload(
-        const void* dispatcher,   // MessageTaskDispatcher*
-        const MessageQueueItem *item, // network identity, gateway identifier and metadata etc.
-        const char *value,
-        size_t size
+        const void* dispatcher,         // MessageTaskDispatcher*
+        const MessageQueueItem *item    // network identity, gateway identifier and metadata etc.
     ) = 0;
     virtual void init(
         const std::string& option,

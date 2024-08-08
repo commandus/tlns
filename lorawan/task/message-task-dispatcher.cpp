@@ -312,6 +312,7 @@ int MessageTaskDispatcher::run()
                         // process message queue
                         MessageQueueItem *item = queue.findByDevAddr(a);
                         if (item) {
+                            sendPayloadOverBridge(item);
                             if (onPushData)
                                 onPushData(this, item);
                         }
@@ -424,9 +425,7 @@ void MessageTaskDispatcher::pushData(
     bool isNew = queue.put(receivedTime, taskSocket, addr, pushData);
     queueMutex.unlock();
 
-    // wake up
     if (isNew) {
-
     }
 
     auto a = pushData.rxData.getAddr();
@@ -545,12 +544,10 @@ void MessageTaskDispatcher::addAppBridge(
 }
 
 void MessageTaskDispatcher::sendPayloadOverBridge(
-    const MessageQueueItem *item,
-    const char *payload,
-    size_t size
+    const MessageQueueItem *item
 )
 {
     for (auto b: appBridges) {
-        b->onPayload(this, item, payload, size);
+        b->onPayload(this, item);
     }
 }

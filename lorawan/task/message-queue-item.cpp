@@ -66,16 +66,13 @@ std::string MessageQueueItem::toString() const
     return ss.str();
 }
 
-std::string MessageQueueItem::toJsonString(
-    const void *payload,
-    size_t size
-) const
+std::string MessageQueueItem::toJsonString() const
 {
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
     std::stringstream ss;
     ss << "{\"received\": " << time2string(t) << ", \"radio\": " << radioPacket.toString();
-    if (payload && size)
-        ss << ", \"payload\": \"" << hexString(payload, size) << "\"";
+    if (radioPacket.packetSize)
+        ss << ", \"payload\": \"" << hexString(radioPacket.data.downlink.optsNpayload, radioPacket.packetSize) << "\"";
 
     if (!metadata.empty()) {
         ss << ", \"gateways\": [";

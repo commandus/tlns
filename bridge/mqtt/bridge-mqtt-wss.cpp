@@ -51,14 +51,12 @@ static int sendWSSSmth(
 }
 
 void MqttWssBridge::onPayload(
-    const void* dispatcher,   // MessageTaskDispatcher*
-    const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
-    const char *value,
-    size_t size
+    const void* dispatcher,                 // MessageTaskDispatcher*
+    const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
 )
 {
     if (messageItem) {
-        errorCode = sendWSSSmth(cli, 1, topic, messageItem->toJsonString(value, size));
+        errorCode = sendWSSSmth(cli, 1, topic, messageItem->toJsonString());
     }
 }
 

@@ -4,14 +4,12 @@
 #include "lorawan/lorawan-string.h"
 
 void FileJsonBridge::onPayload(
-    const void* dispatcher,   // MessageTaskDispatcher*
-    const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
-    const char *value,
-    size_t size
+    const void* dispatcher,                 // MessageTaskDispatcher*
+    const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
 )
 {
     if (strm && messageItem)
-        *strm << messageItem->toJsonString(value, size) << std::endl;
+        *strm << messageItem->toJsonString() << std::endl;
 }
 
 void FileJsonBridge::init(

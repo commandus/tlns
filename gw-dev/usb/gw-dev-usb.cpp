@@ -365,7 +365,7 @@ static void run()
         MessageQueueItem *item
     ) {
         if (item)
-            std::cout << item->toJsonString();
+            std::cout << item->toJsonString() << std::endl;
     };
 
     dispatcher.onPullResp = [] (

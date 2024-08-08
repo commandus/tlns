@@ -11,10 +11,8 @@ public:
     FileJsonBridge() = default;
     virtual ~FileJsonBridge() = default;
     void onPayload(
-        const void* dispatcher,   // MessageTaskDispatcher*
-        const MessageQueueItem *messageItem, // network identity, gateway identifier and metadata etc.
-        const char *value,
-        size_t size
+        const void* dispatcher,                 // MessageTaskDispatcher*
+        const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
     ) override;
     void init(
         const std::string& option,

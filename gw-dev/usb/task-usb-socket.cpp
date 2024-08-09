@@ -22,6 +22,18 @@ static void onPushData(
     dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now());
 }
 
+static bool onReceiveRawData(
+    MessageTaskDispatcher* dispatcher,
+    const char *buffer,
+    size_t bufferSize,
+    TASK_TIME receivedTime
+)
+{
+    if (dispatcher->onReceiveRawData)
+        dispatcher->onReceiveRawData(dispatcher, buffer, bufferSize, receivedTime);
+    return true;
+}
+
 /**
  * Open Unix domain socket
  * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
@@ -47,6 +59,7 @@ TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
 
     listener.setLogVerbosity(verbosity);
     listener.setOnPushData(onPushData);
+    listener.setOnReceiveRawData(onReceiveRawData);
     /*
     listener.setOnPullResp();
     listener.setOnTxpkAck();

@@ -286,13 +286,7 @@ int MessageTaskDispatcher::run()
                 if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
                     // inform
                 }
-                switch (pr.tag) {
-                    default:
-                        if (isTimeProcessQueueOrSetTimer(receivedTime)) {
-                            // try send again
-                            sendQueue(receivedTime, pr.token);
-                        }
-                }
+
                 switch (sz) {
                     case 1:
                     {
@@ -351,6 +345,10 @@ int MessageTaskDispatcher::run()
                 }
             }
         }
+
+        // if (isTimeProcessQueueOrSetTimer(receivedTime))
+        //      sendQueue(receivedTime, pr.token);
+
         // accept connections
         if (!acceptedSockets.empty()) {
             for (int & acceptedSocket : acceptedSockets) {
@@ -548,6 +546,7 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
 )
 {
     for (auto b: appBridges) {
+        b->onPayload(this, item);
         item->radioPacket.decode(&item->task.deviceId);
         b->onPayload(this, item);
     }

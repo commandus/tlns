@@ -689,8 +689,6 @@ void LoraGatewayListener::upstreamRunner()
     bool ref_ok; // determine if GPS time reference must be used or not
     struct tref local_ref; // time reference used for UTC <-> timestamp conversion
 
-    struct timespec recv_time;
-
     if (threadStartFinish)
         threadStartFinish->onThreadStart(THREAD_UPSTREAM);
 
@@ -726,6 +724,8 @@ void LoraGatewayListener::upstreamRunner()
         int pkt_in_dgram = 0;
         for (int i = 0; i < nb_pkt; ++i) {
             p = &rxpkt[i];
+            if (onReceiveRawData)
+                onReceiveRawData(dispatcher, (const char*) p, sizeof(struct lgw_pkt_rx_s), std::chrono::system_clock::now());
             // basic metadata filtering
             measurements.inc(meas_nb_rx_rcv);
             switch(p->status) {
@@ -1808,6 +1808,13 @@ const char *getMeasurementName(int index)
 
 std::string LoraGatewayListener::toString() const {
     return "{\"measurements\": " + measurements.toString() + "}";
+}
+
+void LoraGatewayListener::setOnReceiveRawData(
+    OnReceiveRawData aOnReceiveRawData
+)
+{
+    onReceiveRawData = aOnReceiveRawData;
 }
 
 void LoraGatewayListener::setOnPushData(

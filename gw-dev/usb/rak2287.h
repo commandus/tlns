@@ -103,6 +103,7 @@ private:
     int logVerbosity;
     MessageTaskDispatcher* dispatcher;
 
+    OnReceiveRawData onReceiveRawData;
     OnPushDataProc onPushData;
     OnPullRespProc onPullResp;
     OnTxpkAckProc onTxPkAck;
@@ -209,6 +210,9 @@ public:
             const uint32_t frequency,
             const uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE]
         )> value
+    );
+    void setOnReceiveRawData(
+        OnReceiveRawData onReceiveRawData
     );
     void setOnPushData(
         OnPushDataProc onPushData

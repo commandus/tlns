@@ -167,12 +167,12 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             case MTYPE_UNCONFIRMED_DATA_UP:
             case MTYPE_CONFIRMED_DATA_UP:
                 encryptPayload((void *) &data.uplink.optsNpayload, (size_t) payloadSize,
-                               data.uplink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
+                    data.uplink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
                 break;
             case MTYPE_UNCONFIRMED_DATA_DOWN:
             case MTYPE_CONFIRMED_DATA_DOWN:
                 encryptPayload((void *) &data.downlink.optsNpayload, (size_t) payloadSize,
-                               data.downlink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
+                    data.downlink.fcnt, LORAWAN_UPLINK, identity->devaddr, identity->appSKey);
                 break;
             default:
                 break;

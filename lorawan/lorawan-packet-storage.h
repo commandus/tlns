@@ -22,7 +22,7 @@ PACK(
     }
 );                                  // 4 1 2 255 =  262 bytes
 
-#define SIZE_DOWNLINK_EMPTY_STORAGE 5
+#define SIZE_DOWNLINK_EMPTY_STORAGE 7
 #define SIZE_DOWNLINK_STORAGE 262
 
 PACK(
@@ -36,14 +36,14 @@ PACK(
             uint8_t addrackreq: 1;
             uint8_t adr: 1;
         } f;                        // 1 byte
-        uint8_t optsNpayload[255];  // 255 bytes
         uint16_t fcnt;	// frame counter 0..65535
+        uint8_t optsNpayload[255];  // 255 bytes
         // FOpts 0..15
         bool operator==(const UPLINK_STORAGE &rhs) const;
     }
 );                                  // 4 1 2 255 = 262
 
-#define SIZE_UPLINK_EMPTY_STORAGE 5
+#define SIZE_UPLINK_EMPTY_STORAGE 7
 #define SIZE_UPLINK_STORAGE 262
 
 PACK(

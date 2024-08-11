@@ -264,3 +264,8 @@ endif()
 endif()
 
 add_subdirectory(bridge/mqtt)
+add_subdirectory(tests)
+
+add_test(NAME test-printf COMMAND "test-printf")
+add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
+

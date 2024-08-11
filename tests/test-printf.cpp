@@ -5,9 +5,12 @@
 
 class SLog: public Log {
 public:
-    std::ostream& strm(int level) override {
-        return std::cout;
-    };
+    void log(
+        int level,
+        const std::string &msg
+    ) override {
+        std::cout << msg << std::endl;
+    }
 };
 
 int main(int argc, char **argv) {

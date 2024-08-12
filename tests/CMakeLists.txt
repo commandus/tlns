@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.9)
+# 3.9
+cmake_minimum_required(VERSION 3.28)
 
 set(VERSION_INFO 1.0.3)
 
@@ -14,6 +15,14 @@ target_include_directories(test-printf PRIVATE .. ../third-party/libloragw ../gw
 
 add_executable(test-decode-rxpk
 	test-decode-rxpk.cpp
+	../lorawan/lorawan-types.cpp
+	../lorawan/lorawan-string.cpp
+	../lorawan/lorawan-conv.cpp
+	../lorawan/helper/aes-helper.cpp
+	../lorawan/lorawan-mac.cpp
+	../lorawan/lorawan-date.cpp
+	../third-party/system/crypto/aes.c
+	../third-party/system/crypto/cmac.c
 )
 target_include_directories(test-decode-rxpk PRIVATE .. ../third-party)
 

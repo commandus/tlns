@@ -8,7 +8,7 @@
  */
 void encryptPayload(
     void *payload,
-    size_t bufferSize,
+    size_t payloadSize,
     unsigned int frameCounter,
     unsigned char direction,
     const DEVADDR &devAddr,
@@ -39,7 +39,7 @@ void encryptPayload(
     uint8_t s[16];
     memset(s, 0, 16);
 
-    int size = (int) bufferSize;
+    int size = (int) payloadSize;
     uint16_t ctr = 1;
     uint8_t bufferIndex = 0;
     int8_t *encBuffer = (int8_t *) payload;

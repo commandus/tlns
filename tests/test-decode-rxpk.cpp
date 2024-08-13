@@ -50,9 +50,12 @@ static std::string decodePayload(
 }
 
 int main(int argc, char **argv) {
-    KEY128 appSKey("5555000010dfffffff7f000085265655");
+    KEY128 appSKey("35003a003434383531374712656b7f47");
     std::string s = decodePayload(
         hex2string("403003450180430002dc6235fbb112f4c8a9d398c29684a814deb370a782c70f4cb1612fe1"), appSKey);
     std::cout << hexString(s) << std::endl;    
-    return 0;
+    if (s == hex2string("01002180549c6118000000004a0000000000000000000000"))
+        return 0;
+    else
+        return 1;
 }

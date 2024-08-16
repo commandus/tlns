@@ -23,9 +23,12 @@ add_executable(test-decode-rxpk
 	../lorawan/lorawan-date.cpp
 	../third-party/system/crypto/aes.c
 	../third-party/system/crypto/cmac.c
+	../lorawan/proto/gw/proto-gw-parser.cpp
+	../lorawan/proto/gw/basic-udp.cpp
+	../lorawan/task/message-task-dispatcher.cpp
 )
 target_include_directories(test-decode-rxpk PRIVATE .. ../third-party)
-
+target_link_libraries(test-decode-rxpk PRIVATE lorawan)
 
 add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")

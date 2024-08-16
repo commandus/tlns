@@ -89,6 +89,7 @@ PACK(
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
         std::string payloadBase64() const;
+        std::string payloadString() const;
     }
 );
 

@@ -56,7 +56,7 @@ int parseTxAck(
  */
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 protected:
-    bool makeMessage2GatewayStream(
+    static bool makeMessage2GatewayStream(
         std::ostream &retStrm,
         MessageBuilder &msgBuilder,
         uint16_t token,
@@ -93,7 +93,7 @@ public:
         const RegionalParameterChannelPlan *pPlan
     ) override;
 
-    GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
+    explicit GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
 };
 
 #endif

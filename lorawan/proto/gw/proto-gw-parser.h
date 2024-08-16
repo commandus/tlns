@@ -27,8 +27,7 @@ public:
      * @param packetForwarderPacket buffer
      * @param size buffer size
      * @param receivedTime time
-     * @param cb put gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
-     * @return Return tag number 0-5 or error code (<0)
+     * @return Return tag number: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK or error code (<0)
      */
     virtual int parse(
         ParseResult &result,
@@ -42,7 +41,6 @@ public:
      * @param retSize buffer size
      * @param packetForwarderPacket received packet
      * @param size received packet size
-     * @param regionalPlan optional regional plan
      * @return size of ACK packet. 0- no ACK packet, <0 error code e.g. buffer size is too small
      */
     virtual ssize_t ack(

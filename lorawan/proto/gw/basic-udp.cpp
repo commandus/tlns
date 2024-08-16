@@ -83,6 +83,8 @@ public:
             case 12: // lsnr
                 item->rxMetadata.lsnr = (float) val;
                 break;
+            default:
+                break;
         }
         return true;
     }
@@ -116,7 +118,9 @@ public:
             case 12: // lsnr
                 item->rxMetadata.lsnr = (float) val;
                 break;
-            case 13: // size
+            // case 13: // size
+            //    break;
+            default:
                 break;
         }
         return true;
@@ -129,6 +133,8 @@ public:
                 break;
             case 12: // lsnr
                 item->rxMetadata.lsnr = (float) val;
+                break;
+            default:
                 break;
         }
         return true;
@@ -154,6 +160,8 @@ public:
                 break;
             case 14: // data
                 decodeBase64ToLORAWAN_MESSAGE_STORAGE(item->rxData, val);
+                break;
+            default:
                 break;
         }
         return true;
@@ -264,6 +272,8 @@ public:
             case 15: // "ncrc" disable the CRC of the physical layer
                 item->txMetadata.no_crc = val;
                 break;
+            default:
+                break;
         }
         return true;
     }
@@ -298,7 +308,9 @@ public:
             case 12: // "prea" RF preamble size
                 item->txMetadata.preamble = val;
                 break;
-            case 13: // "size" RF packet payload size in bytes
+            // case 13: // "size" RF packet payload size in bytes
+            //    break;
+            default:
                 break;
         }
         return true;
@@ -308,6 +320,8 @@ public:
         switch (nameIndex) {
             case 4: // "freq" TX central frequency in MHz (Hz precision)
                 item->txMetadata.freq_hz = (uint32_t) val * 1000000;
+                break;
+            default:
                 break;
         }
         return true;
@@ -333,6 +347,8 @@ public:
                 break;
             case 14: // data
                 decodeBase64ToLORAWAN_MESSAGE_STORAGE(item->txData, val);
+                break;
+            default:
                 break;
         }
         return true;

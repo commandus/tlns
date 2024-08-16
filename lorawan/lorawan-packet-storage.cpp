@@ -187,14 +187,22 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     return retSize;
 }
 
-// decode message
 void LORAWAN_MESSAGE_STORAGE::decode(
     const NetworkIdentity *aIdentity
+) {
+    if (aIdentity)
+        decode(aIdentity->devaddr, aIdentity->appSKey);
+}
+
+// decode message
+void LORAWAN_MESSAGE_STORAGE::decode(
+    const DEVADDR &devAddr,
+    const KEY128 &appSKey
 )
 {
     // reapply network to host byte order
     applyHostByteOrder(&mhdr, sizeof(LORAWAN_MESSAGE_STORAGE));
-    if (aIdentity && packetSize > 0) {
+    if (packetSize > 0) {
         switch (mhdr.f.mtype) {
             case MTYPE_JOIN_REQUEST:
             case MTYPE_REJOIN_REQUEST:
@@ -203,12 +211,12 @@ void LORAWAN_MESSAGE_STORAGE::decode(
             case MTYPE_UNCONFIRMED_DATA_UP:
             case MTYPE_CONFIRMED_DATA_UP:
                 decryptPayload((void *) &data.uplink.optsNpayload, packetSize,
-                    data.uplink.fcnt, LORAWAN_UPLINK, aIdentity->devaddr, aIdentity->appSKey);
+                    data.uplink.fcnt, LORAWAN_UPLINK, devAddr, appSKey);
             break;
             case MTYPE_UNCONFIRMED_DATA_DOWN:
             case MTYPE_CONFIRMED_DATA_DOWN:
                 decryptPayload((void *) &data.downlink.optsNpayload, packetSize,
-                    data.uplink.fcnt, LORAWAN_DOWNLINK, aIdentity->devaddr, aIdentity->appSKey);
+                    data.uplink.fcnt, LORAWAN_DOWNLINK, devAddr, appSKey);
                 break;
             default:
                 // case MTYPE_PROPRIETARYRADIO:

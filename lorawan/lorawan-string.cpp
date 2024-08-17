@@ -332,7 +332,8 @@ std::string DOWNLINK_STORAGE2String(
         << ", \"rfu\": " << (int) value.f.rfu
         << ", \"adr\": " << (value.f.adr ? "true" : "false")
         << ", \"fcnt\": " << value.fcnt
-        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen)
+        << R"(, "payload": ")" << hexString(value.payload(), payloadSize)
         << "\"}";
     return ss.str();
 }
@@ -356,7 +357,8 @@ std::string UPLINK_STORAGE2String(
         << ", \"addrackreq\": " << (int) value.f.addrackreq
         << ", \"adr\": " << (value.f.adr ? "true" : "false")
         << ", \"fcnt\": " << value.fcnt
-        << R"(, "optsNpayload": ")" << hexString(&value.optsNpayload, payloadSize)
+        << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen)
+        << R"(, "payload": ")" << hexString((const char *) value.payload(), payloadSize)
         << "\"}";
     return ss.str();
 }

@@ -58,10 +58,7 @@ static std::string extractPayloadFromBasicUDP(
     ParseResult pr;
     TASK_TIME receivedTime = std::chrono::system_clock::now();
     p.parse(pr, packetForwarderPacket.c_str(), packetForwarderPacket.size(), receivedTime);
-    DEVADDR a;
-    string2DEVADDR(a, "01450330");
-    std::cout << "addr 2: " << DEVADDR2string(a) << std::endl;
-    pr.gwPushData.rxData.decode(a, appSKey);
+    pr.gwPushData.rxData.decode(*pr.gwPushData.rxData.getAddr(), appSKey);
     return pr.gwPushData.rxData.payloadString();
 }
 
@@ -72,10 +69,10 @@ int main(int argc, char **argv) {
     std::cout << hexString(s) << std::endl;
     if (s != hex2string("01002180549c6118000000004a0000000000000000000000"))
         return 1;
-    std::cout << std::endl << std::endl;
+
     std::string basicUDPHex("02bbe50000006cc3743eed467b227278706b223a5b7b22746d7374223a343032333131313534302c226368616e223a332c2272666368223a302c2266726571223a3836342e3730303030302c2273746174223a312c226d6f6475223a224c4f5241222c2264617472223a22534631324257313235222c22636f6472223a22342f35222c226c736e72223a2d31382e352c2272737369223a2d3132312c2273697a65223a33372c2264617461223a22514441445251474151774143334749312b374553394d697030356a436c6f536f464e367a634b65437877394d7357457634513d3d227d5d7d");
     s = extractPayloadFromBasicUDP(hex2string(basicUDPHex), appSKey);
-    std::cout << "Ex: " << hexString(s) << std::endl;
+    std::cout << hexString(s) << std::endl;
     s = decodePayload(s, appSKey);
     std::cout << hexString(s) << std::endl;
     if (s != hex2string("01002180549c6118000000004a0000000000000000000000"))

@@ -16,10 +16,18 @@ PACK(
             uint8_t adr: 1;
         } f;                        // 1 byte
         uint16_t fcnt;	// frame counter 0..65535
-        // FOpts 0..15
-        uint8_t optsNpayload[255];  // 255 bytes
+        uint8_t fopts_fport_payload[255];  // 0..15, 1, 255 bytes
+
         bool operator==(const DOWNLINK_STORAGE &rhs) const;
-    }
+        // variable fields accessors
+        const uint8_t* fopts() const;
+        uint8_t foptsSize() const;
+        void setFopts(uint8_t* value, uint8_t size);
+        uint8_t fport() const;
+        void setFport(uint8_t value);
+        const uint8_t* payload() const;
+        void setPayload(uint8_t* value, uint8_t size);
+}
 );                                  // 4 1 2 255 =  262 bytes
 
 #define SIZE_DOWNLINK_EMPTY_STORAGE 7
@@ -37,11 +45,19 @@ PACK(
             uint8_t adr: 1;
         } f;                        // 1 byte
         uint16_t fcnt;	// frame counter 0..65535
-        uint8_t optsNpayload[255];  // 255 bytes
-        // FOpts 0..15
+        uint8_t fopts_fport_payload[255];  // 0..15, 1, 255 bytes
         bool operator==(const UPLINK_STORAGE &rhs) const;
+
+        // variable fields accessors
+        const uint8_t* fopts() const;
+        uint8_t foptsSize() const;
+        void setFopts(uint8_t* value, uint8_t size);
+        uint8_t fport() const;
+        void setFport(uint8_t value);
+        const uint8_t* payload() const;
+        void setPayload(uint8_t* value, uint8_t size);
     }
-);                                  // 4 1 2 255 = 262
+);                                  // 4 1 2 255 =  262 bytes
 
 #define SIZE_UPLINK_EMPTY_STORAGE 7
 #define SIZE_UPLINK_STORAGE 262
@@ -74,7 +90,7 @@ PACK(
         /**
          * payload size
          */
-        uint16_t packetSize;
+        int payloadSize;
         LORAWAN_MESSAGE_STORAGE();
         LORAWAN_MESSAGE_STORAGE(const LORAWAN_MESSAGE_STORAGE& value);
         explicit LORAWAN_MESSAGE_STORAGE(const std::string &base64string);
@@ -91,6 +107,7 @@ PACK(
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
         std::string payloadBase64() const;
         std::string payloadString() const;
+        void setSize(size_t size);
     }
 );
 

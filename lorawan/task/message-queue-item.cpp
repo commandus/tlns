@@ -71,9 +71,8 @@ std::string MessageQueueItem::toJsonString() const
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
     std::stringstream ss;
     ss << "{\"received\": " << time2string(t) << ", \"radio\": " << radioPacket.toString();
-    if (radioPacket.packetSize)
-        ss << ", \"payload\": \"" << hexString(radioPacket.data.downlink.optsNpayload, radioPacket.packetSize) << "\"";
-
+    if (radioPacket.payloadSize)
+        ss << ", \"payload\": \"" << hexString((const char *) radioPacket.data.downlink.payload(), radioPacket.payloadSize) << "\"";
     if (!metadata.empty()) {
         ss << ", \"gateways\": [";
         bool isFirst = true;

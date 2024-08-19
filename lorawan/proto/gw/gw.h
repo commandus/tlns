@@ -24,4 +24,4 @@ public:
     bool needConfirmation() const;
 };
 
-#endif //TLNS_GW_H
+#endif

@@ -24,7 +24,8 @@ SRC_LIBLORAWAN = \
     lorawan/helper/key128gen.cpp lorawan/helper/aes-helper.cpp lorawan/helper/tlns-cli-helper.cpp \
     lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp \
     lorawan/proto/gw/gw.cpp lorawan/proto/gw/set-gateway-metadata.cpp  lorawan/proto/gw/proto-gw-parser.cpp \
-    lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/parse-result.cpp \
+    lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/json-wired.cpp \
+    lorawan/proto/gw/parse-result.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \

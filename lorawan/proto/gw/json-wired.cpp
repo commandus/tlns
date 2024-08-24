@@ -83,7 +83,7 @@ public:
     bool number_integer(number_integer_t val) override {
         switch (nameIndex) {
             case 0: // tag
-                item->rxData.mhdr.f.mtype = (int8_t ) val;
+                item->rxData.mhdr.f.mtype = (int8_t) val;
                 break;
             default:
                 break;
@@ -94,7 +94,7 @@ public:
     bool number_unsigned(number_unsigned_t val) override {
         switch (nameIndex) {
             case 0: // tag
-                item->rxData.mhdr.f.mtype = (int8_t ) val;
+                item->rxData.mhdr.f.mtype = (int8_t) val;
             break;
             default:
                 break;
@@ -109,10 +109,11 @@ public:
     bool string(string_t &val) override {
         switch (nameIndex) {
             case 2: // gateway, hex number, gateway identifier
-                item->rxMetadata.t = parseDate(val.c_str());
+                item->rxMetadata.gatewayId = string2gatewayId(val);
                 break;
             case 3: // devaddr, hex number, device address
-                item->rxMetadata.modu = string2MODULATION(val.c_str());
+                    item->rxData.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_UP;
+                    string2DEVADDR(item->rxData.data.uplink.devaddr, val);
                 break;
             case 4: // mac, hex sequence, MAC payload (optional)
             {

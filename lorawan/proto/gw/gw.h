@@ -11,6 +11,7 @@ public:
     LORAWAN_MESSAGE_STORAGE rxData;             ///< received message itself
     SEMTECH_PROTOCOL_METADATA_RX rxMetadata;    ///< received message metadata including receiving time, frequency, RSSI etc.
     bool needConfirmation() const;
+    bool isMetadataValid() const;
 };
 
 /**
@@ -22,6 +23,7 @@ public:
     LORAWAN_MESSAGE_STORAGE txData;             ///< message to be send
     SEMTECH_PROTOCOL_METADATA_TX txMetadata;    ///< transmission frequency etc
     bool needConfirmation() const;
+    bool isMetadataValid() const;
 };
 
 #endif

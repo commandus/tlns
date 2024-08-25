@@ -27,7 +27,7 @@ LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE(
 )
     : mhdr{}, data {}, payloadSize(0)
 {
-    decodeBase64ToLORAWAN_MESSAGE_STORAGE(*this, base64string);
+    base64SetToLORAWAN_MESSAGE_STORAGE(*this, base64string);
 }
 
 void setLORAWAN_MESSAGE_STORAGE(
@@ -46,25 +46,33 @@ void setLORAWAN_MESSAGE_STORAGE(
     size_t size
 )
 {
+    if (size > sizeof(LORAWAN_MESSAGE_STORAGE) - 2)
+        size = sizeof(LORAWAN_MESSAGE_STORAGE) - 2;
     memmove(&retVal.mhdr, buffer, size);
-    retVal.payloadSize = (uint16_t) size;
+    retVal.setSize(size);
 }
 
-bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
+bool base64SetToLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &base64string
 )
 {
     try {
         std::string s = base64_decode(base64string);
-        size_t sz = s.size();
-        if (sz > sizeof(LORAWAN_MESSAGE_STORAGE) - 2)
-            sz = sizeof(LORAWAN_MESSAGE_STORAGE) - 2;
-        memmove(&retVal.mhdr, s.c_str(), sz);
-        retVal.setSize(sz);
+        setLORAWAN_MESSAGE_STORAGE(retVal, (void *) s.c_str(), s.size());
     } catch (std::runtime_error &) {
         return false;
     }
+    return true;
+}
+
+bool hexSetToLORAWAN_MESSAGE_STORAGE(
+    LORAWAN_MESSAGE_STORAGE &retVal,
+    const std::string &hexString
+)
+{
+    std::string s = hex2string(hexString);
+    setLORAWAN_MESSAGE_STORAGE(retVal, (void *) s.c_str(), s.size());
     return true;
 }
 
@@ -340,6 +348,40 @@ std::string LORAWAN_MESSAGE_STORAGE::payloadBase64() const
     return "";
 }
 
+void LORAWAN_MESSAGE_STORAGE::setPayload(
+    void* value,
+    size_t size
+)
+{
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            data.uplink.setPayload((uint8_t*) value, (uint8_t) size);
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            data.downlink.setPayload((uint8_t*) value, (uint8_t) size);
+        default:
+            break;
+    }
+}
+
+void LORAWAN_MESSAGE_STORAGE::setFOpts(
+    void* value,
+    size_t size
+)
+{
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            data.uplink.setFopts((uint8_t*) value, (uint8_t) size);
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            data.downlink.setFopts((uint8_t*) value, (uint8_t) size);
+        default:
+            break;
+    }
+}
+
 bool UPLINK_STORAGE::operator==(
     const UPLINK_STORAGE &rhs
 ) const
@@ -397,6 +439,19 @@ void DOWNLINK_STORAGE::setPayload(
     memmove(fopts_fport_payload + f.foptslen + 1, value, size);
 }
 
+void DOWNLINK_STORAGE::setFOpts(
+    void* value,
+    size_t size
+) {
+    // check size
+    if (size > 16)
+        size = 16;
+    // make window to insert: move FPort + payload
+    memmove(fopts_fport_payload + size, fopts_fport_payload, FOPTS_FPORT_PAYLOAD_SIZE - size);
+    // set FOpts
+    memmove(fopts_fport_payload, value, size);
+}
+
 const uint8_t* UPLINK_STORAGE::fopts() const
 {
     return fopts_fport_payload;
@@ -437,5 +492,18 @@ void UPLINK_STORAGE::setPayload(
     uint8_t* value,
     uint8_t size
 ) {
-    memmove(fopts_fport_payload + f.foptslen + 1, value, size);
+    memmove(fopts_fport_payload + f.foptslen + 1, value, size); // +1 FPort
+}
+
+void UPLINK_STORAGE::setFOpts(
+    void* value,
+    size_t size
+) {
+    // check size
+    if (size > 16)
+        size = 16;
+    // make window to insert: move FPort + payload
+    memmove(fopts_fport_payload + size, fopts_fport_payload, FOPTS_FPORT_PAYLOAD_SIZE - size);
+    // set FOpts
+    memmove(fopts_fport_payload, value, size);
 }

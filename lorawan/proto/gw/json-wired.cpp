@@ -17,14 +17,14 @@
  *      "token": 1001,
  *      "gateway": "aabb12cc34",
  *      "devaddr": "0011",
- *      "mac": "",
+ *      "fopts": "",
  *      "payload": "ffaa11",
  *      "region": "EU868"
  * }
  * where
  *      tag: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK
  *      token uint16_t
- *      mac and payload (if exists) MUST be ciphered
+ *      FOpts and payload (if exists) MUST be ciphered
  *      region (if specified) is used to set gateway metadata - random frequency, RSSI etc.
  */
 
@@ -36,7 +36,7 @@ static const char* SAX_JSON_WIRED_NAMES [7] = {
     "token",    // 1 number 2 bytes long
     "gateway",  // 2 string hex number, gateway identifier
     "devaddr",  // 3 string hex number, device address
-    "mac",      // 4 string hex sequence, MAC payload (optional)
+    "fopts",    // 4 string hex sequence, FOpts payload (optional)
     "payload",  // 5 string hex sequence, payload (optional)
     "region"    // 6 string region name (optional)
 };
@@ -115,15 +115,17 @@ public:
                     item->rxData.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_UP;
                     string2DEVADDR(item->rxData.data.uplink.devaddr, val);
                 break;
-            case 4: // mac, hex sequence, MAC payload (optional)
+            case 4: // FOpts, hex sequence, MAC payload (optional)
             {
-                BANDWIDTH b;
-                item->rxMetadata.spreadingFactor = string2datr(b, val);
-                item->rxMetadata.bandwidth = b;
+                std::string h(hex2string(val));
+                item->rxData.setFOpts((void *) h.c_str(), h.size());
             }
                 break;
             case 5: // payload, hex sequence
-                item->rxMetadata.codingRate = string2codingRate(val);
+            {
+                std::string h(hex2string(val));
+                item->rxData.setPayload((void *) h.c_str(), h.size());
+            }
                 break;
             case 6: // region
                 // ignore

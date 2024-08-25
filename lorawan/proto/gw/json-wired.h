@@ -13,14 +13,14 @@
  *      "token": 1001,
  *      "gateway": "aabb12cc34",
  *      "devaddr": "0011",
- *      "mac": "",
+ *      "fopts": "",
  *      "payload": "ffaa11",
  *      "region": "EU868"
  * }
  * where
  *      tag: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK
  *      token uint16_t
- *      mac and payload (if exists) MUST be ciphered
+ *      FOpts and payload (if exists) MUST be ciphered
  *      region (if specified) is used to set gateway metadata - random frequency, RSSI etc.
  */
 class GatewayJsonWiredProtocol : public ProtoGwParser {

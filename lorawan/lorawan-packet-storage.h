@@ -27,11 +27,13 @@ PACK(
         void setFport(uint8_t value);
         const uint8_t* payload() const;
         void setPayload(uint8_t* value, uint8_t size);
+        void setFOpts(void* value, size_t size);
 }
 );                                  // 4 1 2 255 =  262 bytes
 
+#define FOPTS_FPORT_PAYLOAD_SIZE    255
 #define SIZE_DOWNLINK_EMPTY_STORAGE 7
-#define SIZE_DOWNLINK_STORAGE 262
+#define SIZE_DOWNLINK_STORAGE       262
 
 PACK(
     class UPLINK_STORAGE {
@@ -45,7 +47,7 @@ PACK(
             uint8_t adr: 1;
         } f;                        // 1 byte
         uint16_t fcnt;	// frame counter 0..65535
-        uint8_t fopts_fport_payload[255];  // 0..15, 1, 255 bytes
+        uint8_t fopts_fport_payload[FOPTS_FPORT_PAYLOAD_SIZE];  // 0..15, 1, 255 bytes
         bool operator==(const UPLINK_STORAGE &rhs) const;
 
         // variable fields accessors
@@ -56,6 +58,7 @@ PACK(
         void setFport(uint8_t value);
         const uint8_t* payload() const;
         void setPayload(uint8_t* value, uint8_t size);
+        void setFOpts(void* value, size_t size);
     }
 );                                  // 4 1 2 255 =  262 bytes
 
@@ -105,6 +108,8 @@ PACK(
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
+        void setPayload(void* value, size_t size);
+        void setFOpts(void* value, size_t size);
         std::string payloadBase64() const;
         std::string payloadString() const;
         void setSize(size_t size);
@@ -122,9 +127,14 @@ void setLORAWAN_MESSAGE_STORAGE(
     size_t size
 );
 
-bool decodeBase64ToLORAWAN_MESSAGE_STORAGE(
+bool base64SetToLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &base64string
+);
+
+bool hexSetToLORAWAN_MESSAGE_STORAGE(
+    LORAWAN_MESSAGE_STORAGE &retVal,
+    const std::string &hexString
 );
 
 #endif

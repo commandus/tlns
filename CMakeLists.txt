@@ -234,6 +234,14 @@ endif()
 			${VCPKG_INC} ${Intl_INCLUDE_DIRS}
 	)
 
+	add_executable(wire-send
+		cli-wire-send.cpp
+		${ARGTABLE}
+	)
+	target_link_libraries(wire-send PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
+	target_compile_definitions(wire-send PRIVATE ${TLNS_DEF})
+	target_include_directories(wire-send PRIVATE "." "third-party" ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")

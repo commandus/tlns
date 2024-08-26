@@ -14,14 +14,12 @@
  *      "gateway": "aabb12cc34",
  *      "devaddr": "0011",
  *      "fopts": "",
- *      "payload": "ffaa11",
- *      "region": "EU868"
+ *      "payload": "ffaa11"
  * }
  * where
  *      tag: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK
  *      token uint16_t
  *      FOpts and payload (if exists) MUST be ciphered
- *      region (if specified) is used to set gateway metadata - random frequency, RSSI etc.
  */
 class GatewayJsonWiredProtocol : public ProtoGwParser {
 protected:
@@ -34,9 +32,9 @@ protected:
     );
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
-     * @param packetForwarderPacket
-     * @param size
-     * @param cb put gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
+     * @param packetForwarderPacket JSON text buffer
+     * @param size JSON text buffer size
+     * @param receivedTime time
      * @return Return tag number 0-5 or error code (<0)
      */
     int parse(

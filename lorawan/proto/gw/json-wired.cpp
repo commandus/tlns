@@ -31,14 +31,13 @@
 /**
  * 	Section 3.3
  */
-static const char* SAX_JSON_WIRED_NAMES [7] = {
+static const char* SAX_JSON_WIRED_NAMES[6] = {
     "tag",	    // 0 number 1 byte long
     "token",    // 1 number 2 bytes long
     "gateway",  // 2 string hex number, gateway identifier
     "devaddr",  // 3 string hex number, device address
     "fopts",    // 4 string hex sequence, FOpts payload (optional)
-    "payload",  // 5 string hex sequence, payload (optional)
-    "region"    // 6 string region name (optional)
+    "payload"  // 5 string hex sequence, payload (optional)
 };
 
 static inline int getNameIndex(
@@ -63,12 +62,10 @@ public:
 
     explicit SaxPushData(
         GwPushData *retVal,
-        const DEVEUI &gwId,
         TASK_TIME receivedTime
     )
         : nameIndex(0), startItem(0), item(retVal), parseError(CODE_OK)
     {
-        item->rxMetadata.gatewayId = gwId.u;
         item->rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
     }
 
@@ -127,9 +124,6 @@ public:
                 item->rxData.setPayload((void *) h.c_str(), h.size());
             }
                 break;
-            case 6: // region
-                // ignore
-                break;
             default:
                 break;
         }
@@ -179,10 +173,9 @@ static int parsePushData(
     GwPushData *retVal,
     const char *json,
     size_t size,
-    const DEVEUI &gwId,
     TASK_TIME receivedTime
 ) {
-    SaxPushData consumer(retVal, gwId, receivedTime);
+    SaxPushData consumer(retVal, receivedTime);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }
@@ -204,16 +197,13 @@ int GatewayJsonWiredProtocol::parse(
     int r;
     switch (p->tag) {
         case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
-        {
-            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
-            ntoh_SEMTECH_PREFIX_GW(*pGw);
-            r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
-                size - SIZE_SEMTECH_PREFIX_GW, pGw->mac, receivedTime); // +12 bytes
-        }
+            r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket, size, receivedTime);
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
+            r = 0;
             break;
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
+            r = 0;
             break;
         default:
             r = ERR_CODE_INVALID_PACKET;

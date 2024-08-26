@@ -22,7 +22,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_ARG_ENABLE([sqlite],
 [  --enable-sqlite    enable sqlite3 backend],
@@ -88,25 +88,37 @@ AC_CHECK_HEADERS(uv.h)
 AC_CHECK_LIB(uv_write,uv_udp_init,uv_run)
 fi
 
-AC_MSG_RESULT([+-------------------------------])
+AC_MSG_RESULT([+--------------------------------------])
 if test "$sqlite" = "true"; then
-AC_MSG_RESULT([sqlite3 backend enabled])
+AC_MSG_RESULT([sqlite3 backend:                       yes])
+else
+AC_MSG_RESULT([sqlite3 backend (--enable-sqlite):     no])
 fi
 if test "$gw_dev_usb" = "true"; then
-AC_MSG_RESULT([| build RAK2287 USB gateway backend])
+AC_MSG_RESULT([build RAK2287 USB gateway backend:     yes])
+else
+AC_MSG_RESULT([RAK2287 gateway (--enable-gw-dev-usb): no])
 fi
 if test "$libuv" = "true"; then
-AC_MSG_RESULT([| libuv UDP/TCP enabled])
+AC_MSG_RESULT([libuv UDP/TCP:                         yes])
+else
+AC_MSG_RESULT([libuv UDP/TCP (--enable-libuv):        no])
 fi
 if test "$debug" = "true"; then
-AC_MSG_RESULT([| debugging output enabled])
+AC_MSG_RESULT([debugging output:                      yes])
+else
+AC_MSG_RESULT([debugging output (--enable-debug):     no])
 fi
 if test "$gen" = "true"; then
-AC_MSG_RESULT([| key generator enabled])
+AC_MSG_RESULT([key generator:                         yes])
+else
+AC_MSG_RESULT([key generator (--enable-gen):          no])
 fi
 if test "$json" = "true"; then
-AC_MSG_RESULT([| JSON file backend enabled])
+AC_MSG_RESULT([JSON file backend:                     yes])
+else
+AC_MSG_RESULT([JSON file backend (--enable-json):     no])
 fi
-AC_MSG_RESULT([+-------------------------------])
+AC_MSG_RESULT([+--------------------------------------])
 
 AC_OUTPUT

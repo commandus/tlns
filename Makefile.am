@@ -174,7 +174,7 @@ lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la
 #
 # Binaries
 #
-bin_PROGRAMS = cli-main-check regional-parameters2cpp
+bin_PROGRAMS = cli-main-check regional-parameters2cpp wire-send
 
 if ENABLE_GW_DEV_USB
 bin_PROGRAMS += gw-dev-usb gateway-config2cpp 
@@ -215,6 +215,10 @@ regional_parameters2cpp_SOURCES = util/regional-parameters2cpp.cpp \
     $(SRC_ARGTABLE)
 regional_parameters2cpp_LDADD = -L. -llorawan
 regional_parameters2cpp_CPPFLAGS = $(EXTRA_DEF)
+
+wire_send_SOURCES = cli-wire-send.cpp $(SRC_ARGTABLE)
+wire_send_LDADD = -L. -llorawan
+wire_send_CPPFLAGS = $(EXTRA_DEF)
 
 #
 # Plugins

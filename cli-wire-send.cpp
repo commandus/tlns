@@ -23,149 +23,64 @@
 #define _(String) gettext (String)
 /// #define _(String) (String)
 
-const char *programName = "tlns-check";
-const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";
-
-static void printRegionNames(
-    std::ostream &strm
-)
-{
-    for (auto & regionalPlan : regionalParameterChannelPlanMem.storage.bands) {
-        strm << "\"" << regionalPlan.value.cn << "\" ";
-    }
-}
+const char *programName = "wire-send";
 
 // global parameters keep command line arguments
-class CheckParams {
+class WireSendParams {
 public:
     int verbose;
-    std::string regionName;
+    uint64_t gwId;
+    std::string networkServerAddress;
+    uint16_t networkServerPort;
+    DEVADDR deviceAddress;
+    std::string fopts;
+    std::string payload;
+    std::string identityFileName;
     int32_t retCode;
-    const RegionalParameterChannelPlan *regionalParameterChannelPlan;
 
-    CheckParams()
-        : verbose(0), retCode(0)
+    WireSendParams()
+        : verbose(0), gwId(0), networkServerPort(4242), retCode(0)
     {
 
     }
 
     std::string toString() const {
         std::stringstream ss;
-        ss << _("Verbose: ") << (verbose ? "true":"false") << "\n";
+        ss << _("Network service") << '\t' << networkServerAddress  << ":" << networkServerPort << "\n"
+            << _("Gateway") << '\t' << gatewayId2str(gwId) << "\n"
+            << _("Device address") << '\t' << DEVADDR2string(deviceAddress) << "\n"
+            << _("FOpts") << '\t' << hexString(fopts) << "\n"
+            << _("Payload") << '\t' << hexString(payload) << "\n"
+            << _("Identity file") << '\t' << identityFileName << "\n"
+        ;
         return ss.str();
     }
 
 };
 
-static CheckParams params;
-
-bool onReceiveRawData(
-    MessageTaskDispatcher* dispatcher,
-    const char *buffer,
-    size_t bufferSize,
-    TASK_TIME receivedTime
-)
-{
-    if (params.verbose)
-        std::cout << hexString(buffer, bufferSize) << std::endl;
-    // filter messages: set false to block packet, true to start processing
-    return true;
-}
+static WireSendParams params;
 
 static void run() {
-    MessageTaskDispatcher dispatcher;
-    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
-    dispatcher.setParser(parser);
-
-    dispatcher.onPushData = [] (
-        MessageTaskDispatcher* dispatcher,
-        MessageQueueItem *item
-    ) {
-        std::cout
-            << "{\"metadata\": [";
-        bool f = true;
-        for (auto & it : item->metadata) {
-            if (f)
-                f = false;
-            else
-                std::cout << ", ";
-            std::cout << "{\"gateway_id\": " << gatewayId2str(it.first)
-                << ", \"sock_addr\": " << sockaddr2string(&it.second.addr)
-                << ", \"metadata\": " << SEMTECH_PROTOCOL_METADATA_RX2string(it.second.rx) << "}";
-        }
-        std::cout
-            << "],\n\"rfm\": "
-            << item->radioPacket.toString()
-            << "}" << std::endl;
-    };
-
-    dispatcher.onPullResp = [] (
-        MessageTaskDispatcher* dispatcher,
-        GwPullResp &item
-    ) {
-        std::cout
-            << "{\"metadata\": "
-            << SEMTECH_PROTOCOL_METADATA_TX2string(item.txMetadata)
-            << ", \"gwId\": " << gatewayId2str(item.gwId.u)
-            << ", \"txData\": " << item.txData.toString()
-            << "}" << std::endl;
-    };
-
-    dispatcher.onTxPkAck = [] (
-        MessageTaskDispatcher* dispatcher,
-        ERR_CODE_TX code
-    ) {
-        std::cout
-            << R"({"txPkAck": ")"
-            << ERR_CODE_TX2string(code)
-            << "\"}" << std::endl;
-    };
-
     if (params.verbose) {
-        std::cout << _("Region") << '\t' << params.regionalParameterChannelPlan->value.cn << std::endl;
+        std::cout << params.toString() << std::endl;
     }
-
-    // set selected regional parameters e.g. frequency
-    dispatcher.setRegionalParameterChannelPlan(params.regionalParameterChannelPlan);
-
-    // dispatcher 'll destroy sockets in destructor
-    // dispatcher.sockets.push_back(new TaskUDPSocket(INADDR_LOOPBACK, 4242));
-    // dispatcher.setControlSocket(new TaskUDPControlSocket(INADDR_LOOPBACK, 4242));
-    dispatcher.sockets.push_back(new TaskUnixSocket(FILE_NAME_UNIX_SOCKET));
-    dispatcher.setControlSocket(new TaskUnixControlSocket(FILE_NAME_UNIX_SOCKET));
-    dispatcher.onReceiveRawData = onReceiveRawData;
-    // dispatcher.setControlSocket(new TaskEventFDControlSocket());
-    dispatcher.start();
-
-    // TaskResponseThreaded response;
-    // dispatcher.setResponse(&response);
-
-    std::cout << _("Enter packet (hex string) or  'q' to stop") << std::endl;
-    while (true) {
-        std::string l;
-        getline(std::cin, l);
-        if (l == "q") {
-            dispatcher.stop();
-            break;
-        }
-        l = "024c7e0000006cc3743eed467b227278706b223a5b7b22746d7374223a313237353533303937322c226368616e223a362c2272666368223a312c2266726571223a3836382e3930303030302c2273746174223a312c226d6f6475223a224c4f5241222c2264617472223a22534631324257313235222c22636f6472223a22342f35222c226c736e72223a2d392e352c2272737369223a2d3131352c2273697a65223a33372c2264617461223a2251444144525147416e5259436b4c72715672703677324a55547958744a4467315669464a354d44666b756e336f762f5653513d3d227d2c7b22746d7374223a313237353533303938302c226368616e223a342c2272666368223a302c2266726571223a3836342e3930303030302c2273746174223a312c226d6f6475223a224c4f5241222c2264617472223a22534631324257313235222c22636f6472223a22342f35222c226c736e72223a31302e382c2272737369223a2d32372c2273697a65223a33372c2264617461223a2251444144525147416e5259436b4c72715672703677324a55547958744a4467315669464a354d44666b756e336f762f5653513d3d227d5d7d";
-        dispatcher.send(hex2string(l));
-        if (!dispatcher.running)
-            break;
-    }
-    // dispatcher.stop();
-    delete(parser);
 }
 
 int main(int argc, char **argv) {
+    struct arg_str *a_gateway_id = arg_str1("g", "gateway", _("<hex-number>"), _("Gateway identifer"));
+    struct arg_str *a_network_server_address_n_port = arg_str1("s", "service", _("<IP address>:<port number>"), _("Network service address and port"));
+    struct arg_str *a_device_address = arg_str1("a", "address", _("<hex-number>"), _("Gateway identifer"));
+    struct arg_str *a_fopts = arg_str0("o", "fopts", _("<hex-sequence>"), _("FOpts (up to 16 bytes"));
+    struct arg_str *a_payload = arg_str0(nullptr, nullptr, _("<hex-sequence>"), _("payload (up to 255 bytes"));
+    struct arg_str *a_identity_file_name = arg_str1("i", "identity", _("<file>"), _("Identities JSON file name"));
+
     struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));
-    struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
     struct arg_lit *a_help = arg_lit0("h", "help", _("Show this help"));
 	struct arg_end *a_end = arg_end(20);
 
 	void* argtable[] = {
-        a_region_name, a_verbose,
-		a_help, a_end
+	    a_gateway_id, a_network_server_address_n_port, a_device_address, a_fopts, a_payload, a_identity_file_name,
+	    a_verbose, a_help, a_end
 	};
 
 	// verify the argtable[] entries were allocated successfully
@@ -178,19 +93,17 @@ int main(int argc, char **argv) {
 
     params.verbose = a_verbose->count;
 
-    if (a_region_name->count)
-        params.regionName = *a_region_name->sval;
-    else
-        params.regionName = "";
-
-    auto region= regionalParameterChannelPlanMem.get(params.regionName);
-
-    if (!region) {
-        errorCount++;
-        std::cerr << _("Region ") << params.regionName << " " << _("not found") << std::endl;
+    if (!errorCount) {
+        params.gwId = string2gatewayId(*a_gateway_id->sval);
+        if (!splitAddress(params.networkServerAddress, params.networkServerPort, *a_network_server_address_n_port->sval))
+            errorCount++;
+        string2DEVADDR(params.deviceAddress, *a_device_address->sval);
+        params.identityFileName = *a_identity_file_name->sval;
     }
-
-    params.regionalParameterChannelPlan = region;
+    if (a_fopts->count)
+        params.fopts = hex2string(*a_fopts->sval);
+    if (a_payload->count)
+        params.payload = hex2string(*a_payload->sval);
 
     // special case: '--help' takes precedence over error reporting
 	if ((a_help->count) || errorCount) {
@@ -198,10 +111,8 @@ int main(int argc, char **argv) {
 			arg_print_errors(stderr, a_end, programName);
 		std::cerr << _("Usage: ") << programName << std::endl;
 		arg_print_syntax(stderr, argtable, "\n");
-		std::cerr << _("tlns check utility") << std::endl;
+		std::cerr << _("Send via wires from the device") << std::endl;
 		arg_print_glossary(stderr, argtable, "  %-27s %s\n");
-        std::cerr << _("Regions: ");
-        printRegionNames(std::cerr);
         std::cerr << std::endl;
 		arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 		return ERR_CODE_COMMAND_LINE;

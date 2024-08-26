@@ -2,7 +2,6 @@
 #define PROTO_GW_JSON_WIRED_H    1
 
 #include "lorawan/lorawan-types.h"
-#include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/proto/gw/proto-gw-parser.h"
 
 /**

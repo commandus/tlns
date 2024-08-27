@@ -2,7 +2,7 @@
 #define IDENTITY_SERVICE_MEM_H_ 1
 
 #include "lorawan/storage/service/identity-service.h"
-#include "platform-specific.h"
+#include "lorawan/helper/plugin-helper.h"
 
 class MemoryIdentityService: public IdentityService {
 protected:

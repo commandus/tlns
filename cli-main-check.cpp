@@ -41,7 +41,7 @@ public:
     int verbose;
     std::string regionName;
     int32_t retCode;
-    const RegionalParameterChannelPlan *regionalParameterChannelPlan;
+    const RegionalParameterChannelPlan *regionalParameterChannelPlan{};
 
     CheckParams()
         : verbose(0), retCode(0)

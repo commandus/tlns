@@ -3,7 +3,7 @@
 
 #include "third-party/nlohmann/json.hpp"
 #include "lorawan/storage/service/identity-service-mem.h"
-#include "platform-specific.h"
+#include "lorawan/helper/plugin-helper.h"
 
 class JsonIdentityService: public MemoryIdentityService {
 private:

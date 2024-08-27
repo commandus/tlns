@@ -10,16 +10,18 @@
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/task/message-queue.h"
 #include "lorawan/task/message-task-dispatcher.h"
 #include "lorawan/task/task-unix-socket.h"
-#include "lorawan/task/task-unix-control-socket.h"
 #include "lorawan/proto/gw/basic-udp.h"
 
 #include "gen/regional-parameters-3.h"
 
 // i18n
 #include <libintl.h>
+#include <lorawan/lorawan-msg.h>
+#include <lorawan/helper/file-helper.h>
+#include <lorawan/storage/client/plugin-client.h>
+#include <lorawan/storage/service/identity-service-json.h>
 #define _(String) gettext (String)
 /// #define _(String) (String)
 
@@ -36,6 +38,7 @@ public:
     std::string fopts;
     std::string payload;
     std::string identityFileName;
+    std::string pluginFilePath;
     int32_t retCode;
 
     WireSendParams()
@@ -61,8 +64,15 @@ public:
 static WireSendParams params;
 
 static void run() {
-    if (params.verbose) {
-        std::cout << params.toString() << std::endl;
+    PluginClient identityClient(params.pluginFilePath);
+    if (!identityClient.svcIdentity) {
+        identityClient.svcIdentity = new JsonIdentityService();
+    }
+    identityClient.svcIdentity->init(params.identityFileName, nullptr);
+    if (params.verbose > 1) {
+        std::cout
+            << MSG_IDENTITIES << identityClient.svcIdentity->size() << '\n'
+            << params.toString() << std::endl;
     }
 }
 
@@ -72,6 +82,7 @@ int main(int argc, char **argv) {
     struct arg_str *a_device_address = arg_str1("a", "address", _("<hex-number>"), _("Gateway identifer"));
     struct arg_str *a_fopts = arg_str0("o", "fopts", _("<hex-sequence>"), _("FOpts (up to 16 bytes"));
     struct arg_str *a_payload = arg_str0(nullptr, nullptr, _("<hex-sequence>"), _("payload (up to 255 bytes"));
+    struct arg_str *a_identity_plugin_file = arg_str0("p", "plugin", _("<identity-plugin-file-name>"), _("Default none"));
     struct arg_str *a_identity_file_name = arg_str1("i", "identity", _("<file>"), _("Identities JSON file name"));
 
     struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));
@@ -79,7 +90,8 @@ int main(int argc, char **argv) {
 	struct arg_end *a_end = arg_end(20);
 
 	void* argtable[] = {
-	    a_gateway_id, a_network_server_address_n_port, a_device_address, a_fopts, a_payload, a_identity_file_name,
+	    a_gateway_id, a_network_server_address_n_port, a_device_address, a_fopts, a_payload,
+	    a_identity_plugin_file, a_identity_file_name,
 	    a_verbose, a_help, a_end
 	};
 
@@ -98,6 +110,17 @@ int main(int argc, char **argv) {
         if (!splitAddress(params.networkServerAddress, params.networkServerPort, *a_network_server_address_n_port->sval))
             errorCount++;
         string2DEVADDR(params.deviceAddress, *a_device_address->sval);
+        if (a_identity_plugin_file->count > 0) {
+            if (!file::fileExists(*a_identity_plugin_file->sval)) {
+                errorCount++;
+                std::cerr
+                    << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": "
+                    << ERR_LOAD_PLUGINS_FAILED
+                    << *a_identity_plugin_file->sval
+                    << std::endl;
+            } else
+                params.pluginFilePath = *a_identity_plugin_file->sval;
+        }
         params.identityFileName = *a_identity_file_name->sval;
     }
     if (a_fopts->count)

@@ -22,7 +22,6 @@
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
 
-#include "subst-call-c.h"
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/task-unix-control-socket.h"

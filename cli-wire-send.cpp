@@ -10,18 +10,16 @@
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/task/message-task-dispatcher.h"
-#include "lorawan/task/task-unix-socket.h"
-#include "lorawan/proto/gw/basic-udp.h"
-
-#include "gen/regional-parameters-3.h"
+#include "lorawan/lorawan-msg.h"
+#include "lorawan/helper/file-helper.h"
+#include "lorawan/storage/client/plugin-client.h"
+#include "lorawan/storage/service/identity-service-json.h"
 
 // i18n
 #include <libintl.h>
-#include <lorawan/lorawan-msg.h>
-#include <lorawan/helper/file-helper.h>
-#include <lorawan/storage/client/plugin-client.h>
-#include <lorawan/storage/service/identity-service-json.h>
+#include <thread>
+#include <lorawan/helper/ip-address.h>
+#include <lorawan/proto/gw/json-wired-client.h>
 #define _(String) gettext (String)
 /// #define _(String) (String)
 
@@ -74,6 +72,21 @@ static void run() {
             << MSG_IDENTITIES << identityClient.svcIdentity->size() << '\n'
             << params.toString() << std::endl;
     }
+    JsonWiredClient jsonWiredClient(&identityClient,
+        params.gwId, params.networkServerAddress, params.networkServerPort, params.deviceAddress);
+
+    std::thread thread(std::bind(&JsonWiredClient::run, &jsonWiredClient));
+
+    std::cout << _("Enter 'q' to stop") << std::endl;
+    while (true) {
+        std::string l;
+        getline(std::cin, l);
+        if (l == "q") {
+            jsonWiredClient.stop();
+            break;
+        }
+    }
+    thread.join();
 }
 
 int main(int argc, char **argv) {

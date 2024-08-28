@@ -140,7 +140,7 @@ static void run() {
     // TaskResponseThreaded response;
     // dispatcher.setResponse(&response);
 
-    std::cout << _("Enter packet (hex string) or  'q' to stop") << std::endl;
+    std::cout << _("Enter packet (hex string) or 'q' to stop") << std::endl;
     while (true) {
         std::string l;
         getline(std::cin, l);

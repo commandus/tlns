@@ -3,7 +3,6 @@
 
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/helper/aes-helper.h"
 #include "lorawan/lorawan-mic.h"
 
 NetworkIdentity::NetworkIdentity() = default;

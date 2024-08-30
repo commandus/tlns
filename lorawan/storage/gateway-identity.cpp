@@ -1,8 +1,11 @@
-#include "gateway-identity.h"
+#include "lorawan/storage/gateway-identity.h"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <sys/un.h>
+#endif
 #include "lorawan/lorawan-date.h"
 #include "lorawan/helper/ip-address.h"
 
@@ -31,9 +34,11 @@ GatewayIdentity::GatewayIdentity(
         case AF_INET6:
             sz = sizeof(struct sockaddr_in6);
             break;
+#if defined(_MSC_VER) || defined(__MINGW32__)
         case AF_UNIX:
             sz = sizeof(struct sockaddr_un);
             break;
+#endif
         default:
             sz = sizeof(sockaddr);
     }

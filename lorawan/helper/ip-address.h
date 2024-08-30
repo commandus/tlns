@@ -8,7 +8,6 @@
 #include <ws2tcpip.h>
 #else
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <netinet/in.h>
 typedef int SOCKET;
 #endif
@@ -63,6 +62,18 @@ bool string2sockaddr(
 bool sameSocketAddress(
     const struct sockaddr *a,
     const struct sockaddr *b
+);
+
+bool isAddrStringIPv6(
+    const char *hostAddr
+);
+
+bool isIPv6(
+    const struct sockaddr *addr
+);
+
+bool isIP(
+    const struct sockaddr *addr
 );
 
 #endif

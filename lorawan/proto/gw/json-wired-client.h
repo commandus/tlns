@@ -11,11 +11,12 @@ private:
     std::string networkServerAddress;
     uint16_t networkServerPort;
     DEVADDR deviceAddress;
-    bool running;
 protected:
+    SOCKET sock;
     int openConnection();
     void closeConnection();
 public:
+    int status;
     JsonWiredClient(
         const DirectClient *directClient,
         uint64_t gwId,

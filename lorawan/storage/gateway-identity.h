@@ -3,7 +3,6 @@
 
 #include <string>
 #include <ctime>
-#include <cinttypes>
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WinSock2.h>
 #include <ws2tcpip.h>

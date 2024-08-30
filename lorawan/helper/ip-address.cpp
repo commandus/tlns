@@ -5,18 +5,15 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <arpa/inet.h>
-#include <sys/un.h>
 #endif
 
-// if not AF_UNIX is ised, it is INET6_ADDRSTRLEN
-#define MAXSOCKADDRLEN 108
 /**
  * @return address string
  */
 std::string sockaddr2string(
     const struct sockaddr *value
 ) {
-    char buf[MAXSOCKADDRLEN];
+    char buf[INET6_ADDRSTRLEN];
     int port;
     switch (value->sa_family) {
         case AF_INET:
@@ -30,17 +27,11 @@ std::string sockaddr2string(
             }
             port = ntohs(((struct sockaddr_in6 *) value)->sin6_port);
             break;
-        case AF_UNIX:
-            strncpy(buf, ((struct sockaddr_un *) value)->sun_path, MAXSOCKADDRLEN);
-            port = 0;
-            break;
         default:
             return "";
     }
     std::stringstream ss;
-    ss << buf;
-    if (port)
-        ss << ":" << port;
+    ss << buf << ":" << port;
     return ss.str();
 }
 
@@ -116,24 +107,37 @@ bool sameSocketAddress(
         return false;
 
     switch (a->sa_family) {
-        case AF_INET:
-        {
+        case AF_INET: {
             auto *ai = (struct sockaddr_in *) a;
             auto *bi = (struct sockaddr_in *) b;
             return (ai->sin_port == bi->sin_port) && (memcmp(&ai->sin_addr, &bi->sin_addr, 4) == 0);
         }
         case AF_INET6:
         {
-            auto *ai = (struct sockaddr_in6 *) a;
-            auto *bi = (struct sockaddr_in6 *) b;
-            return (ai->sin6_port == bi->sin6_port) && (memcmp(&ai->sin6_addr, &bi->sin6_addr, 16) == 0);
-        }
-        case AF_UNIX:
-        {
-            auto *ai = (struct sockaddr_un *) a;
-            auto *bi = (struct sockaddr_un *) b;
-            return strncmp(ai->sun_path, bi->sun_path, MAXSOCKADDRLEN) == 0;
+                auto *ai = (struct sockaddr_in6 *) a;
+                auto *bi = (struct sockaddr_in6 *) b;
+                return (ai->sin6_port == bi->sin6_port) && (memcmp(&ai->sin6_addr, &bi->sin6_addr, 16) == 0);
         }
     }
     return false;
+}
+
+bool isAddrStringIPv6(
+    const char * value
+) {
+    struct in6_addr result = {};
+    return inet_pton(AF_INET6, value, &result) == 1;
+}
+
+bool isIPv6(
+    const struct sockaddr *addr
+) {
+    return addr->sa_family == AF_INET6;
+}
+
+bool isIP(
+    const struct sockaddr *addr
+)
+{
+    return addr->sa_family == AF_INET || addr->sa_family == AF_INET6;
 }

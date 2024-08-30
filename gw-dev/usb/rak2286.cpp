@@ -12,6 +12,7 @@
 #include <thread>
 #include <cmath>
 #include <fcntl.h>
+#include <sys/un.h>
 
 // XTAL correction constants
 #define GPS_REF_MAX_AGE     30          // maximum admitted delay in seconds of GPS loss before considering latest GPS sync unusable

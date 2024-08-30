@@ -78,7 +78,7 @@ static void run() {
     std::thread thread(std::bind(&JsonWiredClient::run, &jsonWiredClient));
 
     std::cout << _("Enter 'q' to stop") << std::endl;
-    while (true) {
+    while (jsonWiredClient.status != ERR_CODE_STOPPED) {
         std::string l;
         getline(std::cin, l);
         if (l == "q") {

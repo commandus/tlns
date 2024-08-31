@@ -56,17 +56,17 @@ class SaxPushData : public nlohmann::json::json_sax_t {
 private:
     int nameIndex;
     int startItem;  // object enter/exit counter
-    GwPushData *item;
+    ParseResult *rslt;
 public:
     int parseError;
 
     explicit SaxPushData(
-        GwPushData *retVal,
+        ParseResult *aRslt,
         TASK_TIME receivedTime
     )
-        : nameIndex(0), startItem(0), item(retVal), parseError(CODE_OK)
+        : nameIndex(0), startItem(0), rslt(aRslt), parseError(CODE_OK)
     {
-        item->rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
+        rslt->gwPushData.rxMetadata.t = std::chrono::duration_cast<std::chrono::seconds>(receivedTime.time_since_epoch()).count();
     }
 
     bool null() override {
@@ -80,8 +80,12 @@ public:
     bool number_integer(number_integer_t val) override {
         switch (nameIndex) {
             case 0: // tag
-                item->rxData.mhdr.f.mtype = (int8_t) val;
+                rslt->tag = (uint8_t) val;
+                rslt->gwPushData.rxData.mhdr.f.mtype = (uint8_t) val;
                 break;
+            case 1: // token
+                rslt->token = (uint16_t) val;
+            break;
             default:
                 break;
         }
@@ -91,8 +95,11 @@ public:
     bool number_unsigned(number_unsigned_t val) override {
         switch (nameIndex) {
             case 0: // tag
-                item->rxData.mhdr.f.mtype = (int8_t) val;
-            break;
+                rslt->tag = (uint8_t) val;
+                rslt->gwPushData.rxData.mhdr.f.mtype = (uint8_t) val;
+                break;
+            case 1: // token
+                rslt->token = (uint16_t) val;
             default:
                 break;
         }
@@ -106,22 +113,22 @@ public:
     bool string(string_t &val) override {
         switch (nameIndex) {
             case 2: // gateway, hex number, gateway identifier
-                item->rxMetadata.gatewayId = string2gatewayId(val);
+                rslt->gwPushData.rxMetadata.gatewayId = string2gatewayId(val);
                 break;
             case 3: // devaddr, hex number, device address
-                    item->rxData.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_UP;
-                    string2DEVADDR(item->rxData.data.uplink.devaddr, val);
+                    rslt->gwPushData.rxData.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_UP;
+                    string2DEVADDR(rslt->gwPushData.rxData.data.uplink.devaddr, val);
                 break;
             case 4: // FOpts, hex sequence, MAC payload (optional)
             {
                 std::string h(hex2string(val));
-                item->rxData.setFOpts((void *) h.c_str(), h.size());
+                rslt->gwPushData.rxData.setFOpts((void *) h.c_str(), h.size());
             }
                 break;
             case 5: // payload, hex sequence
             {
                 std::string h(hex2string(val));
-                item->rxData.setPayload((void *) h.c_str(), h.size());
+                rslt->gwPushData.rxData.setPayload((void *) h.c_str(), h.size());
             }
                 break;
             default:
@@ -170,7 +177,7 @@ public:
 // ---------------------------------------------------------------------------------------------------------------------
 
 static int parsePushData(
-    GwPushData *retVal,
+    ParseResult *retVal,
     const char *json,
     size_t size,
     TASK_TIME receivedTime
@@ -187,28 +194,7 @@ int GatewayJsonWiredProtocol::parse(
     TASK_TIME receivedTime
 )
 {
-    if (size <= sizeof(SEMTECH_PREFIX)) // at least 4 bytes
-        return ERR_CODE_INVALID_PACKET;
-    auto *p = (SEMTECH_PREFIX *) packetForwarderPacket;
-    if (p->version != 2)
-        return ERR_CODE_INVALID_PACKET;
-    retVal.tag = p->tag;
-    retVal.token = p->token;
-    int r;
-    switch (p->tag) {
-        case SEMTECH_GW_PUSH_DATA:  // 0 network server responds on PUSH_DATA to acknowledge immediately all the PUSH_DATA packets received
-            r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket, size, receivedTime);
-            break;
-        case SEMTECH_GW_PULL_RESP:  // 4
-            r = 0;
-            break;
-        case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
-            r = 0;
-            break;
-        default:
-            r = ERR_CODE_INVALID_PACKET;
-    }
-    return r;
+    return parsePushData(&retVal, (char *) packetForwarderPacket, size, receivedTime);
 }
 
 GatewayJsonWiredProtocol::GatewayJsonWiredProtocol(
@@ -226,7 +212,19 @@ ssize_t GatewayJsonWiredProtocol::ack(
     size_t packetSize
 )
 {
-    return 0;
+    ParseResult pr;
+    TASK_TIME receivedTime;
+    parsePushData(&pr, packet, packetSize, receivedTime);
+    std::stringstream ss;
+    ss << "{\"tag\" : " << (int) SEMTECH_GW_PUSH_ACK
+        << ", \"token\": " << pr.token
+        << "}";
+    std::string s = ss.str();
+    ssize_t sz = s.size();
+    if (packetSize < sz)
+        return ERR_CODE_SEND_ACK;
+    memmove(retBuf, s.c_str(), sz);
+    return sz;
 }
 
 bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(

@@ -1,7 +1,6 @@
 #ifndef LORAWAN_BUILDER_H
 #define LORAWAN_BUILDER_H
 
-#include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/task/task-descriptor.h"
 

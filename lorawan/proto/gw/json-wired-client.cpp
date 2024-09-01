@@ -40,6 +40,31 @@ int JsonWiredClient::JsonWiredClient::send(
     return CODE_OK;
 }
 
+int JsonWiredClient::sendNwaitrAck(
+    const std::string &fopts,
+    const std::string &payload,
+    int secs
+) {
+    int r = send(fopts, payload);
+    if (r != CODE_OK)
+        return r;
+#ifdef _MSC_VER
+    DWORD timeout = secs * 1000;   // ms
+#else
+    struct timeval timeout { secs, 0 };
+#endif
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof timeout);
+    struct sockaddr_storage srcAddress{}; // Large enough for both IPv4 or IPv6
+    socklen_t socklen = sizeof(srcAddress);
+    char rxBuf[1024];
+    ssize_t len = recvfrom(sock, (char *) rxBuf, sizeof(rxBuf), 0, (struct sockaddr *)&srcAddress, &socklen);
+    if (len < 0) {  // Error occurred during receiving
+        r = ERR_CODE_SOCKET_READ;
+    } else {
+    }
+    return r;
+}
+
 int JsonWiredClient::JsonWiredClient::run() {
     if (openConnection() != CODE_OK)
         return ERR_CODE_SOCKET_OPEN;
@@ -87,7 +112,7 @@ int JsonWiredClient::openConnection() {
         a.sin_port = htons(networkServerPort);
         sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     }
-    if (r == -1)
+    if (r == INVALID_SOCKET)
         status = ERR_CODE_SOCKET_ADDRESS;
     if (sock == INVALID_SOCKET)
         status = ERR_CODE_SOCKET_CREATE;

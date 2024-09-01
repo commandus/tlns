@@ -21,11 +21,13 @@ PACK(
         bool operator==(const DOWNLINK_STORAGE &rhs) const;
         // variable fields accessors
         const uint8_t* fopts() const;
+        const std::string foptsString() const;
         uint8_t foptsSize() const;
         void setFopts(uint8_t* value, uint8_t size);
         uint8_t fport() const;
         void setFport(uint8_t value);
         const uint8_t* payload() const;
+        const std::string payloadString() const;
         void setPayload(uint8_t* value, uint8_t size);
         void setFOpts(void* value, size_t size);
 }
@@ -52,11 +54,13 @@ PACK(
 
         // variable fields accessors
         const uint8_t* fopts() const;
+        const std::string foptsString() const;
         uint8_t foptsSize() const;
         void setFopts(uint8_t* value, uint8_t size);
         uint8_t fport() const;
         void setFport(uint8_t value);
         const uint8_t* payload() const;
+        const std::string payloadString() const;
         void setPayload(uint8_t* value, uint8_t size);
         void setFOpts(void* value, size_t size);
     }
@@ -109,6 +113,7 @@ PACK(
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
         void setPayload(void* value, size_t size);
+        const std::string foptsString() const;
         void setFOpts(void* value, size_t size);
         std::string payloadBase64() const;
         std::string payloadString() const;

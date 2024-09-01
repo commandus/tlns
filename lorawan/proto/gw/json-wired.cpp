@@ -19,18 +19,13 @@
  *      "devaddr": "0011",
  *      "fopts": "",
  *      "payload": "ffaa11",
- *      "region": "EU868"
  * }
  * where
  *      tag: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK
  *      token uint16_t
  *      FOpts and payload (if exists) MUST be ciphered
- *      region (if specified) is used to set gateway metadata - random frequency, RSSI etc.
  */
 
-/**
- * 	Section 3.3
- */
 static const char* SAX_JSON_WIRED_NAMES[6] = {
     "tag",	    // 0 number 1 byte long
     "token",    // 1 number 2 bytes long
@@ -216,15 +211,15 @@ ssize_t GatewayJsonWiredProtocol::ack(
     TASK_TIME receivedTime;
     parsePushData(&pr, packet, packetSize, receivedTime);
     std::stringstream ss;
-    ss << "{\"tag\" : " << (int) SEMTECH_GW_PUSH_ACK
+    ss << "{\"tag\": " << (int) SEMTECH_GW_PUSH_ACK
         << ", \"token\": " << pr.token
         << "}";
     std::string s = ss.str();
-    ssize_t sz = s.size();
+    size_t sz = s.size();
     if (packetSize < sz)
         return ERR_CODE_SEND_ACK;
     memmove(retBuf, s.c_str(), sz);
-    return sz;
+    return (ssize_t) sz;
 }
 
 bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
@@ -237,7 +232,13 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
 {
     if (!rxMetadata)
         return false;
-    ss << "{}";
+    ss << "{\"tag\": " << (int) SEMTECH_GW_PUSH_DATA
+        << ", \"token\": " << token
+        << ", \"gateway\": \"" << gatewayId2str(rxMetadata->gatewayId)
+        << "\", \"devaddr\": \"" << msgBuilder.msg.getAddr()->toString()
+        << "\", \"fopts\": \"" << hexString(msgBuilder.msg.foptsString())
+        << "\", \"payload\": \"" << hexString(msgBuilder.msg.payloadString())
+        << "\"}";
     return true;
 }
 

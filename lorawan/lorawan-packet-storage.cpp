@@ -333,6 +333,20 @@ void LORAWAN_MESSAGE_STORAGE::setSize(
     }
 }
 
+const std::string LORAWAN_MESSAGE_STORAGE::foptsString() const {
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            return data.uplink.foptsString();
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            return data.downlink.foptsString();
+        default:
+            break;
+    }
+    return "";
+}
+
 std::string LORAWAN_MESSAGE_STORAGE::payloadBase64() const
 {
     switch ((MTYPE) mhdr.f.mtype) {
@@ -401,6 +415,10 @@ const uint8_t* DOWNLINK_STORAGE::fopts() const
     return fopts_fport_payload;
 }
 
+const std::string DOWNLINK_STORAGE::foptsString() const {
+    return std::string((const char *) fopts_fport_payload, f.foptslen);
+}
+
 uint8_t DOWNLINK_STORAGE::foptsSize() const
 {
     return f.foptslen;
@@ -455,6 +473,10 @@ void DOWNLINK_STORAGE::setFOpts(
 const uint8_t* UPLINK_STORAGE::fopts() const
 {
     return fopts_fport_payload;
+}
+
+const std::string UPLINK_STORAGE::foptsString() const {
+    return std::string((const char *) fopts_fport_payload, f.foptslen);
 }
 
 uint8_t UPLINK_STORAGE::foptsSize() const

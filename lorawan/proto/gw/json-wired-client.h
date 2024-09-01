@@ -30,6 +30,12 @@ public:
         const std::string &payload
     );
 
+    int sendNwaitrAck(
+        const std::string &fopts,
+        const std::string &payload,
+        int secs
+    );
+
     int run();
     void stop();
 };

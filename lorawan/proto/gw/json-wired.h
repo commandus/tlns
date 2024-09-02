@@ -62,4 +62,27 @@ public:
     explicit GatewayJsonWiredProtocol(MessageTaskDispatcher *dispatcher);
 };
 
+class GatewayJsonWiredAck {
+public:
+    uint8_t tag;
+    uint16_t token;
+    GatewayJsonWiredAck();
+};
+
+void makeMessage(
+    std::ostream &strm,
+    uint16_t token,
+    uint64_t gatewayId,
+    const DEVADDR *addr,
+    const std::string &fopts,
+    const std::string &payload
+);
+
+int parseAck(
+    GatewayJsonWiredAck *retVal,
+    const char *json,
+    size_t jsonSize
+
+);
+
 #endif

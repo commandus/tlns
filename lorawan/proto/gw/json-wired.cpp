@@ -80,7 +80,7 @@ public:
                 break;
             case 1: // token
                 rslt->token = (uint16_t) val;
-            break;
+                break;
             default:
                 break;
         }
@@ -95,6 +95,7 @@ public:
                 break;
             case 1: // token
                 rslt->token = (uint16_t) val;
+                break;
             default:
                 break;
         }
@@ -169,6 +170,117 @@ public:
     }
 };
 
+static const char* SAX_JSON_ACK_NAMES[2] = {
+    "tag",	    // 0 number 1 byte long
+    "token"     // 1 number 2 bytes long
+};
+
+static inline int getAckIndex(
+    const char *name
+)
+{
+    int r = 0;
+    for (int i = 0; i < 7; i++) {
+        if (strcmp(SAX_JSON_ACK_NAMES[i], name) == 0)
+            return i;
+    }
+    return r;
+}
+
+class SaxAck : public nlohmann::json::json_sax_t {
+private:
+    int nameIndex;
+    GatewayJsonWiredAck *rslt;
+public:
+    int parseError;
+
+    explicit SaxAck(
+        GatewayJsonWiredAck *aRslt
+    )
+        : nameIndex(0), rslt(aRslt), parseError(CODE_OK)
+    {
+    }
+
+    bool null() override {
+        return true;
+    }
+
+    bool boolean(bool val) override {
+        return true;
+    }
+
+    bool number_integer(number_integer_t val) override {
+        switch (nameIndex) {
+            case 0: // tag
+                if (rslt)
+                    rslt->tag = (uint8_t) val;
+                break;
+            case 1: // token
+                if (rslt)
+                    rslt->token = (uint16_t) val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool number_unsigned(number_unsigned_t val) override {
+        switch (nameIndex) {
+            case 0: // tag
+                if (rslt)
+                    rslt->tag = (uint8_t) val;
+                break;
+            case 1: // token
+                if (rslt)
+                    rslt->token = (uint16_t) val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool number_float(number_float_t val, const string_t &s) override {
+        return true;
+    }
+
+    bool string(string_t &val) override {
+        return true;
+    }
+
+    bool start_object(std::size_t elements) override {
+        return true;
+    }
+
+    bool end_object() override {
+        return true;
+    }
+
+    bool start_array(std::size_t elements) override {
+        return true;
+    }
+
+    bool end_array() override {
+        return true;
+    }
+
+    bool key(string_t &val) override {
+        nameIndex = getAckIndex(val.c_str());
+        return true;
+    }
+
+    bool binary(nlohmann::json::binary_t &val) override {
+        return true;
+    }
+
+    bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override {
+        parseError = - ex.id;
+        std::cerr << ex.what() << std::endl;
+        return false;
+    }
+};
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 static int parsePushData(
@@ -222,6 +334,24 @@ ssize_t GatewayJsonWiredProtocol::ack(
     return (ssize_t) sz;
 }
 
+void makeMessage(
+    std::ostream &strm,
+    uint16_t token,
+    uint64_t gatewayId,
+    const DEVADDR *addr,
+    const std::string &fopts,
+    const std::string &payload
+) {
+    strm << "{\"tag\": " << (int) SEMTECH_GW_PUSH_DATA
+        << ", \"token\": " << token
+        << ", \"gateway\": \"" << gatewayId2str(gatewayId);
+    if (addr)
+        strm << "\", \"devaddr\": \"" << addr->toString();
+    strm << "\", \"fopts\": \"" << hexString(fopts)
+        << "\", \"payload\": \"" << hexString(payload)
+        << "\"}";
+}
+
 bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
     std::ostream &ss,
     MessageBuilder &msgBuilder,
@@ -232,6 +362,7 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
 {
     if (!rxMetadata)
         return false;
+    makeMessage(ss, token, rxMetadata->gatewayId, msgBuilder.msg.getAddr(), msgBuilder.msg.foptsString(), msgBuilder.msg.payloadString());
     ss << "{\"tag\": " << (int) SEMTECH_GW_PUSH_DATA
         << ", \"token\": " << token
         << ", \"gateway\": \"" << gatewayId2str(rxMetadata->gatewayId)
@@ -259,4 +390,21 @@ ssize_t GatewayJsonWiredProtocol::makeMessage2Gateway(
     if (retBuf && retSize >= sz)
         memmove(retBuf, s.c_str(), sz);
     return (ssize_t) sz;
+}
+
+GatewayJsonWiredAck::GatewayJsonWiredAck()
+    : tag(SEMTECH_GW_PUSH_ACK), token(0)
+{
+
+}
+
+int parseAck(
+    GatewayJsonWiredAck *retVal,
+    const char *json,
+    size_t jsonSize
+
+) {
+    SaxAck consumer(retVal);
+    nlohmann::json::sax_parse(json, json + jsonSize, &consumer);
+    return consumer.parseError;
 }

@@ -11,7 +11,10 @@
 #define INVALID_SOCKET  (-1)
 #endif
 
+#include <sstream>
 #include <lorawan/lorawan-error.h>
+
+#include "json-wired.h"
 
 #define DEF_READ_TIMEOUT_SECONDS    2
 
@@ -31,21 +34,29 @@ JsonWiredClient::JsonWiredClient(
 JsonWiredClient::~JsonWiredClient() = default;
 
 int JsonWiredClient::JsonWiredClient::send(
+    uint16_t token,
+    uint64_t gatewayId,
+    const DEVADDR *addr,
     const std::string &fopts,
     const std::string &payload
 )
 {
-    std::string s;
+    std::stringstream ss;
+    makeMessage(ss, token, gatewayId, addr,fopts, payload);
+    std::string s = ss.str();
     write(sock, s.c_str(), s.size());
     return CODE_OK;
 }
 
-int JsonWiredClient::sendNwaitrAck(
+int JsonWiredClient::sendNwaitAck(
+    uint16_t token,
+    uint64_t gatewayId,
+    const DEVADDR *addr,
     const std::string &fopts,
     const std::string &payload,
     int secs
 ) {
-    int r = send(fopts, payload);
+    int r = send(token, gatewayId, addr, fopts, payload);
     if (r != CODE_OK)
         return r;
 #ifdef _MSC_VER
@@ -57,10 +68,17 @@ int JsonWiredClient::sendNwaitrAck(
     struct sockaddr_storage srcAddress{}; // Large enough for both IPv4 or IPv6
     socklen_t socklen = sizeof(srcAddress);
     char rxBuf[1024];
-    ssize_t len = recvfrom(sock, (char *) rxBuf, sizeof(rxBuf), 0, (struct sockaddr *)&srcAddress, &socklen);
-    if (len < 0) {  // Error occurred during receiving
-        r = ERR_CODE_SOCKET_READ;
-    } else {
+    while (status != ERR_CODE_STOPPED) {
+        ssize_t len = recvfrom(sock, (char *) rxBuf, sizeof(rxBuf), 0, (struct sockaddr *)&srcAddress, &socklen);
+        if (len < 0) {  // Error occurred during receiving
+            r = ERR_CODE_SOCKET_READ;
+        } else {
+            GatewayJsonWiredAck ack;
+            r = parseAck(&ack, rxBuf, len);
+            if (ack.token == 0) {
+
+            }
+        }
     }
     return r;
 }

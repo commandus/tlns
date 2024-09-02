@@ -26,11 +26,17 @@ public:
     );
     virtual ~JsonWiredClient();
     int send(
+        uint16_t token,
+        uint64_t gatewayId,
+        const DEVADDR *addr,
         const std::string &fopts,
         const std::string &payload
     );
 
-    int sendNwaitrAck(
+    int sendNwaitAck(
+        uint16_t token,
+        uint64_t gatewayId,
+        const DEVADDR *addr,
         const std::string &fopts,
         const std::string &payload,
         int secs

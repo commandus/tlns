@@ -23,10 +23,6 @@
 
 #define INVALID_ID 0xffffffff
 
-// direction
-#define LORAWAN_UPLINK      0
-#define LORAWAN_DOWNLINK    1
-
 static std::string STR_TRUE("true");
 static std::string STR_FALSE("false");
 #define STR_TRUE_FALSE STR_TRUE : STR_FALSE
@@ -709,6 +705,8 @@ typedef struct DATA_RATE {
     BANDWIDTH bandwidth;                // in kHz, used for LoRa
     SPREADING_FACTOR spreadingFactor;   // used for LoRa
     uint32_t bps;       				// FSK bits per second
+    DATA_RATE();
+    DATA_RATE(const DATA_RATE &value);
 } DATA_RATE;
 
 // DataRate defines a data rate

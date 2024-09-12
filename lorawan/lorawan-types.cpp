@@ -1890,9 +1890,22 @@ bool PROFILEID::operator!=(
     return u != rhs.u;
 }
 
+DATA_RATE::DATA_RATE()
+    : uplink(true), downlink(true), modulation(MODULATION_LORA),
+    bandwidth(BANDWIDTH_INDEX_125KHZ), spreadingFactor(DRLORA_SF11), bps(0)
+{
+}
+
+DATA_RATE::DATA_RATE(
+    const DATA_RATE &value
+)
+    : uplink(value.uplink), downlink(value.downlink), modulation(value.modulation),
+        bandwidth(value.bandwidth), spreadingFactor(value.spreadingFactor), bps(value.bps)
+{
+
+}
+
 DataRate::DataRate()
-    : value { .uplink = true, .downlink = true, .modulation = MODULATION_LORA,
-        .bandwidth = BANDWIDTH_INDEX_125KHZ, .spreadingFactor = DRLORA_SF11, .bps = 0 }
 {
 
 }
@@ -1900,8 +1913,7 @@ DataRate::DataRate()
 DataRate::DataRate(
     const DataRate &val
 )
-    : value { .uplink = val.value.uplink, .downlink = val.value.downlink, .modulation = val.value.modulation,
-        .bandwidth = val.value.bandwidth, .spreadingFactor = val.value.spreadingFactor, .bps = val.value.bps }
+    : value(val.value)
 {
 
 }
@@ -1909,8 +1921,7 @@ DataRate::DataRate(
 DataRate::DataRate(
     const DATA_RATE &val
 )
-    : value { .uplink = val.uplink, .downlink = val.downlink, .modulation = val.modulation,
-        .bandwidth = val.bandwidth, .spreadingFactor = val.spreadingFactor, .bps = val.bps }
+    : value(val)
 {
 
 }
@@ -1919,19 +1930,25 @@ DataRate::DataRate(
     BANDWIDTH aBandwidth,
     SPREADING_FACTOR aSpreadingFactor
 )
-    : value { .uplink = true, .downlink = true, .modulation = MODULATION_LORA,
-        .bandwidth = aBandwidth, .spreadingFactor = aSpreadingFactor, .bps = 0 }
 {
-
+    value.uplink = true;
+    value.downlink = true;
+    value.modulation = MODULATION_LORA;
+    value.bandwidth = aBandwidth;
+    value.spreadingFactor = aSpreadingFactor;
+    value.bps = 0;
 }
 
 DataRate::DataRate(
     uint32_t aBps
 )
-    : value { .uplink = true, .downlink = true, .modulation = MODULATION_FSK,
-        .bandwidth = BANDWIDTH_INDEX_7KHZ, .spreadingFactor = DRLORA_SF5, .bps = aBps }
 {
-
+    value.uplink = true;
+    value.downlink = true;
+    value.modulation = MODULATION_FSK;
+    value.bandwidth = BANDWIDTH_INDEX_7KHZ;
+    value.spreadingFactor = DRLORA_SF5;
+    value.bps = aBps;
 }
 
 void DataRate::setLora(

@@ -15,7 +15,6 @@
 # cmake -DENABLE_LIBUV=on
 #
 cmake_minimum_required(VERSION 3.9)
-
 set(VERSION_INFO 1.0.3)
 
 if(${ESP_PLATFORM})
@@ -35,22 +34,17 @@ else()
 	# Setting up i18l & l10n
 	# see https://stackoverflow.com/questions/10521635/using-intltool-with-cmake
 	#
-	find_package(Gettext REQUIRED)
-	find_package(Intl REQUIRED)
-
-	if (CMAKE_VERSION VERSION_GREATER "3.20.0")
-	set(LIBINTL Intl::Intl)
-	else()
-	set(LIBINTL Intl::Intl)
-	endif()
-
-	include_directories(${Intl_INCLUDE_DIRS})
-	link_directories(${Intl_LIBRARY_DIRS})
 	find_program(GETTEXT_MSGFMT_EXECUTABLE msgfmt)
-
 	if(NOT GETTEXT_MSGFMT_EXECUTABLE)
 		message("NOTE: msgfmt not found. Translations will *not* be installed")
 	else()
+		find_package(Intl)
+		find_package(Gettext)
+		if(Intl_LIBRARY)
+			set(LIBINTL Intl::Intl)
+		endif()
+		include_directories(${Intl_INCLUDE_DIRS})
+		link_directories(${Intl_LIBRARY_DIRS})
 		# Build the .po files
 		set(PO_PATH ${CMAKE_CURRENT_SOURCE_DIR}/po)
 		# Input files

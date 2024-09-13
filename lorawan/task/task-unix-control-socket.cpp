@@ -1,5 +1,10 @@
 #include "lorawan/task/task-unix-control-socket.h"
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/un.h>
+#endif
+
 #include <unistd.h>
 #include <iostream>
 #include "lorawan/lorawan-string.h"

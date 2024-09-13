@@ -1,6 +1,11 @@
 #include <cstring>
 #include <csignal>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/ioctl.h>
+#endif
+
 #include <fcntl.h>
 
 #include "lorawan/lorawan-error.h"

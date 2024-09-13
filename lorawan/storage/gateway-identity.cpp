@@ -3,9 +3,6 @@
 #include <iomanip>
 #include <cstring>
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#include <sys/un.h>
-#endif
 #include "lorawan/lorawan-date.h"
 #include "lorawan/helper/ip-address.h"
 

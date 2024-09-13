@@ -1,6 +1,11 @@
 #include <cstring>
 #include <csignal>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/ioctl.h>
+#endif
+
 #include <sstream>
 
 #include "task-socket.h"

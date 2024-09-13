@@ -5,7 +5,7 @@
  */
 #include "thread-helper.h"
 
-#ifdef _WIN32
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <windows.h>
 const DWORD MS_VC_EXCEPTION=0x406D1388;
 

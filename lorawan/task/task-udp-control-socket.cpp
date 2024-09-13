@@ -1,6 +1,10 @@
 #include <cstring>
 #include <csignal>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/ioctl.h>
+#endif
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/task/task-udp-control-socket.h"

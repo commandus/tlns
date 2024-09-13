@@ -1,6 +1,11 @@
 #include <csignal>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/ioctl.h>
 #include <sys/un.h>
+#endif
+
 #include <fcntl.h>
 
 #include "lorawan/task/task-unix-socket.h"

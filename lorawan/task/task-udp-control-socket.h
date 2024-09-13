@@ -2,7 +2,12 @@
 #define TASK_UDP_CONTROL_SOCKET_H_ 1
 
 #include <cinttypes>
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <netinet/in.h>
+#endif
+
 #include "lorawan/storage/gateway-identity.h"
 #include "lorawan/task/task-socket.h"
 

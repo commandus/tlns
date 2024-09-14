@@ -106,9 +106,9 @@ endif()
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 		set (OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
-	endif()
-
-	add_subdirectory("third-party/libloragw")
+	else ()
+		add_subdirectory("third-party/libloragw")
+	endif ()
 
 	set(SRC_LIBLORAWAN
 		lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp
@@ -137,12 +137,18 @@ endif()
 		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp
 		lorawan/task/task-unix-socket.cpp
 		lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
-		lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp lorawan/task/task-eventfd-control-socket.cpp
+
 		lorawan/task/task-timer-socket.cpp lorawan/task/task-time-addr.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
 		${AES_SRC}
 	)
+
+	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	else ()
+		set(SRC_LIBLORAWAN	${SRC_LIBLORAWAN} lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp
+				lorawan/task/task-eventfd-control-socket.cpp)
+	endif ()
 
 	if (ENABLE_GW_DEV_USB)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_GW_DEV_USB )
@@ -212,16 +218,18 @@ endif()
 	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
-	add_executable(gateway-config2cpp
-		util/gateway-config2cpp.cpp
-		lorawan/proto/gw/gateway-file-json.cpp
-		${ARGTABLE}
-	)
-	target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
-	target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
-	target_include_directories(gateway-config2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
-		${VCPKG_INC} ${Intl_INCLUDE_DIRS}
-	)
+	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	else ()
+		add_executable(gateway-config2cpp
+			util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp
+			${ARGTABLE}
+		)
+		target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
+		target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
+		target_include_directories(gateway-config2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
+				${VCPKG_INC} ${Intl_INCLUDE_DIRS}
+		)
+	endif ()
 
 	add_executable(regional-parameters2cpp
 		util/regional-parameters2cpp.cpp

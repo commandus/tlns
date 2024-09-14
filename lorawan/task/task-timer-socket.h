@@ -1,7 +1,6 @@
 #ifndef TASK_TIMER_SOCKET_H_
 #define TASK_TIMER_SOCKET_H_ 1
 
-#include <string>
 #include "lorawan/task/task-platform.h"
 #include "lorawan/task/task-socket.h"
 

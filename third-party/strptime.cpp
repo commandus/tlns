@@ -30,7 +30,7 @@
 * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #pragma warning(disable : 4996)
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -443,4 +443,4 @@ strptime(const char *buf, const char *format, struct tm *timeptr)
 	return (char *)buf;
 }
 
-#endif /* _MSC_VER */
+#endif

@@ -1,6 +1,10 @@
 #include "lorawan/task/task-timer-socket.h"
 #include <unistd.h>
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
 #include <sys/timerfd.h>
+#endif
+
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 
@@ -11,7 +15,17 @@ TaskTimerSocket::TaskTimerSocket()
 
 SOCKET TaskTimerSocket::openSocket()
 {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    /* @see https://blog.grijjy.com/2017/04/20/cross-platform-timer-queues-for-windows-and-linux/
+     * TimerQueueHandle h = CreateTimerQueue();
+     * DeleteTimerQueueEx(h, INVALID_HANDLE_VALUE);
+     * if (CreateTimerQueueTimer(h, TimerQueueHandle, @WaitOrTimerCallback, MyObject, 0, Interval, 0))
+     * {}
+     */
+    sock = INVALID_SOCKET;
+#else
     sock = timerfd_create(CLOCK_REALTIME, 0);
+#endif
     if (sock <= 0)
         lastError = ERR_CODE_SOCKET_CREATE;
     return sock;
@@ -51,5 +65,9 @@ bool TaskTimerSocket::setStartupTime(
         .it_value = { .tv_sec = s.count(), .tv_nsec = ns.count()}
     };
     // return false if failed
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    return false;
+#else
     return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr) == 0;
+#endif
 }

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include <csignal>
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <sys/select.h>
 #include <sys/socket.h>

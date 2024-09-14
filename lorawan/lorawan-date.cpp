@@ -1,6 +1,7 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
+#include "strptime.h"
 #endif
 
 #include "lorawan/lorawan-date.h"

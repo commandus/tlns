@@ -7,7 +7,7 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <windows.h>
-const DWORD MS_VC_EXCEPTION=0x406D1388;
+const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push,8)
 typedef struct tagTHREADNAME_INFO {
@@ -23,19 +23,24 @@ static void setThreadNameById(
     const char* threadName
 )
 {
-  // DWORD dwThreadID = ::GetThreadId( static_cast<HANDLE>( t.native_handle() ) );
-   THREADNAME_INFO info;
-   info.dwType = 0x1000;
-   info.szName = threadName;
-   info.dwThreadID = dwThreadID;
-   info.dwFlags = 0;
-   __try
-   {
-      RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
-   }
-   __except(EXCEPTION_EXECUTE_HANDLER)
-   {
-   }
+#if defined(_MSC_VER)
+    // DWORD dwThreadID = ::GetThreadId( static_cast<HANDLE>( t.native_handle() ) );
+    THREADNAME_INFO info;
+    info.dwType = 0x1000;
+    info.szName = threadName;
+    info.dwThreadID = dwThreadID;
+    info.dwFlags = 0;
+#pragma warning(push)
+#pragma warning(disable: 6320 6322)
+    __try
+    {
+        RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*) &info);
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER)
+    {
+    }
+#pragma warning(pop)
+#endif
 }
 
 void setThreadName(
@@ -45,8 +50,10 @@ void setThreadName(
 {
     if (!thread)
         return;
-    DWORD threadId = ::GetThreadId( static_cast<HANDLE>(thread->native_handle() ) );
+#if defined(_MSC_VER)
+    DWORD threadId = ::GetThreadId(static_cast<HANDLE>(thread->native_handle() ) );
     setThreadNameById(threadId, threadName);
+#endif
 }
 
 #else

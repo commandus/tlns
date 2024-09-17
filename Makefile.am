@@ -33,7 +33,7 @@ SRC_LIBLORAWAN = \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp \
     lorawan/storage/client/direct-client.cpp lorawan/storage/client/plugin-client.cpp \
     lorawan/storage/service/identity-service.cpp lorawan/storage/service/identity-service-json.cpp \
-    lorawan/storage/service/identity-service-json.cpp \
+    lorawan/storage/service/identity-service-json.cpp lorawan/storage/service/identity-service-mem.cpp \
     lorawan/storage/service/gateway-service.cpp \
     lorawan/storage/serialization/serialization.cpp lorawan/storage/serialization/service-serialization.cpp \
     lorawan/storage/serialization/identity-serialization.cpp \
@@ -84,7 +84,8 @@ SRC_LIBLORAGW = \
     $(LIBLORAGW_ROOT)/jitqueue.c
 
 nobase_dist_include_HEADERS = \
-    lorawan/bridge/app-bridge.h lorawan/bridge/plugin-bridge.h lorawan/bridge/stdout-bridge.h \
+    lorawan/bridge/app-bridge.h lorawan/bridge/plugin-bridge.h \
+    lorawan/bridge/stdout-bridge.h lorawan/bridge/file-json-bridge.h \
     task-response-threaded.h \
     third-party/argtable3/argtable3.h \
     third-party/base64/base64.h \
@@ -138,10 +139,12 @@ nobase_dist_include_HEADERS = \
     gw-dev/usb/rak2287.h \
     gw-dev/usb/task-usb-socket.h \
     gw-dev/usb/log-intf.h \
+    lorawan/helper/aes-const.h \
     lorawan/storage/client/direct-client.h lorawan/storage/client/plugin-client.h lorawan/storage/client/response-client.h \
     lorawan/storage/service/identity-service.h lorawan/storage/service/identity-service-json.h \
     lorawan/storage/service/identity-service-json.h \
     lorawan/storage/service/gateway-service.h \
+    lorawan/storage/service/identity-service-mem.h \
     lorawan/storage/serialization/serialization.h lorawan/storage/serialization/service-serialization.h \
     lorawan/storage/serialization/identity-serialization.h \
     lorawan/storage/serialization/identity-binary-serialization.h \
@@ -211,7 +214,10 @@ cli_main_check_CPPFLAGS = $(EXTRA_DEF)
 gw_dev_usb_SOURCES = \
 	gw-dev/usb/gw-dev-usb.cpp gw-dev/usb/task-usb-socket.cpp gw-dev/usb/rak2286.cpp \
     task-response-threaded.cpp \
-    lorawan/helper/thread-helper.cpp lorawan/task/task-accepted-socket.cpp \
+    lorawan/bridge/app-bridge.cpp \
+    lorawan/bridge/stdout-bridge.cpp \
+    lorawan/helper/thread-helper.cpp \
+    lorawan/task/task-accepted-socket.cpp \
     third-party/daemonize.cpp third-party/libloragw/libloragw-helper.cpp third-party/libloragw/subst-call-c.cpp \
 	$(SRC_ARGTABLE)
 gw_dev_usb_LDADD = -L. -llorawan -lloragw

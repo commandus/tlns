@@ -1890,40 +1890,38 @@ bool PROFILEID::operator!=(
     return u != rhs.u;
 }
 
-DATA_RATE::DATA_RATE()
-    : uplink(true), downlink(true), modulation(MODULATION_LORA),
-    bandwidth(BANDWIDTH_INDEX_125KHZ), spreadingFactor(DRLORA_SF11), bps(0)
-{
-}
-
-DATA_RATE::DATA_RATE(
-    const DATA_RATE &value
-)
-    : uplink(value.uplink), downlink(value.downlink), modulation(value.modulation),
-        bandwidth(value.bandwidth), spreadingFactor(value.spreadingFactor), bps(value.bps)
-{
-
-}
-
 DataRate::DataRate()
 {
-
+    value.uplink = true;
+    value.downlink = true;
+    value.modulation = MODULATION_LORA;
+    value.bandwidth = BANDWIDTH_INDEX_125KHZ;
+    value.spreadingFactor = DRLORA_SF11;
+    value.bps = 0;
 }
 
 DataRate::DataRate(
     const DataRate &val
 )
-    : value(val.value)
 {
-
+    value.uplink = val.value.uplink;
+    value.downlink = val.value.downlink;
+    value.modulation = val.value.modulation;
+    value.bandwidth = val.value.bandwidth;
+    value.spreadingFactor = val.value.spreadingFactor;
+    value.bps = val.value.bps;
 }
 
 DataRate::DataRate(
     const DATA_RATE &val
 )
-    : value(val)
 {
-
+    value.uplink = val.uplink;
+    value.downlink = val.downlink;
+    value.modulation = val.modulation;
+    value.bandwidth = val.bandwidth;
+    value.spreadingFactor = val.spreadingFactor;
+    value.bps = val.bps;
 }
 
 DataRate::DataRate(

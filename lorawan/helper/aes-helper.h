@@ -4,6 +4,9 @@
 #include <string>
 #include "lorawan/lorawan-types.h"
 
+#define LORAWAN_UPLINK 1
+#define LORAWAN_DOWNLINK  0
+
 /**
  * @see 4.3.3 MAC Frame Payload Encryption (FRMPayload)
  * @see https://os.mbed.com/teams/Semtech/code/LoRaWAN-lib//file/2426a05fe29e/LoRaMacCrypto.cpp/

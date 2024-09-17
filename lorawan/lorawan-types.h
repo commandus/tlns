@@ -705,8 +705,6 @@ typedef struct DATA_RATE {
     BANDWIDTH bandwidth;                // in kHz, used for LoRa
     SPREADING_FACTOR spreadingFactor;   // used for LoRa
     uint32_t bps;       				// FSK bits per second
-    DATA_RATE();
-    DATA_RATE(const DATA_RATE &value);
 } DATA_RATE;
 
 // DataRate defines a data rate

@@ -31,7 +31,7 @@ GatewayIdentity::GatewayIdentity(
         case AF_INET6:
             sz = sizeof(struct sockaddr_in6);
             break;
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
         case AF_UNIX:
             sz = sizeof(struct sockaddr_un);
             break;

@@ -8,7 +8,7 @@
 # -DENABLE_DEBUG=off   		enable debugging output
 # -DENABLE_GEN=on   		enable key generator (default in memory storage)
 # -DENABLE_SQLITE=off  		enable sqlite3 backend
-# -DJSON=off   	        	enable JSON file backend
+# -DENABLE_JSON=off   	    enable JSON file backend
 # -DENABLE_IPV6=off   		enable IPv6 (reserved)
 #
 # Example:
@@ -286,3 +286,16 @@ add_subdirectory(tests)
 add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 
+# Print config
+message("")
+message("Options (on- enabled, off- disabled):")
+message("")
+message("-DENABLE_GW_DEV_USB=${ENABLE_QRCODE} \t build RAK2287 USB gateway backend")
+message("-DENABLE_LIBUV=${ENABLE_LIBUV} \t enable libuv UDP/TCP")
+message("-DENABLE_DEBUG=${ENABLE_DEBUG} \t enable debugging output")
+message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory storage)")
+message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
+message("-DENABLE_SQLITE=${ENABLE_SQLITE} \t enable SQLITE3 backend (reserved)")
+message("-DENABLE_JSON=${ENABLE_JSON} \t build with JSON file backend")
+message("-DENABLE_IPV6=${ENABLE_IPV6} \t enable IPv6 (reserved)")
+message("")

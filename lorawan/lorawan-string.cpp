@@ -22,9 +22,9 @@
  * @see https://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
  */
 std::string replaceAll(
-        std::string str,
-        const std::string& from,
-        const std::string& to
+    std::string str,
+    const std::string& from,
+    const std::string& to
 ) {
     size_t start_pos = 0;
     while((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -35,7 +35,7 @@ std::string replaceAll(
 }
 
 std::string uint64_t2string(
-        const uint64_t &value
+    const uint64_t &value
 ) {
     uint64_t v;
     memmove(&v, &value, sizeof(v));
@@ -45,7 +45,7 @@ std::string uint64_t2string(
 }
 
 bool isHex(
-        const std::string &value
+    const std::string &value
 ) {
     return value.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
 }
@@ -333,7 +333,7 @@ std::string DOWNLINK_STORAGE2String(
         << ", \"adr\": " << (value.f.adr ? "true" : "false")
         << ", \"fcnt\": " << value.fcnt
         << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen)
-        << R"(, "payload": ")" << hexString(value.payload(), payloadSize)
+        << R"(", "payload": ")" << hexString(value.payload(), payloadSize)
         << "\"}";
     return ss.str();
 }

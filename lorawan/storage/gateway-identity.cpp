@@ -1,10 +1,12 @@
 #include "lorawan/storage/gateway-identity.h"
 #include <sstream>
 #include <iomanip>
-#include <cstring>
 
 #include "lorawan/lorawan-date.h"
 #include "lorawan/helper/ip-address.h"
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#include <sys/un.h>
+#endif
 
 /**
  * Create empty gateway statistics

@@ -358,7 +358,7 @@ std::string UPLINK_STORAGE2String(
         << ", \"adr\": " << (value.f.adr ? "true" : "false")
         << ", \"fcnt\": " << value.fcnt
         << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen)
-        << R"(, "payload": ")" << hexString((const char *) value.payload(), payloadSize)
+        << R"(", "payload": ")" << hexString((const char *) value.payload(), payloadSize)
         << "\"}";
     return ss.str();
 }

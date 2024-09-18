@@ -81,10 +81,9 @@ std::string MessageQueueItem::toJsonString() const
                 isFirst = false;
             else
                 ss << ", ";
-            ss
-                    << "{\"gatewayId\": \"" << gatewayId2str(it.first)
-                    << "\", \"metadata\": " << it.second.toJsonString()
-                    << "}";
+            ss << "{\"gatewayId\": \"" << gatewayId2str(it.first)
+                << "\", \"metadata\": " << it.second.toJsonString()
+                << "}";
         }
         ss << "]";
     }

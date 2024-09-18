@@ -50,10 +50,7 @@ static int sendWSSSmth(
     return ok ? 0 : -4;
 }
 
-void MqttWssBridge::onPayload(
-    const void* dispatcher,                 // MessageTaskDispatcher*
-    const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
-)
+void MqttWssBridge::onPayload(const void *dispatcher, const MessageQueueItem *messageItem, bool b)
 {
     if (messageItem) {
         errorCode = sendWSSSmth(cli, 1, topic, messageItem->toJsonString());

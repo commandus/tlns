@@ -105,8 +105,8 @@ PACK(
 
         size_t toArray(void *buf, size_t size, const NetworkIdentity *aIdentity) const;
         // decode message
-        void decode(const NetworkIdentity *aIdentity);
-        void decode(const DEVADDR &devAddr, const KEY128 &appSKey);
+        bool decode(const NetworkIdentity *aIdentity);
+        bool decode(const DEVADDR &devAddr, const KEY128 &appSKey);
 
         const DEVADDR* getAddr() const;
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
@@ -121,7 +121,7 @@ PACK(
     }
 );
 
-void  setLORAWAN_MESSAGE_STORAGE(
+void setLORAWAN_MESSAGE_STORAGE(
     LORAWAN_MESSAGE_STORAGE &retVal,
     const std::string &bin
 );

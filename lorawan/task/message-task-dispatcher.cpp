@@ -546,8 +546,9 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
 )
 {
     for (auto b: appBridges) {
-        b->onPayload(this, item);
-        item->radioPacket.decode(&item->task.deviceId);
-        b->onPayload(this, item);
+        b->onPayload(this, item, false);
+        bool decoded = item->radioPacket.decode(&item->task.deviceId);
+        if (decoded)
+            b->onPayload(this, item, decoded);
     }
 }

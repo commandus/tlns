@@ -353,8 +353,10 @@ static void run()
         TASK_TIME receivedTime
     )
     {
+        /*
         if (localConfig.verbosity)
             std::cout << hexString(buffer, bufferSize) << std::endl;
+        */
         // filter messages: set false to block packet, true to start processing
         return true;
     };
@@ -363,8 +365,10 @@ static void run()
         MessageTaskDispatcher* dispatcher,
         MessageQueueItem *item
     ) {
+        /*
         if (item)
             std::cout << item->toJsonString() << std::endl;
+        */
     };
 
     dispatcher.onPullResp = [] (

@@ -195,15 +195,17 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     return retSize;
 }
 
-void LORAWAN_MESSAGE_STORAGE::decode(
+bool LORAWAN_MESSAGE_STORAGE::decode(
     const NetworkIdentity *aIdentity
 ) {
-    if (aIdentity)
-        decode(aIdentity->devaddr, aIdentity->appSKey);
+    if (aIdentity) {
+        return decode(aIdentity->devaddr, aIdentity->appSKey);
+    }
+    return false;
 }
 
 // decode message
-void LORAWAN_MESSAGE_STORAGE::decode(
+bool LORAWAN_MESSAGE_STORAGE::decode(
     const DEVADDR &devAddr,
     const KEY128 &appSKey
 )
@@ -220,17 +222,18 @@ void LORAWAN_MESSAGE_STORAGE::decode(
             case MTYPE_CONFIRMED_DATA_UP:
                 decryptPayload((void *) data.uplink.payload(), payloadSize,
                     data.uplink.fcnt, LORAWAN_UPLINK, devAddr, appSKey);
-            break;
+                return true;
             case MTYPE_UNCONFIRMED_DATA_DOWN:
             case MTYPE_CONFIRMED_DATA_DOWN:
                 decryptPayload((void *) data.downlink.payload(), payloadSize,
                     data.uplink.fcnt, LORAWAN_DOWNLINK, devAddr, appSKey);
-                break;
+                return true;
             default:
                 // case MTYPE_PROPRIETARYRADIO:
                 break;
         }
     }
+    return false;
 }
 
 const DEVADDR* LORAWAN_MESSAGE_STORAGE::getAddr() const

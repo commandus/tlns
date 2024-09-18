@@ -4,8 +4,9 @@
 #include "lorawan/lorawan-string.h"
 
 void FileJsonBridge::onPayload(
-    const void* dispatcher,                 // MessageTaskDispatcher*
-    const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
+    const void *dispatcher,
+    const MessageQueueItem *messageItem,
+    bool decoded
 )
 {
     if (strm && messageItem)

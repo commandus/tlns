@@ -8,8 +8,9 @@ public:
     StdoutBridge() = default;
     virtual ~StdoutBridge() = default;
     void onPayload(
-        const void* dispatcher,                 // MessageTaskDispatcher*
-        const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
+        const void *dispatcher,
+        const MessageQueueItem *messageItem,
+        bool decoded
     ) override;
     void init(
         const std::string& option,

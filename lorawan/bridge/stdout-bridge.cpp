@@ -3,12 +3,17 @@
 #include "lorawan/lorawan-string.h"
 
 void StdoutBridge::onPayload(
-    const void* dispatcher,                 // MessageTaskDispatcher*
-    const MessageQueueItem *messageItem     // network identity, gateway identifier and metadata etc.
+    const void *dispatcher,
+    const MessageQueueItem *messageItem,
+    bool decoded
 )
 {
-    if (messageItem)
-        std::cout << messageItem->toString() << std::endl;
+    if (messageItem) {
+        if (decoded)
+            std::cout << messageItem->toString() << std::endl;
+        else
+            std::cerr << messageItem->toString() << std::endl;
+    }
 }
 
 void StdoutBridge::init(

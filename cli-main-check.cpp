@@ -157,6 +157,15 @@ static void run() {
     delete(parser);
 }
 
+static void printRegionNames(
+    std::ostream &strm,
+    const RegionalParameterChannelPlanMem &lorawanGatewaySettings
+)
+{
+    for (auto &lorawanGatewaySetting : lorawanGatewaySettings.storage.bands)
+        strm << "\"" << lorawanGatewaySetting.value.name << "\" ";
+}
+
 int main(int argc, char **argv) {
     struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
@@ -188,6 +197,12 @@ int main(int argc, char **argv) {
     if (!region) {
         errorCount++;
         std::cerr << _("Region ") << params.regionName << " " << _("not found") << std::endl;
+    }
+
+    if (errorCount) {
+        std::cerr << _("  region name: ");
+        printRegionNames(std::cerr, regionalParameterChannelPlanMem);
+        std::cerr << std::endl;
     }
 
     params.regionalParameterChannelPlan = region;

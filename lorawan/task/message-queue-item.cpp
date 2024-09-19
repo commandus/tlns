@@ -58,11 +58,13 @@ std::string MessageQueueItem::toString() const
 {
     std::stringstream ss;
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
-    ss << time2string(t) << " " << radioPacket.toString();
+    ss << "{\"time\": " << time2string(t) << "\", \"radio\": " << radioPacket.toString()
+        << ", \"metadata\": [";
     for (auto it : metadata) {
         ss << " " <<  gatewayId2str(it.first)
             << ": " << BANDWIDTH2String(it.second.rx.bandwidth);
     }
+    ss << "]";
     return ss.str();
 }
 

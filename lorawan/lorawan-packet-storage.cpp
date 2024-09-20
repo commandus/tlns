@@ -195,6 +195,26 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     return retSize;
 }
 
+size_t LORAWAN_MESSAGE_STORAGE::toStream(
+    std::ostream &retVal,
+    const NetworkIdentity *aIdentity
+) const
+{
+    char b[300];
+    size_t r = toArray((void *) b, sizeof(b), aIdentity);
+    retVal.write(b, r);
+    return r;
+}
+
+std::string LORAWAN_MESSAGE_STORAGE::asHex(
+    const NetworkIdentity *aIdentity
+) const
+{
+    char b[300];
+    size_t r = toArray((void *) b, sizeof(b), aIdentity);
+    return hexString(b, r);
+}
+
 bool LORAWAN_MESSAGE_STORAGE::decode(
     const NetworkIdentity *aIdentity
 ) {

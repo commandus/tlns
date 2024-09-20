@@ -12,7 +12,6 @@
 rxpk addr: 01450330, gw: 00006cc3743eed46, rssi: -121dBm, lsnr: -18.5dB
 {"activation":"ABP", "nwkSKey":"313747123434383535003a0066378888", "appSKey":"35003a003434383531374712656b7f47"}
 
-
 403003450180430002dc6235fbb112f4c8a9d398c29684a814deb370a782c70f4cb1612fe1
 dc6235fbb112f4c8a9d398c29684a814deb370a782c70f4c
 addr 01450330
@@ -20,9 +19,9 @@ fcnt: 67, direction: 0, devAddr: 01450330, appSKey: 5555000010dfffffff7f00008526
 01002180549c6118000000004a0000000000000000000000
 */
 
-
 /*
 cd ~/src/lorawan-storage
+# Must built with -DENABLE_JSON=on
 ./cmake-build-debug/lorawan-identity-service -f ../lorawan-network-server/identity.json -v
 
 ./lorawan-identity-print 403003450180430002dc6235fbb112f4c8a9d398c29684a814deb370a782c70f4cb1612fe1 -vv -s 127.0.0.2:4244 

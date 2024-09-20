@@ -59,12 +59,13 @@ std::string MessageQueueItem::toString() const
     std::stringstream ss;
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
     ss << "{\"received\": \"" << time2string(t) << "\", \"radio\": " << radioPacket.toString();
-    if (radioPacket.payloadSize)
-        ss << ", \"payload\": \"" << hexString((const char *) radioPacket.data.downlink.payload(), radioPacket.payloadSize) << "\"";
     ss << ", \"gateways\": [";
     for (auto it : metadata) {
-        ss << " " <<  gatewayId2str(it.first)
-            << ": " << BANDWIDTH2String(it.second.rx.bandwidth);
+        ss << "{\"id\": \"" <<  gatewayId2str(it.first)
+            << "\", \"lsnr\": " << it.second.rx.lsnr
+            << ", \"frequency\": " << freq2string(it.second.rx.freq)
+            << ", \"chan\": " << (int) it.second.rx.chan
+            << "}";
     }
     ss << "]}";
     return ss.str();

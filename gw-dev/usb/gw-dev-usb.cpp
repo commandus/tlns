@@ -95,8 +95,8 @@ public:
     }
 
     void log(
-            int level,
-            const std::string &msg
+        int level,
+        const std::string &msg
     ) override
     {
         std::cerr << msg << std::endl;
@@ -344,10 +344,8 @@ static void run()
         TASK_TIME receivedTime
     )
     {
-        /*
         if (localConfig.verbosity)
             std::cout << hexString(buffer, bufferSize) << std::endl;
-        */
         // filter messages: set false to block packet, true to start processing
         return true;
     };

@@ -139,27 +139,35 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
             break;
         case MTYPE_UNCONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_UP:
-            retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 5 bytes
+            retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 7 bytes
             if (b && (size >= retSize)) {
-                memmove(b, &data.u, SIZE_UPLINK_EMPTY_STORAGE);
+                memmove(b, &data.uplink.devaddr, SIZE_UPLINK_EMPTY_STORAGE);
+                b += SIZE_UPLINK_EMPTY_STORAGE;
             }
             if (payloadSize) {
-                retSize += payloadSize;
+                retSize += payloadSize + 1; // + FPort
                 if (b && (size >= retSize)) {
+                    *b = data.uplink.fport();
+                    b++;
                     memmove(b, data.uplink.payload(), payloadSize);
+                    b += payloadSize;
                 }
             }
             break;
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
-            retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 5 bytes
+            retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 7 bytes
             if (b && (size >= retSize)) {
-                memmove(b, &data.u, SIZE_DOWNLINK_EMPTY_STORAGE);
+                memmove(b, &data.downlink.devaddr, SIZE_DOWNLINK_EMPTY_STORAGE);
+                b += SIZE_DOWNLINK_EMPTY_STORAGE;
             }
             if (payloadSize) {
-                retSize += payloadSize;
+                retSize += payloadSize + 1; // + FPort
                 if (b && (size >= retSize)) {
+                    *b = data.uplink.fport();
+                    b++;
                     memmove(b, data.downlink.payload(), payloadSize);
+                    b += payloadSize;
                 }
             }
             break;
@@ -190,7 +198,8 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     retSize += SIZE_MIC;
     if (b && (size >= retSize)) {
         uint32_t mic = calculateMIC(buf, size, *identity);
-        memmove(b, &data.u, SIZE_MIC);
+        mic = NTOH4(mic);
+        memmove(b, &mic, SIZE_MIC);
     }
     return retSize;
 }

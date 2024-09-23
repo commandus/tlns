@@ -20,8 +20,8 @@ static std::string decodePayload(
 
 int main(int argc, char **argv) {
     KEY128 appSKey("D72C78758CDCCABF55EE4A778D16EF67");
-    std::string s = decodePayload(hex2string("83a9eb51"), appSKey, DEVADDR(0x7e6ae2), 0, 1);
+    std::string s = decodePayload(hex2string("890b049d"), appSKey, DEVADDR(0x7e6ae2), 226, LORAWAN_UPLINK);
     std::cout << hexString(s) << std::endl;
-    if (s != hex2string("470a37ef"))
+    if (s != hex2string("aa11f508"))
         return 1;
 }

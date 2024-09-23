@@ -4,8 +4,8 @@
 #include <string>
 #include "lorawan/lorawan-types.h"
 
-#define LORAWAN_UPLINK 1
-#define LORAWAN_DOWNLINK  0
+#define LORAWAN_UPLINK 0
+#define LORAWAN_DOWNLINK  1
 
 /**
  * @see 4.3.3 MAC Frame Payload Encryption (FRMPayload)

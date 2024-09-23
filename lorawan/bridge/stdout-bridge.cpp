@@ -11,8 +11,10 @@ void StdoutBridge::onPayload(
     if (messageItem) {
         if (decoded)
             std::cout << messageItem->toString() << std::endl;
+        /*
         else
             std::cerr << messageItem->toString() << std::endl;
+        */
     }
 }
 

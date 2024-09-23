@@ -38,7 +38,7 @@ public:
      * @param since current time
      * @return true if item expired
      */
-    bool expired(const TASK_TIME &since);
+    bool expired(const TASK_TIME &since) const;
 
     /**
      * Serialize item to print out in debug log
@@ -73,7 +73,7 @@ public:
         GatewayMetadata &retValMetadata
     ) const;
 
-    bool needConfirmation();
+    bool needConfirmation() const;
 };
 
 #endif

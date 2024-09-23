@@ -141,7 +141,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_CONFIRMED_DATA_UP:
             retSize += SIZE_UPLINK_EMPTY_STORAGE;  // 7 bytes
             if (b && (size >= retSize)) {
-                memmove(b, &data.uplink.devaddr, SIZE_UPLINK_EMPTY_STORAGE);
+                memmove(b, &data.uplink.devaddr.c, SIZE_UPLINK_EMPTY_STORAGE);
                 b += SIZE_UPLINK_EMPTY_STORAGE;
             }
             if (payloadSize) {
@@ -158,7 +158,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
         case MTYPE_CONFIRMED_DATA_DOWN:
             retSize += SIZE_DOWNLINK_EMPTY_STORAGE;  // 7 bytes
             if (b && (size >= retSize)) {
-                memmove(b, &data.downlink.devaddr, SIZE_DOWNLINK_EMPTY_STORAGE);
+                memmove(b, &data.downlink.devaddr.c, SIZE_DOWNLINK_EMPTY_STORAGE);
                 b += SIZE_DOWNLINK_EMPTY_STORAGE;
             }
             if (payloadSize) {
@@ -196,7 +196,7 @@ size_t LORAWAN_MESSAGE_STORAGE::toArray(
     }
     // add MIC
     retSize += SIZE_MIC;
-    if (b && (size >= retSize)) {
+    if (identity && b && (size >= retSize)) {
         uint32_t mic = calculateMIC(buf, size, *identity);
         mic = NTOH4(mic);
         memmove(b, &mic, SIZE_MIC);
@@ -210,8 +210,8 @@ size_t LORAWAN_MESSAGE_STORAGE::toStream(
 ) const
 {
     char b[300];
-    size_t r = toArray((void *) b, sizeof(b), aIdentity);
-    retVal.write(b, r);
+    auto r = toArray((void *) b, sizeof(b), aIdentity);
+    retVal.write(b, (std::streamsize) r);
     return r;
 }
 
@@ -324,10 +324,10 @@ std::string LORAWAN_MESSAGE_STORAGE::payloadString() const
     switch ((MTYPE) mhdr.f.mtype) {
         case MTYPE_UNCONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_UP:
-            return std::string((char *) data.uplink.payload(), payloadSize);
+            return std::string((const char *) data.uplink.payload(), payloadSize);
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
-            return std::string((char *) data.downlink.payload(), payloadSize);
+            return std::string((const char *) data.downlink.payload(), payloadSize);
         default:
             break;
     }

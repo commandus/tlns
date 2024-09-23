@@ -216,6 +216,8 @@ int MessageTaskDispatcher::run()
     char buffer[4096];
 
     ParseResult pr;
+    struct sockaddr srcAddr {};
+    socklen_t srcAddrLen = sizeof(srcAddr);
     while (running) {
         fd_set workingSocketSet;
         // Copy the master fd_set over to the working fd_set
@@ -238,8 +240,6 @@ int MessageTaskDispatcher::run()
         std::vector<SOCKET> acceptedSockets;
         std::vector<TaskSocket*> removedSockets;
 
-        struct sockaddr srcAddr;
-        socklen_t srcAddrLen = sizeof(srcAddr);
 
         // read socket(s)
         for (auto s : sockets) {

@@ -11,7 +11,7 @@ std::string GatewayMetadata::toJsonString() const
 {
     std::stringstream ss;
     ss << "{\"taskSocket\": " << taskSocket->toJsonString()
-        << ", \"sockAddr\": \"" << sockaddr2string(&addr) << "\""
+        << R"(, "sockAddr": ")" << sockaddr2string(&addr) << "\""
         << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx)
         << "}";
     return ss.str();
@@ -49,7 +49,7 @@ void MessageQueueItem::setQueue(
 
 bool MessageQueueItem::expired(
     const TASK_TIME &since
-)
+) const
 {
     return (std::chrono::duration_cast<std::chrono::seconds>(since - firstGatewayReceived).count() > DEF_MESSAGE_EXPIRATION_SEC);
 }
@@ -58,11 +58,11 @@ std::string MessageQueueItem::toString() const
 {
     std::stringstream ss;
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
-    ss << "{\"received\": \"" << time2string(t) << "\", \"radio\": " << radioPacket.toString();
+    ss << R"({"received": ")" << time2string(t) << R"(", "radio": )" << radioPacket.toString();
     ss << ", \"gateways\": [";
     for (auto it : metadata) {
-        ss << "{\"id\": \"" <<  gatewayId2str(it.first)
-            << "\", \"lsnr\": " << it.second.rx.lsnr
+        ss << R"({"id": ")" <<  gatewayId2str(it.first)
+            << R"(", "lsnr": )" << it.second.rx.lsnr
             << ", \"frequency\": " << freq2string(it.second.rx.freq)
             << ", \"chan\": " << (int) it.second.rx.chan
             << "}";
@@ -75,9 +75,9 @@ std::string MessageQueueItem::toJsonString() const
 {
     std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
     std::stringstream ss;
-    ss << "{\"received\": \"" << time2string(t) << "\", \"radio\": " << radioPacket.toString();
+    ss << R"({"received": ")" << time2string(t) << "\", \"radio\": " << radioPacket.toString();
     if (radioPacket.payloadSize)
-        ss << ", \"payload\": \"" << hexString((const char *) radioPacket.data.downlink.payload(), radioPacket.payloadSize) << "\"";
+        ss << R"(, "payload": ")" << hexString((const char *) radioPacket.data.downlink.payload(), radioPacket.payloadSize) << "\"";
     if (!metadata.empty()) {
         ss << ", \"gateways\": [";
         bool isFirst = true;
@@ -86,8 +86,8 @@ std::string MessageQueueItem::toJsonString() const
                 isFirst = false;
             else
                 ss << ", ";
-            ss << "{\"gatewayId\": \"" << gatewayId2str(it.first)
-                << "\", \"metadata\": " << it.second.toJsonString()
+            ss << R"({"gatewayId": ")" << gatewayId2str(it.first)
+                << R"(", "metadata": )" << it.second.toJsonString()
                 << "}";
         }
         ss << "]";
@@ -123,17 +123,17 @@ uint64_t MessageQueueItem::getBestGatewayAddress(
 {
     float f = -3.402823466E+38f;
     uint64_t r = 0;
-    for (std::map <uint64_t, GatewayMetadata>::const_iterator it(metadata.begin()); it != metadata.end(); it++) {
-        if (it->second.rx.lsnr > f) {
-            r = it->first;
-            retValMetadata = it->second;
-            f = it->second.rx.lsnr;
+    for (const auto & it : metadata) {
+        if (it.second.rx.lsnr > f) {
+            r = it.first;
+            retValMetadata = it.second;
+            f = it.second.rx.lsnr;
         }
     }
     return r;
 }
 
-bool MessageQueueItem::needConfirmation() {
+bool MessageQueueItem::needConfirmation() const {
     return (this->radioPacket.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_UP)
         || (this->radioPacket.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN);
 }

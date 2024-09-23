@@ -26,7 +26,6 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/task/task-unix-control-socket.h"
 #include "lorawan/proto/gw/basic-udp.h"
-#include "lorawan/helper/tlns-cli-helper.h"
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/bridge/plugin-bridge.h"
 #include "lorawan/bridge/stdout-bridge.h"
@@ -195,7 +194,7 @@ int parseCmd(
         config->gatewayFileName = "";
 
     for (int i = 0; i < a_bridge_plugin->count; i++)
-        config->bridgePluginFiles.push_back(a_bridge_plugin->sval[i]);
+        config->bridgePluginFiles.emplace_back(a_bridge_plugin->sval[i]);
 
     if (a_region_name->count)
         config->regionIdx = findRegionIndex(*a_region_name->sval);
@@ -227,7 +226,7 @@ int parseCmd(
         std::cerr << MSG_PROG_NAME_GATEWAY_USB << std::endl;
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
         std::cerr << _("  region name: ");
-        for (auto lorawanGatewaySetting : lorawanGatewaySettings)
+        for (auto & lorawanGatewaySetting : lorawanGatewaySettings)
             std::cerr << "\"" << lorawanGatewaySetting.name << "\" ";
         std::cerr << std::endl;
         arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
@@ -250,7 +249,7 @@ static void printTrace() {
 #ifdef _MSC_VER
 #else
     void *t[TRACE_BUFFER_SIZE];
-    size_t size = backtrace(t, TRACE_BUFFER_SIZE);
+    auto size = backtrace(t, TRACE_BUFFER_SIZE);
     backtrace_symbols_fd(t, size, STDERR_FILENO);
 #endif
 }
@@ -298,7 +297,7 @@ void signalHandler(int signal)
 void setSignalHandler()
 {
 #ifndef _MSC_VER
-    struct sigaction action;
+    struct sigaction action {};
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = &signalHandler;
     sigaction(SIGINT, &action, nullptr);

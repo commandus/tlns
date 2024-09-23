@@ -305,7 +305,6 @@ int MessageTaskDispatcher::run()
                         auto *a = (DEVADDR *) buffer;
                         // process message queue
                         MessageQueueItem *item = queue.findByDevAddr(a);
-                        std::cerr << "** Radio: " << item->radioPacket.asHex(nullptr) << std::endl;
                         if (item) {
                             sendPayloadOverBridge(item);
                             if (onPushData)

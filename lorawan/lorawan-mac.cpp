@@ -1810,15 +1810,6 @@ MacDataDeviceMode::MacDataDeviceMode(
 }
 
 MacPtr::MacPtr(
-	const std::string &parseData,
-	const bool aClientSide
-)
-	: clientSide(aClientSide)
-{
-	parse(parseData.c_str(), parseData.size());
-}
-
-MacPtr::MacPtr(
     const char* parseData,
     size_t size,
     const bool aClientSide
@@ -1839,6 +1830,7 @@ void MacPtr::parse(
 	MAC_COMMAND *m;
 	int r;
 	const char *p = parseData;
+    mac.clear();
 	while (size > 0) {
 		if (clientSide)
 			r = parseClientSidePtr(&m, p, size);

@@ -3,6 +3,7 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/helper/aes-helper.h"
+#include "lorawan/lorawan-mac.h"
 
 static std::string decodePayload(
     const std::string &payload,
@@ -17,9 +18,13 @@ static std::string decodePayload(
 }
 
 int main(int argc, char **argv) {
-    KEY128 appSKey("D72C78758CDCCABF55EE4A778D16EF67");
-    std::string s = decodePayload(hex2string("890b049d"), appSKey, DEVADDR(0x7e6ae2), 226, LORAWAN_UPLINK);
-    std::cout << hexString(s) << std::endl;
-    if (s != hex2string("aa11f508"))
-        return 1;
+    std::string s("029a5c9a5cb63627581cc91c");
+    std::cout << s << std::endl;
+    MacPtr macs(hex2string(s).c_str(), 12, true);
+    std::cout << macs.toJSONString() << std::endl;
+
+    s = ("029a5c9a1b");
+    std::cout << s << std::endl;
+    macs.parse(hex2string(s).c_str(), 12);
+    std::cout << macs.toJSONString() << std::endl;
 }

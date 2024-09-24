@@ -358,8 +358,15 @@ std::string UPLINK_STORAGE2String(
         << ", \"ack\": " << (value.f.ack ? "true" : "false")
         << ", \"addrackreq\": " << (int) value.f.addrackreq
         << ", \"adr\": " << (value.f.adr ? "true" : "false")
-        << ", \"fcnt\": " << value.fcnt
-        << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
+        << ", \"fcnt\": " << value.fcnt;
+    if (value.f.foptslen) {
+        ss << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
+        MacPtr macPtr((const char *) value.fopts(), value.f.foptslen);
+        ss << ", \"mac\": " << (macPtr.toJSONString());
+        if (macPtr.errorcode) {
+            // ignore
+        }
+    }
     if (payloadSize) {
         ss
             << R"(, "fport": ")" << (int) value.fport()

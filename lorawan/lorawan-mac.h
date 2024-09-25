@@ -771,6 +771,7 @@ class MacPtr {
 		int errorcode;
 		// clientSide: true- transmitted by the server client side, false- MAC command transmitted by end-device (server side)
 		bool clientSide;
+
         void parse(
             const char* parseData,
             size_t size

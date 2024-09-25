@@ -332,7 +332,7 @@ std::string DOWNLINK_STORAGE2String(
 
     if (value.f.foptslen) {
         ss << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
-        MacPtr macPtr((const char *) value.fopts(), value.f.foptslen);
+        MacPtr macPtr((const char *) value.fopts(), value.f.foptslen, true);
         ss << "\", \"mac\": " << (macPtr.toJSONString());
         if (macPtr.errorcode) {
             // ignore
@@ -369,7 +369,7 @@ std::string UPLINK_STORAGE2String(
         << ", \"fcnt\": " << value.fcnt;
     if (value.f.foptslen) {
         ss << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
-        MacPtr macPtr((const char *) value.fopts(), value.f.foptslen, true);
+        MacPtr macPtr((const char *) value.fopts(), value.f.foptslen, false);
         ss << "\", \"mac\": " << (macPtr.toJSONString());
         if (macPtr.errorcode) {
             // ignore

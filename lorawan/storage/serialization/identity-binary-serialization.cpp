@@ -11,16 +11,6 @@
 #include "platform-defs.h"
 #endif
 
-// 13 + 4 + 1
-#define SIZE_OPERATION_REQUEST 18
-#define SIZE_OPERATION_RESPONSE 22
-#define SIZE_DEVICE_EUI_REQUEST   21
-#define SIZE_DEVICE_ADDR_REQUEST 17
-#define SIZE_DEVICE_EUI_ADDR_REQUEST 25
-#define SIZE_NETWORK_IDENTITY 141
-#define SIZE_ASSIGN_REQUEST 154
-#define SIZE_GET_RESPONSE 154
-
 #ifdef ENABLE_DEBUG
 #include <iostream>
 #include "lorawan/lorawan-string.h"
@@ -742,6 +732,62 @@ enum IdentityQueryTag validateIdentityQuery(
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_CLOSE_RESOURCES;
     default:
+            break;
+    }
+    return QUERY_IDENTITY_NONE;
+}
+
+/**
+ * Check does it serialized response in the buffer
+ * @param buffer buffer to check
+ * @param size buffer size
+ * @return query tag
+ */
+enum IdentityQueryTag validateIdentityResponse(
+    const unsigned char *buffer,
+    size_t size
+)
+{
+    if (size == 0)
+        return QUERY_IDENTITY_NONE;
+    switch (buffer[0]) {
+        case QUERY_IDENTITY_ADDR:   // request gateway identifier(with address) by network address.
+            if (size < SIZE_GET_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_ADDR;
+        case QUERY_IDENTITY_EUI:   // request gateway address (with identifier) by identifier.
+            if (size < SIZE_GET_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_EUI;
+        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_ASSIGN;
+        case QUERY_IDENTITY_RM:   // Remove entry
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_RM;
+        case QUERY_IDENTITY_LIST:   // List entries
+            if (size < SIZE_GET_RESPONSE)   // at least
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_LIST;
+        case QUERY_IDENTITY_COUNT:   // count
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_COUNT;
+        case QUERY_IDENTITY_NEXT:   // next
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_NEXT;
+        case QUERY_IDENTITY_FORCE_SAVE:   // force save
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_FORCE_SAVE;
+        case QUERY_IDENTITY_CLOSE_RESOURCES:   // close resources
+            if (size < SIZE_OPERATION_RESPONSE)
+                return QUERY_IDENTITY_NONE;
+            return QUERY_IDENTITY_CLOSE_RESOURCES;
+        default:
             break;
     }
     return QUERY_IDENTITY_NONE;

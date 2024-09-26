@@ -340,11 +340,11 @@ std::string DOWNLINK_STORAGE2String(
     }
     if (payloadSize) {
         ss
-                << R"(, "fport": ")" << (int) value.fport()
-                << R"(", "payload": ")" << hexString((const char *) value.payload(), payloadSize)
-                << "\"}";
+            << R"(, "fport": ")" << (int) value.fport()
+            << R"(", "payload": ")" << hexString((const char *) value.payload(), payloadSize)
+            << "\"";
     }
-    ss << "\"}";
+    ss << "}";
     return ss.str();
 }
 
@@ -378,9 +378,10 @@ std::string UPLINK_STORAGE2String(
     if (payloadSize) {
         ss
             << R"(, "fport": ")" << (int) value.fport()
-            << R"(", "payload": ")" << hexString((const char *) value.payload(), payloadSize);
+            << R"(", "payload": ")" << hexString((const char *) value.payload(), payloadSize)
+            << "\"";
     }
-    ss << "\"}";
+    ss << "}";
     return ss.str();
 }
 

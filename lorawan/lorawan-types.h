@@ -215,6 +215,7 @@ public:
     JOINNONCE();
     explicit JOINNONCE(const std::string &hex);
     explicit JOINNONCE(uint32_t value);
+    uint32_t get() const;
 });
 
 #define SIZE_JOINNONCE 3

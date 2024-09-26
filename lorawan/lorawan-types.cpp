@@ -1334,6 +1334,11 @@ JOINNONCE::JOINNONCE(
     int2JOINNONCE(*this, value);
 }
 
+uint32_t JOINNONCE::get() const
+{
+    return JOINNONCE2int(*this);
+}
+
 APPNONCE::APPNONCE()
 {
     c[0] = 0;

@@ -49,12 +49,12 @@ ConfirmationMessage::ConfirmationMessage(
 // DownlinkMessage (from the server to the end-device)
 
 DownlinkMessage::DownlinkMessage(
+    const TaskDescriptor &taskDescriptor,    // contain NetworkIdentity and best gateway address
     uint8_t fport,
     const void *payload, // up to 255 bytes, can be NULL
     uint8_t payloadSize,
     const void *fopts, // up to 15 bytes, can be NULL
-    uint8_t foptsSize,
-    const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
+    uint8_t foptsSize
 )
     : MessageBuilder(taskDescriptor)
 {

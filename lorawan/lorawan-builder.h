@@ -30,13 +30,21 @@ public:
  */
 class DownlinkMessage : public MessageBuilder {
 public:
+    /**
+     * @param taskDescriptor. Provide task to reply to or create a new task
+     * @param fport >0 if payload exists
+     * @param payload optional, can be NULL
+     * @param payloadSize
+     * @param fopts optional, up to 15 bytes, can be NULL
+     * @param foptsSize
+     */
     explicit DownlinkMessage(
+        const TaskDescriptor &taskDescriptor,    // contain NetworkIdentity and best gateway address
         uint8_t fport,
         const void *payload, // up to 255 bytes, can be NULL
         uint8_t payloadSize,
         const void *fopts, // up to 15 bytes, can be NULL
-        uint8_t foptsSize,
-        const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
+        uint8_t foptsSize
     );
 };
 

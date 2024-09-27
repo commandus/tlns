@@ -32,9 +32,9 @@ class DownlinkMessage : public MessageBuilder {
 public:
     explicit DownlinkMessage(
         uint8_t fport,
-        const uint8_t *payload, // up to 255 bytes, can be NULL
+        const void *payload, // up to 255 bytes, can be NULL
         uint8_t payloadSize,
-        const uint8_t *fopts, // up to 15 bytes, can be NULL
+        const void *fopts, // up to 15 bytes, can be NULL
         uint8_t foptsSize,
         const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
     );

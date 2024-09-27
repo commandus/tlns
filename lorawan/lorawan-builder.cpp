@@ -50,9 +50,9 @@ ConfirmationMessage::ConfirmationMessage(
 
 DownlinkMessage::DownlinkMessage(
     uint8_t fport,
-    const uint8_t *payload, // up to 255 bytes, can be NULL
+    const void *payload, // up to 255 bytes, can be NULL
     uint8_t payloadSize,
-    const uint8_t *fopts, // up to 15 bytes, can be NULL
+    const void *fopts, // up to 15 bytes, can be NULL
     uint8_t foptsSize,
     const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
 )
@@ -64,11 +64,12 @@ DownlinkMessage::DownlinkMessage(
     msg.data.downlink.f.foptslen = foptsSize;
     // payload
     msg.payloadSize = payloadSize;
-    // set ACK bit according to LoRaWAN 1.1 specification 4.3.1.2 Message acknowledge bit and acknowledgement procedure (ACK in FCtrl)
-    msg.data.downlink.f.ack = 0;
     msg.data.downlink.devaddr = taskDescriptor.deviceId.devaddr;
     msg.data.downlink.setFport(fport);
+    if (fopts && foptsSize > 0) {
+        msg.data.downlink.setFOpts(fopts, foptsSize);
+    }
     if (payload && payloadSize > 0) {
-        msg.data.downlink.setPayload(fopts, foptsSize);
+        msg.data.downlink.setPayload(payload, payloadSize);
     }
 }

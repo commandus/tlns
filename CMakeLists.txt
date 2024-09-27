@@ -53,35 +53,34 @@ else()
 		set(MO_FILES)
 		set(PRG tlns)
 		set(LOCALE_INSTALL_DIR /usr/share/locale)
-		FOREACH(_poFile ${PO_FILES})
-		GET_FILENAME_COMPONENT(_poFileName ${_poFile} NAME)
-		STRING(REGEX REPLACE "^${PRG}\\." "" _langCode ${_poFileName} )
-		STRING(REGEX REPLACE "\\.UTF-8\\.po$" "" _langCode ${_langCode} )
-		STRING(REGEX REPLACE "_..$" "" _langCode ${_langCode} )
-		IF( _langCode )
-			MESSAGE("** PO file ${_poFileName} LANG ${_langCode} LIBDIR ${INTL_LIBRARY_DIRS} INCDIR ${INTL_INCLUDE_DIRS}")
-			GET_FILENAME_COMPONENT(_lang ${_poFile} NAME_WE)
-
-			SET(_moPath ${CMAKE_CURRENT_SOURCE_DIR}/locale/${_langCode}/LC_MESSAGES)
-			SET(_moFile ${_moPath}/${PRG}.mo)
-			MESSAGE("** ** ${_moFile} install to ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/${PRG}.mo")
-#	mkdir -p ${_moPath} ; ${GETTEXT_MSGFMT_EXECUTABLE} -o ${_moFile} ${_poFile}
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	MESSAGE("** powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}")
-	ADD_CUSTOM_COMMAND(OUTPUT ${_moFile}
-		COMMAND powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}
-		DEPENDS ${_poFile})
-else()
-	MESSAGE("** ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}")
-	ADD_CUSTOM_COMMAND(OUTPUT ${_moFile}
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}
-		DEPENDS ${_poFile})
-endif()
-#			INSTALL(FILES ${_moFile} DESTINATION ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/ RENAME ${PRG}.mo)
-			LIST(APPEND MO_FILES ${_moFile})
-		ENDIF()
-	ENDFOREACH(_poFile ${PO_FILES})
-
+		foreach (_poFile ${PO_FILES})
+			get_filename_component(_poFileName ${_poFile} NAME)
+			string(REGEX REPLACE "^${PRG}\\." "" _langCode ${_poFileName} )
+			string(REGEX REPLACE "\\.UTF-8\\.po$" "" _langCode ${_langCode} )
+			string(REGEX REPLACE "_..$" "" _langCode ${_langCode} )
+			if ( _langCode )
+				message("** PO file ${_poFileName} LANG ${_langCode} LIBDIR ${INTL_LIBRARY_DIRS} INCDIR ${INTL_INCLUDE_DIRS}")
+				get_filename_component(_lang ${_poFile} NAME_WE)
+	
+				set(_moPath ${CMAKE_CURRENT_SOURCE_DIR}/locale/${_langCode}/LC_MESSAGES)
+				set(_moFile ${_moPath}/${PRG}.mo)
+				message("** ** ${_moFile} install to ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/${PRG}.mo")
+				#	mkdir -p ${_moPath} ; ${GETTEXT_MSGFMT_EXECUTABLE} -o ${_moFile} ${_poFile}
+				if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+					message("** powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}")
+					add_custom_command(OUTPUT ${_moFile}
+						COMMAND powershell ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.ps1 ${GETTEXT_MSGFMT_EXECUTABLE} ${_moPath} ${_moFile} ${_poFile}
+						DEPENDS ${_poFile})
+				else()
+					message("** ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}")
+					add_custom_command(OUTPUT ${_moFile}
+						COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/mk_mo.sh ${_moPath} ${_moFile} ${_poFile}
+						DEPENDS ${_poFile})
+				endif()
+	#			INSTALL(FILES ${_moFile} DESTINATION ${LOCALE_INSTALL_DIR}/${_langCode}/LC_MESSAGES/ RENAME ${PRG}.mo)
+				list(APPEND MO_FILES ${_moFile})
+			endif()
+		endforeach (_poFile ${PO_FILES})
 		add_custom_target(translations ALL DEPENDS ${MO_FILES})
 	endif()
 
@@ -219,7 +218,11 @@ endif()
 		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+		# Semtech's gateway source does not Windows compatible yet
 	else ()
+		#
+		# Semtech's gateway JSON config file to c++ source convert utility
+		#
 		add_executable(gateway-config2cpp
 			util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp
 			${ARGTABLE}
@@ -231,6 +234,9 @@ endif()
 		)
 	endif ()
 
+	#
+	# Regional parameters JSON file to c++ 11 source convert utility
+	#
 	add_executable(regional-parameters2cpp
 		util/regional-parameters2cpp.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
@@ -242,6 +248,9 @@ endif()
 			${VCPKG_INC} ${Intl_INCLUDE_DIRS}
 	)
 
+	#
+	#  LoRaWAN node device simulator
+	#
 	add_executable(wire-send
 		cli-wire-send.cpp
 		${ARGTABLE}
@@ -258,13 +267,20 @@ endif()
 	endif()
 
 	#
-	# Plugins
+	# Plugin is a bridge to the server app.
+	#
+	
+	#
+	# Plugin example: Simple output to the stdout
 	#
 	add_library(stdout-bridge SHARED lorawan/bridge/stdout-bridge.cpp)
 	target_link_libraries(stdout-bridge PRIVATE lorawan)
 	target_include_directories(stdout-bridge PRIVATE ".")
 	set_target_properties(stdout-bridge PROPERTIES SOVERSION ${VERSION_INFO})
 
+	#
+	# Plugin example: Simple output to the file
+	#
 	add_library(file-json-bridge SHARED lorawan/bridge/file-json-bridge.cpp)
 	target_link_libraries(file-json-bridge PRIVATE lorawan)
 	target_include_directories(file-json-bridge PRIVATE ".")
@@ -281,6 +297,10 @@ endif()
 endif()
 
 add_subdirectory(bridge/mqtt)
+
+#
+# Tests
+#
 add_subdirectory(tests)
 
 add_test(NAME test-printf COMMAND "test-printf")

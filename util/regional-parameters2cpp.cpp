@@ -1,5 +1,5 @@
 /**
- * @brief Regional parameters JSON file to c++ source convert utility
+ * @brief Regional parameters JSON file to c++ 11 source convert utility
  * @file regional-parameters2cpp.cpp
  *
  * MIT license

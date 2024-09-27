@@ -2,6 +2,9 @@
 #include <iostream>
 #include <sstream>
 
+/**
+ * LoRaWAN node device simulator
+ */
 #ifdef _MSC_VER
 #include <WinSock2.h>
 #endif

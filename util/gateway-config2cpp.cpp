@@ -1,5 +1,5 @@
 /**
- * @brief Gateway JSON config file to c++ source convert utility
+ * @brief Semtech's gateway JSON config file to c++ source convert utility
  * @file gateway-config2cpp.cpp
  *
  * MIT license

@@ -45,3 +45,17 @@ ConfirmationMessage::ConfirmationMessage(
     // set ACK bit according to LoRaWAN 1.1 specification 4.3.1.2 Message acknowledge bit and acknowledgement procedure (ACK in FCtrl)
     msg.data.downlink.f.ack = 1;
 }
+
+// DownlinkMessage (from the server to the end-device)
+
+DownlinkMessage::DownlinkMessage(
+    const char *payload, // up to 255 bytes, can be NULL
+    uint8_t payloadSize,
+    const char *fopts, // up to 15 bytes, can be NULL
+    uint8_t foptsSize,
+    const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
+)
+    : MessageBuilder(taskDescriptor)
+{
+
+}

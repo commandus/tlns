@@ -15,13 +15,27 @@ public:
 };
 
 /**
- *
+ * Called from MessageTaskDispatcher::sendQueue() if node requests confirmation
  */
 class ConfirmationMessage : public MessageBuilder {
 public:
     explicit ConfirmationMessage(
         const LORAWAN_MESSAGE_STORAGE &message2confirm,
         const TaskDescriptor &taskDescriptor
+    );
+};
+
+/**
+ * 3.2. Downlink message is sent by the network server to only one end-device and is relayed by a single gateway.
+ */
+class DownlinkMessage : public MessageBuilder {
+public:
+    explicit DownlinkMessage(
+        const char *payload, // up to 255 bytes, can be NULL
+        uint8_t payloadSize,
+        const char *fopts, // up to 15 bytes, can be NULL
+        uint8_t foptsSize,
+        const TaskDescriptor &taskDescriptor    // contain NetworkIdentity and best gateway address
     );
 };
 

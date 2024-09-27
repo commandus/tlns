@@ -395,7 +395,7 @@ std::string LORAWAN_MESSAGE_STORAGE::payloadBase64() const
 }
 
 void LORAWAN_MESSAGE_STORAGE::setPayload(
-    void* value,
+    const void* value,
     size_t size
 )
 {
@@ -412,7 +412,7 @@ void LORAWAN_MESSAGE_STORAGE::setPayload(
 }
 
 void LORAWAN_MESSAGE_STORAGE::setFOpts(
-    void* value,
+    const void* value,
     size_t size
 )
 {
@@ -483,14 +483,14 @@ const uint8_t* DOWNLINK_STORAGE::payload() const
 }
 
 void DOWNLINK_STORAGE::setPayload(
-    uint8_t* value,
+    const void* value,
     uint8_t size
 ) {
     memmove(fopts_fport_payload + f.foptslen + 1, value, size);
 }
 
 void DOWNLINK_STORAGE::setFOpts(
-    void* value,
+    const void* value,
     size_t size
 ) {
     // check size
@@ -517,7 +517,7 @@ uint8_t UPLINK_STORAGE::foptsSize() const
 }
 
 void UPLINK_STORAGE::setFopts(
-    uint8_t* value,
+    const uint8_t* value,
     uint8_t size
 )
 {
@@ -543,14 +543,14 @@ const uint8_t* UPLINK_STORAGE::payload() const
 }
 
 void UPLINK_STORAGE::setPayload(
-    uint8_t* value,
+    const void *value,
     uint8_t size
 ) {
     memmove(fopts_fport_payload + f.foptslen + 1, value, size); // +1 FPort
 }
 
 void UPLINK_STORAGE::setFOpts(
-    void* value,
+    const void* value,
     size_t size
 ) {
     // check size

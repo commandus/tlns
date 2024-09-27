@@ -28,8 +28,8 @@ PACK(
         void setFport(uint8_t value);
         const uint8_t* payload() const;
         const std::string payloadString() const;
-        void setPayload(uint8_t* value, uint8_t size);
-        void setFOpts(void* value, size_t size);
+        void setPayload(const void* value, uint8_t size);
+        void setFOpts(const void* value, size_t size);
 }
 );                                  // 4 1 2 255 =  262 bytes
 
@@ -56,13 +56,13 @@ PACK(
         const uint8_t* fopts() const;
         const std::string foptsString() const;
         uint8_t foptsSize() const;
-        void setFopts(uint8_t* value, uint8_t size);
+        void setFopts(const uint8_t* value, uint8_t size);
         uint8_t fport() const;
         void setFport(uint8_t value);
         const uint8_t* payload() const;
         const std::string payloadString() const;
-        void setPayload(uint8_t* value, uint8_t size);
-        void setFOpts(void* value, size_t size);
+        void setPayload(const void* value, uint8_t size);
+        void setFOpts(const void* value, size_t size);
     }
 );                                  // 4 1 2 255 =  262 bytes
 
@@ -114,9 +114,9 @@ PACK(
         const JOIN_REQUEST_FRAME *getJoinRequest() const;
         bool operator==(const LORAWAN_MESSAGE_STORAGE &rhs) const;
         LORAWAN_MESSAGE_STORAGE& operator=(const LORAWAN_MESSAGE_STORAGE &value);
-        void setPayload(void* value, size_t size);
+        void setPayload(const void* value, size_t size);
         const std::string foptsString() const;
-        void setFOpts(void* value, size_t size);
+        void setFOpts(const void* value, size_t size);
         std::string payloadBase64() const;
         std::string payloadString() const;
         void setSize(size_t size);

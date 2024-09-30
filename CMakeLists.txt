@@ -9,6 +9,7 @@
 # -DENABLE_GEN=on   		enable key generator (default in memory storage)
 # -DENABLE_SQLITE=off  		enable sqlite3 backend
 # -DENABLE_JSON=off   	    enable JSON file backend
+# -DENABLE_MQTT=off			build with MQTT bridge
 # -DENABLE_IPV6=off   		enable IPv6 (reserved)
 #
 # Example:
@@ -92,6 +93,7 @@ else()
 	option(ENABLE_LIBUV "Build with libuv" OFF)
 	option(ENABLE_GEN "Build with generator" OFF)
 	option(ENABLE_SQLITE "Build with SQLite" OFF)
+	option(ENABLE_MQTT "Build with MQTT" OFF)
 	option(ENABLE_JSON "Build with JSON file" ON)
 
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -296,13 +298,17 @@ else()
 	include(CPack)
 endif()
 
-add_subdirectory(bridge/mqtt)
+#
+# MQTT support
+#
+if (ENABLE_MQTT)
+	add_subdirectory(bridge/mqtt)
+endif()
 
 #
 # Tests
 #
 add_subdirectory(tests)
-
 add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
@@ -318,5 +324,6 @@ message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory s
 message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 message("-DENABLE_SQLITE=${ENABLE_SQLITE} \t enable SQLITE3 backend (reserved)")
 message("-DENABLE_JSON=${ENABLE_JSON} \t build with JSON file backend")
+message("-DENABLE_MQTT=${ENABLE_MQTT} \t build with MQTT bridge")
 message("-DENABLE_IPV6=${ENABLE_IPV6} \t enable IPv6 (reserved)")
 message("")

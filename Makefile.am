@@ -84,6 +84,7 @@ SRC_LIBLORAGW = \
     $(LIBLORAGW_ROOT)/jitqueue.c
 
 nobase_dist_include_HEADERS = \
+    bridge/mqtt/bridge-mqtt-wss.h \
     lorawan/bridge/app-bridge.h lorawan/bridge/plugin-bridge.h \
     lorawan/bridge/stdout-bridge.h lorawan/bridge/file-json-bridge.h \
     task-response-threaded.h \
@@ -182,9 +183,12 @@ lib_LIBRARIES += libloragw.a
 endif
 
 #
-#
+# MQTT bridge
 #
 lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la
+if ENABLE_MQTT
+lib_LTLIBRARIES += libbridge-mqtt-wss.la
+endif
 
 #
 # Binaries
@@ -223,7 +227,6 @@ gw_dev_usb_SOURCES = \
 gw_dev_usb_LDADD = -L. -llorawan -lloragw
 gw_dev_usb_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
-
 gateway_config2cpp_SOURCES = util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp \
     $(SRC_ARGTABLE)
 gateway_config2cpp_LDADD = -L. -llorawan -lloragw
@@ -238,6 +241,15 @@ wire_send_SOURCES = cli-wire-send.cpp $(SRC_ARGTABLE)
 wire_send_LDADD = -L. -llorawan
 wire_send_CPPFLAGS = $(EXTRA_DEF)
 
+if ENABLE_MQTT
+    PAHO_ROOT = /home/andrei/git/paho.mqtt.cpp
+    PAHO_INC = $(PAHO_ROOT)/include
+    PAHO_LIB = $(PAHO_ROOT)/build/src/libpaho-mqttpp3.so
+    libbridge_mqtt_wss_la_SOURCES = bridge/mqtt/bridge-mqtt-wss.cpp
+    libbridge_mqtt_wss_la_LIBADD = -L. -llorawan
+    libbridge_mqtt_wss_la_CPPFLAGS = -I$(PAHO_INC) $(EXTRA_DEF)
+endif
+
 #
 # Plugins
 #
@@ -251,13 +263,14 @@ libfile_json_bridge_la_LIBADD = -L. -llorawan
 libfile_json_bridge_la_CPPFLAGS = -Ithird-party
 #libfile_json_bridge_la_LDFLAGS = -version-info $(VERSION_INFO)
 
+#
+# test-printf
+#
+
 test_printf_SOURCES = tests/test-printf.cpp \
     third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
 test_printf_CPPFLAGS = -Ithird-party/libloragw -Igw-dev/usb
 
-#
-# test-printf
-#
 check_PROGRAMS = test-printf
 
 TESTS = $(check_PROGRAMS)
@@ -267,6 +280,7 @@ TESTS = $(check_PROGRAMS)
 #
 configdir = $(datadir)
 dist_config_DATA = \
+    bridge/mqtt/CMakeLists.txt bridge/mqtt/README.bridge.mqtt.md \
     gen/gateway-usb-conf.h \
     gen/regional-parameters.json \
     gen/regional-parameters-3.h \

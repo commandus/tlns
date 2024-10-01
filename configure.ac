@@ -6,6 +6,7 @@
 # --enable-libuv=no   	    enable libuv UDP/TCP. Default UDP only
 # --enable-debug=no   	    enable debugging output
 # --enable-gen=no          	enable key generator (default in memory storage)
+# --enable-mqtt=no          build with MQTT bridge
 # --enable-json=no 	        enable JSON file backend
 
 #
@@ -69,6 +70,15 @@ AC_ARG_ENABLE([gen],
 esac],[gen=false])
 AM_CONDITIONAL([ENABLE_GEN], [test x$gen = xtrue])
 
+AC_ARG_ENABLE([mqtt],
+[  --enable-mqtt    build with MQTT bridge)],
+[case "${enableval}" in
+  yes) mqtt=true ;;
+  no)  mqtt=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-mqtt]) ;;
+esac],[gen=false])
+AM_CONDITIONAL([ENABLE_MQTT], [test x$mqtt = xtrue])
+
 AC_ARG_ENABLE([json],
 [  --enable-json    enable JSON file backend],
 [case "${enableval}" in
@@ -118,6 +128,11 @@ if test "$json" = "true"; then
 AC_MSG_RESULT([JSON file backend:                     yes])
 else
 AC_MSG_RESULT([JSON file backend (--enable-json):     no])
+fi
+if test "$mqtt" = "true"; then
+AC_MSG_RESULT([build with MQTT (--enable-mqtt):       yes])
+else
+AC_MSG_RESULT([build with MQTT (--enable-mqtt):       no])
 fi
 AC_MSG_RESULT([+--------------------------------------])
 

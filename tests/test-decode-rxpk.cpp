@@ -5,6 +5,7 @@
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/helper/aes-helper.h"
 #include "lorawan/proto/gw/basic-udp.h"
+#include "lorawan/lorawan-mic.h"
 
 /*
 02bbe50000006cc3743eed467b227278706b223a5b7b22746d7374223a343032333131313534302c226368616e223a332c2272666368223a302c2266726571223a3836342e3730303030302c2273746174223a312c226d6f6475223a224c4f5241222c2264617472223a22534631324257313235222c22636f6472223a22342f35222c226c736e72223a2d31382e352c2272737369223a2d3132312c2273697a65223a33372c2264617461223a22514441445251474151774143334749312b374553394d697030356a436c6f536f464e367a634b65437877394d7357457634513d3d227d5d7d
@@ -44,7 +45,10 @@ static std::string decodePayload(
     std::cout << "direction: " << (int) (rfm->macheader.f.mtype & 1) << std::endl;    
     std::cout << "FCnt: " << (int) (rfm->fhdr.fcnt) << std::endl;
     std::cout << "AppSKey: " << KEY2string(appSKey) << std::endl;
+
     decryptPayloadString(pld, rfm->fhdr.fcnt, rfm->macheader.f.mtype & 1, rfm->fhdr.devaddr, appSKey);
+
+
     return pld;
 }
 
@@ -72,8 +76,25 @@ int main(int argc, char **argv) {
     std::string basicUDPHex("02bbe50000006cc3743eed467b227278706b223a5b7b22746d7374223a343032333131313534302c226368616e223a332c2272666368223a302c2266726571223a3836342e3730303030302c2273746174223a312c226d6f6475223a224c4f5241222c2264617472223a22534631324257313235222c22636f6472223a22342f35222c226c736e72223a2d31382e352c2272737369223a2d3132312c2273697a65223a33372c2264617461223a22514441445251474151774143334749312b374553394d697030356a436c6f536f464e367a634b65437877394d7357457634513d3d227d5d7d");
     s = extractPayloadFromBasicUDP(hex2string(basicUDPHex), appSKey);
     std::cout << hexString(s) << std::endl;
-    s = decodePayload(s, appSKey);
-    std::cout << hexString(s) << std::endl;
     if (s != hex2string("01002180549c6118000000004a0000000000000000000000"))
         return 2;
+
+    KEY128 nwkSKey = KEY128("15b1d0efa463dfbe3d11181e1ec7da85");
+    appSKey = KEY128("d72c78758cdccabf55ee4a778d16ef67");
+    // 007e6ae2 e26a7e00
+    // e034c1338803000001100000fc168f2d010110040c00000001000000f7ccb4c2f7ccb4c20000084100000000000000006013110040e26a7e0080e10002c0529426466da92c1f717e2299f3f98f44c2107dabf15afff12bc10b
+
+    s = hex2string("40e26a7e0080e10002c0529426466da92c");
+    std::cout << "Expected MIC " << std::hex << NTOH4(0x466da92c) << std::endl;
+    uint32_t mic = calculateMICFrmPayload(
+        reinterpret_cast<const unsigned char *>(s.c_str()), s.size() - 4,
+        225, LORAWAN_UPLINK, DEVADDR(0x007e6ae2), nwkSKey);
+    std::cout << "MIC: " << MIC2String(mic) << std::endl;
+    if (mic != NTOH4(0x466da92c))
+        return 3;
+
+    s = decodePayload(s, appSKey);
+    // 466da92c
+    // 1f717e2299f3f98f44c2107dabf15afff12bc10b
+    std::cout << hexString(s) << std::endl;
 }

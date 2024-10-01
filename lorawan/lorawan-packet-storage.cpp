@@ -8,6 +8,7 @@
 
 #include "base64/base64.h"
 #include "lorawan-conv.h"
+#include "lorawan-mic.h"
 
 LORAWAN_MESSAGE_STORAGE::LORAWAN_MESSAGE_STORAGE()
     : mhdr{}, data {}, payloadSize(0)
@@ -363,6 +364,23 @@ void LORAWAN_MESSAGE_STORAGE::setSize(
         default:
             break;
     }
+}
+
+uint32_t LORAWAN_MESSAGE_STORAGE::mic(
+    const KEY128 &key
+) const
+{
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+            return calculateMICFrmPayload(&mhdr.i, payloadSize + 7, data.uplink.fcnt, LORAWAN_UPLINK, data.uplink.devaddr, key);
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            return calculateMICFrmPayload(&mhdr.i, payloadSize + 7, data.downlink.fcnt, LORAWAN_DOWNLINK, data.downlink.devaddr, key);
+        default:
+            break;
+    }
+    return 0;
 }
 
 const std::string LORAWAN_MESSAGE_STORAGE::foptsString() const {

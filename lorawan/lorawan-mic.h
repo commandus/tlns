@@ -25,7 +25,7 @@
  * @param data message buffer
  * @param size message buffer size
  * @param frameCounter
- * @param direction 1- downlink
+ * @param direction 1(LORAWAN_DOWNLINK), 0(LORAWAN_UPLINK)
  * @param devAddr device address
  * @param key network session key
  * @return MIC

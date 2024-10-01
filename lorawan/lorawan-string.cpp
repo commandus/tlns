@@ -192,7 +192,7 @@ std::string MHDR2String(
 }
 
 std::string MIC2String(
-        uint32_t value
+    uint32_t value
 )
 {
     // hex string is MSB first, swap if need it

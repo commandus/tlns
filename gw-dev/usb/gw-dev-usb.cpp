@@ -343,11 +343,11 @@ static void run()
         TASK_TIME receivedTime
     )
     {
-        /*
+
         // Print out received row packet
         if (localConfig.verbosity)
             std::cout << hexString(buffer, bufferSize) << std::endl;
-        */
+
         // filter messages: set false to block packet, true to start processing
         return true;
     };

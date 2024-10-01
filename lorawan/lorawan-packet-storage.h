@@ -120,6 +120,7 @@ PACK(
         std::string payloadBase64() const;
         std::string payloadString() const;
         void setSize(size_t size);
+        uint32_t mic(const KEY128 &key) const;
     }
 );
 

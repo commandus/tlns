@@ -20,8 +20,8 @@ static uint32_t calculateMICRev103(
     // 4.4.1 ConfFCnt Network Server and the ACK bit of the downlink frame is set, meaning this frame is acknowledging an uplink “confirmed” frame,
     // then ConfFCnt is the frame counter value modulo 2^16 of the “confirmed” uplink frame that
     // is being acknowledged. In all other cases ConfFCnt = 0x0000.
-	blockB[1] = 0x00;
-	blockB[2] = 0x00;
+	blockB[1] = 0x00;   // ConfFCnt & 0x00FF  v1.1 Network Server and the ACK bit of the downlink frame is set,
+	blockB[2] = 0x00;   // (ConfFCnt >> 8) & 0x00FF);  meaning this frame is acknowledging an uplink “confirmed” frame
 	blockB[3] = 0x00;
 	blockB[4] = 0x00;
 

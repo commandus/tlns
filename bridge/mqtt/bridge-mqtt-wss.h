@@ -20,7 +20,12 @@ protected:
 public:
     MqttWssBridge();
     virtual ~MqttWssBridge() = default;
-    void onPayload(const void *dispatcher, const MessageQueueItem *messageItem, bool b) override;
+    void onPayload(
+            const void *dispatcher,
+            const MessageQueueItem *messageItem,
+            bool decoded,
+            bool micMatch
+    ) override;
     void init(
         const std::string& wssUrl,
         const std::string& proxyUrl,

@@ -50,7 +50,12 @@ static int sendWSSSmth(
     return ok ? 0 : -4;
 }
 
-void MqttWssBridge::onPayload(const void *dispatcher, const MessageQueueItem *messageItem, bool b)
+void MqttWssBridge::onPayload(
+    const void *dispatcher,
+    const MessageQueueItem *messageItem,
+    bool decoded,
+    bool micMatch
+)
 {
     if (messageItem) {
         errorCode = sendWSSSmth(cli, 1, topic, messageItem->toJsonString());

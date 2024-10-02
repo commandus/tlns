@@ -120,8 +120,16 @@ PACK(
         std::string payloadBase64() const;
         std::string payloadString() const;
         void setSize(size_t size);
+        // calculate MIC
         uint32_t mic(const KEY128 &key) const;
-    }
+        // read MIC from received buffer (if exista)
+        uint32_t mic() const;
+        /**
+         * Compare received MIC with calculated value based on NwkSKey
+         * @param key NwkSKey
+         */
+        bool matchMic(const KEY128 &key) const;
+}
 );
 
 void setLORAWAN_MESSAGE_STORAGE(

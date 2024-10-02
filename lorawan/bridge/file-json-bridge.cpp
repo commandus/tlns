@@ -6,7 +6,8 @@
 void FileJsonBridge::onPayload(
     const void *dispatcher,
     const MessageQueueItem *messageItem,
-    bool decoded
+    bool decoded,
+    bool micMatched
 )
 {
     if (strm && messageItem)

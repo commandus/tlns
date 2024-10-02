@@ -17,7 +17,8 @@ public:
     virtual void onPayload(
         const void *dispatcher,
         const MessageQueueItem *item,
-        bool decoded
+        bool decoded,
+        bool micMatched
     ) = 0;
     virtual void init(
         const std::string& option,

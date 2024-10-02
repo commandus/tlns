@@ -5,19 +5,13 @@
 void StdoutBridge::onPayload(
     const void *dispatcher,
     const MessageQueueItem *messageItem,
-    bool decoded
+    bool decoded,
+    bool micMatched
 )
 {
     if (messageItem) {
         if (decoded)
             std::cout << messageItem->toString() << std::endl;
-        else
-            std::cerr << "Payload size: " << messageItem->radioPacket.payloadSize << " FCnt: "
-                      << (int) messageItem->radioPacket.data.uplink.fcnt
-                      << " addr: " << DEVADDR2string(messageItem->radioPacket.data.uplink.devaddr)
-                      << " key: " << KEY2string(messageItem->task.deviceId.nwkSKey)
-                      << " MIC: " << MIC2String(messageItem->radioPacket.mic(messageItem->task.deviceId.nwkSKey))
-                      << std::endl;
     }
 }
 

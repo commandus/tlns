@@ -546,9 +546,9 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
 )
 {
     for (auto b: appBridges) {
-        b->onPayload(this, item, false);
+        bool micMatched = item->radioPacket.matchMic(item->task.deviceId.nwkSKey);
+        // b->onPayload(this, item, false, micMatched);
         bool decoded = item->radioPacket.decode(&item->task.deviceId);
-        if (decoded)
-            b->onPayload(this, item, decoded);
+        b->onPayload(this, item, decoded, micMatched);
     }
 }

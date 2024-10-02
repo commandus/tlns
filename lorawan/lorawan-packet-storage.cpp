@@ -49,6 +49,7 @@ void setLORAWAN_MESSAGE_STORAGE(
 {
     if (size > sizeof(LORAWAN_MESSAGE_STORAGE) - 2)
         size = sizeof(LORAWAN_MESSAGE_STORAGE) - 2;
+    // including least 4 bytes MIC
     memmove(&retVal.mhdr, buffer, size);
     retVal.setSize(size);
 }
@@ -373,10 +374,36 @@ uint32_t LORAWAN_MESSAGE_STORAGE::mic(
     switch ((MTYPE) mhdr.f.mtype) {
         case MTYPE_UNCONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_UP:
-            return calculateMICFrmPayload(&mhdr.i, payloadSize + 7, data.uplink.fcnt, LORAWAN_UPLINK, data.uplink.devaddr, key);
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
-            return calculateMICFrmPayload(&mhdr.i, payloadSize + 7, data.downlink.fcnt, LORAWAN_DOWNLINK, data.downlink.devaddr, key);
+            return calculateMICFrmPayload(&mhdr.i, payloadSize ? payloadSize + 9 : 8, data.uplink.fcnt, mhdr.f.mtype & 1, data.uplink.devaddr, key);
+        default:
+            break;
+    }
+    return 0;
+}
+
+bool LORAWAN_MESSAGE_STORAGE::matchMic(
+    const KEY128 &key
+) const {
+    return mic() == mic(key);
+}
+
+/**
+ * MIC saved in the buffer at the end of payload in the Semtech's simple UDP protocol as part of radio packet
+ * @return 0 if there os no room for MIC (in case of simulation wire protocol)
+ */
+uint32_t LORAWAN_MESSAGE_STORAGE::mic() const
+{
+    switch ((MTYPE) mhdr.f.mtype) {
+        case MTYPE_UNCONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_UNCONFIRMED_DATA_DOWN:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            if (payloadSize <= 255 - 4)
+                return *(uint32_t*) (&mhdr.i + 1 + SIZE_DOWNLINK_EMPTY_STORAGE + (payloadSize ? 1 + payloadSize : 0));
+            else
+                return 0;
         default:
             break;
     }

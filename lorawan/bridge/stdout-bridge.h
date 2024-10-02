@@ -10,7 +10,8 @@ public:
     void onPayload(
         const void *dispatcher,
         const MessageQueueItem *messageItem,
-        bool decoded
+        bool decoded,
+        bool micMatched
     ) override;
     void init(
         const std::string& option,

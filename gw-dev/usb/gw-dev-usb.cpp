@@ -5,7 +5,7 @@
 #include <cstring>
 #include <csignal>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <execinfo.h>
 #include <algorithm>

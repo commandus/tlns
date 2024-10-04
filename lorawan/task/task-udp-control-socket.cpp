@@ -2,6 +2,8 @@
 #include <csignal>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#define close closesocket
+#define write(sock, b, sz) ::send(sock, b, sz, 0)
 #else
 #include <sys/ioctl.h>
 #endif
@@ -40,7 +42,7 @@ SOCKET TaskUDPControlSocket::openSocket()
         return -1;
     }
     // Set socket to be nonblocking
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     rc = ioctl(sock, FIONBIO, (char *)&on);
     if (rc < 0) {
@@ -54,7 +56,7 @@ SOCKET TaskUDPControlSocket::openSocket()
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     saddr.sin_addr.s_addr = htonl(addr.S_un.S_addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
 #else
     saddr.sin_addr.s_addr = htonl(addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));

@@ -2,7 +2,9 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WS2tcpip.h>
+#include <Winsock2.h>
 #define close closesocket
+#define write(sock, b, sz) ::send(sock, b, sz, 0)
 // #define inet_pton InetPtonA
 #else
 #include <netinet/in.h>

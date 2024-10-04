@@ -5,6 +5,10 @@
 #include "task-response-threaded.h"
 #include "lorawan/task/task-platform.h"
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define sleep Sleep
+#endif
+
 void TaskResponseThreaded::onReceive(
     MessageQueueItem *value
 ) {

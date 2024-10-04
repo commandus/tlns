@@ -3,11 +3,6 @@
 #include <algorithm>
 #include <functional>
 #include <csignal>
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#else
-#include <sys/select.h>
-#include <sys/socket.h>
-#endif
 #include <cstring>
 #include <iostream>
 
@@ -17,6 +12,17 @@
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/task/task-accepted-socket.h"
 #include "lorawan/lorawan-date.h"
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <Winsock2.h>
+#define close closesocket
+#define write(sock, b, sz) ::send(sock, b, sz, 0)
+#define read(sock, b, sz) ::recv(sock, b, sz, 0)
+typedef in_addr in_addr_t;
+#else
+#include <sys/select.h>
+#include <sys/socket.h>
+#endif
 
 #define DEF_TIMEOUT_SECONDS 3
 #define DEF_WAIT_QUIT_SECONDS 1
@@ -351,7 +357,7 @@ int MessageTaskDispatcher::run()
 
         // accept connections
         if (!acceptedSockets.empty()) {
-            for (int & acceptedSocket : acceptedSockets) {
+            for (auto & acceptedSocket : acceptedSockets) {
                 sockets.push_back(new TaskAcceptedSocket(acceptedSocket));
             }
             acceptedSockets.clear();

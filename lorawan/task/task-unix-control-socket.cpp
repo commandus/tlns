@@ -6,9 +6,7 @@
 #endif
 
 #include <unistd.h>
-#include <iostream>
 #include "lorawan/lorawan-string.h"
-#include "lorawan/lorawan-error.h"
 
 TaskUnixControlSocket::TaskUnixControlSocket(
     const std::string &socketFileName
@@ -21,6 +19,9 @@ TaskUnixControlSocket::TaskUnixControlSocket(
 
 SOCKET TaskUnixControlSocket::openSocket()
 {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    return INVALID_SOCKET;
+#else
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock <= 0) {
         lastError = ERR_CODE_SOCKET_CREATE;
@@ -38,6 +39,7 @@ SOCKET TaskUnixControlSocket::openSocket()
         return sock;
     }
     return sock;
+#endif
 }
 
 void TaskUnixControlSocket::closeSocket()

@@ -42,7 +42,7 @@ SOCKET TaskUDPSocket::openSocket()
         return -1;
     }
     // Set socket to be nonblocking
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     int flags = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
@@ -59,7 +59,7 @@ SOCKET TaskUDPSocket::openSocket()
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     saddr.sin_addr.s_addr = htonl(addr.S_un.S_addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
 #else
     saddr.sin_addr.s_addr = htonl(addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));

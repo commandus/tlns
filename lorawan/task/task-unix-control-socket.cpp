@@ -7,6 +7,7 @@
 
 #include <unistd.h>
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-error.h"
 
 TaskUnixControlSocket::TaskUnixControlSocket(
     const std::string &socketFileName
@@ -34,7 +35,6 @@ SOCKET TaskUnixControlSocket::openSocket()
     int r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = -1;
-        std::cerr << strerror(errno) << std::endl;
         lastError = ERR_CODE_SOCKET_CONNECT;
         return sock;
     }

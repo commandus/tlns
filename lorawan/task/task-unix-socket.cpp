@@ -4,6 +4,7 @@
 #else
 #include <sys/ioctl.h>
 #include <sys/un.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include <fcntl.h>
@@ -40,9 +41,9 @@ SOCKET TaskUnixSocket::openSocket()
     int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
-        return -1;
+        return INVALID_SOCKET;
     }
     // Set socket to be nonblocking
     int flags = fcntl(sock, F_GETFL, 0);
@@ -60,7 +61,7 @@ SOCKET TaskUnixSocket::openSocket()
     strncpy(sunAddr.sun_path, socketPath, sizeof(sunAddr.sun_path) - 1);
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_BIND;
         return sock;
     }
@@ -78,6 +79,6 @@ void TaskUnixSocket::closeSocket()
 {
     if (sock >= 0)
         close(sock);
-    sock = -1;
+    sock = INVALID_SOCKET;
     unlink(socketPath);
 }

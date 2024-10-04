@@ -7,28 +7,32 @@
 #include "lorawan/lorawan-string.h"
 
 Channel::Channel()
-    : value { .frequency = 0, .minDR = 0, .maxDR = 0,
-        .enabled = true, .custom = false }
 {
-
+    value.frequency = 0;
+    value.minDR = 0;
+    value.maxDR = 0;
+    value.enabled = true;
+    value.custom = false;
 }
 
 Channel::Channel(const Channel &val)
-    : value { .frequency = val.value.frequency, .minDR = val.value.minDR,
-          .maxDR = val.value.maxDR, .enabled = val.value.enabled,
-          .custom = val.value.custom }
 {
-
+    value.frequency = val.value.frequency;
+    value.minDR = val.value.minDR;
+    value.maxDR = val.value.maxDR;
+    value.enabled = val.value.enabled;
+    value.custom = val.value.custom;
 }
 
 Channel::Channel(
-    const RADIO_CHANNEL &value
+    const RADIO_CHANNEL &val
 )
-    : value { .frequency = value.frequency, .minDR = value.minDR,
-        .maxDR = value.maxDR, .enabled = value.enabled,
-        .custom = value.custom }
 {
-
+    value.frequency = val.frequency;
+    value.minDR = val.minDR;
+    value.maxDR = val.maxDR;
+    value.enabled = val.enabled;
+    value.custom = val.custom;
 }
 
 std::string Channel::toString() const
@@ -53,28 +57,35 @@ void Channel::setValue(int aFrequency, int aMinDR, int aMaxDR, bool aEnabled, bo
 }
 
 BandDefaults::BandDefaults()
-    : value { .RX2Frequency = 0, .RX2DataRate = 0, .ReceiveDelay1 = 0,
-        .ReceiveDelay2 = 0, .JoinAcceptDelay1 = 0, .JoinAcceptDelay2 = 0 }
 {
-
+    value.RX2Frequency = 0;
+    value.RX2DataRate = 0;
+    value.ReceiveDelay1 = 0;
+    value.ReceiveDelay2 = 0;
+    value.JoinAcceptDelay1 = 0;
+    value.JoinAcceptDelay2 = 0;
 }
 
 BandDefaults::BandDefaults(const BandDefaults& val)
-    : value { .RX2Frequency = val.value.RX2Frequency, .RX2DataRate = val.value.RX2DataRate,
-          .ReceiveDelay1 = val.value.ReceiveDelay1, .ReceiveDelay2 = val.value.ReceiveDelay2,
-          .JoinAcceptDelay1 = val.value.JoinAcceptDelay1, .JoinAcceptDelay2 = val.value.JoinAcceptDelay2 }
 {
-
+    value.RX2Frequency = val.value.RX2Frequency;
+    value.RX2DataRate = val.value.RX2DataRate;
+    value.ReceiveDelay1 = val.value.ReceiveDelay1;
+    value.ReceiveDelay2 = val.value.ReceiveDelay2;
+    value.JoinAcceptDelay1 = val.value.JoinAcceptDelay1;
+    value.JoinAcceptDelay2 = val.value.JoinAcceptDelay2;
 }
 
 BandDefaults::BandDefaults(
-    const BAND_DEFAULTS &val
+    const BAND_DEFAULTS& val
 )
-    : value { .RX2Frequency = val.RX2Frequency, .RX2DataRate = val.RX2DataRate,
-        .ReceiveDelay1 = val.ReceiveDelay1, .ReceiveDelay2 = val.ReceiveDelay2,
-        .JoinAcceptDelay1 = val.JoinAcceptDelay1, .JoinAcceptDelay2 = val.JoinAcceptDelay2 }
 {
-
+    value.RX2Frequency = val.RX2Frequency;
+    value.RX2DataRate = val.RX2DataRate;
+    value.ReceiveDelay1 = val.ReceiveDelay1;
+    value.ReceiveDelay2 = val.ReceiveDelay2;
+    value.JoinAcceptDelay1 = val.JoinAcceptDelay1;
+    value.JoinAcceptDelay2 = val.JoinAcceptDelay2;
 }
 
 BandDefaults &BandDefaults::operator=(
@@ -120,17 +131,17 @@ std::string BandDefaults::toString() const
 }
 
 MaxPayloadSize::MaxPayloadSize()
-    : value { .m = 0, .n = 0 }
 {
-
+    value.m = 0;
+    value.n = 0;
 }
 
 MaxPayloadSize::MaxPayloadSize(
-    const MAX_PAYLOAD_SIZE &val
+    const MAX_PAYLOAD_SIZE& val
 )
-    : value { . m = val.m, .n = val.n }
 {
-
+    value.m = val.m;
+    value.n = val.n;
 }
 
 std::string MaxPayloadSize::toString() const
@@ -148,26 +159,34 @@ void MaxPayloadSize::setValue(uint8_t am, uint8_t an) {
 }
 
 RegionalParameterChannelPlan::RegionalParameterChannelPlan()
-    : value { .id = 0, .maxUplinkEIRP = 0.0, .defaultDownlinkTXPower = 0,
-        .pingSlotFrequency = 0, .implementsTXParamSetup = false, .defaultRegion = false, .supportsExtraChannels = false
-    }
 {
+    value.id = 0;
+    value.maxUplinkEIRP = 0.0;
+    value.defaultDownlinkTXPower = 0;
+    value.pingSlotFrequency = 0;
+    value.implementsTXParamSetup = false;
+    value.defaultRegion = false;
+    value.supportsExtraChannels = false;
 }
 
 RegionalParameterChannelPlan::RegionalParameterChannelPlan(
     const REGIONAL_PARAMETER_CHANNEL_PLAN &val
 )
-    : value {
-        .id = val.id, .name = val.name, .cn = val.cn, .maxUplinkEIRP = val.maxUplinkEIRP,
-        .defaultDownlinkTXPower = val.defaultDownlinkTXPower,
-        .pingSlotFrequency = val.pingSlotFrequency, .implementsTXParamSetup = val.implementsTXParamSetup,
-        .defaultRegion = val.defaultRegion, .supportsExtraChannels = val.supportsExtraChannels, .bandDefaults = val.bandDefaults,
-
-        .txPowerOffsets = val.txPowerOffsets,
-        .uplinkChannels = val.uplinkChannels,
-        .downlinkChannels = val.downlinkChannels
-    }
 {
+    value.id = val.id;
+    value.name = val.name;
+    value.cn = val.cn;
+    value.maxUplinkEIRP = val.maxUplinkEIRP;
+    value.defaultDownlinkTXPower = val.defaultDownlinkTXPower;
+    value.pingSlotFrequency = val.pingSlotFrequency;
+    value.implementsTXParamSetup = val.implementsTXParamSetup;
+    value.defaultRegion = val.defaultRegion;
+    value.supportsExtraChannels = val.supportsExtraChannels;
+    value.bandDefaults = val.bandDefaults;
+    value.txPowerOffsets = val.txPowerOffsets;
+    value.uplinkChannels = val.uplinkChannels;
+    value.downlinkChannels = val.downlinkChannels;
+
     for (int i = 0; i < DATA_RATE_SIZE; i++) {
         value.dataRates[i] = val.dataRates[i];
         value.maxPayloadSizePerDataRate[i] = val.maxPayloadSizePerDataRate[i];
@@ -177,18 +196,23 @@ RegionalParameterChannelPlan::RegionalParameterChannelPlan(
 }
 
 RegionalParameterChannelPlan::RegionalParameterChannelPlan(
-    const RegionalParameterChannelPlan &val
+    const RegionalParameterChannelPlan& val
 )
-    : value {
-        .id = val.value.id, .name = val.value.name, .cn = val.value.cn,
-        .maxUplinkEIRP = val.value.maxUplinkEIRP, .defaultDownlinkTXPower = val.value.defaultDownlinkTXPower,
-        .pingSlotFrequency = val.value.pingSlotFrequency, .implementsTXParamSetup = val.value.implementsTXParamSetup,
-        .defaultRegion = val.value.defaultRegion,
-        .supportsExtraChannels = val.value.supportsExtraChannels,
-        .bandDefaults = val.value.bandDefaults, .txPowerOffsets = val.value.txPowerOffsets,
-        .uplinkChannels = val.value.uplinkChannels, .downlinkChannels = val.value.downlinkChannels }
-
 {
+    value.id = val.value.id;
+    value.name = val.value.name;
+    value.cn = val.value.cn;
+    value.maxUplinkEIRP = val.value.maxUplinkEIRP;
+    value.defaultDownlinkTXPower = val.value.defaultDownlinkTXPower;
+    value.pingSlotFrequency = val.value.pingSlotFrequency;
+    value.implementsTXParamSetup = val.value.implementsTXParamSetup;
+    value.defaultRegion = val.value.defaultRegion;
+    value.supportsExtraChannels = val.value.supportsExtraChannels;
+    value.bandDefaults = val.value.bandDefaults;
+    value.txPowerOffsets = val.value.txPowerOffsets;
+    value.uplinkChannels = val.value.uplinkChannels;
+    value.downlinkChannels = val.value.downlinkChannels;
+
     for (int i = 0; i < DATA_RATE_SIZE; i++ ) {
         value.dataRates[i] = val.value.dataRates[i];
     }

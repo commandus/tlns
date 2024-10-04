@@ -228,3 +228,12 @@ Usage:
 ```
 ./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters-3.h
 ```
+
+## MSVC
+
+Create solution by CMake:
+```
+mkdir C:\git\tlns\cmake-build-debug-visual-studio
+cd C:\git\tlns\cmake-build-debug-visual-studio
+cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
+```

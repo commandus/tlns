@@ -1,7 +1,7 @@
 #include "lorawan/task/task-timer-socket.h"
-#include <unistd.h>
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
+#include <unistd.h>
 #include <sys/timerfd.h>
 #endif
 

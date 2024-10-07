@@ -125,9 +125,16 @@ public:
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
 
-    void send(const void *buffer, size_t size);
-    void send(char cmd);
-    void send(const std::string& cmd);
+    void send(
+        const void *buffer,
+        size_t size
+    );
+    void send(
+        char cmd
+    );
+    void send(
+        const std::string& cmd
+    );
 
     void start();
     void stop();
@@ -151,11 +158,17 @@ public:
         TaskSocket *socket
     );
 
-    void
-    pushData(const TaskSocket *taskSocket, const sockaddr &addr, GwPushData &pushData, const TASK_TIME &receivedTime,
-             ProtoGwParser *pParser);
+    void pushData(
+        const TaskSocket *taskSocket,
+        const sockaddr &addr,
+        GwPushData &pushData,
+        const TASK_TIME &receivedTime,
+        ProtoGwParser *pParser
+    );
 
-    void addParser(ProtoGwParser *aParser);
+    void addParser(
+        ProtoGwParser *aParser
+    );
 
     void setRegionalParameterChannelPlan(
         const RegionalParameterChannelPlan *aRegionalPlan
@@ -166,7 +179,9 @@ public:
         uint16_t token
     );
 
-    bool isTimeProcessQueueOrSetTimer(TASK_TIME now);
+    bool isTimeProcessQueueOrSetTimer(
+        TASK_TIME now
+    );
 
     void prepareSendConfirmation(
         const DEVADDR *addr,
@@ -174,7 +189,9 @@ public:
         TASK_TIME receivedTime
     );
 
-    void cleanupOldMessages(TASK_TIME now);
+    void cleanupOldMessages(
+        TASK_TIME now
+    );
 
     /**
      * Check is gateway in the list of service
@@ -193,7 +210,9 @@ public:
      * Identity client requests identity service for EUI and keys
      * @param aIdentityClient
      */
-    void setIdentityClient(DirectClient *aIdentityClient);
+    void setIdentityClient(
+        DirectClient *aIdentityClient
+    );
 
     /** Bridge to application service(s)
      *

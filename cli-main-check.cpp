@@ -76,7 +76,7 @@ bool onReceiveRawData(
 static void run() {
     MessageTaskDispatcher dispatcher;
     ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
-    dispatcher.setParser(parser);
+    dispatcher.addParser(parser);
 
     dispatcher.onPushData = [] (
         MessageTaskDispatcher* dispatcher,

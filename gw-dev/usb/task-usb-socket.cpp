@@ -19,7 +19,7 @@ static void onPushData(
     GwPushData pd;
     setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
     pd.rxMetadata = metadata;
-    dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now());
+    dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now(), nullptr);
 }
 
 static bool onReceiveRawData(

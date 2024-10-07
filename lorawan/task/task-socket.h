@@ -41,8 +41,8 @@ enum ENUM_SOCKET_ACCEPT {
 class TaskSocket {
 public:
     SOCKET sock;
-    ENUM_SOCKET_ACCEPT socketAccept;      ///< Does socket require accept()?
-    int lastError;                  ///< last error code. 0- success
+    ENUM_SOCKET_ACCEPT socketAccept;        ///< Does socket require accept()?
+    int lastError;                          ///< last error code. 0- success
     TaskSocket();
     TaskSocket(
         ENUM_SOCKET_ACCEPT accept

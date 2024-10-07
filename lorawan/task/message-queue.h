@@ -5,12 +5,13 @@
 #include <set>
 #include <ostream>
 
-#include "message-queue-item.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/task/task-time-addr.h"
 
 class TaskSocket;
 class MessageTaskDispatcher;
+class MessageQueueItem;
+class ProtoGwParser;
 
 class MessageQueue {
 protected:
@@ -40,13 +41,15 @@ public:
         const LORAWAN_MESSAGE_STORAGE &radioPacket,
         const struct sockaddr &addr,
         uint64_t gwId,
-        const SEMTECH_PROTOCOL_METADATA_RX &metadata
+        const SEMTECH_PROTOCOL_METADATA_RX &metadata,
+        ProtoGwParser *parser
     );
     bool put(
         const TASK_TIME& time,
         const TaskSocket *taskSocket,
         const struct sockaddr &srcAddr,
-        GwPushData &pushData
+        GwPushData &pushData,
+        ProtoGwParser *parser
     );
     void rm(
         const DEVADDR &addr

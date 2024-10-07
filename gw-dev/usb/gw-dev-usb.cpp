@@ -387,7 +387,6 @@ static void run()
     dispatcher.onDestroy = [] (
         MessageTaskDispatcher* dispatcher
     ) {
-        delete dispatcher->parser;
     };
 
     dispatcher.onError = [] (
@@ -412,7 +411,7 @@ static void run()
     dispatcher.setControlSocket(taskControlSocket);
 
     ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
-    dispatcher.setParser(parser);
+    dispatcher.addParser(parser);
     if (!localConfig.daemonize)
         setSignalHandler();
     // run() in main thread

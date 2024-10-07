@@ -10,9 +10,8 @@
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/proto/gw/parse-result.h"
-#include "lorawan/task/task-socket.h"
-#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/task/task-timer-socket.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/storage/client/direct-client.h"
 #include "lorawan/bridge/app-bridge.h"
 
@@ -112,7 +111,7 @@ public:
     OnDestroyProc onDestroy;
     OnErrorProc onError;
 
-    ProtoGwParser* parser;
+    std::vector<ProtoGwParser*> parsers;
     const RegionalParameterChannelPlan *regionalPlan;
     DirectClient *identityClient;
     std::vector<AppBridge *> appBridges;
@@ -138,7 +137,8 @@ public:
         const sockaddr &destAddr,
         socklen_t destAddrLen,
         const char *packet,
-        ssize_t packetSize
+        ssize_t packetSize,
+        ProtoGwParser *parser
     );
 
     ssize_t sendConfirm(
@@ -151,14 +151,11 @@ public:
         TaskSocket *socket
     );
 
-    void pushData(
-        const TaskSocket *taskSocket,
-        const sockaddr &addr,
-        GwPushData &pushData,
-        const TASK_TIME &receivedTime
-    );
+    void
+    pushData(const TaskSocket *taskSocket, const sockaddr &addr, GwPushData &pushData, const TASK_TIME &receivedTime,
+             ProtoGwParser *pParser);
 
-    void setParser(ProtoGwParser *parser);
+    void addParser(ProtoGwParser *aParser);
 
     void setRegionalParameterChannelPlan(
         const RegionalParameterChannelPlan *aRegionalPlan
@@ -180,11 +177,11 @@ public:
     void cleanupOldMessages(TASK_TIME now);
 
     /**
-     * Return 0 if message kas benn received from known gateways. Return <0 if message to reject
+     * Check is gateway in the list of service
      * @param parsedMsg parsed message (push or pull response)
      * @param taskSocket socket received from
      * @param srcSockAddr source address
-     * @return
+     * @return Return 0 if message received from known gateway. Return <0 if message to reject
      */
     int validateGatewayAddress(
         const ParseResult &parsedMsg,
@@ -192,11 +189,23 @@ public:
         const sockaddr &srcSockAddr
     );
 
+    /**
+     * Identity client requests identity service for EUI and keys
+     * @param aIdentityClient
+     */
     void setIdentityClient(DirectClient *aIdentityClient);
 
+    /** Bridge to application service(s)
+     *
+     * @param appBridge application service bridge instance
+     */
     void addAppBridge(
         AppBridge *appBridge
     );
+    /**
+     * Send payload  to all registered application services
+     * @param item
+     */
     void sendPayloadOverBridge(
         MessageQueueItem *item
     );

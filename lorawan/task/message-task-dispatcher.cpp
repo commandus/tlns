@@ -31,7 +31,7 @@ typedef in_addr in_addr_t;
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
-      parser(nullptr), regionalPlan(nullptr), identityClient(nullptr), running(false),
+      regionalPlan(nullptr), identityClient(nullptr), running(false),
       onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
       onError(nullptr)
 {
@@ -43,7 +43,7 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
-      thread(value.thread), parser(value.parser), regionalPlan(value.regionalPlan), identityClient(value.identityClient),
+      thread(value.thread), parsers(value.parsers), regionalPlan(value.regionalPlan), identityClient(value.identityClient),
       queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
       onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
       onDestroy(value.onDestroy), onError(nullptr)
@@ -288,11 +288,6 @@ int MessageTaskDispatcher::run()
                 continue;
             }
             if (sz > 0) {
-                // send ACK immediately
-                if (sendACK(s, srcAddr, srcAddrLen, buffer, sz) > 0) {
-                    // inform
-                }
-
                 switch (sz) {
                     case 1:
                     {
@@ -322,14 +317,14 @@ int MessageTaskDispatcher::run()
                         if (onReceiveRawData)
                             if (!onReceiveRawData(this, buffer, sz, receivedTime))  // filter raw messages
                                 continue;
-                        if (parser) {
+                        for (auto parser: parsers) {
                             int r = parser->parse(pr, buffer, sz, receivedTime);
                             if (r == CODE_OK) {
                                 r = validateGatewayAddress(pr, s, srcAddr);
                                 if (r == CODE_OK) {
                                     switch (pr.tag) {
                                         case SEMTECH_GW_PUSH_DATA:
-                                            pushData(s, srcAddr, pr.gwPushData, receivedTime);
+                                            pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
                                             break;
                                         case SEMTECH_GW_PULL_RESP:
                                             if (onPullResp)
@@ -342,9 +337,11 @@ int MessageTaskDispatcher::run()
                                             break;
                                     }
                                 }
-                            }
-                            if (r < 0) {
-                                // inform
+                                // send ACK ASAP
+                                if (sendACK(s, srcAddr, srcAddrLen, buffer, sz, parser) > 0) {
+                                    // inform
+                                }
+                                break;  // otherwise try next parser
                             }
                         }
                     }
@@ -387,12 +384,13 @@ ssize_t MessageTaskDispatcher::sendACK(
     const sockaddr &destAddr,
     socklen_t destAddrLen,
     const char *packet,
-    ssize_t packetSize
+    ssize_t packetSize,
+    ProtoGwParser *parser
 ) {
     char ack[MAX_ACK_SIZE];
-    if (!this->parser)
+    if (!parser)
         return ERR_CODE_SEND_ACK;
-    ssize_t sz = this->parser->ack(ack, MAX_ACK_SIZE, packet, packetSize);
+    ssize_t sz = parser->ack(ack, MAX_ACK_SIZE, packet, packetSize);
     if (sz <= 0)
         return sz;
     return sendto(taskSocket->sock, (const char *)  &ack, sz, 0, &destAddr, destAddrLen);
@@ -423,10 +421,11 @@ void MessageTaskDispatcher::pushData(
     const TaskSocket *taskSocket,
     const sockaddr &addr,
     GwPushData &pushData,
-    const TASK_TIME &receivedTime
+    const TASK_TIME &receivedTime,
+    ProtoGwParser *parser
 ) {
     queueMutex.lock();
-    bool isNew = queue.put(receivedTime, taskSocket, addr, pushData);
+    bool isNew = queue.put(receivedTime, taskSocket, addr, pushData, parser);
     queueMutex.unlock();
 
     if (isNew) {
@@ -439,10 +438,10 @@ void MessageTaskDispatcher::pushData(
         prepareSendConfirmation(a, addr, receivedTime);
 }
 
-void MessageTaskDispatcher::setParser(
+void MessageTaskDispatcher::addParser(
     ProtoGwParser *aParser)
 {
-    parser = aParser;
+    parsers.push_back(aParser);
 }
 
 void MessageTaskDispatcher::setRegionalParameterChannelPlan(
@@ -472,7 +471,7 @@ void MessageTaskDispatcher::sendQueue(
             GatewayMetadata gwMetadata;
             if (m->second.getBestGatewayAddress(gwMetadata)) {
                 char sb[512];
-                auto sz = this->parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
+                auto sz = m->second.parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
                     token, &gwMetadata.rx, regionalPlan);
                 std::cout << "Send " << std::string(sb, sz)
                     << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)

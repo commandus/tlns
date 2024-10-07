@@ -52,7 +52,8 @@ void MessageQueue::put(
     const LORAWAN_MESSAGE_STORAGE &radioPacket,
     const struct sockaddr &addr,
     uint64_t gwId,
-    const SEMTECH_PROTOCOL_METADATA_RX &metadata
+    const SEMTECH_PROTOCOL_METADATA_RX &metadata,
+    ProtoGwParser *parser
 )
 {
     auto loraAddr = radioPacket.getAddr();
@@ -62,7 +63,7 @@ void MessageQueue::put(
             // update metadata
             f->second.metadata[gwId] = { metadata, taskSocket, addr };
         } else {
-            MessageQueueItem qi(this, time);
+            MessageQueueItem qi(this, time, parser);
             qi.metadata[gwId] = { metadata, taskSocket, addr };
             auto i = receivedMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*loraAddr, qi));
         }
@@ -84,10 +85,11 @@ bool MessageQueue::put(
     const TASK_TIME &time,
     const TaskSocket *taskSocket,
     const struct sockaddr &srcAddr,
-    GwPushData &pushData
+    GwPushData &pushData,
+    ProtoGwParser *parser
 )
 {
-    MessageQueueItem qi(this, time);
+    MessageQueueItem qi(this, time, parser);
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *addr = pushData.rxData.getAddr();
     if (!addr)
@@ -96,7 +98,7 @@ bool MessageQueue::put(
     bool isSame = (f != receivedMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {
         // update metadata
-        f->second.metadata[pushData.rxMetadata.gatewayId] = {pushData.rxMetadata, taskSocket, srcAddr };
+        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr };
     } else {
         if (dispatcher && dispatcher->identityClient) {
             // get device identity

@@ -4,6 +4,8 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/proto/gw/gw.h"
 
+class ProtoGwParser;
+
 /**
  * ProtoGwParser::parse return result in ParseResult structure
  */
@@ -14,8 +16,10 @@ public:
     GwPushData gwPushData;
     GwPullResp gwPullResp;
     ERR_CODE_TX code;           ///< code
+    // pointer to the parser used for
+    ProtoGwParser *parser;
+
     ParseResult();
 };
-
 
 #endif //TLNS_PARSE_RESULT_H

@@ -18,7 +18,7 @@ std::string GatewayMetadata::toJsonString() const
 }
 
 MessageQueueItem::MessageQueueItem()
-    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now())
+    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now()), parser(nullptr)
 {
 
 }
@@ -27,7 +27,17 @@ MessageQueueItem::MessageQueueItem(
     MessageQueue * ownerQueue,
     const TASK_TIME& time
 )
-    : queue(ownerQueue), firstGatewayReceived(time)
+    : queue(ownerQueue), firstGatewayReceived(time), parser(nullptr)
+{
+
+}
+
+MessageQueueItem::MessageQueueItem(
+    MessageQueue *ownerQueue,
+    const TASK_TIME& time,
+    ProtoGwParser *aParser
+)
+    : queue(ownerQueue), firstGatewayReceived(time), parser(aParser)
 {
 
 }
@@ -36,7 +46,7 @@ MessageQueueItem::MessageQueueItem(
     const MessageQueueItem& value
 )
     : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived),
-        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task)
+        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task), parser(value.parser)
 {
 }
 

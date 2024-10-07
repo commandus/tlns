@@ -9,6 +9,7 @@
 #include "task-socket.h"
 
 class MessageQueue;
+class ProtoGwParser;
 
 class GatewayMetadata {
 public:
@@ -21,14 +22,16 @@ public:
 
 class MessageQueueItem {
 public:
-    MessageQueue *queue;                    ///< pointer to collection owns item
-    TASK_TIME firstGatewayReceived;         ///< receiving time of the first received packet (no matter which gateway is first)
-    LORAWAN_MESSAGE_STORAGE radioPacket;    ///< radio packet
-    std::map <uint64_t, GatewayMetadata> metadata;   ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
-    TaskDescriptor task;                    ///< corresponding task
+    MessageQueue *queue;                            ///< pointer to collection owns item
+    TASK_TIME firstGatewayReceived;                 ///< receiving time of the first received packet (no matter which gateway is first)
+    LORAWAN_MESSAGE_STORAGE radioPacket;            ///< radio packet
+    std::map <uint64_t, GatewayMetadata> metadata;  ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
+    TaskDescriptor task;                            ///< corresponding task
+    ProtoGwParser *parser;                          ///< parser ptr
 
     MessageQueueItem();
     MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
+    MessageQueueItem(MessageQueue *owner, const TASK_TIME& time, ProtoGwParser *parser);
     MessageQueueItem(const MessageQueueItem& value);
 
     void setQueue(MessageQueue *value);

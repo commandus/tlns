@@ -31,7 +31,7 @@ typedef in_addr in_addr_t;
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
-      regionalPlan(nullptr), identityClient(nullptr), running(false),
+      deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), running(false),
       onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
       onError(nullptr)
 {
@@ -43,7 +43,8 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
-      thread(value.thread), parsers(value.parsers), regionalPlan(value.regionalPlan), identityClient(value.identityClient),
+      deviceBestGatewayClient(value.deviceBestGatewayClient), thread(value.thread), parsers(value.parsers),
+      regionalPlan(value.regionalPlan), identityClient(value.identityClient),
       queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
       onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
       onDestroy(value.onDestroy), onError(nullptr)
@@ -469,7 +470,14 @@ void MessageTaskDispatcher::sendQueue(
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
             GatewayMetadata gwMetadata;
-            if (m->second.getBestGatewayAddress(gwMetadata)) {
+            uint64_t gwId = m->second.getBestGatewayAddress(gwMetadata);
+            if (gwId) {
+                // update best gateway in the storage
+                if (deviceBestGatewayClient) {
+                    if (deviceBestGatewayClient->svc) {
+                        deviceBestGatewayClient->svc->put(ta.addr, gwId);
+                    }
+                }
                 char sb[512];
                 auto sz = m->second.parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
                     token, &gwMetadata.rx, regionalPlan);
@@ -557,3 +565,11 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
         b->onPayload(this, item, decoded, micMatched);
     }
 }
+
+void MessageTaskDispatcher::setDeviceBestGatewayClient(
+    DeviceBestGatewayDirectClient *aClient
+)
+{
+    deviceBestGatewayClient = aClient;
+}
+

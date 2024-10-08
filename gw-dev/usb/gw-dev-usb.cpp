@@ -403,6 +403,7 @@ static void run()
 
     DeviceBestGatewayServiceMem m(0, nullptr);
     DeviceBestGatewayDirectClient deviceBestGatewayDirectClient(&m);
+    dispatcher.setDeviceBestGatewayClient(&deviceBestGatewayDirectClient);
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 

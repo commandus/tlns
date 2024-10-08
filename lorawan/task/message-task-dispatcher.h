@@ -14,6 +14,7 @@
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/storage/client/direct-client.h"
 #include "lorawan/bridge/app-bridge.h"
+#include "lorawan/storage/client/device-best-gateway-direct-client.h"
 
 typedef void(*OnPushDataProc)(
     MessageTaskDispatcher* dispatcher,
@@ -90,6 +91,7 @@ private:
 protected:
     TaskResponse *taskResponse;
     std::thread *thread;    ///< main loop thread
+    DeviceBestGatewayDirectClient *deviceBestGatewayClient;
     bool openSockets();
     /**
      * close all sockets
@@ -227,6 +229,10 @@ public:
      */
     void sendPayloadOverBridge(
         MessageQueueItem *item
+    );
+
+    void setDeviceBestGatewayClient(
+        DeviceBestGatewayDirectClient *aClient
     );
 };
 

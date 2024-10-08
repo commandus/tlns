@@ -31,7 +31,9 @@ SRC_LIBLORAWAN = \
     lorawan/regional-parameters/regional-parameter-channel-plans.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp \
     lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp \
+    lorawan/storage/client/device-best-gateway-direct-client.cpp \
     lorawan/storage/client/direct-client.cpp lorawan/storage/client/plugin-client.cpp \
+    lorawan/storage/service/device-best-gateway.cpp lorawan/storage/service/device-best-gateway-mem.cpp \
     lorawan/storage/service/identity-service.cpp lorawan/storage/service/identity-service-json.cpp \
     lorawan/storage/service/identity-service-json.cpp lorawan/storage/service/identity-service-mem.cpp \
     lorawan/storage/service/gateway-service.cpp \
@@ -141,7 +143,10 @@ nobase_dist_include_HEADERS = \
     gw-dev/usb/task-usb-socket.h \
     gw-dev/usb/log-intf.h \
     lorawan/helper/aes-const.h \
+    lorawan/storage/client/device-best-gateway-direct-client.h \
     lorawan/storage/client/direct-client.h lorawan/storage/client/plugin-client.h lorawan/storage/client/response-client.h \
+    lorawan/storage/client/response-device-best-gateway-client.h \
+    lorawan/storage/service/device-best-gateway.h lorawan/storage/service/device-best-gateway-mem.h \
     lorawan/storage/service/identity-service.h lorawan/storage/service/identity-service-json.h \
     lorawan/storage/service/identity-service-json.h \
     lorawan/storage/service/gateway-service.h \

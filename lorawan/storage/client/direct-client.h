@@ -5,7 +5,7 @@
 #include "lorawan/storage/service/gateway-service.h"
 
 /**
- * Abstract class to load specific identity and gateway services
+ * Class to access identity and gateway services
  * @see ServiceClient
  * @see PluginClient
  */

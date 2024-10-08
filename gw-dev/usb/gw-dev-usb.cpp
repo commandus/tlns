@@ -29,6 +29,8 @@
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/bridge/plugin-bridge.h"
 #include "lorawan/bridge/stdout-bridge.h"
+#include "lorawan/storage/client/device-best-gateway-direct-client.h"
+#include "lorawan/storage/service/device-best-gateway-mem.h"
 
 // i18n
 // #include <libintl.h>
@@ -398,6 +400,9 @@ static void run()
     ) {
         std::cerr << ERR_MESSAGE << code << ": " << message << " ("<< module<< ")" << std::endl;
     };
+
+    DeviceBestGatewayServiceMem m(0, nullptr);
+    DeviceBestGatewayDirectClient deviceBestGatewayDirectClient(&m);
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 

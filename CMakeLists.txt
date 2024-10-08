@@ -125,7 +125,9 @@ else()
 		lorawan/proto/gw/set-gateway-metadata.cpp lorawan/proto/gw/parse-result.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
+		lorawan/storage/client/device-best-gateway-direct-client.cpp
 		lorawan/storage/client/direct-client.cpp lorawan/storage/client/plugin-client.cpp
+		lorawan/storage/service/device-best-gateway.cpp lorawan/storage/service/device-best-gateway-mem.cpp
 		lorawan/storage/service/identity-service.cpp lorawan/storage/service/identity-service-mem.cpp
 		lorawan/storage/service/identity-service-json.cpp
 		lorawan/storage/service/gateway-service.cpp

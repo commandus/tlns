@@ -1,3 +1,4 @@
+#include <sstream>
 #include "lorawan/proto/gw/proto-gw-parser.h"
 
 ProtoGwParser::ProtoGwParser(
@@ -11,4 +12,10 @@ ProtoGwParser::ProtoGwParser(
 ProtoGwParser::~ProtoGwParser()
 {
 
+}
+
+const std::string ProtoGwParser::toJsonString() const {
+    std::stringstream ss;
+    ss << "{\"tag\": " << tag() << ", \"name\": \"" << name() << "\"}";
+    return ss.str();
 }

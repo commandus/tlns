@@ -20,6 +20,28 @@ Network server collects metadata sent by gateways to choose gateway with the bes
 - gettext (optional)
 - Draw.io Integration Visual Code plugin (optional)
 
+## Build
+
+### CMake
+
+Options:
+
+- -DENABLE_GW_DEV_USB=off   build RAK2287 USB gateway backend
+- -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only
+- -DENABLE_DEBUG=off   		enable debugging output
+- -DENABLE_GEN=on   		enable key generator (default in memory storage)
+- -DENABLE_SQLITE=off  		enable sqlite3 backend
+- -DENABLE_JSON=off   	    enable JSON file backend
+- -DENABLE_MQTT=off			build with MQTT bridge
+- -DENABLE_IPV6=off   		enable IPv6 (reserved)
+
+For example, build USB gateway:
+```
+mkdir -p build
+cd build
+cmake -DENABLE_GW_DEV_USB=on -DENABLE_JSON=on ..
+make
+```
 Install
 
 ```

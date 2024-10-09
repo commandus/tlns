@@ -5,6 +5,8 @@
 #include <cstring>
 #include <csignal>
 
+#define DEF_UNIX_SOCKET_FILE_NAME "/tmp/usb.socket"
+
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <execinfo.h>
@@ -88,9 +90,9 @@ private:
     MessageTaskDispatcher *dispatcher;
 public:
     explicit StdErrLog(
-            MessageTaskDispatcher *aDispatcher
+        MessageTaskDispatcher *aDispatcher
     )
-            : dispatcher(aDispatcher)
+        : dispatcher(aDispatcher)
     {
 
     }
@@ -153,11 +155,11 @@ int parseCmd(
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-            a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
-            a_bridge_plugin,
-            a_enable_send, a_enable_beacon,
-            a_daemonize, a_unix_socket_file,
-            a_pidfile, a_verbosity, a_help, a_end
+        a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
+        a_bridge_plugin,
+        a_enable_send, a_enable_beacon,
+        a_daemonize, a_unix_socket_file,
+        a_pidfile, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -215,7 +217,7 @@ int parseCmd(
     if (a_unix_socket_file->count)
         config->unixSocketFileName = *a_unix_socket_file->sval;
     else
-        config->unixSocketFileName = "/tmp/usb.socket";
+        config->unixSocketFileName = DEF_UNIX_SOCKET_FILE_NAME;
 
     config->verbosity = a_verbosity->count;
 

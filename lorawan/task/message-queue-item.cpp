@@ -4,6 +4,7 @@
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/helper/ip-address.h"
+#include "lorawan/proto/gw/proto-gw-parser.h"
 
 #define DEF_MESSAGE_EXPIRATION_SEC  60
 
@@ -12,8 +13,10 @@ std::string GatewayMetadata::toJsonString() const
     std::stringstream ss;
     ss << "{\"taskSocket\": " << taskSocket->toJsonString()
         << R"(, "sockAddr": ")" << sockaddr2string(&addr) << "\""
-        << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx)
-        << "}";
+        << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx);
+    if (parser)
+        ss << ", \"protocol\": " << parser->toJsonString();
+    ss << "}";
     return ss.str();
 }
 

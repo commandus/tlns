@@ -98,7 +98,7 @@ bool MessageQueue::put(
     bool isSame = (f != receivedMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {
         // update metadata
-        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr };
+        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr, parser };
     } else {
         if (dispatcher && dispatcher->identityClient) {
             // get device identity
@@ -107,7 +107,7 @@ bool MessageQueue::put(
             qi.task.deviceId.set(*addr, did);
         }
 
-        qi.metadata[pushData.rxMetadata.gatewayId] = {pushData.rxMetadata, taskSocket, srcAddr };
+        qi.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr, parser };
         qi.task.gatewayId = pushData.rxMetadata.gatewayId;
         qi.task.deviceId.devaddr = *addr;
         qi.task.repeats = 0;

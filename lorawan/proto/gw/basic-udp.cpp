@@ -9,6 +9,7 @@
 #include "lorawan/lorawan-date.h"
 #include "lorawan/power-dbm.h"
 
+static const char *GATEWAY_BASIC_UDP_PROTOCOL_NAME = "Basic communication protocol between Lora gateway and server";
 /**
  * 	Section 3.3
  */
@@ -555,4 +556,14 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
     if (retBuf && retSize >= sz)
         memmove(retBuf, s.c_str(), sz);
     return (ssize_t) sz;
+}
+
+const char *GatewayBasicUdpProtocol::name() const
+{
+    return GATEWAY_BASIC_UDP_PROTOCOL_NAME;
+}
+
+int GatewayBasicUdpProtocol::tag() const
+{
+    return 1;
 }

@@ -59,6 +59,9 @@ public:
         const RegionalParameterChannelPlan *pPlan
     ) override;
 
+    int tag() const override;
+    const char* name() const override;
+
     explicit GatewayJsonWiredProtocol(MessageTaskDispatcher *dispatcher);
 };
 

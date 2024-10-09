@@ -58,7 +58,23 @@ public:
         const RegionalParameterChannelPlan *regionalPlan
     ) = 0;
 
+    /**
+     * Return common protocol name
+     * @return NULL-terminated UTF-8 string
+     */
+    virtual const char* name() const = 0;
+
+    /**
+     * Unique protocol number. 1- Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo
+     * 10..19 reserved for network server facilities
+     * 20.. - user defined protocols
+     * @return
+     */
+    virtual int tag() const = 0;
+
     virtual ~ProtoGwParser();
+
+    const std::string toJsonString() const;
 };
 
 #endif

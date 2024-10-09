@@ -247,7 +247,6 @@ int MessageTaskDispatcher::run()
         std::vector<SOCKET> acceptedSockets;
         std::vector<TaskSocket*> removedSockets;
 
-
         // read socket(s)
         for (auto s : sockets) {
             if (!FD_ISSET(s->sock, &workingSocketSet))
@@ -470,12 +469,13 @@ void MessageTaskDispatcher::sendQueue(
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
             GatewayMetadata gwMetadata;
-            uint64_t gwId = m->second.getBestGatewayAddress(gwMetadata);
-            if (gwId) {
+            // determine best gateway
+            m->second.task.gatewayId = m->second.getBestGatewayAddress(gwMetadata);
+            if (m->second.task.gatewayId.gatewayId) {
                 // update best gateway in the storage
                 if (deviceBestGatewayClient) {
                     if (deviceBestGatewayClient->svc) {
-                        deviceBestGatewayClient->svc->put(ta.addr, gwId);
+                        deviceBestGatewayClient->svc->put(ta.addr, m->second.task.gatewayId.gatewayId);
                     }
                 }
                 char sb[512];

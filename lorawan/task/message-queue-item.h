@@ -15,8 +15,8 @@ class GatewayMetadata {
 public:
     SEMTECH_PROTOCOL_METADATA_RX rx;
     const TaskSocket *taskSocket;
-    struct sockaddr addr;
-
+    struct sockaddr addr;                         ///< gateway network address (if any) where packet was sent from
+    ProtoGwParser *parser;                        ///< pointer to parser has been used (can be NULL)
     std::string toJsonString() const;
 };
 

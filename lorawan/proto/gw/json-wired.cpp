@@ -9,6 +9,8 @@
 #include "lorawan/lorawan-date.h"
 #include "lorawan/power-dbm.h"
 
+static const char *GATEWAY_JSON_WIRED_PROTOCOL_NAME = "Simple simulation wired JSON protocol";
+
 /*
  * Simple simulation wired JSON protocol
  * Example:
@@ -390,6 +392,16 @@ ssize_t GatewayJsonWiredProtocol::makeMessage2Gateway(
     if (retBuf && retSize >= sz)
         memmove(retBuf, s.c_str(), sz);
     return (ssize_t) sz;
+}
+
+const char *GatewayJsonWiredProtocol::name() const
+{
+    return GATEWAY_JSON_WIRED_PROTOCOL_NAME;
+}
+
+int GatewayJsonWiredProtocol::tag() const
+{
+    return 11;
 }
 
 GatewayJsonWiredAck::GatewayJsonWiredAck()

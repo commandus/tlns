@@ -37,6 +37,7 @@ public:
     virtual uint64_t get(
         const DEVADDR &devAddr
     ) = 0;
+
     /**
      * asynchronous request best gateway for device by address
      * Return best gateway identifier in callback
@@ -117,6 +118,7 @@ public:
      * @return
      */
     virtual size_t size() = 0;
+
     /**
      * synchronous entries count
      * @return CODE_OK success

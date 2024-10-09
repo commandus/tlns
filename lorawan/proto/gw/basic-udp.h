@@ -1,6 +1,10 @@
 #ifndef PROTO_GW_BASIC_UDP_H
 #define PROTO_GW_BASIC_UDP_H    1
 
+/**
+ * Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo
+ * @see https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT
+ */
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
 #include "lorawan/proto/gw/proto-gw-parser.h"
@@ -92,6 +96,9 @@ public:
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
         const RegionalParameterChannelPlan *pPlan
     ) override;
+
+    int tag() const override;
+    const char* name() const override;
 
     explicit GatewayBasicUdpProtocol(MessageTaskDispatcher *dispatcher);
 };

@@ -27,7 +27,6 @@ public:
     LORAWAN_MESSAGE_STORAGE radioPacket;            ///< radio packet
     std::map <uint64_t, GatewayMetadata> metadata;  ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
     TaskDescriptor task;                            ///< corresponding task
-    ProtoGwParser *parser;                          ///< parser ptr
 
     MessageQueueItem();
     MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);

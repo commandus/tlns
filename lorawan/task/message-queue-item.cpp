@@ -21,7 +21,7 @@ std::string GatewayMetadata::toJsonString() const
 }
 
 MessageQueueItem::MessageQueueItem()
-    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now()), parser(nullptr)
+    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now())
 {
 
 }
@@ -30,7 +30,7 @@ MessageQueueItem::MessageQueueItem(
     MessageQueue * ownerQueue,
     const TASK_TIME& time
 )
-    : queue(ownerQueue), firstGatewayReceived(time), parser(nullptr)
+    : queue(ownerQueue), firstGatewayReceived(time)
 {
 
 }
@@ -40,7 +40,7 @@ MessageQueueItem::MessageQueueItem(
     const TASK_TIME& time,
     ProtoGwParser *aParser
 )
-    : queue(ownerQueue), firstGatewayReceived(time), parser(aParser)
+    : queue(ownerQueue), firstGatewayReceived(time)
 {
 
 }
@@ -49,7 +49,7 @@ MessageQueueItem::MessageQueueItem(
     const MessageQueueItem& value
 )
     : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived),
-        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task), parser(value.parser)
+        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task)
 {
 }
 
@@ -77,8 +77,10 @@ std::string MessageQueueItem::toString() const
         ss << R"({"id": ")" <<  gatewayId2str(it.first)
             << R"(", "lsnr": )" << it.second.rx.lsnr
             << ", \"frequency\": " << freq2string(it.second.rx.freq)
-            << ", \"chan\": " << (int) it.second.rx.chan
-            << "}";
+            << ", \"chan\": " << (int) it.second.rx.chan;
+        if (it.second.parser)
+            ss << ", \"protocol\": " << it.second.parser->toJsonString();
+        ss << "}";
     }
     ss << "]}";
     return ss.str();

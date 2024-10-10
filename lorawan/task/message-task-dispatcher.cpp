@@ -479,12 +479,14 @@ void MessageTaskDispatcher::sendQueue(
                     }
                 }
                 char sb[512];
-                auto sz = m->second.parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
-                    token, &gwMetadata.rx, regionalPlan);
-                std::cout << "Send " << std::string(sb, sz)
-                    << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
-                    << " over socket " << gwMetadata.taskSocket->toString()
-                    << std::endl;
+                if (gwMetadata.parser) {
+                    auto sz = gwMetadata.parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
+                        token, &gwMetadata.rx, regionalPlan);
+                    std::cout << "Send " << std::string(sb, sz)
+                              << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
+                              << " over socket " << gwMetadata.taskSocket->toString()
+                              << std::endl;
+                }
             }
         }
     }

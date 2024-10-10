@@ -14,7 +14,7 @@ You need both C library and C++ wrapper library.
 - install Eclipse Paho MQTT C library from repository first and
 - build C++ wrapper from the source to make sure it supports websockets
 
-Runt from the command line:
+Run from the command line:
 
 ```
 sudo apt install libpaho-mqtt-dev

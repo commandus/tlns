@@ -285,12 +285,15 @@ TESTS = $(check_PROGRAMS)
 #
 configdir = $(datadir)
 dist_config_DATA = \
+    bridge/README.bridge.md \
     bridge/mqtt/CMakeLists.txt bridge/mqtt/README.bridge.mqtt.md \
     gen/gateway-usb-conf.h \
     gen/regional-parameters.json \
     gen/regional-parameters-3.h \
 	autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
 	gw-dev/usb/CMakeLists.txt \
+	lorawan/bridge/README.lorawan.bridge.md \
+	lorawan/proto/gw/README.lorawan.proto.gw.md \
 	third-party/argtable3/README.argtable3 \
 	third-party/base64/README.base64 \
 	third-party/libloragw/README.libloragw.md third-party/libloragw/LICENSE.libloragw.txt \

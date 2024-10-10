@@ -31,7 +31,6 @@
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/bridge/plugin-bridge.h"
 #include "lorawan/bridge/stdout-bridge.h"
-#include "lorawan/storage/client/device-best-gateway-direct-client.h"
 #include "lorawan/storage/service/device-best-gateway-mem.h"
 
 // i18n
@@ -315,6 +314,9 @@ void setSignalHandler()
 
 static void run()
 {
+    GatewayBasicUdpProtocol parser(&dispatcher);
+    dispatcher.addParser(&parser);
+
     PluginClient identityClient(localConfig.pluginFilePath);
     if (!identityClient.svcIdentity || !identityClient.svcGateway) {
         std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
@@ -409,8 +411,8 @@ static void run()
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 
-    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, localConfig.unixSocketFileName, settings, &errLog,
-        localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, localConfig.unixSocketFileName, settings,
+        &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
@@ -418,8 +420,6 @@ static void run()
     dispatcher.sockets.push_back(taskControlSocket);
     dispatcher.setControlSocket(taskControlSocket);
 
-    ProtoGwParser *parser = new GatewayBasicUdpProtocol(&dispatcher);
-    dispatcher.addParser(parser);
     if (!localConfig.daemonize)
         setSignalHandler();
     // run() in main thread

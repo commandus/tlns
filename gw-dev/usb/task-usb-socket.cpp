@@ -19,7 +19,8 @@ static void onPushData(
     GwPushData pd;
     setLORAWAN_MESSAGE_STORAGE(pd.rxData, radioPacket, size);
     pd.rxMetadata = metadata;
-    dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now(), nullptr);
+    ProtoGwParser *p = dispatcher->parsers.size() ? dispatcher->parsers[0] : nullptr;
+    dispatcher->pushData(taskSocket, sockAddr, pd, std::chrono::system_clock::now(), p);
 }
 
 static bool onReceiveRawData(
@@ -55,6 +56,7 @@ TaskUsbGatewayUnixSocket::TaskUsbGatewayUnixSocket(
         verbosity = 0;
     listener.init(aSettings, aLog);
     listener.setDispatcher(dispatcher);
+    listener.setProtocolParser(parser);
     listener.flags = (enableSend ? 0 : FLAG_GATEWAY_LISTENER_NO_SEND) | (enableBeacon ? 0 : FLAG_GATEWAY_LISTENER_NO_BEACON);
 
     listener.setLogVerbosity(verbosity);

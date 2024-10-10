@@ -6,7 +6,7 @@
 #include "lorawan/helper/plugin-helper.h"
 
 /**
- * Abstract class connects to
+ * Abstract class connects to application service
  * @see ServiceClient
  * @see PluginClient
  */

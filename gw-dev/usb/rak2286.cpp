@@ -1499,7 +1499,7 @@ void LoraGatewayListener::jitRunner() {
 }
 
 LoraGatewayListener::LoraGatewayListener()
-    : logVerbosity(0), dispatcher(nullptr),
+    : logVerbosity(0), dispatcher(nullptr), parser(nullptr),
     onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr),
     onSpectralScan(nullptr), onLog(nullptr), stopRequest(false),
     upstreamThreadRunning(false), downstreamBeaconThreadRunning(false), jitThreadRunning(false),
@@ -1851,4 +1851,10 @@ void LoraGatewayListener::init(
         helperOpenClose = new PosixLibLoragwOpenClose(config->sx130x.boardConf.com_path);
         libLoragwHelper.bind(aLog, helperOpenClose);
     }
+}
+
+void LoraGatewayListener::setProtocolParser(
+    ProtoGwParser *aParser
+) {
+    parser = aParser;
 }

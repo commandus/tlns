@@ -11,6 +11,7 @@ private:
     MessageTaskDispatcher *dispatcher;
     std::string socketPath;
     LoraGatewayListener listener;
+    ProtoGwParser *parser;
 public:
     /**
      * Open Unix domain socket

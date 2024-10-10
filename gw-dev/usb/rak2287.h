@@ -98,10 +98,14 @@ public:
     TxPacket();
 };
 
+/**
+ * Used in TaskUsbGatewayUnixSocket class (@see gw-dev/usb/rak2287.h header file)
+ */
 class LoraGatewayListener {
 private:
     int logVerbosity;
     MessageTaskDispatcher* dispatcher;
+    ProtoGwParser *parser;
 
     OnReceiveRawData onReceiveRawData;
     OnPushDataProc onPushData;
@@ -243,6 +247,8 @@ public:
         GatewaySettings *settings,
         Log *log
     );
+
+    void setProtocolParser(ProtoGwParser *aParser);
 };
 
 #endif

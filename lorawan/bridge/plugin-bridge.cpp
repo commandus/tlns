@@ -3,9 +3,9 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
+#include "lorawan/helper/file-helper.h"
 
 #define PLUGIN_FILE_NAME_PREFIX "lib"
-
 
 #ifdef ENABLE_DEBUG
 #include <iostream>
@@ -104,15 +104,36 @@ int PluginBridges::add(
     return CODE_OK;
 }
 
-void PluginBridges::add(
+size_t PluginBridges::add(
     const std::vector<std::string> &fileNames
 )
 {
+    size_t count = 0;
     for (auto &fileName: fileNames) {
         PluginBridge pb(fileName);
-        if (pb.valid())
+        if (pb.valid()) {
             bridges.emplace_back(pb);
+            count++;
+        }
     }
+    return count;
+}
+
+size_t PluginBridges::addDirectory(
+    const std::string &directory,
+    int flags
+)
+{
+    size_t count = 0;
+    std::vector<std::string> files;
+    file::filesInPath(directory, PLUGIN_FILE_NAME_SUFFIX, 0, &files);
+    for (auto &f : files) {
+        int r = add(f);
+        if (r < 0)
+            continue;
+        count++;
+    }
+    return count;
 }
 
 PluginBridges::~PluginBridges() = default;

@@ -3,6 +3,9 @@
 
 #include "lorawan/bridge/app-bridge.h"
 
+/**
+ * App bridge example
+ */
 class FileJsonBridge : public AppBridge {
 protected:
     std::string fileName;

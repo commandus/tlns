@@ -6,8 +6,8 @@
 
 /**
  * Calculate power in dBm
- * @param rxMetadata received message metadata
- * @param regionalPlan regional parameters
+ * @param rxMetadata received message metadata: RSSI, Lora SNR ratio etc.
+ * @param regionalPlan regional parameters: max Uplink EIRP etc.
  * @return 14
  */
 int gwPower(

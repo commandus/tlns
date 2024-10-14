@@ -5,7 +5,7 @@
 
 #include "nlohmann/json.hpp"
 
-#include "regional-parameter-channel-plan-file-json.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-error.h"

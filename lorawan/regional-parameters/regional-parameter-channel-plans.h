@@ -4,7 +4,13 @@
 #include <string>
 #include "regional-parameter-channel-plan.h"
 
-// Abstract class keep channel plans
+/**
+ * Class keep channel plans in the storage.
+ * Implementations:
+ *  - in-memory storage RegionalParameterChannelPlanMem (file lorawan/regional-parameters/regional-parameter-channel-plan-mem.h)
+ *  - JSON file storage RegionalParameterChannelPlanFileJson (file lorawan/regional-parameters/regional-parameter-channel-plan-file-json.h)
+ */
+
 class RegionalParameterChannelPlans {
     public:
         virtual ~RegionalParameterChannelPlans() {};

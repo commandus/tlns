@@ -2,8 +2,8 @@
 #define REGION_BAND_FILE_JSON_H_ 1
 
 #include <vector>
-#include "regional-parameter-channel-plan.h"
-#include "regional-parameter-channel-plans.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plans.h"
 
 /**
  * RegionalParameterChannelPlanFileJson class load LoRaWAN region settings from the

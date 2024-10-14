@@ -14,6 +14,7 @@ typedef int SOCKET;
 
 /**
  * Split @param address e.g. ADRESS:PORT to @param retAddress and @param retPort
+ * Helpful to parse command line parameters.
  */
 bool splitAddress(
     std::string &retAddress,
@@ -22,7 +23,7 @@ bool splitAddress(
 );
 
 /**
- * Return IP adress:port
+ * Return IP adress:port text representation
  * @return address string
  */
 std::string sockaddr2string(

@@ -2,6 +2,14 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
 
+/**
+ * Text representation helper functions. Most of them return text representation for LoRaWAN values like
+ * keys, EUI, spreading factor, frequency etc.
+ * @param str
+ * @param from
+ * @param to
+ * @return
+ */
 std::string replaceAll(std::string str, const std::string& from, const std::string& to);
 
 std::string uint64_t2string(const uint64_t &value);

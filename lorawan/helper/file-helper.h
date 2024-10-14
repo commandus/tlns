@@ -7,6 +7,10 @@
 #include <string>
 #include <vector>
 
+/**
+ * File name helper functions.
+ * Do not forget namespace file::
+ */
 namespace file {
 	bool rmDir(const std::string &path);
 	bool rmFile(const std::string &fn);

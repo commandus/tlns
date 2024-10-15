@@ -553,6 +553,7 @@ void MessageTaskDispatcher::addAppBridge(
     AppBridge *appBridge
 )
 {
+    appBridge->setDispatcher(this);
     appBridges.push_back(appBridge);
 }
 
@@ -575,3 +576,48 @@ void MessageTaskDispatcher::setDeviceBestGatewayClient(
     deviceBestGatewayClient = aClient;
 }
 
+size_t MessageTaskDispatcher::bridgeCount() const
+{
+    return appBridges.size();
+}
+
+int MessageTaskDispatcher::sendDownlink(
+    const DEVADDR &addr,
+    void *payload,
+    void *fopts,
+    uint8_t fPort,
+    uint8_t payloadSize,
+    uint8_t foptsSize
+)
+{
+    if (payloadSize > 255)
+        return ERR_CODE_WRONG_PARAM;
+    if (foptsSize > 15)
+        return ERR_CODE_MAC_INVALID;
+    if (identityClient)
+        return ERR_CODE_WRONG_PARAM;
+    if (identityClient->svcIdentity)
+        return ERR_CODE_WRONG_PARAM;
+    if (deviceBestGatewayClient)
+        return ERR_CODE_WRONG_PARAM;
+    if (deviceBestGatewayClient->svc)
+        return ERR_CODE_WRONG_PARAM;
+    TaskDescriptor td;
+
+    // get identity
+    DEVICEID did;
+    int r = identityClient->svcIdentity->get(did, addr);
+    if (r)
+        return r;
+    td.deviceId = did;
+
+    // determine best gateway
+    uint64_t gwId = deviceBestGatewayClient->svc->get(addr);
+    if (gwId == 0)
+        return ERR_CODE_WRONG_PARAM;
+    td.gatewayId = gwId;
+
+    DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
+    // d->queue.put()
+    // m.get()
+}

@@ -3,6 +3,8 @@
 #include "lorawan/bridge/file-json-bridge.h"
 #include "lorawan/lorawan-string.h"
 
+FileJsonBridge::FileJsonBridge() = default;
+
 void FileJsonBridge::onPayload(
     const void *dispatcher,
     const MessageQueueItem *messageItem,
@@ -36,6 +38,17 @@ void FileJsonBridge::done()
         strm = nullptr;
     }
 }
+
+void FileJsonBridge::onSend(
+    const void *dispatcher,
+    const MessageQueueItem *item,
+    int code
+)
+{
+    if (item)
+        std::cerr << "Sent " << item->toString() << " with code " << code << std::endl;
+}
+
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge2()
 {

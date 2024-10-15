@@ -1,6 +1,9 @@
 #include <iostream>
 #include "lorawan/bridge/stdout-bridge.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-error.h"
+
+StdoutBridge::StdoutBridge() = default;
 
 void StdoutBridge::onPayload(
     const void *dispatcher,
@@ -27,6 +30,16 @@ void StdoutBridge::init(
 void StdoutBridge::done()
 {
 
+}
+
+void StdoutBridge::onSend(
+    const void *dispatcher,
+    const MessageQueueItem *item,
+    int code
+)
+{
+    if (item)
+        std::cerr << "Sent " << item->toString() << " with code " << code << std::endl;
 }
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge1()

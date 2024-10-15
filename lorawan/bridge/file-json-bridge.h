@@ -11,13 +11,18 @@ protected:
     std::string fileName;
     std::fstream *strm;
 public:
-    FileJsonBridge() = default;
+    FileJsonBridge();
     virtual ~FileJsonBridge() = default;
     void onPayload(
         const void *dispatcher,
         const MessageQueueItem *messageItem,
         bool decoded,
         bool micMatched
+    ) override;
+    void onSend(
+        const void *dispatcher,
+        const MessageQueueItem *item,
+        int code
     ) override;
     void init(
         const std::string& option,

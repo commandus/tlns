@@ -1,6 +1,8 @@
 #ifndef LORAWAN_CONST_H_
 #define LORAWAN_CONST_H_	1
 
+#define FPORT_NO_PAYLOAD   0
+
 typedef enum MODULATION {
     MODULATION_UNDEFINED = 0,
     MODULATION_LORA = 0x10,

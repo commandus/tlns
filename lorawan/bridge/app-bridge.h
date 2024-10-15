@@ -11,9 +11,15 @@
  * @see PluginClient
  */
 class AppBridge {
+private:
+    void *dispatcher;
 public:
-    AppBridge() = default;
+    AppBridge();
     virtual ~AppBridge() = default;
+    void setDispatcher(
+        void *aDispatcher
+    );
+
     /**
      *
      * @param dispatcher Dispatcher. Can be NULL
@@ -42,6 +48,63 @@ public:
      * Finalize bridge
      */
     virtual void done() = 0;
+
+    /**
+     * Prepare to send FOpts and/or payload to he end-device
+     */
+    int send(
+        const DEVADDR &addr,
+        void *buffer,
+        void *fopts,
+        uint8_t fPort,
+        uint8_t bufferSize = 0,
+        uint8_t foptsSize = 0
+    );
+
+    // helpful wrappers
+
+    int sendFOpts(
+        const DEVADDR &addr,
+        void *fopts,
+        uint8_t size
+    );
+
+    int sendPayload(
+        const DEVADDR &addr,
+        uint8_t fPort,
+        void *payload,
+        uint8_t size
+    );
+
+    int send(
+        const DEVADDR &addr,
+        uint8_t fPort,
+        const std::string &payload,
+        const std::string &fOpts
+    );
+
+    int sendFOpts(
+        const DEVADDR &addr,
+        const std::string &fopts
+    );
+
+    int sendPayload(
+        const DEVADDR &addr,
+        uint8_t fPort,
+        const std::string &payload
+    );
+
+    /**
+     * return send status on @param code
+     * @param dispatcher duspatcher
+     * @param item message in a queue (cen be NULL)
+     * @param code send status code. 0- success
+     */
+    virtual void onSend(
+        const void *dispatcher,
+        const MessageQueueItem *item,
+        int code
+    ) = 0;
 };
 
 #endif

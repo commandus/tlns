@@ -328,7 +328,7 @@ static void run()
     for (auto &b : pluginBridges.bridges) {
         dispatcher.addAppBridge(b.bridge);
     }
-    if (dispatcher.appBridges.empty()) {
+    if (dispatcher.bridgeCount()) {
         // add simple output bridge
         dispatcher.addAppBridge(new StdoutBridge);
     }

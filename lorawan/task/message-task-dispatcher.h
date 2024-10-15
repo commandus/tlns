@@ -91,7 +91,8 @@ private:
 protected:
     TaskResponse *taskResponse;
     std::thread *thread;    ///< main loop thread
-    DeviceBestGatewayDirectClient *deviceBestGatewayClient;
+    std::vector<AppBridge *> appBridges;
+
     bool openSockets();
     /**
      * close all sockets
@@ -102,6 +103,7 @@ protected:
      */
     void clearSockets();
 public:
+    DeviceBestGatewayDirectClient *deviceBestGatewayClient;
     MessageQueue queue;     ///< message queue
     std::vector<TaskSocket*> sockets;   ///< task socket array
     bool running;    ///< true- loop thread is running
@@ -116,7 +118,6 @@ public:
     std::vector<ProtoGwParser*> parsers;
     const RegionalParameterChannelPlan *regionalPlan;
     DirectClient *identityClient;
-    std::vector<AppBridge *> appBridges;
 
     int run();
 
@@ -224,7 +225,7 @@ public:
         AppBridge *appBridge
     );
     /**
-     * Send payload  to all registered application services
+     * Send payload to all registered application services
      * @param item
      */
     void sendPayloadOverBridge(
@@ -233,6 +234,17 @@ public:
 
     void setDeviceBestGatewayClient(
         DeviceBestGatewayDirectClient *aClient
+    );
+
+    size_t bridgeCount() const;
+
+    int sendDownlink(
+        const DEVADDR &addr,
+        void *payload,
+        void *fopts,
+        uint8_t fPort,
+        uint8_t payloadSize,
+        uint8_t foptsSize
     );
 };
 

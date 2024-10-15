@@ -5,7 +5,7 @@
 
 class StdoutBridge : public AppBridge {
 public:
-    StdoutBridge() = default;
+    StdoutBridge();
     virtual ~StdoutBridge() = default;
     void onPayload(
         const void *dispatcher,
@@ -13,12 +13,20 @@ public:
         bool decoded,
         bool micMatched
     ) override;
+
     void init(
         const std::string& option,
         const std::string& option2,
         const void *option3
     ) override;
+
     void done() override;
+
+    void onSend(
+        const void *dispatcher,
+        const MessageQueueItem *item,
+        int code
+    ) override;
 };
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge1();

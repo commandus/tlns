@@ -613,9 +613,17 @@ int MessageTaskDispatcher::sendDownlink(
 
     // determine best gateway
     uint64_t gwId = deviceBestGatewayClient->svc->get(addr);
-    if (gwId == 0)
-        return ERR_CODE_WRONG_PARAM;
-    td.gatewayId = gwId;
+    if (gwId == 0) {
+        if (identityClient->svcGateway)
+            return ERR_CODE_WRONG_PARAM;
+
+        std::vector<GatewayIdentity> ls;
+        int r = identityClient->svcGateway->list(ls, 0, 1);
+        if (r <= 0)
+            return ERR_CODE_WRONG_PARAM;
+        td.gatewayId = ls[0];
+    } else
+        td.gatewayId = gwId;
 
     DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
     // d->queue.put()

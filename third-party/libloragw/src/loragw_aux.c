@@ -56,7 +56,7 @@ void wait_us(unsigned long delay_us) {
     while ((dly.tv_sec > 0) || (dly.tv_nsec > 1000)) {
         /*
         rem is set ONLY if clock_nanosleep is interrupted (eg. by a signal).
-        Must be zeroed each time or will get into an infinite loop after an IT.
+        Must be zeroed each time or will getUplink into an infinite loop after an IT.
         */
         rem.tv_sec = 0;
         rem.tv_nsec = 0;

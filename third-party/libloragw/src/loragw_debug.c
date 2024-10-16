@@ -112,7 +112,7 @@ void dbg_log_payload_diff_to_file(FILE * file, uint8_t * buffer1, uint8_t * buff
 void dbg_generate_random_payload(uint32_t pkt_cnt, uint8_t * buffer_expected, uint8_t size) {
     int k;
 
-    /* construct payload we should get for this packet counter */
+    /* construct payload we should getUplink for this packet counter */
     tinymt32_init(&tinymt, (int)pkt_cnt);
     buffer_expected[4] = (uint8_t)(pkt_cnt >> 24);
     buffer_expected[5] = (uint8_t)(pkt_cnt >> 16);
@@ -132,7 +132,7 @@ int dbg_check_payload(struct lgw_conf_debug_s * context, FILE * file, uint8_t * 
 
     /* If the 4 first bytes of received payload match with the expected ones, go on with comparison */
     if (memcmp((void*)payload_received, (void*)(context->ref_payload[ref_payload_idx].payload), 4) == 0) {
-        /* get counter to initialize random seed */
+        /* getUplink counter to initialize random seed */
         debug_payload_cnt = (unsigned int)(payload_received[4] << 24) | (unsigned int)(payload_received[5] << 16) | (unsigned int)(payload_received[6] << 8) | (unsigned int)(payload_received[7] << 0);
 
         /* check if we missed some packets */

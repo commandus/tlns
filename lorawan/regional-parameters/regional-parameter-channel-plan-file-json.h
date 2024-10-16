@@ -47,7 +47,7 @@
  */
 class RegionalParameterChannelPlanFileJson : public RegionalParameterChannelPlans {
 	private:
-        // helper hash map to get() region by the name
+        // helper hash map to getUplink() region by the name
         std::map<std::string, const RegionalParameterChannelPlan *> nameIndex;
         std::map<int, const RegionalParameterChannelPlan *> idIndex;
 

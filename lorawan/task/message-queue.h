@@ -17,8 +17,9 @@ class MessageQueue {
 protected:
     MessageTaskDispatcher *dispatcher;                          ///< parent dispatcher
 public:
-    std::map <DEVADDR, MessageQueueItem> receivedMessages;      ///< data packets received from devices
+    std::map <DEVADDR, MessageQueueItem> uplinkMessages;        ///< data packets received from devices
     std::map <JOIN_REQUEST_FRAME, MessageQueueItem> joins;      ///< join packets
+    std::map <DEVADDR, MessageQueueItem> downlinkMessages;      ///< data packets ready to send to devices, one message per device
 
     TimeAddrSet time2ResponseAddr;
 
@@ -33,9 +34,10 @@ public:
         MessageTaskDispatcher *aDispatcher
     );
 
-    MessageQueueItem *get(const DEVADDR &addr);
-    MessageQueueItem *get(const JOIN_REQUEST_FRAME &addr);
-    void put(
+    MessageQueueItem *getUplink(const DEVADDR &addr);
+    MessageQueueItem *getJoinRequest(const JOIN_REQUEST_FRAME &addr);
+    MessageQueueItem *getDownlink(const DEVADDR &addr);
+    void putUplink(
         const TASK_TIME& time,
         const TaskSocket *taskSocket,
         const LORAWAN_MESSAGE_STORAGE &radioPacket,
@@ -44,14 +46,17 @@ public:
         const SEMTECH_PROTOCOL_METADATA_RX &metadata,
         ProtoGwParser *parser
     );
-    bool put(
+    bool putUplink(
         const TASK_TIME& time,
         const TaskSocket *taskSocket,
         const struct sockaddr &srcAddr,
         GwPushData &pushData,
         ProtoGwParser *parser
     );
-    void rm(
+    void rmUplink(
+        const DEVADDR &addr
+    );
+    void rmDownlink(
         const DEVADDR &addr
     );
     /**
@@ -59,10 +64,10 @@ public:
      * @param devAddr devioce address
      * @return null if not found
      */
-    MessageQueueItem *findByDevAddr(
+    MessageQueueItem *findUplink(
         const DEVADDR *devAddr
     );
-    MessageQueueItem *findByJoinRequest(
+    MessageQueueItem *findJoinRequest(
         const JOIN_REQUEST_FRAME *joinRequestFrame
     );
     /**
@@ -79,7 +84,8 @@ public:
      * @param since time to delete from
      * @return count of removed items
      */
-    size_t clearOldMessages(TASK_TIME since);
+    size_t clearOldUplinkMessages(TASK_TIME since);
+    size_t clearOldDownlinkMessages(TASK_TIME since);
 };
 
 #endif

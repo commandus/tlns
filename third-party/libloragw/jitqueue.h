@@ -118,7 +118,7 @@ enum jit_error_e jit_enqueue(struct jit_queue_s *queue, uint32_t time_us, struct
 @brief Dequeue a packet from a Just-in-Time queue
 
 @param queue[in/out] Just in Time queue from which the packet should be removed
-@param index[in] in the queue where to get the packet to be removed
+@param index[in] in the queue where to getUplink the packet to be removed
 @param packet[out] that was at index
 @param pkt_type[out] Type of packet dequeued: Downlink, Beacon
 @return success if the function was able to dequeue the packet

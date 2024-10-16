@@ -11,8 +11,8 @@
  *
  * Synchronous version                        Asynchronous version
  * -------------------                        --------------------
- * get(const DEVADDR &devAddr)                cGet(const DEVADDR &devAddr)
- * put(const DEVADDR &devAddr, uint64_t gwId) cPut(const DEVADDR &devAddr, uint64_t gwId)
+ * getUplink(const DEVADDR &devAddr)                cGet(const DEVADDR &devAddr)
+ * putUplink(const DEVADDR &devAddr, uint64_t gwId) cPut(const DEVADDR &devAddr, uint64_t gwId)
  * rm(const DEVADDR &addr)                    cRm(const DEVADDR &addr)
  * ...
  */

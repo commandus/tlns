@@ -15,9 +15,9 @@
  *
  * Synchronous version                                                    Asynchronous version
  *
- * get(DEVICEID &retVal, const DEVADDR &devAddr)                          cGet(const DEVADDR &devAddr)
+ * getUplink(DEVICEID &retVal, const DEVADDR &devAddr)                          cGet(const DEVADDR &devAddr)
  * getNetworkIdentity(NETWORKIDENTITY &retval, const DEVEUI &eui)         cGetNetworkIdentity(const DEVEUI &eui)
- * put(const DEVADDR &devaddr, const DEVICEID &id)                        cPut(const DEVADDR &devaddr, const DEVICEID &id)
+ * putUplink(const DEVADDR &devaddr, const DEVICEID &id)                        cPut(const DEVADDR &devaddr, const DEVICEID &id)
  * rm(const DEVADDR &addr)                                                cRm(const DEVADDR &addr)
  * list(std::vector<NETWORKIDENTITY> &retVal, size_t offset, size_t size) cList(size_t offset, size_t size)
  * size()                                                                 cSize()

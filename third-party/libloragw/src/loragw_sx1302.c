@@ -257,7 +257,7 @@ int sx1302_init(const struct lgw_conf_ftime_s * ftime_context) {
     if (ftime_context->enable == true) {
         x = sx1302_get_model_id(&model_id);
         if (x != LGW_REG_SUCCESS) {
-            printf("ERROR: failed to get Chip Model ID\n");
+            printf("ERROR: failed to getUplink Chip Model ID\n");
             return LGW_REG_ERROR;
         }
 
@@ -526,7 +526,7 @@ int sx1302_radio_calibrate(struct lgw_conf_rxrf_s * context_rf_chain, uint8_t cl
     /* -- Select the radio which provides the clock to the sx1302 */
     err = sx1302_radio_clock_select(clksrc);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: failed to get select clock from radio %u\n", clksrc);
+        printf("ERROR: failed to getUplink select clock from radio %u\n", clksrc);
         return LGW_REG_ERROR;
     }
 
@@ -818,7 +818,7 @@ int sx1302_lora_correlator_configure(struct lgw_conf_rxif_s * if_cfg, struct lgw
     err |= lgw_reg_w(SX1302_REG_RX_TOP_CORR_CLOCK_ENABLE_CLK_EN, channels_mask);
     err |= lgw_reg_w(SX1302_REG_RX_TOP_CORRELATOR_EN_CORR_EN, channels_mask);
 
-    /* For debug: get packets with sync_error and header_error in FIFO */
+    /* For debug: getUplink packets with sync_error and header_error in FIFO */
 #if 0
     err |= lgw_reg_w(SX1302_REG_RX_TOP_RX_BUFFER_STORE_SYNC_FAIL_META, 0x01);
     err |= lgw_reg_w(SX1302_REG_RX_TOP_RX_BUFFER_STORE_HEADER_ERR_META, 0x01);
@@ -1208,7 +1208,7 @@ int sx1302_agc_status(uint8_t* status) {
 
     err = lgw_reg_r(SX1302_REG_AGC_MCU_MCU_AGC_STATUS_MCU_AGC_STATUS, &val);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: Failed to get AGC status\n");
+        printf("ERROR: Failed to getUplink AGC status\n");
         return LGW_REG_ERROR;
     }
 
@@ -1670,7 +1670,7 @@ int sx1302_arb_status(uint8_t* status) {
 
     err = lgw_reg_r(SX1302_REG_ARB_MCU_MCU_ARB_STATUS_MCU_ARB_STATUS, &val);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: Failed to get ARB status\n");
+        printf("ERROR: Failed to getUplink ARB status\n");
         return LGW_REG_ERROR;
     }
 
@@ -1920,7 +1920,7 @@ int sx1302_parse(lgw_context_t * context, struct lgw_pkt_rx_s * p) {
     sx1302_arb_print_debug_stats();
 #endif
 
-    /* get packet from RX buffer */
+    /* getUplink packet from RX buffer */
     err = rx_buffer_pop(&rx_buffer, &pkt);
     if (err == LGW_REG_WARNING) {
         rx_buffer_del(&rx_buffer); /* clear the buffer */
@@ -2021,7 +2021,7 @@ int sx1302_parse(lgw_context_t * context, struct lgw_pkt_rx_s * p) {
         if (ifmod == IF_LORA_MULTI) {
             p->bandwidth = BW_125KHZ; /* fixed in hardware */
         } else {
-            p->bandwidth = context->lora_service_cfg.bandwidth; /* get the parameter from the config variable */
+            p->bandwidth = context->lora_service_cfg.bandwidth; /* getUplink the parameter from the config variable */
         }
 
         /* Get datarate */
@@ -2073,8 +2073,8 @@ int sx1302_parse(lgw_context_t * context, struct lgw_pkt_rx_s * p) {
         due to the register precision. We calculate this error here, and adjust the returned frequency error
         accordingly. */
         if_freq_hz = context->if_chain_cfg[p->if_chain].freq_hz; /* The IF frequency set in the registers, is the offset from the zero IF. */
-        if_freq_error = if_freq_hz - (IF_HZ_TO_REG(if_freq_hz) * 15625 / 32); /* The error corresponds to how many Hz are missing to get to actual 0 IF. */
-        /* Example to better understand what we get here:
+        if_freq_error = if_freq_hz - (IF_HZ_TO_REG(if_freq_hz) * 15625 / 32); /* The error corresponds to how many Hz are missing to getUplink to actual 0 IF. */
+        /* Example to better understand what we getUplink here:
             - For a channel set to IF 400000Hz
             - The IF frequency register will actually be set to 399902Hz due to its resolution
             - This means that the modem, to shift to 0 IF, will apply -399902, instead of -400000.
@@ -2347,7 +2347,7 @@ int sx1302_tx_abort(uint8_t rf_chain) {
             return LGW_REG_ERROR;
         }
 
-        /* get tx status */
+        /* getUplink tx status */
         tx_status = sx1302_tx_status(rf_chain);
         wait_ms(1);
     } while (tx_status != TX_FREE);

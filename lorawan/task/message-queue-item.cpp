@@ -21,7 +21,7 @@ std::string GatewayMetadata::toJsonString() const
 }
 
 MessageQueueItem::MessageQueueItem()
-    : queue(nullptr), firstGatewayReceived(std::chrono::system_clock::now())
+    : queue(nullptr), tim(std::chrono::system_clock::now())
 {
 
 }
@@ -30,7 +30,7 @@ MessageQueueItem::MessageQueueItem(
     MessageQueue * ownerQueue,
     const TASK_TIME& time
 )
-    : queue(ownerQueue), firstGatewayReceived(time)
+    : queue(ownerQueue), tim(time)
 {
 
 }
@@ -40,7 +40,7 @@ MessageQueueItem::MessageQueueItem(
     const TASK_TIME& time,
     ProtoGwParser *aParser
 )
-    : queue(ownerQueue), firstGatewayReceived(time)
+    : queue(ownerQueue), tim(time)
 {
 
 }
@@ -48,8 +48,8 @@ MessageQueueItem::MessageQueueItem(
 MessageQueueItem::MessageQueueItem(
     const MessageQueueItem& value
 )
-    : queue(value.queue), firstGatewayReceived(value.firstGatewayReceived),
-        radioPacket(value.radioPacket), metadata(value.metadata), task(value.task)
+    : queue(value.queue), tim(value.tim),
+      radioPacket(value.radioPacket), metadata(value.metadata), task(value.task)
 {
 }
 
@@ -64,13 +64,13 @@ bool MessageQueueItem::expired(
     const TASK_TIME &since
 ) const
 {
-    return (std::chrono::duration_cast<std::chrono::seconds>(since - firstGatewayReceived).count() > DEF_MESSAGE_EXPIRATION_SEC);
+    return (std::chrono::duration_cast<std::chrono::seconds>(since - tim).count() > DEF_MESSAGE_EXPIRATION_SEC);
 }
 
 std::string MessageQueueItem::toString() const
 {
     std::stringstream ss;
-    std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
+    std::time_t t = std::chrono::system_clock::to_time_t(tim);
     ss << R"({"received": ")" << time2string(t) << R"(", "radio": )" << radioPacket.toString();
     ss << ", \"gateways\": [";
     for (auto it : metadata) {
@@ -88,7 +88,7 @@ std::string MessageQueueItem::toString() const
 
 std::string MessageQueueItem::toJsonString() const
 {
-    std::time_t t = std::chrono::system_clock::to_time_t(firstGatewayReceived);
+    std::time_t t = std::chrono::system_clock::to_time_t(tim);
     std::stringstream ss;
     ss << R"({"received": ")" << time2string(t) << "\", \"radio\": " << radioPacket.toString();
     if (radioPacket.payloadSize)

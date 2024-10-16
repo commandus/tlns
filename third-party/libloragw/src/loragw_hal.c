@@ -914,7 +914,7 @@ int lgw_start(void) {
     /* Select the radio which provides the clock to the sx1302 */
     err = sx1302_radio_clock_select(CONTEXT_BOARD.clksrc);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: failed to get clock from radio %u\n", CONTEXT_BOARD.clksrc);
+        printf("ERROR: failed to getUplink clock from radio %u\n", CONTEXT_BOARD.clksrc);
         return LGW_HAL_ERROR;
     }
 
@@ -1200,7 +1200,7 @@ int lgw_stop(void) {
         DEBUG_PRINTF("INFO: aborting TX on chain %u\n", i);
         x = lgw_abort_tx(i);
         if (x != LGW_HAL_SUCCESS) {
-            printf("WARNING: failed to get abort TX on chain %u\n", i);
+            printf("WARNING: failed to getUplink abort TX on chain %u\n", i);
             err = LGW_HAL_ERROR;
         }
     }
@@ -1286,11 +1286,11 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     /* Apply RSSI temperature compensation */
     res = lgw_get_temperature(&current_temperature);
     if (res != LGW_I2C_SUCCESS) {
-        printf("ERROR: failed to get current temperature\n");
+        printf("ERROR: failed to getUplink current temperature\n");
         return LGW_HAL_ERROR;
     }
 
-    /* Iterate on the RX buffer to get parsed packets */
+    /* Iterate on the RX buffer to getUplink parsed packets */
     for (nb_pkt_found = 0; nb_pkt_found < ((nb_pkt_fetched <= max_pkt) ? nb_pkt_fetched : max_pkt); nb_pkt_found++) {
         /* Get packet and move to next one */
         res = sx1302_parse(&lgw_context, &pkt_data[nb_pkt_found]);
@@ -1449,7 +1449,7 @@ int lgw_send(struct lgw_pkt_tx_s * pkt_data) {
     if (CONTEXT_SX1261.lbt_conf.enable == true) {
         err = lgw_lbt_tx_status(pkt_data->rf_chain, &lbt_tx_allowed);
         if (err != 0) {
-            printf("ERROR: %s: Failed to get LBT TX status, TX aborted\n", __FUNCTION__);
+            printf("ERROR: %s: Failed to getUplink LBT TX status, TX aborted\n", __FUNCTION__);
             err = sx1302_tx_abort(pkt_data->rf_chain);
             if (err != 0) {
                 printf("ERROR: %s: Failed to abort TX\n", __FUNCTION__);

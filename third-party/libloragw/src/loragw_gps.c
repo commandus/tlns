@@ -291,7 +291,7 @@ static int lgw_gps_enable_i2c(char *tty_path, char *gps_family, speed_t target_b
         DEBUG_MSG("ERROR: Failed to write on serial port (written=%d)\n", (int) num_written);
     }
 
-    /* get timezone info */
+    /* getUplink timezone info */
     tzset();
 
     /* initialize global variables */
@@ -332,7 +332,7 @@ static int lgw_gps_enable_uart(char *tty_path, char *gps_family, speed_t target_
     } else if (strncmp(gps_family, "ubx7", 4) != 0) {
         /* The current implementation relies on proprietary messages from U-Blox */
         /* GPS modules (UBX, NAV-TIMEGPS...) and has only be tested with a u-blox 7. */
-        /* Those messages allow to get NATIVE GPS time (no leap seconds) required */
+        /* Those messages allow to getUplink NATIVE GPS time (no leap seconds) required */
         /* for class-B handling and GPS synchronization */
         /* see lgw_parse_ubx() function for details */
         DEBUG_MSG("WARNING: this version of GPS module may not be supported\n");
@@ -343,7 +343,7 @@ static int lgw_gps_enable_uart(char *tty_path, char *gps_family, speed_t target_
         DEBUG_MSG("WARNING: target_brate parameter ignored for now\n"); // TODO
     }
 
-    /* get actual serial port configuration */
+    /* getUplink actual serial port configuration */
     i = tcgetattr(gps_tty_dev, &ttyopt);
     if (i != 0) {
         DEBUG_MSG("ERROR: IMPOSSIBLE TO GET TTY PORT CONFIGURATION\n");
@@ -406,7 +406,7 @@ static int lgw_gps_enable_uart(char *tty_path, char *gps_family, speed_t target_
         DEBUG_MSG("ERROR: Failed to write on serial port (written=%d)\n", (int) num_written);
     }
 
-    /* get timezone info */
+    /* getUplink timezone info */
     tzset();
 
     /* initialize global variables */
@@ -607,7 +607,7 @@ enum gps_msg lgw_parse_nmea(const char *serial_buff, int buff_size) {
             return IGNORED;
         }
         /* parse GPS status */
-        gps_mod = *(parser_buf + str_index[12]); /* get first character, no need to bother with sscanf */
+        gps_mod = *(parser_buf + str_index[12]); /* getUplink first character, no need to bother with sscanf */
         if ((gps_mod != 'N') && (gps_mod != 'A') && (gps_mod != 'D')) {
             gps_mod = 'N';
         }
@@ -623,7 +623,7 @@ enum gps_msg lgw_parse_nmea(const char *serial_buff, int buff_size) {
                 DEBUG_MSG("Note: Valid RMC sentence, no satellite fix, estimated date: 20%02d-%02d-%02dT%02d:%02d:%06.3fZ\n", gps_yea, gps_mon, gps_day, gps_hou, gps_min, gps_fra + (float)gps_sec);
             }
         } else {
-            /* could not get a valid hour AND date */
+            /* could not getUplink a valid hour AND date */
             gps_time_ok = false;
             DEBUG_MSG("Note: Valid RMC sentence, mode %c, no date\n", gps_mod);
         }
@@ -652,7 +652,7 @@ enum gps_msg lgw_parse_nmea(const char *serial_buff, int buff_size) {
             gps_pos_ok = true;
             DEBUG_MSG("Note: Valid GGA sentence, %d sat, lat %02ddeg %06.3fmin %c, lon %03ddeg%06.3fmin %c, alt %d\n", gps_sat, gps_dla, gps_mla, gps_ola, gps_dlo, gps_mlo, gps_olo, gps_alt);
         } else {
-            /* could not get a valid latitude, longitude AND altitude */
+            /* could not getUplink a valid latitude, longitude AND altitude */
             gps_pos_ok = false;
             DEBUG_MSG("Note: Valid GGA sentence, %d sat, no coordinates\n", gps_sat);
         }

@@ -121,7 +121,7 @@ int sx1261_usb_r(void *com_target, sx1261_op_code_t op_code, uint8_t *data, uint
         in_out_buf[i + 6] = data[i];
     }
     if (_sx1261_write_mode == LGW_COM_WRITE_MODE_BULK) {
-        /* makes no sense to read in bulk mode, as we can't get the result */
+        /* makes no sense to read in bulk mode, as we can't getUplink the result */
         printf("ERROR: USB READ BURST FAILURE - bulk mode is enabled\n");
         return -1;
     } else {

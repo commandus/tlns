@@ -202,7 +202,7 @@ int lgw_usb_open(const char * com_path, void **com_target_ptr) {
 
         /* Get MCU status */
         if (mcu_get_status(fd, &mcu_status) != 0) {
-            printf("ERROR: failed to get status from the concentrator MCU\n");
+            printf("ERROR: failed to getUplink status from the concentrator MCU\n");
             return LGW_USB_ERROR;
         }
         printf("INFO: MCU status: sys_time:%u temperature:%.1foC\n", mcu_status.system_time_ms, mcu_status.temperature);
@@ -405,7 +405,7 @@ int lgw_usb_rb(void *com_target, uint8_t spi_mux_target, uint16_t address, uint8
     }
 
     if (_lgw_write_mode == LGW_COM_WRITE_MODE_BULK) {
-        /* makes no sense to read in bulk mode, as we can't get the result */
+        /* makes no sense to read in bulk mode, as we can't getUplink the result */
         printf("ERROR: USB READ BURST FAILURE - bulk mode is enabled\n");
         return -1;
     } else {
@@ -492,7 +492,7 @@ int lgw_usb_get_temperature(void *com_target, float * temperature) {
     usb_device = *(int *)com_target;
 
     if (mcu_get_status(usb_device, &mcu_status) != 0) {
-        printf("ERROR: failed to get status from the concentrator MCU\n");
+        printf("ERROR: failed to getUplink status from the concentrator MCU\n");
         return -1;
     }
     DEBUG_PRINTF("INFO: temperature:%.1foC\n", mcu_status.temperature);

@@ -23,7 +23,7 @@ public:
 class MessageQueueItem {
 public:
     MessageQueue *queue;                            ///< pointer to collection owns item
-    TASK_TIME firstGatewayReceived;                 ///< receiving time of the first received packet (no matter which gateway is first)
+    TASK_TIME tim;                                  ///< uplink: receiving time of the first received packet (no matter which gateway is first). Downlink- time to send
     LORAWAN_MESSAGE_STORAGE radioPacket;            ///< radio packet
     std::map <uint64_t, GatewayMetadata> metadata;  ///< radio metadata sent by each gateway. Metadata describes receiving conditions such as signal power, signal/noise ratio etc.
     TaskDescriptor task;                            ///< corresponding task

@@ -71,7 +71,7 @@ public:
     /** Upstream only. array of packets from Basic communication protocol packet
      * @param packetForwarderPacket
      * @param size
-     * @param cb put gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
+     * @param cb putUplink gateway identifier (if supplied, tags: 0- PUSH_DATA 2- PULL_DATA 5- TX_ACK)
      * @return Return tag number 0-5 or error code (<0)
      */
     int parse(

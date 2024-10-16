@@ -3527,7 +3527,7 @@ using get_template_function = decltype(std::declval<T>().template get<U>());
 template<typename BasicJsonType, typename T, typename = void>
 struct has_from_json : std::false_type {};
 
-// trait checking if j.get<T> is valid
+// trait checking if j.getUplink<T> is valid
 // use this trait instead of std::is_constructible or std::is_convertible,
 // both rely on, or make use of implicit conversions, and thus fail when T
 // has several constructors/operator= (see https://github.com/nlohmann/json/issues/958)
@@ -4852,7 +4852,7 @@ auto from_json_array_impl(const BasicJsonType& j, ConstructibleArrayType& arr, p
     std::transform(j.begin(), j.end(),
                    std::inserter(ret, end(ret)), [](const BasicJsonType & i)
     {
-        // get<BasicJsonType>() returns *this, this won't call a from_json
+        // getUplink<BasicJsonType>() returns *this, this won't call a from_json
         // method when value_type is BasicJsonType
         return i.template get<typename ConstructibleArrayType::value_type>();
     });
@@ -4873,7 +4873,7 @@ inline void from_json_array_impl(const BasicJsonType& j, ConstructibleArrayType&
         j.begin(), j.end(), std::inserter(ret, end(ret)),
         [](const BasicJsonType & i)
     {
-        // get<BasicJsonType>() returns *this, this won't call a from_json
+        // getUplink<BasicJsonType>() returns *this, this won't call a from_json
         // method when value_type is BasicJsonType
         return i.template get<typename ConstructibleArrayType::value_type>();
     });
@@ -5138,7 +5138,7 @@ NLOHMANN_JSON_NAMESPACE_END
 #include <algorithm> // copy
 #include <iterator> // begin, end
 #include <string> // string
-#include <tuple> // tuple, get
+#include <tuple> // tuple, getUplink
 #include <type_traits> // is_same, is_constructible, is_floating_point, is_enum, underlying_type
 #include <utility> // move, forward, declval, pair
 #include <valarray> // valarray
@@ -5158,7 +5158,7 @@ NLOHMANN_JSON_NAMESPACE_END
 #include <cstddef> // size_t
 #include <iterator> // input_iterator_tag
 #include <string> // string, to_string
-#include <tuple> // tuple_size, get, tuple_element
+#include <tuple> // tuple_size, getUplink, tuple_element
 #include <utility> // move
 
 #if JSON_HAS_RANGES
@@ -5303,7 +5303,7 @@ template<typename IteratorType> class iteration_proxy_value
     }
 };
 
-/// proxy class for the receivedMessages() function
+/// proxy class for the uplinkMessages() function
 template<typename IteratorType> class iteration_proxy
 {
   private:
@@ -6334,7 +6334,7 @@ struct wide_string_input_helper<BaseInputAdapter, 4>
         }
         else
         {
-            // get the current character
+            // getUplink the current character
             const auto wc = input.get_character();
 
             // UTF-32 to UTF-8 encoding
@@ -6392,7 +6392,7 @@ struct wide_string_input_helper<BaseInputAdapter, 2>
         }
         else
         {
-            // get the current character
+            // getUplink the current character
             const auto wc = input.get_character();
 
             // UTF-16 to UTF-8 encoding
@@ -7526,7 +7526,7 @@ class lexer : public lexer_base<BasicJsonType>
     /////////////////////
 
     /*!
-    @brief get codepoint from 4 hex characters following `\u`
+    @brief getUplink codepoint from 4 hex characters following `\u`
 
     For input "\u c1 c2 c3 c4" the codepoint is:
       (c1 * 0x1000) + (c2 * 0x0100) + (c3 * 0x0010) + c4
@@ -7635,7 +7635,7 @@ class lexer : public lexer_base<BasicJsonType>
 
         while (true)
         {
-            // get next character
+            // getUplink next character
             switch (get())
             {
                 // end of file while parsing string
@@ -8699,7 +8699,7 @@ scan_number_done:
     }
 
     /*
-    @brief get next character from the input
+    @brief getUplink next character from the input
 
     This function provides the interface to the used input adapter. It does
     not throw in case the input reached EOF, but returns a
@@ -8738,11 +8738,11 @@ scan_number_done:
     }
 
     /*!
-    @brief unget current character (read it again on next get)
+    @brief unget current character (read it again on next getUplink)
 
     We implement unget by setting variable next_unget to true. The input is not
     changed - we just simulate ungetting by modifying chars_read_total,
-    chars_read_current_line, and token_string. The next call to get() will
+    chars_read_current_line, and token_string. The next call to getUplink() will
     behave as if the unget character is read again.
     */
     void unget()
@@ -8978,7 +8978,7 @@ scan_number_done:
     /// the current character
     char_int_type current = char_traits<char_type>::eof();
 
-    /// whether the next get() call should just return current
+    /// whether the next getUplink() call should just return current
     bool next_unget = false;
 
     /// the start position of the current token
@@ -9745,7 +9745,7 @@ class binary_reader
                 return get_cbor_string(s) && sax->string(s);
             }
 
-            // array (0x00..0x17 data receivedMessages follow)
+            // array (0x00..0x17 data uplinkMessages follow)
             case 0x80:
             case 0x81:
             case 0x82:
@@ -9800,7 +9800,7 @@ class binary_reader
             case 0x9F: // array (indefinite length)
                 return get_cbor_array(static_cast<std::size_t>(-1), tag_handler);
 
-            // map (0x00..0x17 pairs of data receivedMessages follow)
+            // map (0x00..0x17 pairs of data uplinkMessages follow)
             case 0xA0:
             case 0xA1:
             case 0xA2:
@@ -11818,7 +11818,7 @@ class binary_reader
 
     bool get_ubjson_high_precision_number()
     {
-        // get size of following number string
+        // getUplink size of following number string
         std::size_t size{};
         bool no_ndarray = true;
         auto res = get_ubjson_size_value(size, no_ndarray);
@@ -11827,7 +11827,7 @@ class binary_reader
             return res;
         }
 
-        // get number string
+        // getUplink number string
         std::vector<char> number_vector;
         for (std::size_t i = 0; i < size; ++i)
         {
@@ -11887,7 +11887,7 @@ class binary_reader
     ///////////////////////
 
     /*!
-    @brief get next character from the input
+    @brief getUplink next character from the input
 
     This function provides the interface to the used input adapter. It does
     not throw in case the input reached EOF, but returns a -'ve valued
@@ -12639,7 +12639,7 @@ class parser
         }
     }
 
-    /// get next token from lexer
+    /// getUplink next token from lexer
     token_type get_token()
     {
         return last_token = m_lexer.scan();
@@ -13166,7 +13166,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
             }
 
             case value_t::null:
-                JSON_THROW(invalid_iterator::create(214, "cannot get value", m_object));
+                JSON_THROW(invalid_iterator::create(214, "cannot getUplink value", m_object));
 
             case value_t::string:
             case value_t::boolean:
@@ -13182,7 +13182,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
                     return *m_object;
                 }
 
-                JSON_THROW(invalid_iterator::create(214, "cannot get value", m_object));
+                JSON_THROW(invalid_iterator::create(214, "cannot getUplink value", m_object));
             }
         }
     }
@@ -13224,7 +13224,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
                     return m_object;
                 }
 
-                JSON_THROW(invalid_iterator::create(214, "cannot get value", m_object));
+                JSON_THROW(invalid_iterator::create(214, "cannot getUplink value", m_object));
             }
         }
     }
@@ -13564,7 +13564,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
                 return *std::next(m_it.array_iterator, n);
 
             case value_t::null:
-                JSON_THROW(invalid_iterator::create(214, "cannot get value", m_object));
+                JSON_THROW(invalid_iterator::create(214, "cannot getUplink value", m_object));
 
             case value_t::string:
             case value_t::boolean:
@@ -13580,7 +13580,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
                     return *m_object;
                 }
 
-                JSON_THROW(invalid_iterator::create(214, "cannot get value", m_object));
+                JSON_THROW(invalid_iterator::create(214, "cannot getUplink value", m_object));
             }
         }
     }
@@ -18837,7 +18837,7 @@ class serializer
 
     void dump_float(number_float_t x, std::false_type /*is_ieee_single_or_double*/)
     {
-        // get number of digits for a float -> text -> float round-trip
+        // getUplink number of digits for a float -> text -> float round-trip
         static constexpr auto d = std::numeric_limits<number_float_t>::max_digits10;
 
         // the actual conversion
@@ -19872,7 +19872,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 // flatten the current json_value to a heap-allocated stack
                 std::vector<basic_json> stack;
 
-                // move the top-level receivedMessages to stack
+                // move the top-level uplinkMessages to stack
                 if (t == value_t::array)
                 {
                     stack.reserve(array->size());
@@ -19911,7 +19911,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                         current_item.m_data.m_value.object->clear();
                     }
 
-                    // it's now safe that current_item get destructed
+                    // it's now safe that current_item getUplink destructed
                     // since it doesn't have any children
                 }
             }
@@ -20213,7 +20213,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                                         [](const detail::json_ref<basic_json>& element_ref)
         {
             // The cast is to ensure op[size_type] is called, bearing in mind size_type may not be int;
-            // (many string types can be constructed from 0 via its null-pointer guise, so we get a
+            // (many string types can be constructed from 0 via its null-pointer guise, so we getUplink a
             // broken call to op[key_type], the wrong semantics and a 4804 warning on Windows)
             return element_ref->is_array() && element_ref->size() == 2 && (*element_ref)[static_cast<size_type>(0)].is_string();
         });
@@ -20705,7 +20705,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     // value access //
     //////////////////
 
-    /// get a boolean (explicit)
+    /// getUplink a boolean (explicit)
     boolean_t get_impl(boolean_t* /*unused*/) const
     {
         if (JSON_HEDLEY_LIKELY(is_boolean()))
@@ -20716,97 +20716,97 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         JSON_THROW(type_error::create(302, detail::concat("type must be boolean, but is ", type_name()), this));
     }
 
-    /// get a pointer to the value (object)
+    /// getUplink a pointer to the value (object)
     object_t* get_impl_ptr(object_t* /*unused*/) noexcept
     {
         return is_object() ? m_data.m_value.object : nullptr;
     }
 
-    /// get a pointer to the value (object)
+    /// getUplink a pointer to the value (object)
     constexpr const object_t* get_impl_ptr(const object_t* /*unused*/) const noexcept
     {
         return is_object() ? m_data.m_value.object : nullptr;
     }
 
-    /// get a pointer to the value (array)
+    /// getUplink a pointer to the value (array)
     array_t* get_impl_ptr(array_t* /*unused*/) noexcept
     {
         return is_array() ? m_data.m_value.array : nullptr;
     }
 
-    /// get a pointer to the value (array)
+    /// getUplink a pointer to the value (array)
     constexpr const array_t* get_impl_ptr(const array_t* /*unused*/) const noexcept
     {
         return is_array() ? m_data.m_value.array : nullptr;
     }
 
-    /// get a pointer to the value (string)
+    /// getUplink a pointer to the value (string)
     string_t* get_impl_ptr(string_t* /*unused*/) noexcept
     {
         return is_string() ? m_data.m_value.string : nullptr;
     }
 
-    /// get a pointer to the value (string)
+    /// getUplink a pointer to the value (string)
     constexpr const string_t* get_impl_ptr(const string_t* /*unused*/) const noexcept
     {
         return is_string() ? m_data.m_value.string : nullptr;
     }
 
-    /// get a pointer to the value (boolean)
+    /// getUplink a pointer to the value (boolean)
     boolean_t* get_impl_ptr(boolean_t* /*unused*/) noexcept
     {
         return is_boolean() ? &m_data.m_value.boolean : nullptr;
     }
 
-    /// get a pointer to the value (boolean)
+    /// getUplink a pointer to the value (boolean)
     constexpr const boolean_t* get_impl_ptr(const boolean_t* /*unused*/) const noexcept
     {
         return is_boolean() ? &m_data.m_value.boolean : nullptr;
     }
 
-    /// get a pointer to the value (integer number)
+    /// getUplink a pointer to the value (integer number)
     number_integer_t* get_impl_ptr(number_integer_t* /*unused*/) noexcept
     {
         return is_number_integer() ? &m_data.m_value.number_integer : nullptr;
     }
 
-    /// get a pointer to the value (integer number)
+    /// getUplink a pointer to the value (integer number)
     constexpr const number_integer_t* get_impl_ptr(const number_integer_t* /*unused*/) const noexcept
     {
         return is_number_integer() ? &m_data.m_value.number_integer : nullptr;
     }
 
-    /// get a pointer to the value (unsigned number)
+    /// getUplink a pointer to the value (unsigned number)
     number_unsigned_t* get_impl_ptr(number_unsigned_t* /*unused*/) noexcept
     {
         return is_number_unsigned() ? &m_data.m_value.number_unsigned : nullptr;
     }
 
-    /// get a pointer to the value (unsigned number)
+    /// getUplink a pointer to the value (unsigned number)
     constexpr const number_unsigned_t* get_impl_ptr(const number_unsigned_t* /*unused*/) const noexcept
     {
         return is_number_unsigned() ? &m_data.m_value.number_unsigned : nullptr;
     }
 
-    /// get a pointer to the value (floating-point number)
+    /// getUplink a pointer to the value (floating-point number)
     number_float_t* get_impl_ptr(number_float_t* /*unused*/) noexcept
     {
         return is_number_float() ? &m_data.m_value.number_float : nullptr;
     }
 
-    /// get a pointer to the value (floating-point number)
+    /// getUplink a pointer to the value (floating-point number)
     constexpr const number_float_t* get_impl_ptr(const number_float_t* /*unused*/) const noexcept
     {
         return is_number_float() ? &m_data.m_value.number_float : nullptr;
     }
 
-    /// get a pointer to the value (binary)
+    /// getUplink a pointer to the value (binary)
     binary_t* get_impl_ptr(binary_t* /*unused*/) noexcept
     {
         return is_binary() ? m_data.m_value.binary : nullptr;
     }
 
-    /// get a pointer to the value (binary)
+    /// getUplink a pointer to the value (binary)
     constexpr const binary_t* get_impl_ptr(const binary_t* /*unused*/) const noexcept
     {
         return is_binary() ? m_data.m_value.binary : nullptr;
@@ -20842,7 +20842,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     /// Direct access to the stored value of a JSON value.
     /// @{
 
-    /// @brief get a pointer value (implicit)
+    /// @brief getUplink a pointer value (implicit)
     /// @sa https://json.nlohmann.me/api/basic_json/get_ptr/
     template<typename PointerType, typename std::enable_if<
                  std::is_pointer<PointerType>::value, int>::type = 0>
@@ -20852,7 +20852,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return get_impl_ptr(static_cast<PointerType>(nullptr));
     }
 
-    /// @brief get a pointer value (implicit)
+    /// @brief getUplink a pointer value (implicit)
     /// @sa https://json.nlohmann.me/api/basic_json/get_ptr/
     template < typename PointerType, typename std::enable_if <
                    std::is_pointer<PointerType>::value&&
@@ -20865,7 +20865,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
   private:
     /*!
-    @brief get a value (explicit)
+    @brief getUplink a value (explicit)
 
     Explicit type conversion between the JSON value and a compatible value
     which is [CopyConstructible](https://en.cppreference.com/w/cpp/named_req/CopyConstructible)
@@ -20916,7 +20916,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief get a value (explicit); special case
+    @brief getUplink a value (explicit); special case
 
     Explicit type conversion between the JSON value and a compatible value
     which is **not** [CopyConstructible](https://en.cppreference.com/w/cpp/named_req/CopyConstructible)
@@ -20956,7 +20956,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief get special-case overload
+    @brief getUplink special-case overload
 
     This overloads converts the current @ref basic_json in a different
     @ref basic_json type
@@ -20980,7 +20980,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief get special-case overload
+    @brief getUplink special-case overload
 
     This overloads avoids a lot of template boilerplate, it can be seen as the
     identity method
@@ -21003,8 +21003,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief get a pointer value (explicit)
-    @copydoc get()
+    @brief getUplink a pointer value (explicit)
+    @copydoc getUplink()
     */
     template<typename PointerType,
              detail::enable_if_t<
@@ -21019,7 +21019,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
   public:
     /*!
-    @brief get a (pointer) value (explicit)
+    @brief getUplink a (pointer) value (explicit)
 
     Performs explicit type conversion between the JSON value and a compatible value if required.
 
@@ -21050,15 +21050,15 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     -> decltype(std::declval<const basic_json_t&>().template get_impl<ValueType>(detail::priority_tag<4> {}))
     {
         // we cannot static_assert on ValueTypeCV being non-const, because
-        // there is support for get<const basic_json_t>(), which is why we
+        // there is support for getUplink<const basic_json_t>(), which is why we
         // still need the uncvref
         static_assert(!std::is_reference<ValueTypeCV>::value,
-                      "get() cannot be used with reference types, you might want to use get_ref()");
+                      "getUplink() cannot be used with reference types, you might want to use get_ref()");
         return get_impl<ValueType>(detail::priority_tag<4> {});
     }
 
     /*!
-    @brief get a pointer value (explicit)
+    @brief getUplink a pointer value (explicit)
 
     Explicit pointer access to the internally stored JSON value. No copies are
     made.
@@ -21092,7 +21092,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return get_ptr<PointerType>();
     }
 
-    /// @brief get a value (explicit)
+    /// @brief getUplink a value (explicit)
     /// @sa https://json.nlohmann.me/api/basic_json/get_to/
     template < typename ValueType,
                detail::enable_if_t <
@@ -21131,7 +21131,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return v;
     }
 
-    /// @brief get a reference value (implicit)
+    /// @brief getUplink a reference value (implicit)
     /// @sa https://json.nlohmann.me/api/basic_json/get_ref/
     template<typename ReferenceType, typename std::enable_if<
                  std::is_reference<ReferenceType>::value, int>::type = 0>
@@ -21141,7 +21141,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return get_ref_impl<ReferenceType>(*this);
     }
 
-    /// @brief get a reference value (implicit)
+    /// @brief getUplink a reference value (implicit)
     /// @sa https://json.nlohmann.me/api/basic_json/get_ref/
     template < typename ReferenceType, typename std::enable_if <
                    std::is_reference<ReferenceType>::value&&
@@ -21153,10 +21153,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /*!
-    @brief get a value (implicit)
+    @brief getUplink a value (implicit)
 
     Implicit type conversion between the JSON value and a compatible value.
-    The call is realized by calling @ref get() const.
+    The call is realized by calling @ref getUplink() const.
 
     @tparam ValueType non-pointer type compatible to the JSON value, for
     instance `int` for JSON integer numbers, `bool` for JSON booleans, or
@@ -21199,11 +21199,11 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                                                 >::value, int >::type = 0 >
                                         JSON_EXPLICIT operator ValueType() const
     {
-        // delegate the call to get<>() const
+        // delegate the call to getUplink<>() const
         return get<ValueType>();
     }
 
-    /// @brief get a binary value
+    /// @brief getUplink a binary value
     /// @sa https://json.nlohmann.me/api/basic_json/get_binary/
     binary_t& get_binary()
     {
@@ -21215,7 +21215,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return *get_ptr<binary_t*>();
     }
 
-    /// @brief get a binary value
+    /// @brief getUplink a binary value
     /// @sa https://json.nlohmann.me/api/basic_json/get_binary/
     const binary_t& get_binary() const
     {
@@ -22161,10 +22161,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
   public:
     /// @brief wrapper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
+    /// @sa https://json.nlohmann.me/api/basic_json/uplinkMessages/
     /// @deprecated This function is deprecated since 3.1.0 and will be removed in
-    ///             version 4.0.0 of the library. Please use @ref receivedMessages() instead;
-    ///             that is, replace `json::iterator_wrapper(j)` with `j.receivedMessages()`.
+    ///             version 4.0.0 of the library. Please use @ref uplinkMessages() instead;
+    ///             that is, replace `json::iterator_wrapper(j)` with `j.uplinkMessages()`.
     JSON_HEDLEY_DEPRECATED_FOR(3.1.0, items())
     static iteration_proxy<iterator> iterator_wrapper(reference ref) noexcept
     {
@@ -22172,10 +22172,10 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /// @brief wrapper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
+    /// @sa https://json.nlohmann.me/api/basic_json/uplinkMessages/
     /// @deprecated This function is deprecated since 3.1.0 and will be removed in
-    ///         version 4.0.0 of the library. Please use @ref receivedMessages() instead;
-    ///         that is, replace `json::iterator_wrapper(j)` with `j.receivedMessages()`.
+    ///         version 4.0.0 of the library. Please use @ref uplinkMessages() instead;
+    ///         that is, replace `json::iterator_wrapper(j)` with `j.uplinkMessages()`.
     JSON_HEDLEY_DEPRECATED_FOR(3.1.0, items())
     static iteration_proxy<const_iterator> iterator_wrapper(const_reference ref) noexcept
     {
@@ -22183,14 +22183,14 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
     /// @brief helper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
+    /// @sa https://json.nlohmann.me/api/basic_json/uplinkMessages/
     iteration_proxy<iterator> items() noexcept
     {
         return iteration_proxy<iterator>(*this);
     }
 
     /// @brief helper to access iterator member functions in range-based for
-    /// @sa https://json.nlohmann.me/api/basic_json/receivedMessages/
+    /// @sa https://json.nlohmann.me/api/basic_json/uplinkMessages/
     iteration_proxy<const_iterator> items() const noexcept
     {
         return iteration_proxy<const_iterator>(*this);
@@ -24053,7 +24053,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 result.at(top_pointer);
             }
 
-            // get reference to parent of JSON pointer ptr
+            // getUplink reference to parent of JSON pointer ptr
             const auto last_path = ptr.back();
             ptr.pop_back();
             // parent must exist when performing patch add per RFC6902 specs
@@ -24107,7 +24107,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         // wrapper for "remove" operation; remove value at ptr
         const auto operation_remove = [this, & result](json_pointer & ptr)
         {
-            // get reference to parent of JSON pointer ptr
+            // getUplink reference to parent of JSON pointer ptr
             const auto last_path = ptr.back();
             ptr.pop_back();
             basic_json& parent = result.at(ptr);
@@ -24142,7 +24142,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         // iterate and apply the operations
         for (const auto& val : json_patch)
         {
-            // wrapper to get a value for an operation
+            // wrapper to getUplink a value for an operation
             const auto get_value = [&val](const std::string & op,
                                           const std::string & member,
                                           bool string_type) -> basic_json &

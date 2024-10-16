@@ -193,7 +193,7 @@ int rx_buffer_fetch(rx_buffer_t * self) {
             self->buffer_size -= idx;
         }
 
-        /* Rewind and parse buffer to get the number of packet fetched */
+        /* Rewind and parse buffer to getUplink the number of packet fetched */
         idx = 0;
         while (idx < self->buffer_size) {
             if ((self->buffer[idx] != SX1302_PKT_SYNCWORD_BYTE_0) || (self->buffer[idx + 1] != SX1302_PKT_SYNCWORD_BYTE_1)) {

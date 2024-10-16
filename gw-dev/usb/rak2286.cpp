@@ -95,13 +95,13 @@ const char *MEASUREMENT_SHORT_NAME[MEASUREMENT_COUNT_SIZE] = {
 #define ERR_LORA_GATEWAY_SPECTRAL_SCAN_FAILED          "Spectral scan status failed"
 #define ERR_LORA_GATEWAY_SPECTRAL_SCAN_ABORTED         "Spectral scan has been aborted"
 #define ERR_LORA_GATEWAY_SPECTRAL_SCAN_UNEXPECTED_STATUS "Unexpected spectral scan status"
-#define ERR_LORA_GATEWAY_GET_TX_STATUS                  "Failed to get TX status on spectral scan"
+#define ERR_LORA_GATEWAY_GET_TX_STATUS                  "Failed to getUplink TX status on spectral scan"
 #define ERR_LORA_GATEWAY_SKIP_SPECTRAL_SCAN             "Skip spectral scan"
 #define ERR_LORA_GATEWAY_STATUS_FAILED                  "Getting gateway status failed"
 #define ERR_LORA_GATEWAY_EMIT_ALLREADY                  "Concentrator is currently emitting"
 #define ERR_LORA_GATEWAY_SCHEDULED_ALLREADY             "Downlink was already scheduled on, overwriting it"
 #define ERR_LORA_GATEWAY_SPECTRAL_SCAN_ABORT_FAILED     "Spectral scan abort failed"
-#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_RESULT           "Spectral scan get results failed"
+#define ERR_LORA_GATEWAY_SPECTRAL_SCAN_RESULT           "Spectral scan getUplink results failed"
 #define MSG_SPECTRAL_SCAN_FINISHED      "Spectral scan thread finished"
 #define MSG_SPECTRAL_SCAN_STARTED       "Spectral scan thread started"
 #define MSG_GPS_STARTED                 "GPS thread started"
@@ -330,14 +330,14 @@ int LoraGatewayListener::syncGPSTime()
     }
     struct timespec gpsTime;
     struct timespec utc;
-    // get GPS time for synchronization. Ignore coordinates.
+    // getUplink GPS time for synchronization. Ignore coordinates.
     int r = lgw_gps_get(&utc, &gpsTime, nullptr, nullptr);
     if (r) {
         gpsTimeLastSynced = 0;
         return ERR_CODE_LORA_GATEWAY_GPS_GET_TIME;
     }
 
-    // get timestamp captured on PPM pulse
+    // getUplink timestamp captured on PPM pulse
     mLGW.lock();
     uint32_t ppmCountUs; // concentrator timestamp associated with PPM pulse
     r = lgw_get_trigcnt(&ppmCountUs);
@@ -376,7 +376,7 @@ int LoraGatewayListener::syncGPSLocation()
         return ERR_CODE_LORA_GATEWAY_GPS_DISABLED;
     }
     struct coord_s gpserr;  // ignore deviation
-    // get GPS time and coordinates for synchronization. Ignore coordinates deviation.
+    // getUplink GPS time and coordinates for synchronization. Ignore coordinates deviation.
     int r = lgw_gps_get(nullptr, nullptr, &gpsLastCoord, &gpserr);
     if (r) {
         gpsCoordsLastSynced = 0;
@@ -451,7 +451,7 @@ void LoraGatewayListener::spectralScanRunner()
                     break;
                 }
 
-                // get spectral scan status
+                // getUplink spectral scan status
                 mLGW.lock();
                 int x = lgw_spectral_scan_get_status(&status);
                 mLGW.unlock();
@@ -711,7 +711,7 @@ void LoraGatewayListener::upstreamRunner()
             continue;
         }
 
-        // get a copy of GPS time reference (avoid 1 mutex per metadata)
+        // getUplink a copy of GPS time reference (avoid 1 mutex per metadata)
         if (config->gateway.gpsEnabled) {
             mutexGPSTimeReference.lock();
             ref_ok = gps_ref_valid;
@@ -1043,8 +1043,8 @@ int LoraGatewayListener::enqueueTxPacket(
             double x4;
             double x3 = modf((double) tx.pkt.count_us / 1E3, &x4);
             struct timespec gps_tx; // GPS time that needs to be converted to timestamp
-            gps_tx.tv_sec = (time_t) x4; // get seconds from integer part
-            gps_tx.tv_nsec = (long) (x3 * 1E9); // get nanoseconds from fractional part
+            gps_tx.tv_sec = (time_t) x4; // getUplink seconds from integer part
+            gps_tx.tv_nsec = (long) (x3 * 1E9); // getUplink nanoseconds from fractional part
 
             // transform GPS time to timestamp
             int r = lgw_gps2cnt(local_ref, gps_tx, &(tx.pkt.count_us));
@@ -1292,14 +1292,14 @@ void LoraGatewayListener::downstreamBeaconRunner() {
                 //   LoRaWAN: T = k*beacon_period + TBeaconDelay
                 //            with TBeaconDelay = [1.5ms +/- 1µs]*/
                 if (last_beacon_gps_time.tv_sec == 0) {
-                    // if no beacon has been queued, get next slot from current GPS time
+                    // if no beacon has been queued, getUplink next slot from current GPS time
                     diff_beacon_time = gpsTimeReference.gps.tv_sec % ((time_t) config->gateway.beaconPeriod);
                     next_beacon_gps_time.tv_sec = gpsTimeReference.gps.tv_sec + ((time_t) config->gateway.beaconPeriod - diff_beacon_time);
                 } else {
                     // if there is already a beacon, take it as reference
                     next_beacon_gps_time.tv_sec = last_beacon_gps_time.tv_sec + config->gateway.beaconPeriod;
                 }
-                // now we can add a beacon_period to the reference to get next beacon GPS time
+                // now we can add a beacon_period to the reference to getUplink next beacon GPS time
                 next_beacon_gps_time.tv_sec += (retry * config->gateway.beaconPeriod);
                 next_beacon_gps_time.tv_nsec = 0;
 #if DEBUG_BEACON
@@ -1629,7 +1629,7 @@ int LoraGatewayListener::start()
     if (lastLgwCode)
         return ERR_CODE_LORA_GATEWAY_START_FAILED;
 
-    // get the concentrator EUI
+    // getUplink the concentrator EUI
     lastLgwCode = lgw_get_eui(&eui);
     if (lastLgwCode)
         return ERR_CODE_LORA_GATEWAY_GET_EUI;

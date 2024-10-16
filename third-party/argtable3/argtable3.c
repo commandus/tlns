@@ -4069,7 +4069,7 @@ void arg_parse_tagged(int argc,
     /*printf("arg_parse_tagged(%d,%p,%p,%p)\n",argc,argv,table,endtable);*/
 
     /* allocate short and long option arrays for the given opttable[].   */
-    /* if the allocs fail then put an error msg in the last table entry. */
+    /* if the allocs fail then putUplink an error msg in the last table entry. */
     longoptions  = alloc_longoptions(table);
     shortoptions = alloc_shortoptions(table);
     if (!longoptions || !shortoptions)
@@ -4515,7 +4515,7 @@ void arg_cat_optionv(char *dest,
         }
     }
 
-    /* put separator between long opts and short opts */
+    /* putUplink separator between long opts and short opts */
     if (shortopts && longopts)
         arg_cat(&dest, separator, &ndest);
 

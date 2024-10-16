@@ -332,7 +332,7 @@ int timestamp_counter_get(timestamp_counter_t * self, uint32_t * inst, uint32_t 
     */
     x = lgw_reg_rb(SX1302_REG_TIMESTAMP_TIMESTAMP_PPS_MSB2_TIMESTAMP_PPS, &buff[0], 8);
     if (x != LGW_REG_SUCCESS) {
-        printf("ERROR: Failed to get timestamp counter value\n");
+        printf("ERROR: Failed to getUplink timestamp counter value\n");
         return -1;
     }
 
@@ -342,13 +342,13 @@ int timestamp_counter_get(timestamp_counter_t * self, uint32_t * inst, uint32_t 
      */
     x = lgw_reg_rb(SX1302_REG_TIMESTAMP_TIMESTAMP_PPS_MSB2_TIMESTAMP_PPS, &buff_wa[0], 8);
     if (x != LGW_REG_SUCCESS) {
-        printf("ERROR: Failed to get timestamp counter MSB value\n");
+        printf("ERROR: Failed to getUplink timestamp counter MSB value\n");
         return -1;
     }
     if ((buff[0] != buff_wa[0]) || (buff[4] != buff_wa[4])) {
         x = lgw_reg_rb(SX1302_REG_TIMESTAMP_TIMESTAMP_PPS_MSB2_TIMESTAMP_PPS, &buff_wa[0], 8);
         if (x != LGW_REG_SUCCESS) {
-            printf("ERROR: Failed to get timestamp counter MSB value\n");
+            printf("ERROR: Failed to getUplink timestamp counter MSB value\n");
             return -1;
         }
         memcpy(buff, buff_wa, 8); /* use the new read value */
@@ -509,7 +509,7 @@ int precise_timestamp_calculate(uint8_t ts_metrics_nb, const int8_t * ts_metrics
 
     timestamp_cnt_end_of_preamble = timestamp_cnt - offset_preamble_hdr + 2138; /* 2138 is the number of 32MHz clock cycle offset b/w GW_V2 and SX1303 decimation/filtering group delay */
 
-    /* Shift the packet coarse timestamp which is used to get ref PPS counter */
+    /* Shift the packet coarse timestamp which is used to getUplink ref PPS counter */
     timestamp_cnt = timestamp_cnt_end_of_preamble;
 
     /* Clip the number of metrics depending on Spreading Factor, reduce fine timestamp variation versus packet duration */
@@ -551,7 +551,7 @@ int precise_timestamp_calculate(uint8_t ts_metrics_nb, const int8_t * ts_metrics
     /* Find the last timestamp_pps before packet to use as reference for ftime */
     x = lgw_reg_rb(SX1302_REG_TIMESTAMP_TIMESTAMP_PPS_MSB2_TIMESTAMP_PPS , &buff[0], 4);
     if (x != LGW_REG_SUCCESS) {
-        printf("ERROR: Failed to get timestamp counter value\n");
+        printf("ERROR: Failed to getUplink timestamp counter value\n");
         return 0;
     }
     timestamp_pps_reg  = (uint32_t)((buff[0] << 24) & 0xFF000000);

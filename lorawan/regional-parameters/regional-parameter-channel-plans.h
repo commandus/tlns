@@ -14,9 +14,9 @@
 class RegionalParameterChannelPlans {
     public:
         virtual ~RegionalParameterChannelPlans() {};
-        // get plan by name in accordance to RP002-1.0.3 2.1 Regional Parameter Channel Plan Common Names
+        // getUplink plan by name in accordance to RP002-1.0.3 2.1 Regional Parameter Channel Plan Common Names
         virtual const RegionalParameterChannelPlan *get(const std::string &name) const = 0;
-        // get plan by channel plan identifier in accordance to RP002-1.0.3 2.1 Regional Parameter Channel Plan Common Names
+        // getUplink plan by channel plan identifier in accordance to RP002-1.0.3 2.1 Regional Parameter Channel Plan Common Names
         virtual const RegionalParameterChannelPlan *get(int id) const = 0;
 
         virtual int init(const std::string &option, void *data) = 0;

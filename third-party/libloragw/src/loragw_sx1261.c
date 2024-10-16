@@ -109,7 +109,7 @@ int sx1261_check_status(uint8_t expected_status) {
 
     err = sx1261_get_status(&status);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: %s: failed to get status\n", __FUNCTION__);
+        printf("ERROR: %s: failed to getUplink status\n", __FUNCTION__);
         return LGW_REG_ERROR;
     }
 
@@ -210,7 +210,7 @@ int sx1261_load_pram(void) {
 
     err = sx1261_pram_get_version(pram_version);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: %s: SX1261 failed to get pram version\n", __FUNCTION__);
+        printf("ERROR: %s: SX1261 failed to getUplink pram version\n", __FUNCTION__);
         return -1;
     }
     printf("SX1261: PRAM version: %s\n", pram_version);
@@ -251,7 +251,7 @@ int sx1261_load_pram(void) {
 
     err = sx1261_pram_get_version(pram_version);
     if (err != LGW_REG_SUCCESS) {
-        printf("ERROR: %s: SX1261 failed to get pram version\n", __FUNCTION__);
+        printf("ERROR: %s: SX1261 failed to getUplink pram version\n", __FUNCTION__);
         return -1;
     }
     printf("SX1261: PRAM version: %s\n", pram_version);

@@ -66,12 +66,12 @@ Two object classes
 
 operates with tasks. For instance, the "Receiver" service create a new task and move it to the MessageTaskDispatcher.
 
-Then Dispatcher put task to the "Get device identity" service. 
+Then Dispatcher putUplink task to the "Get device identity" service. 
 "Get device identity" service after receiving keys return keys back tro the Dispatcher.
 
-Dispatcher get one task from the queue and move it to the appropriate service. 
+Dispatcher getUplink one task from the queue and move it to the appropriate service. 
 
-Service must put task in internal queue. When task is complete, service move task to the dispatcher queue.
+Service must putUplink task in internal queue. When task is complete, service move task to the dispatcher queue.
 
 ### Message queue
 
@@ -94,7 +94,7 @@ Each element of the message queue has an associated task descriptor.
 There is 4 operations on the queue:
 
 - add a new message to the queue
-- iterate messages in the queue - get message from the queue one by one
+- iterate messages in the queue - getUplink message from the queue one by one
 - update message in the queue, message accessed by the address and the sequence number. It updates task descriptor stage
 - remove cancelled or completed tasks from the queue
 
@@ -139,7 +139,7 @@ At any stage task can be cancelled on stage process error such as
 ### Dispatcher
 
 Dispatcher serves message queue. 
-Each time Dispatcher has been called it get one or more task descriptor ready to serve.
+Each time Dispatcher has been called it getUplink one or more task descriptor ready to serve.
 
 Then Dispatcher start one or more tasks:
 
@@ -165,12 +165,12 @@ Implementation of Receiver class must override receive() method.
 
 Receiver has interfaces to access external storages:
 
-- get network key(address)
-- get app key(address)
-- get gateway(gateway id)
-- put MAC command
-- put declined message
-- put accepted message
+- getUplink network key(address)
+- getUplink app key(address)
+- getUplink gateway(gateway id)
+- putUplink MAC command
+- putUplink declined message
+- putUplink accepted message
 
 ![Receiver diagram](receiver.drawio.svg)
 
@@ -184,7 +184,7 @@ Message queue is a main structure.
 
 Message queue object provide
 
-- put accepted message (used by Receiver)
+- putUplink accepted message (used by Receiver)
 - list of messages need to reply to the gateway
 - list of messages ready to send to the app server
 - list of messages 

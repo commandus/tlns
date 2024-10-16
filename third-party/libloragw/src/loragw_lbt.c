@@ -156,10 +156,10 @@ int lgw_lbt_tx_status(uint8_t rf_chain, bool * tx_ok) {
             break;
         }
 
-        /* get tx status */
+        /* getUplink tx status */
         err = sx1302_agc_status(&status);
         if (err != 0) {
-            printf("ERROR: %s: failed to get AGC status\n", __FUNCTION__);
+            printf("ERROR: %s: failed to getUplink AGC status\n", __FUNCTION__);
             return -1;
         }
         wait_ms(1);
@@ -189,10 +189,10 @@ int lgw_lbt_tx_status(uint8_t rf_chain, bool * tx_ok) {
             break;
         }
 
-        /* get tx status */
+        /* getUplink tx status */
         err = sx1302_agc_status(&status);
         if (err != 0) {
-            printf("ERROR: %s: failed to get AGC status\n", __FUNCTION__);
+            printf("ERROR: %s: failed to getUplink AGC status\n", __FUNCTION__);
             return -1;
         }
         wait_ms(1);

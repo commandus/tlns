@@ -1141,7 +1141,7 @@ int reg_r(uint8_t spi_mux_target, struct lgw_reg_s r, int32_t *reg_value) {
     int8_t *bufs = (int8_t *)bufu;
 
     if ((r.offs + r.leng) <= 8) {
-        /* read one byte, then shift and mask bits to get reg value with sign extension if needed */
+        /* read one byte, then shift and mask bits to getUplink reg value with sign extension if needed */
         com_stat = lgw_com_r(spi_mux_target, r.addr, &bufu[0]);
         bufu[1] = bufu[0] << (8 - r.leng - r.offs); /* left-align the data */
         if (r.sign == true) {
@@ -1222,7 +1222,7 @@ int lgw_reg_w(uint16_t register_id, int32_t reg_value) {
         return LGW_REG_ERROR;
     }
 
-    /* get register struct from the struct array */
+    /* getUplink register struct from the struct array */
     r = loregs[register_id];
 
     /* reject write to read-only registers */
@@ -1255,7 +1255,7 @@ int lgw_reg_r(uint16_t register_id, int32_t *reg_value) {
         return LGW_REG_ERROR;
     }
 
-    /* get register struct from the struct array */
+    /* getUplink register struct from the struct array */
     r = loregs[register_id];
 
     com_stat = reg_r(LGW_SPI_MUX_TARGET_SX1302, r, reg_value);
@@ -1286,7 +1286,7 @@ int lgw_reg_wb(uint16_t register_id, uint8_t *data, uint16_t size) {
         return LGW_REG_ERROR;
     }
 
-    /* get register struct from the struct array */
+    /* getUplink register struct from the struct array */
     r = loregs[register_id];
 
     /* reject write to read-only registers */
@@ -1324,7 +1324,7 @@ int lgw_reg_rb(uint16_t register_id, uint8_t *data, uint16_t size) {
         return LGW_REG_ERROR;
     }
 
-    /* get register struct from the struct array */
+    /* getUplink register struct from the struct array */
     r = loregs[register_id];
 
     /* do the burst read */

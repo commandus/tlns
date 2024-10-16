@@ -121,7 +121,7 @@ int sx1302_update(void);
 
 /**
 @brief Select the clock source radio
-@param rf_chain The RF chain index from which to get the clock source
+@param rf_chain The RF chain index from which to getUplink the clock source
 @return LGW_REG_SUCCESS if success, LGW_REG_ERROR otherwise
 */
 int sx1302_radio_clock_select(uint8_t rf_chain);
@@ -151,7 +151,7 @@ int sx1302_radio_host_ctrl(bool host_ctrl);
 
 /**
 @brief Perform the radio calibration sequence and fill the TX gain LUT with calibration offsets
-@param context_rf_chain The RF chains array from which to get RF chains current configuration
+@param context_rf_chain The RF chains array from which to getUplink RF chains current configuration
 @param clksrc           The RF chain index which provides the clock source
 @param txgain_lut       A pointer to the TX gain LUT to be filled
 @return LGW_REG_SUCCESS if success, LGW_REG_ERROR otherwise
@@ -376,7 +376,7 @@ int sx1302_fetch(uint8_t * nb_pkt);
 /**
 @brief Parse and return the next packet available in rx_buffer.
 @param context      Gateway configuration context
-@param p            The structure to get the packet parsed
+@param p            The structure to getUplink the packet parsed
 @return LGW_REG_SUCCESS if a packet could be parsed, LGW_REG_ERROR otherwise
 */
 int sx1302_parse(lgw_context_t * context, struct lgw_pkt_rx_s * p);
@@ -403,14 +403,14 @@ float sx1302_rssi_get_temperature_offset(struct lgw_rssi_tcomp_s * context, floa
 
 /**
 @brief Get current TX status of the SX1302
-@param rf_chain the TX chain we want to get the status from
+@param rf_chain the TX chain we want to getUplink the status from
 @return current status
 */
 uint8_t sx1302_tx_status(uint8_t rf_chain);
 
 /**
 @brief Get current RX status of the SX1302
-@param rf_chain the RX chain we want to get the status from
+@param rf_chain the RX chain we want to getUplink the status from
 @return current status
 @note NOT IMPLEMENTED
 */

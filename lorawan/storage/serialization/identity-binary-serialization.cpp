@@ -608,7 +608,7 @@ size_t IdentitySerialization::query(
                 svc->get(((IdentityGetResponse*) r)->response.devid, ((IdentityGetResponse*) r)->response.devaddr);
                 break;
             }
-        case QUERY_IDENTITY_ASSIGN:   // assign (put) device address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) device address to the gateway by identifier
             {
                 auto gr = (IdentityAssignRequest *) pMsg;
                 r = new IdentityOperationResponse(*gr);
@@ -703,7 +703,7 @@ enum IdentityQueryTag validateIdentityQuery(
             if (size < SIZE_DEVICE_ADDR_REQUEST)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_EUI;
-        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
             if (size < SIZE_DEVICE_ADDR_REQUEST)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_ASSIGN;
@@ -759,7 +759,7 @@ enum IdentityQueryTag validateIdentityResponse(
             if (size < SIZE_GET_RESPONSE)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_EUI;
-        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
             if (size < SIZE_OPERATION_RESPONSE)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_ASSIGN;
@@ -845,7 +845,7 @@ ServiceMessage* deserializeIdentity(
                 return nullptr;
             r = new IdentityAddrRequest(buf, sz);
             break;
-        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
             if (sz < SIZE_ASSIGN_REQUEST)
                 return nullptr;
             r = new IdentityAssignRequest(buf, sz);
@@ -1018,7 +1018,7 @@ size_t IdentityBinarySerialization::query(
         svc->get(((IdentityGetResponse*)r)->response.devid, ((IdentityGetResponse*)r)->response.devaddr);
         break;
     }
-    case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
+    case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
     {
         auto gr = (IdentityAssignRequest*)pMsg;
         r = new IdentityOperationResponse(*gr);

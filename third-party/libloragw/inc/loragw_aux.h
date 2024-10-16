@@ -40,7 +40,7 @@ License: Revised BSD License, see LICENSE.Semtech.txt file include in the projec
 @brief Get a particular bit value from a byte
 @param b [in]   Any byte from which we want a bit value
 @param p [in]   Position of the bit in the byte [0..7]
-@param n [in]   Number of bits we want to get
+@param n [in]   Number of bits we want to getUplink
 @return The value corresponding the requested bits
 */
 #define TAKE_N_BITS_FROM(b, p, n) (((b) >> (p)) & ((1 << (n)) - 1))

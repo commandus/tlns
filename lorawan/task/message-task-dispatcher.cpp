@@ -236,7 +236,7 @@ int MessageTaskDispatcher::run()
         if (rc < 0)     // select error
             break;
 
-        // get timestamp
+        // getUplink timestamp
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
         if (rc == 0) {   // select() timed out.
@@ -305,7 +305,7 @@ int MessageTaskDispatcher::run()
                     {
                         auto *a = (DEVADDR *) buffer;
                         // process message queue
-                        MessageQueueItem *item = queue.findByDevAddr(a);
+                        MessageQueueItem *item = queue.findUplink(a);
                         if (item) {
                             sendPayloadOverBridge(item);
                             if (onPushData)
@@ -363,7 +363,7 @@ int MessageTaskDispatcher::run()
         // delete broken connections
         if (!removedSockets.empty()) {
             for (auto & removedSocket : removedSockets) {
-                // get max socket
+                // getUplink max socket
                 auto f = std::find_if(sockets.begin(), sockets.end(), [&removedSocket](const TaskSocket *v) {
                     return (removedSocket == v);
                 });
@@ -425,7 +425,7 @@ void MessageTaskDispatcher::pushData(
     ProtoGwParser *parser
 ) {
     queueMutex.lock();
-    bool isNew = queue.put(receivedTime, taskSocket, addr, pushData, parser);
+    bool isNew = queue.putUplink(receivedTime, taskSocket, addr, pushData, parser);
     queueMutex.unlock();
 
     if (isNew) {
@@ -463,8 +463,8 @@ void MessageTaskDispatcher::sendQueue(
     TimeAddr ta;
     while (queue.time2ResponseAddr.pop(ta, now)) {
         std::cout << "Pop and send from queue " << ta.toString() << "\n";
-        auto m = queue.receivedMessages.find(ta.addr);
-        if (m == queue.receivedMessages.end())
+        auto m = queue.uplinkMessages.find(ta.addr);
+        if (m == queue.uplinkMessages.end())
             continue;
         if (m->second.needConfirmation()) {
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
@@ -531,7 +531,7 @@ void MessageTaskDispatcher::cleanupOldMessages(
     TASK_TIME now
 )
 {
-    queue.clearOldMessages(now - std::chrono::seconds(1));
+    queue.clearOldUplinkMessages(now - std::chrono::seconds(1));
 }
 
 int MessageTaskDispatcher::validateGatewayAddress(
@@ -604,16 +604,16 @@ int MessageTaskDispatcher::sendDownlink(
     if (deviceBestGatewayClient->svc)
         return ERR_CODE_WRONG_PARAM;
 
-    MessageQueueItem *item = queue.get(addr);
+    MessageQueueItem *item = queue.getUplink(addr);
     if (item) {
         // found message from the device in the queue, let use identity and best gateway from the item
         // build downlink message
         DownlinkMessage m(item->task, fPort, payload, payloadSize, fopts, foptsSize);
     } else {
-        // no message in the queue found, get identity and best gateway from the services
+        // no message in the queue found, getUplink identity and best gateway from the services
         TaskDescriptor td;
 
-        // get identity of the device
+        // getUplink identity of the device
         DEVICEID did;
         int r = identityClient->svcIdentity->get(did, addr);
         if (r)
@@ -629,7 +629,7 @@ int MessageTaskDispatcher::sendDownlink(
                 return ERR_CODE_WRONG_PARAM;
 
             std::vector<GatewayIdentity> ls;
-            // get any gateway from the list
+            // getUplink any gateway from the list
             int r = identityClient->svcGateway->list(ls, 0, 1);
             if (r <= 0)
                 return ERR_CODE_WRONG_PARAM;    // no gateway found, exit
@@ -638,9 +638,9 @@ int MessageTaskDispatcher::sendDownlink(
             td.gatewayId = gwId;
         // build downlink message
         DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
-        // queue.put()
+        // queue.putUplink()
     }
 
-    // d->queue.put()
-    // m.get()
+    // d->queue.putUplink()
+    // m.getUplink()
 }

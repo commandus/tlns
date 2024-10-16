@@ -54,9 +54,9 @@ bool TaskTimerSocket::setStartupTime(
     TASK_TIME time
 )
 {
-    // get seconds
+    // getUplink seconds
     auto s = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
-    // get nanoseconds: extract seconds from the time
+    // getUplink nanoseconds: extract seconds from the time
     auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
     ns -= s;
     // set timer structure

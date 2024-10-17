@@ -17,6 +17,7 @@ void AppBridge::setDispatcher(
 }
 
 int AppBridge::send(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     void *payload,
     void *fopts,
@@ -27,53 +28,58 @@ int AppBridge::send(
 {
     if (!dispatcher)
         return ERR_CODE_WRONG_PARAM;
-    return ((MessageTaskDispatcher *)dispatcher)->sendDownlink(addr, payload, fopts, fPort, payloadSize, foptsSize);
+    return ((MessageTaskDispatcher *)dispatcher)->sendDownlink(tim, addr, payload, fopts, fPort, payloadSize, foptsSize);
 }
 
 // wrappers
 
 int AppBridge::sendFOpts(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     void *fopts,
     uint8_t size
 )
 {
-    return send(addr, nullptr, fopts, FPORT_NO_PAYLOAD, 0, size);
+    return send(tim, addr, nullptr, fopts, FPORT_NO_PAYLOAD, 0, size);
 }
 
 int AppBridge::sendPayload(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     uint8_t fPort,
     void *payload,
     uint8_t size
 )
 {
-    return send(addr, payload, nullptr, fPort, size, 0);
+    return send(tim, addr, payload, nullptr, fPort, size, 0);
 }
 
 int AppBridge::send(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     uint8_t fPort,
     const std::string &payload,
     const std::string &fOpts
 )
 {
-    return send(addr, (void *) payload.c_str(), (void *) fOpts.c_str(), fPort, payload.size(), fOpts.size());
+    return send(tim, addr, (void *) payload.c_str(), (void *) fOpts.c_str(), fPort, payload.size(), fOpts.size());
 }
 
 int AppBridge::sendFOpts(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     const std::string &fOpts
 )
 {
-    return send(addr, nullptr, (void *) fOpts.c_str(), FPORT_NO_PAYLOAD, 0, fOpts.size());
+    return send(tim, addr, nullptr, (void *) fOpts.c_str(), FPORT_NO_PAYLOAD, 0, fOpts.size());
 }
 
 int AppBridge::sendPayload(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     uint8_t fPort,
     const std::string &payload
 )
 {
-    return send(addr, (void *) payload.c_str(), nullptr, fPort, payload.size(), 0);
+    return send(tim, addr, (void *) payload.c_str(), nullptr, fPort, payload.size(), 0);
 }

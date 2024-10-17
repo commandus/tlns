@@ -45,6 +45,7 @@ public:
     TaskDescriptor();
     TaskDescriptor(const TaskDescriptor &value);
     virtual ~TaskDescriptor();
+    TaskDescriptor& operator=(const TaskDescriptor&);
 };
 
 #endif

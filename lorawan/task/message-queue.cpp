@@ -129,6 +129,28 @@ bool MessageQueue::putUplink(
     return !isSame;
 }
 
+void MessageQueue::putDownlink(
+    const TASK_TIME& time,
+    const DEVADDR &devAddr,
+    const TaskSocket *taskSocket,
+    const LORAWAN_MESSAGE_STORAGE &radioPacket,
+    const struct sockaddr &addr,
+    uint64_t gwId,
+    const SEMTECH_PROTOCOL_METADATA_TX &metadata,
+    ProtoGwParser *parser
+)
+{
+    auto f = downlinkMessages.find(devAddr);
+    if (f != downlinkMessages.end()) {
+        // update metadata
+        // f->second.metadata[gwId] = { metadata, taskSocket, addr };
+    } else {
+        MessageQueueItem qi(this, time, parser);
+        // qi.metadata[gwId] = { metadata, taskSocket, addr };
+        auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(devAddr, qi));
+    }
+}
+
 void MessageQueue::rmUplink(
     const DEVADDR &addr
 )
@@ -228,7 +250,7 @@ size_t MessageQueue::clearOldDownlinkMessages(
 {
     size_t r = 0;
     for (auto m(downlinkMessages.begin()); m != downlinkMessages.end();) {
-        if (m->second.task.tim < since) {
+        if (m->second.tim < since) {
             m = downlinkMessages.erase(m);
             r++;
         } else

@@ -582,6 +582,7 @@ size_t MessageTaskDispatcher::bridgeCount() const
 }
 
 int MessageTaskDispatcher::sendDownlink(
+    const TASK_TIME &tim,
     const DEVADDR &addr,
     void *payload,
     void *fopts,
@@ -605,14 +606,13 @@ int MessageTaskDispatcher::sendDownlink(
         return ERR_CODE_WRONG_PARAM;
 
     MessageQueueItem *item = queue.getUplink(addr);
+    TaskDescriptor td;
     if (item) {
         // found message from the device in the queue, let use identity and best gateway from the item
         // build downlink message
-        DownlinkMessage m(item->task, fPort, payload, payloadSize, fopts, foptsSize);
+        td = item->task;
     } else {
         // no message in the queue found, getUplink identity and best gateway from the services
-        TaskDescriptor td;
-
         // getUplink identity of the device
         DEVICEID did;
         int r = identityClient->svcIdentity->get(did, addr);
@@ -637,10 +637,8 @@ int MessageTaskDispatcher::sendDownlink(
         } else
             td.gatewayId = gwId;
         // build downlink message
-        DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
         // queue.putUplink()
     }
-
-    // d->queue.putUplink()
-    // m.getUplink()
+    DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
+    // queue.putDownlink(tim, );
 }

@@ -232,14 +232,23 @@ public:
         MessageQueueItem *item
     );
 
+    /**
+     * Assign service store best gateway for device
+     * @param aClient pointer to DeviceBestGatewayDirectClient object
+     */
     void setDeviceBestGatewayClient(
         DeviceBestGatewayDirectClient *aClient
     );
 
+    /**
+     * app bridges counter
+     * @return count of app bridges
+     */
     size_t bridgeCount() const;
 
     /**
      * Send payload and/or FOpts to the end-device
+     * @param tim  time to send. If 0 or less than current time, it is time to send.
      * @param addr address of the end-device
      * @param payload payload, 0..255 bytes, can be NULL
      * @param fopts FOpts, MAC commands, 0..15 bytes, can be NULL
@@ -249,6 +258,7 @@ public:
      * @return 0- success
      */
     int sendDownlink(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         void *payload,
         void *fopts,

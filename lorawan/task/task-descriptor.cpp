@@ -15,4 +15,16 @@ TaskDescriptor::TaskDescriptor(
 
 }
 
+TaskDescriptor& TaskDescriptor::operator=(
+    const TaskDescriptor& value
+)
+{
+    stage = value.stage;
+    state = value.state;
+    errorCode = value.errorCode;
+    repeats = value.repeats;
+    deviceId = value.deviceId;
+    gatewayId = value.gatewayId;
+}
+
 TaskDescriptor::~TaskDescriptor() = default;

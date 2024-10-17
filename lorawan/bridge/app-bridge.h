@@ -53,6 +53,7 @@ public:
      * Prepare to send FOpts and/or payload to he end-device
      */
     int send(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         void *buffer,
         void *fopts,
@@ -64,12 +65,14 @@ public:
     // helpful wrappers
 
     int sendFOpts(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         void *fopts,
         uint8_t size
     );
 
     int sendPayload(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         uint8_t fPort,
         void *payload,
@@ -77,6 +80,7 @@ public:
     );
 
     int send(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         uint8_t fPort,
         const std::string &payload,
@@ -84,11 +88,13 @@ public:
     );
 
     int sendFOpts(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         const std::string &fopts
     );
 
     int sendPayload(
+        const TASK_TIME &tim,
         const DEVADDR &addr,
         uint8_t fPort,
         const std::string &payload

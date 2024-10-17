@@ -53,6 +53,16 @@ public:
         GwPushData &pushData,
         ProtoGwParser *parser
     );
+    void putDownlink(
+        const TASK_TIME& time,
+        const DEVADDR &devAddr,
+        const TaskSocket *taskSocket,
+        const LORAWAN_MESSAGE_STORAGE &radioPacket,
+        const struct sockaddr &addr,
+        uint64_t gwId,
+        const SEMTECH_PROTOCOL_METADATA_TX &metadata,
+        ProtoGwParser *parser
+    );
     void rmUplink(
         const DEVADDR &addr
     );

@@ -39,7 +39,7 @@ public:
      * @param foptsSize
      */
     explicit DownlinkMessage(
-        const TaskDescriptor &taskDescriptor,    // contain NetworkIdentity and best gateway address
+        const TaskDescriptor &taskDescriptor,    // contain time to send, NetworkIdentity and best gateway address
         uint8_t fport,
         const void *payload, // up to 255 bytes, can be NULL
         uint8_t payloadSize,

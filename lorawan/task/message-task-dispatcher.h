@@ -238,6 +238,16 @@ public:
 
     size_t bridgeCount() const;
 
+    /**
+     * Send payload and/or FOpts to the end-device
+     * @param addr address of the end-device
+     * @param payload payload, 0..255 bytes, can be NULL
+     * @param fopts FOpts, MAC commands, 0..15 bytes, can be NULL
+     * @param fPort 0- FOpts in the payload, 1..255- user defined payload
+     * @param payloadSize 0..255
+     * @param foptsSize 0..15
+     * @return 0- success
+     */
     int sendDownlink(
         const DEVADDR &addr,
         void *payload,

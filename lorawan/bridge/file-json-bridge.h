@@ -30,6 +30,7 @@ public:
         const void *option3
     ) override;
     void done() override;
+    const char *name() override;
 };
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge2();

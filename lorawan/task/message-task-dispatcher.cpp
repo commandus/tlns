@@ -561,10 +561,10 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
     MessageQueueItem *item
 )
 {
+    bool micMatched = item->radioPacket.matchMic(item->task.deviceId.nwkSKey);
+    bool decoded = item->radioPacket.decode(&item->task.deviceId);
     for (auto b: appBridges) {
-        bool micMatched = item->radioPacket.matchMic(item->task.deviceId.nwkSKey);
-        // b->onPayload(this, item, false, micMatched);
-        bool decoded = item->radioPacket.decode(&item->task.deviceId);
+        std::cout << "App bridge " << b->name()<< std::endl;
         b->onPayload(this, item, decoded, micMatched);
     }
 }

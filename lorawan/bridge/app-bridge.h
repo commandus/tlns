@@ -16,6 +16,7 @@ private:
 public:
     AppBridge();
     virtual ~AppBridge() = default;
+
     void setDispatcher(
         void *aDispatcher
     );
@@ -44,6 +45,12 @@ public:
         const std::string& option2,
         const void *option3
     ) = 0;
+    /**
+     * Common name of the bridge
+     * @return name
+     */
+    virtual const char *name() = 0;
+
     /**
      * Finalize bridge
      */

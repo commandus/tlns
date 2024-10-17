@@ -5,6 +5,8 @@
 
 StdoutBridge::StdoutBridge() = default;
 
+static const char *APP_BRIDGE_NAME = "stdout-app-bridge";
+
 void StdoutBridge::onPayload(
     const void *dispatcher,
     const MessageQueueItem *messageItem,
@@ -40,6 +42,11 @@ void StdoutBridge::onSend(
 {
     if (item)
         std::cerr << "Sent " << item->toString() << " with code " << code << std::endl;
+}
+
+const char *StdoutBridge::name()
+{
+    return APP_BRIDGE_NAME;
 }
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge1()

@@ -3,6 +3,8 @@
 #include "lorawan/bridge/file-json-bridge.h"
 #include "lorawan/lorawan-string.h"
 
+static const char *APP_BRIDGE_NAME = "stdout-app-bridge";
+
 FileJsonBridge::FileJsonBridge() = default;
 
 void FileJsonBridge::onPayload(
@@ -49,8 +51,13 @@ void FileJsonBridge::onSend(
         std::cerr << "Sent " << item->toString() << " with code " << code << std::endl;
 }
 
+const char *name()
+{
+    return APP_BRIDGE_NAME;
+}
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge2()
 {
     return new FileJsonBridge;
 }
+

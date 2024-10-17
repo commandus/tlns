@@ -27,6 +27,8 @@ public:
         const MessageQueueItem *item,
         int code
     ) override;
+
+    const char *name() override;
 };
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge1();

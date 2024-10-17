@@ -629,7 +629,7 @@ int MessageTaskDispatcher::sendDownlink(
 
             std::vector<GatewayIdentity> ls;
             // getUplink any gateway from the list
-            int r = identityClient->svcGateway->list(ls, 0, 1);
+            r = identityClient->svcGateway->list(ls, 0, 1);
             if (r <= 0)
                 return ERR_CODE_WRONG_PARAM;    // no gateway found, exit
             td.gatewayId = ls[0];
@@ -640,4 +640,5 @@ int MessageTaskDispatcher::sendDownlink(
     }
     DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
     // queue.putDownlink(tim, );
+    return CODE_OK;
 }

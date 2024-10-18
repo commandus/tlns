@@ -25,6 +25,7 @@ TaskDescriptor& TaskDescriptor::operator=(
     repeats = value.repeats;
     deviceId = value.deviceId;
     gatewayId = value.gatewayId;
+    return *this;
 }
 
 TaskDescriptor::~TaskDescriptor() = default;

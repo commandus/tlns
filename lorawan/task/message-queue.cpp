@@ -204,8 +204,13 @@ void MessageQueue::printStateDebug(
 {
     strm << "Time " << taskTime2string(now) << "\n";
     // data packets received from devices
-    strm << uplinkMessages.size() << " received messages\n";
+    strm << uplinkMessages.size() << " received uplink messages\n";
     for (const auto& m : uplinkMessages) {
+        strm << DEVADDR2string(m.first) << "\t" << taskTime2string(m.second.tim) << "\n";
+    }
+    // data packets ready to send to devices
+    strm << downlinkMessages.size() << " downlink messages\n";
+    for (const auto& m : downlinkMessages) {
         strm << DEVADDR2string(m.first) << "\t" << taskTime2string(m.second.tim) << "\n";
     }
 
@@ -216,7 +221,7 @@ void MessageQueue::printStateDebug(
             << taskTime2string(t.first) << "\n";
     }
     strm << "Waiting time " << std::fixed << std::setprecision(6) <<
-        time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now) / 1000000. << " s\n";
+        time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now) / 1000000. << " s" << std::endl;
 }
 
 /**

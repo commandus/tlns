@@ -51,7 +51,7 @@ void FileJsonBridge::onSend(
         std::cerr << "Sent " << item->toString() << " with code " << code << std::endl;
 }
 
-const char *FileJsonBridge::name()
+const char *FileJsonBridge::name()  
 {
     return APP_BRIDGE_NAME;
 }
@@ -60,4 +60,3 @@ EXPORT_SHARED_C_FUNC AppBridge* makeBridge2()
 {
     return new FileJsonBridge;
 }
-

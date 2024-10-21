@@ -7,6 +7,7 @@
 
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/task/task-time-addr.h"
+#include "lorawan/lorawan-builder.h"
 
 class TaskSocket;
 class MessageTaskDispatcher;
@@ -55,12 +56,7 @@ public:
     );
     void putDownlink(
         const TASK_TIME& time,
-        const DEVADDR &devAddr,
-        const TaskSocket *taskSocket,
-        const LORAWAN_MESSAGE_STORAGE &radioPacket,
-        const struct sockaddr &addr,
-        uint64_t gwId,
-        const SEMTECH_PROTOCOL_METADATA_TX &metadata,
+        DownlinkMessage &msg,
         ProtoGwParser *parser
     );
     void rmUplink(

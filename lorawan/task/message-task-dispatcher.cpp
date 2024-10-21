@@ -639,6 +639,6 @@ int MessageTaskDispatcher::sendDownlink(
         // queue.putUplink()
     }
     DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
-    // queue.putDownlink(tim, );
+    queue.putDownlink(tim, m, nullptr);
     return CODE_OK;
 }

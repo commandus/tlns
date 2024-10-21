@@ -131,23 +131,16 @@ bool MessageQueue::putUplink(
 
 void MessageQueue::putDownlink(
     const TASK_TIME& time,
-    const DEVADDR &devAddr,
-    const TaskSocket *taskSocket,
-    const LORAWAN_MESSAGE_STORAGE &radioPacket,
-    const struct sockaddr &addr,
-    uint64_t gwId,
-    const SEMTECH_PROTOCOL_METADATA_TX &metadata,
+    DownlinkMessage &msg,
     ProtoGwParser *parser
 )
 {
-    auto f = downlinkMessages.find(devAddr);
+    auto f = downlinkMessages.find(msg.taskDescriptor.deviceId.devaddr);
     if (f != downlinkMessages.end()) {
-        // update metadata
-        // f->second.metadata[gwId] = { metadata, taskSocket, addr };
+        // update or skip
     } else {
         MessageQueueItem qi(this, time, parser);
-        // qi.metadata[gwId] = { metadata, taskSocket, addr };
-        auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(devAddr, qi));
+        auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
     }
 }
 

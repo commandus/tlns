@@ -279,7 +279,9 @@ int MessageTaskDispatcher::runUplink()
                 }
                 case SA_TIMER:
                     std::cout << "Timer event " << taskTime2string(receivedTime) << std::endl;
+                    // read timer counter value
                     sz = read(s->sock, buffer, sizeof(buffer)); // 8 bytes, timer counter value
+                    // send packets
                     sendQueue(receivedTime, pr.token);
                     // set timer
                     if (isTimeProcessQueueOrSetTimer(receivedTime)) {

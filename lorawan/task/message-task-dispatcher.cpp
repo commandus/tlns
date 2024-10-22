@@ -584,16 +584,17 @@ int MessageTaskDispatcher::sendDownlink(
     const TASK_TIME &tim,
     const DEVADDR &addr,
     void *payload,
-    void *fopts,
+    void *fOpts,
     uint8_t fPort,
     uint8_t payloadSize,
-    uint8_t foptsSize
+    uint8_t fOptsSize,
+    ProtoGwParser *proto
 )
 {
     // check parameters
     if (payloadSize > 255)
         return ERR_CODE_WRONG_PARAM;
-    if (foptsSize > 15)
+    if (fOptsSize > 15)
         return ERR_CODE_MAC_INVALID;
     if (identityClient)
         return ERR_CODE_WRONG_PARAM;
@@ -635,10 +636,9 @@ int MessageTaskDispatcher::sendDownlink(
             td.gatewayId = ls[0];
         } else
             td.gatewayId = gwId;
-        // build downlink message
-        // queue.putUplink()
     }
-    DownlinkMessage m(td, fPort, payload, payloadSize, fopts, foptsSize);
-    queue.putDownlink(tim, m, nullptr);
+    // build downlink message
+    DownlinkMessage m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
+    queue.putDownlink(tim, m, proto);
     return CODE_OK;
 }

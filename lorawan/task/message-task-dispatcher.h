@@ -251,20 +251,22 @@ public:
      * @param tim  time to send. If 0 or less than current time, it is time to send.
      * @param addr address of the end-device
      * @param payload payload, 0..255 bytes, can be NULL
-     * @param fopts FOpts, MAC commands, 0..15 bytes, can be NULL
+     * @param fOpts FOpts, MAC commands, 0..15 bytes, can be NULL
      * @param fPort 0- FOpts in the payload, 1..255- user defined payload
      * @param payloadSize 0..255
-     * @param foptsSize 0..15
+     * @param fOptsSize 0..15
+     * @param proto protocol to serialize packet
      * @return 0- success
      */
     int sendDownlink(
         const TASK_TIME &tim,
         const DEVADDR &addr,
         void *payload,
-        void *fopts,
+        void *fOpts,
         uint8_t fPort,
         uint8_t payloadSize,
-        uint8_t foptsSize
+        uint8_t fOptsSize,
+        ProtoGwParser *proto
     );
 };
 

@@ -38,7 +38,7 @@ public:
     std::string toJsonString() const;
 };
 
-class GatewayStatistic : public GatewayIdentity{
+class GatewayStatistic : public GatewayIdentity {
 public:
     // gateway common name
     std::string name;

@@ -66,7 +66,8 @@ public:
         void *fopts,
         uint8_t fPort,
         uint8_t bufferSize = 0,
-        uint8_t foptsSize = 0
+        uint8_t foptsSize = 0,
+        uint8_t proto = 0
     );
 
     // helpful wrappers
@@ -75,7 +76,8 @@ public:
         const TASK_TIME &tim,
         const DEVADDR &addr,
         void *fopts,
-        uint8_t size
+        uint8_t size,
+        uint8_t proto = 0
     );
 
     int sendPayload(
@@ -83,7 +85,8 @@ public:
         const DEVADDR &addr,
         uint8_t fPort,
         void *payload,
-        uint8_t size
+        uint8_t size,
+        uint8_t proto = 0
     );
 
     int send(
@@ -91,20 +94,23 @@ public:
         const DEVADDR &addr,
         uint8_t fPort,
         const std::string &payload,
-        const std::string &fOpts
+        const std::string &fOpts,
+        uint8_t proto = 0
     );
 
     int sendFOpts(
         const TASK_TIME &tim,
         const DEVADDR &addr,
-        const std::string &fopts
+        const std::string &fopts,
+        uint8_t proto = 0
     );
 
     int sendPayload(
         const TASK_TIME &tim,
         const DEVADDR &addr,
         uint8_t fPort,
-        const std::string &payload
+        const std::string &payload,
+        uint8_t proto = 0
     );
 
     /**

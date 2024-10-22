@@ -15,13 +15,15 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <Winsock2.h>
-#define close closesocket
+#define close(x) closesocket(x)
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 #define read(sock, b, sz) ::recv(sock, b, sz, 0)
 typedef in_addr in_addr_t;
 #else
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <sys/timerfd.h>
 #endif
 
 #define DEF_TIMEOUT_SECONDS 3
@@ -30,10 +32,10 @@ typedef in_addr in_addr_t;
 #define MIN_TIMER_IN_MICROSECONDS   9000
 
 MessageTaskDispatcher::MessageTaskDispatcher()
-    : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), thread(nullptr),
-      deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), running(false),
-      onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
-      onError(nullptr)
+    : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), threadUplink(nullptr),
+    deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), runningUplink(false),
+    onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
+    onError(nullptr)
 {
     queue.setDispatcher(this);
     sockets.push_back(timerSocket);
@@ -43,11 +45,11 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     const MessageTaskDispatcher &value
 )
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
-      deviceBestGatewayClient(value.deviceBestGatewayClient), thread(value.thread), parsers(value.parsers),
-      regionalPlan(value.regionalPlan), identityClient(value.identityClient),
-      queue(value.queue), running(value.running), onReceiveRawData(value.onReceiveRawData),
-      onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
-      onDestroy(value.onDestroy), onError(nullptr)
+    deviceBestGatewayClient(value.deviceBestGatewayClient), threadUplink(value.threadUplink), parsers(value.parsers),
+    regionalPlan(value.regionalPlan), identityClient(value.identityClient), queue(value.queue),
+    runningUplink(value.runningUplink), onReceiveRawData(value.onReceiveRawData),
+    onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
+    onDestroy(value.onDestroy), onError(nullptr)
 {
 }
 
@@ -78,7 +80,7 @@ void MessageTaskDispatcher::setResponse(
  * @param cmd buffer
  * @param size size
  */
-void MessageTaskDispatcher::send(
+void MessageTaskDispatcher::send2uplink(
     const void *cmd,
     size_t size
 )
@@ -91,59 +93,74 @@ void MessageTaskDispatcher::send(
  * Send string to client control socket
  * @param cmd String size must be less 4K
  */
-void MessageTaskDispatcher::send(
+void MessageTaskDispatcher::send2uplink(
     const std::string &cmd
 )
 {
-    send(cmd.c_str(), cmd.size());
+    send2uplink(cmd.c_str(), cmd.size());
 }
 
-void MessageTaskDispatcher::send(
+void MessageTaskDispatcher::send2uplink(
     char cmd
 )
 {
-    send(&cmd, 1);
+    send2uplink(&cmd, 1);
 }
 
 /**
- * Run dispatcher runner in separate thread.
+ * Run dispatcher uplink runner in separate thread.
+ * If dispatcher running already, return true.
+ * @return true always
+ */
+void MessageTaskDispatcher::startUplink()
+{
+    if (!runningUplink) {
+        runningUplink = true; // force runningUplink because thread start with delay
+        threadUplink = new std::thread(std::bind(&MessageTaskDispatcher::runUplink, this));
+        threadUplink->detach();
+    }
+}
+
+void MessageTaskDispatcher::stopUplink()
+{
+    if (!runningUplink)
+        return;
+    // wake-up select()
+    char q = 'q';
+    send2uplink(&q, 1);
+
+    // wait until thread finish
+    std::mutex m;
+    std::unique_lock<std::mutex> lock(m);
+    if (threadUplink) {
+        while (runningUplink) {
+            // try wake-up select() if UDP packet is missed
+            send2uplink(&q, 1);
+        }
+        // free up resources
+        delete threadUplink;
+        threadUplink = nullptr;
+    }
+}
+
+/**
+ * Run dispatcher runner in separate threads.
  * If dispatcher running already, return true.
  * @return true always
  */
 void MessageTaskDispatcher::start()
 {
-    if (running)
-        return;
-    running = true; // force running because thread start with delay
-    thread = new std::thread(std::bind(&MessageTaskDispatcher::run, this));
-    thread->detach();
+    startUplink();
 }
 
 /**
- * Stop dispatcher runner.
+ * Stop dispatcher's threads.
  * Set stop request flag and send wake-up message.
  * Then wait until dispatcher loop finished then destroy dispatcher thread.
  */
 void MessageTaskDispatcher::stop()
 {
-    if (!running)
-        return;
-    // wake-up select()
-    char q = 'q';
-    send(&q, 1);
-
-    // wait until thread finish
-    std::mutex m;
-    std::unique_lock<std::mutex> lock(m);
-    if (thread) {
-        while (running) {
-            // try wake-up select() if UDP packet is missed
-            send(&q, 1);
-        }
-        // free up resources
-        delete thread;
-        thread = nullptr;
-    }
+    stopUplink();
 }
 
 bool MessageTaskDispatcher::openSockets()
@@ -200,19 +217,19 @@ int MessageTaskDispatcher::getMaxDescriptor1(
 }
 
 /**
- * Dispatcher main loop
+ * Dispatcher main uplink loop
  * @return 0 if success or negative error code
  */
-int MessageTaskDispatcher::run()
+int MessageTaskDispatcher::runUplink()
 {
-    running = true;
+    runningUplink = true;
     if (sockets.empty()) {
-        running = false;
+        runningUplink = false;
         return ERR_CODE_PARAM_INVALID;
     }
     if (!openSockets()) {
         closeSockets();
-        running = false;
+        runningUplink = false;
         return ERR_CODE_SOCKET_CREATE;
     }
     struct timeval timeout {};
@@ -225,7 +242,7 @@ int MessageTaskDispatcher::run()
     ParseResult pr;
     struct sockaddr srcAddr {};
     socklen_t srcAddrLen = sizeof(srcAddr);
-    while (running) {
+    while (runningUplink) {
         fd_set workingSocketSet;
         // Copy the master fd_set over to the working fd_set
         memcpy(&workingSocketSet, &masterReadSocketSet, sizeof(masterReadSocketSet));
@@ -279,8 +296,8 @@ int MessageTaskDispatcher::run()
             }
             if (sz < 0) {
                 std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
-                    << " socket " << s->sock
-                    << std::endl;
+                          << " socket " << s->sock
+                          << std::endl;
                 if (s->socketAccept == SA_ACCEPTED) {
                     // close client connection
                     removedSockets.push_back(s); // do not modify vector using iterator, do it after
@@ -294,7 +311,7 @@ int MessageTaskDispatcher::run()
                         char *a = (char *) buffer;
                         switch (*a) {
                             case 'q':
-                                running = false;
+                                runningUplink = false;
                                 break;
                             default:
                                 break;
@@ -375,8 +392,9 @@ int MessageTaskDispatcher::run()
         }
     }
     closeSockets();
-    running = false;
+    runningUplink = false;
     return CODE_OK;
+
 }
 
 ssize_t MessageTaskDispatcher::sendACK(
@@ -433,7 +451,7 @@ void MessageTaskDispatcher::pushData(
 
     auto a = pushData.rxData.getAddr();
     if (a)
-        send(a, SIZE_DEVADDR);  // pass address of just added item
+        send2uplink(a, SIZE_DEVADDR);  // pass address of just added item
     if (pushData.needConfirmation())
         prepareSendConfirmation(a, addr, receivedTime);
 }
@@ -496,13 +514,16 @@ bool MessageTaskDispatcher::isTimeProcessQueueOrSetTimer(
     TASK_TIME now
 )
 {
+    // 1. check waiting time is over?
     auto d = queue.time2ResponseAddr.waitTimeForAllGatewaysInMicroseconds(now);
     if (d < 0)
         return false;
 
+    // if time period is too small, process queue immediately
     if (d < MIN_TIMER_IN_MICROSECONDS)
         return true;
 
+    // enough time to wait one more
     now += std::chrono::microseconds(d);
 
     if (!timerSocket->setStartupTime(now)) {

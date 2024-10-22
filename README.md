@@ -2,7 +2,7 @@
 
 Tiny LoRaWAN Network Server
 
-The goal of the project is to make a network server running on the ESP32 board.
+The goal of the project is to make a network server runningUplink on the ESP32 board.
 
 The working release of [https://github.com/commandus/lorawan-network-server](https://github.com/commandus/lorawan-network-server) runs on Raspberry. This requires much more resources.
 

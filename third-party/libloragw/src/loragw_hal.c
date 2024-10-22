@@ -449,7 +449,7 @@ static int merge_packets(struct lgw_pkt_rx_s * p, uint8_t * nb_pkt) {
 int lgw_board_setconf(struct lgw_conf_board_s * conf) {
     CHECK_NULL(conf);
 
-    /* check if the concentrator is running */
+    /* check if the concentrator is runningUplink */
     if (CONTEXT_STARTED == true) {
         DEBUG_MSG("ERROR: CONCENTRATOR IS RUNNING, STOP IT BEFORE TOUCHING CONFIGURATION\n");
         return LGW_HAL_ERROR;
@@ -483,7 +483,7 @@ int lgw_board_setconf(struct lgw_conf_board_s * conf) {
 int lgw_rxrf_setconf(uint8_t rf_chain, struct lgw_conf_rxrf_s * conf) {
     CHECK_NULL(conf);
 
-    /* check if the concentrator is running */
+    /* check if the concentrator is runningUplink */
     if (CONTEXT_STARTED == true) {
         DEBUG_MSG("ERROR: CONCENTRATOR IS RUNNING, STOP IT BEFORE TOUCHING CONFIGURATION\n");
         return LGW_HAL_ERROR;
@@ -545,7 +545,7 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
 
     CHECK_NULL(conf);
 
-    /* check if the concentrator is running */
+    /* check if the concentrator is runningUplink */
     if (CONTEXT_STARTED == true) {
         DEBUG_MSG("ERROR: CONCENTRATOR IS RUNNING, STOP IT BEFORE TOUCHING CONFIGURATION\n");
         return LGW_HAL_ERROR;
@@ -1344,7 +1344,7 @@ int lgw_send(struct lgw_pkt_tx_s * pkt_data) {
     /* Record function start time */
     _meas_time_start(&tm);
 
-    /* check if the concentrator is running */
+    /* check if the concentrator is runningUplink */
     if (CONTEXT_STARTED == false) {
         printf("ERROR: CONCENTRATOR IS NOT RUNNING, START IT BEFORE SENDING\n");
         return LGW_HAL_ERROR;

@@ -55,7 +55,7 @@ sudo ./install.sh
 In the menu choose 9) RAK2287 USB (enter 9)
 ```
 
-Stop running chirp-* services.
+Stop runningUplink chirp-* services.
 
 On Windows, run it in WSL2 Ubuntu then copy rak_common_for_gateway/ to the Windows folder git.
 

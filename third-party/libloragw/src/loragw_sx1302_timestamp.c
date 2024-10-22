@@ -383,7 +383,7 @@ uint32_t timestamp_counter_expand(timestamp_counter_t * self, bool pps, uint32_t
     counter_us_32bits = (tinfo->counter_us_27bits_wrap << 27) | cnt_us;
 
 #if 0
-    /* DEBUG: to be enabled when running test_loragw_counter test application
+    /* DEBUG: to be enabled when runningUplink test_loragw_counter test application
        This generates a CSV log, and can be plotted with gnuplot:
         > set datafile separator comma
         > plot for [col=1:2:1] 'log_count.txt' using col with lines

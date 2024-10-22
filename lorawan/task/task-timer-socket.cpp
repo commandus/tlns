@@ -51,7 +51,7 @@ TaskTimerSocket::~TaskTimerSocket()
  * @param time time to set
  * @return true if success
  */
-bool TaskTimerSocket::setStartupTime(
+int TaskTimerSocket::setStartupTime(
     TASK_TIME time
 )
 {
@@ -65,10 +65,9 @@ bool TaskTimerSocket::setStartupTime(
         .it_interval = { .tv_sec = 0, .tv_nsec = 0},
         .it_value = { .tv_sec = s.count(), .tv_nsec = ns.count()}
     };
-    // return false if failed
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    return false;
+    return ERR_CODE_PARAM_INVALID;
 #else
-    return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr) == 0;
+    return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr);
 #endif
 }

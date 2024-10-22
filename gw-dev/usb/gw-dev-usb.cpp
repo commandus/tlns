@@ -422,8 +422,9 @@ static void run()
 
     if (!localConfig.daemonize)
         setSignalHandler();
+    // downlonkRun() in separate thread
     // run() in main thread
-    dispatcher.run();
+    dispatcher.runUplink();
 }
 
 int main(

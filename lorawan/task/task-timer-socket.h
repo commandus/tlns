@@ -21,7 +21,12 @@ public:
     void closeSocket() override;
     virtual ~TaskTimerSocket();
     TASK_TIME getStartupTime();
-    bool setStartupTime(TASK_TIME time);
+    /**
+     * set time
+     * @param time time
+     * @return 0- success
+     */
+    int setStartupTime(TASK_TIME time);
 };
 
 #endif

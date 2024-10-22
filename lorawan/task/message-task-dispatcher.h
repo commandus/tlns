@@ -90,7 +90,7 @@ private:
     );
 protected:
     TaskResponse *taskResponse;
-    std::thread *thread;    ///< main loop thread
+    std::thread *threadUplink;    ///< main uplink loop thread
     std::vector<AppBridge *> appBridges;
 
     bool openSockets();
@@ -106,7 +106,7 @@ public:
     DeviceBestGatewayDirectClient *deviceBestGatewayClient;
     MessageQueue queue;     ///< message queue
     std::vector<TaskSocket*> sockets;   ///< task socket array
-    bool running;    ///< true- loop thread is running
+    bool runningUplink;    ///< true- uplink loop thread is running
 
     OnReceiveRawData onReceiveRawData;
     OnPushMessageQueueItem onPushData;
@@ -119,7 +119,7 @@ public:
     const RegionalParameterChannelPlan *regionalPlan;
     DirectClient *identityClient;
 
-    int run();
+    int runUplink();
 
     MessageTaskDispatcher();
     MessageTaskDispatcher(const MessageTaskDispatcher &value);
@@ -128,17 +128,19 @@ public:
     void response(MessageQueueItem *item);
     void setResponse(TaskResponse *receiver);
 
-    void send(
-        const void *buffer,
+    void send2uplink(
+        const void *cmd,
         size_t size
     );
-    void send(
+    void send2uplink(
         char cmd
     );
-    void send(
+    void send2uplink(
         const std::string& cmd
     );
 
+    void startUplink();
+    void stopUplink();
     void start();
     void stop();
 

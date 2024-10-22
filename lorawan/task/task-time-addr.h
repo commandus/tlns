@@ -27,8 +27,8 @@ public:
     TimeAddrSet();
 
     void push(
-        DEVADDR addr,
-        TASK_TIME time
+        const DEVADDR *addr,
+        const TASK_TIME &time
     );
     bool peek(TimeAddr &retVal) const;
 

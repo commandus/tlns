@@ -547,7 +547,7 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     TASK_TIME receivedTime
 )
 {
-    queue.time2ResponseAddr.push(*addr, receivedTime);
+    queue.time2ResponseAddr.push(addr, receivedTime);
 }
 
 void MessageTaskDispatcher::cleanupOldMessages(

@@ -55,15 +55,17 @@ TimeAddrSet::TimeAddrSet()
 }
 
 void TimeAddrSet::push(
-    DEVADDR addr,
-    TASK_TIME time
+    const DEVADDR *addr,
+    const TASK_TIME &time
 )
 {
+    if (!addr)
+        return;
     auto ta = timeAddr.begin();
     if (ta != timeAddr.end())
         return;
-    timeAddr[time] = addr;
-    addrTime[addr] = time;
+    timeAddr[time] = *addr;
+    addrTime[*addr] = time;
 }
 
 bool TimeAddrSet::peek(

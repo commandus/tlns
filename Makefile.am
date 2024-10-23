@@ -89,6 +89,7 @@ nobase_dist_include_HEADERS = \
     bridge/mqtt/bridge-mqtt-wss.h \
     lorawan/bridge/app-bridge.h lorawan/bridge/plugin-bridge.h \
     lorawan/bridge/stdout-bridge.h lorawan/bridge/file-json-bridge.h \
+    lorawan/bridge/tcp-udp-v4-bridge.h \
     task-response-threaded.h \
     third-party/argtable3/argtable3.h \
     third-party/base64/base64.h \
@@ -190,7 +191,7 @@ endif
 #
 # MQTT bridge
 #
-lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la
+lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la libtcp-udp-bridge.la
 if ENABLE_MQTT
 lib_LTLIBRARIES += libbridge-mqtt-wss.la
 endif
@@ -225,6 +226,7 @@ gw_dev_usb_SOURCES = \
     task-response-threaded.cpp \
     lorawan/bridge/app-bridge.cpp \
     lorawan/bridge/stdout-bridge.cpp \
+    lorawan/bridge/tcp-udp-v4-bridge.cpp \
     lorawan/helper/thread-helper.cpp \
     lorawan/task/task-accepted-socket.cpp \
     third-party/daemonize.cpp third-party/libloragw/libloragw-helper.cpp third-party/libloragw/subst-call-c.cpp \
@@ -267,6 +269,11 @@ libfile_json_bridge_la_SOURCES = lorawan/bridge/file-json-bridge.cpp
 libfile_json_bridge_la_LIBADD = -L. -llorawan
 libfile_json_bridge_la_CPPFLAGS = -Ithird-party
 #libfile_json_bridge_la_LDFLAGS = -version-info $(VERSION_INFO)
+
+libtcp_udp_bridge_la_SOURCES = lorawan/bridge/tcp-udp-v4-bridge.cpp
+libtcp_udp_bridge_la_LIBADD = -L. -llorawan
+libtcp_udp_bridge_la_CPPFLAGS = -Ithird-party
+#libtcp_udp_bridge_la_LDFLAGS = -version-info $(VERSION_INFO)
 
 #
 # test-printf

@@ -295,6 +295,14 @@ else()
 	target_include_directories(file-json-bridge PRIVATE ".")
 	set_target_properties(file-json-bridge PROPERTIES SOVERSION ${VERSION_INFO})
 
+	#
+	# Plugin example: Simple output to TCP port
+	#
+	add_library(tcp-udp-bridge SHARED lorawan/bridge/tcp-udp-v4-bridge.cpp)
+	target_link_libraries(tcp-udp-bridge PRIVATE lorawan)
+	target_include_directories(tcp-udp-bridge PRIVATE ".")
+	set_target_properties(tcp-udp-bridge PROPERTIES SOVERSION ${VERSION_INFO})
+
 	install(FILES README.md LICENSE HISTORY COPYING TODO CODE_OF_CONDUCT.md CONTRIBUTING.md DESTINATION doc)
 
 	include(InstallRequiredSystemLibraries)

@@ -1,7 +1,6 @@
 #include <iostream>
 #include "lorawan/bridge/stdout-bridge.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/lorawan-error.h"
 
 StdoutBridge::StdoutBridge() = default;
 

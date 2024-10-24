@@ -16,10 +16,13 @@ class TcpUdpV4Bridge : public AppBridge {
 private:
     SOCKET tcpListenSocket;
     SOCKET udpSocket;
+    SOCKET onPayloadSocket;
     std::string addrAndPort;
+    std::string onPayloadSocketPath;
     std::thread *thread;
     bool running;
     bool stopped;
+    int openOnPayloadSocket();
     int openSockets();
     void closeSockets();
     void start();
@@ -35,6 +38,12 @@ public:
         bool micMatched
     ) override;
 
+    /**
+     *
+     * @param option    <address>:<port number>. "*:7890 or :7890"- any interface, port 7890, "*" or ""- any interface, port 4250
+     * @param option2   unix socket file name. Default "/tmp/tcp-udp-v4-bridge.socket"
+     * @param option3
+     */
     void init(
         const std::string& option,
         const std::string& option2,

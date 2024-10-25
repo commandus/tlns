@@ -40,7 +40,7 @@ public:
      * @param option2
      * @param option3
      */
-    virtual void init(
+    virtual int init(
         const std::string& option,
         const std::string& option2,
         const void *option3

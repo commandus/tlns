@@ -2,6 +2,7 @@
 #include <fstream>
 #include "lorawan/bridge/file-json-bridge.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-error.h"
 
 static const char *APP_BRIDGE_NAME = "stdout-app-bridge";
 
@@ -18,7 +19,7 @@ void FileJsonBridge::onPayload(
         *strm << messageItem->toJsonString() << std::endl;
 }
 
-void FileJsonBridge::init(
+int FileJsonBridge::init(
     const std::string& option,
     const std::string& option2,
     const void *option3
@@ -30,6 +31,7 @@ void FileJsonBridge::init(
         delete strm;
         strm = nullptr;
     }
+    return CODE_OK;
 }
 
 void FileJsonBridge::done()

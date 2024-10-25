@@ -24,7 +24,7 @@ public:
         const MessageQueueItem *item,
         int code
     ) override;
-    void init(
+    int init(
         const std::string& option,
         const std::string& option2,
         const void *option3

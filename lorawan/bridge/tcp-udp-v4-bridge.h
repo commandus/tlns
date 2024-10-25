@@ -23,9 +23,11 @@ private:
     bool running;
     bool stopped;
     int openOnPayloadSocket();
+    void closeOnPayloadSocket();
     int openSockets();
     void closeSockets();
-    void start();
+
+    int start();
     void stop();
     void run();
 public:
@@ -44,7 +46,7 @@ public:
      * @param option2   unix socket file name. Default "/tmp/tcp-udp-v4-bridge.socket"
      * @param option3
      */
-    void init(
+    int init(
         const std::string& option,
         const std::string& option2,
         const void *option3

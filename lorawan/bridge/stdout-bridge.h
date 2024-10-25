@@ -14,7 +14,7 @@ public:
         bool micMatched
     ) override;
 
-    void init(
+    int init(
         const std::string& option,
         const std::string& option2,
         const void *option3

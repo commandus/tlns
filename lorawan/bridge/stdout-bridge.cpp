@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lorawan/bridge/stdout-bridge.h"
 #include "lorawan/lorawan-string.h"
+#include "lorawan/lorawan-error.h"
 
 StdoutBridge::StdoutBridge() = default;
 
@@ -19,13 +20,13 @@ void StdoutBridge::onPayload(
     }
 }
 
-void StdoutBridge::init(
+int StdoutBridge::init(
     const std::string& option,
     const std::string& option2,
     const void *option3
 )
 {
-
+    return CODE_OK;
 }
 
 void StdoutBridge::done()

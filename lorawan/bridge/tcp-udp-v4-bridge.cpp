@@ -42,14 +42,14 @@ TcpUdpV4Bridge::TcpUdpV4Bridge()
 
 }
 
-SOCKET TcpUdpV4Bridge::openOnPayloadSocket()
+int TcpUdpV4Bridge::openOnPayloadSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
     return INVALID_SOCKET;
 #else
     onPayloadSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (onPayloadSocket <= 0)
-        return onPayloadSocket;
+        return ERR_CODE_SOCKET_CREATE;
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
 
@@ -57,44 +57,41 @@ SOCKET TcpUdpV4Bridge::openOnPayloadSocket()
     int on = 1;
     int rc = setsockopt(onPayloadSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
-        close(onPayloadSocket);
-        onPayloadSocket = INVALID_SOCKET;
-        return INVALID_SOCKET;
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CREATE;
     }
     // Set socket to be nonblocking
     int flags = fcntl(onPayloadSocket, F_GETFL, 0);
     fcntl(onPayloadSocket, F_SETFL, flags | O_NONBLOCK);
     // make sure
-    rc = ioctl(onPayloadSocket, FIONBIO, (char *)&on);
+    rc = ioctl(onPayloadSocket, FIONBIO, (char *) &on);
     if (rc < 0) {
-        close(onPayloadSocket);
-        onPayloadSocket = INVALID_SOCKET;
-        return INVALID_SOCKET;
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CREATE;
     }
     // Bind socket to socket name
     sunAddr.sun_family = AF_UNIX;
     strncpy(sunAddr.sun_path, onPayloadSocketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
     int r = bind(onPayloadSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
-        close(onPayloadSocket);
-        onPayloadSocket = INVALID_SOCKET;
-        return INVALID_SOCKET;
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_BIND;
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
     r = listen(onPayloadSocket, 20);
     if (r < 0) {
-        close(onPayloadSocket);
-        onPayloadSocket = INVALID_SOCKET;
-        return INVALID_SOCKET;
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_LISTEN;
     }
-    return onPayloadSocket;
+    return CODE_OK;
 #endif
 }
 
 int TcpUdpV4Bridge::openSockets()
 {
-    if (openOnPayloadSocket() < 0)
-        return ERR_CODE_SOCKET_CREATE;
+    int r = openOnPayloadSocket();
+    if (r < 0)
+        return r;
 
     struct sockaddr_in srvAddr;
     bzero(&srvAddr, sizeof(srvAddr));
@@ -102,7 +99,6 @@ int TcpUdpV4Bridge::openSockets()
 
     std::string a;
     uint16_t port;
-    int r = 0;
     splitAddress(a, port, addrAndPort);
     if (a.empty() || a == "*")
         srvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -146,7 +142,17 @@ int TcpUdpV4Bridge::openSockets()
         return ERR_CODE_SOCKET_BIND;
 
     }
-    return 0;
+    return CODE_OK;
+}
+
+void TcpUdpV4Bridge::closeOnPayloadSocket()
+{
+    unlink(onPayloadSocketPath.c_str());
+    if (onPayloadSocket == INVALID_SOCKET)
+        return;
+    close(onPayloadSocket);
+    unlink(onPayloadSocketPath.c_str());
+    onPayloadSocket = INVALID_SOCKET;
 }
 
 void TcpUdpV4Bridge::closeSockets()
@@ -155,18 +161,20 @@ void TcpUdpV4Bridge::closeSockets()
         close(tcpListenSocket);
     if (udpSocket != INVALID_SOCKET)
         close(udpSocket);
-    if (onPayloadSocket != INVALID_SOCKET)
-        close(onPayloadSocket);
+    closeOnPayloadSocket();
 }
 
-void TcpUdpV4Bridge::start()
+int TcpUdpV4Bridge::start()
 {
-    openSockets();
+    int r = openSockets();
+    if (r)
+        return r;
 
     running = true;
     stopped = false;
     thread = new std::thread(std::bind(&TcpUdpV4Bridge::run, this));
     thread->detach();
+    return CODE_OK;
 }
 
 void TcpUdpV4Bridge::stop()
@@ -407,7 +415,7 @@ void TcpUdpV4Bridge::onPayload(
     }
 }
 
-void TcpUdpV4Bridge::init(
+int TcpUdpV4Bridge::init(
     const std::string& option,
     const std::string& option2,
     const void *option3
@@ -416,7 +424,7 @@ void TcpUdpV4Bridge::init(
     addrAndPort = option;
     if (!option2.empty())
         onPayloadSocketPath = option2;
-    start();
+    return start();
 }
 
 void TcpUdpV4Bridge::done()

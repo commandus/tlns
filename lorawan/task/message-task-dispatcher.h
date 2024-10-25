@@ -270,6 +270,9 @@ public:
         uint8_t fOptsSize,
         ProtoGwParser *proto
     );
+
+    void initBridges();
+    void doneBridges();
 };
 
 #endif

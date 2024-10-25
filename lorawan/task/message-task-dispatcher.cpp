@@ -232,6 +232,9 @@ int MessageTaskDispatcher::runUplink()
         runningUplink = false;
         return ERR_CODE_SOCKET_CREATE;
     }
+
+    initBridges();
+
     struct timeval timeout {};
 
     // Initialize the master fd_set
@@ -394,6 +397,7 @@ int MessageTaskDispatcher::runUplink()
         }
     }
     closeSockets();
+    doneBridges();
     runningUplink = false;
     return CODE_OK;
 
@@ -664,4 +668,23 @@ int MessageTaskDispatcher::sendDownlink(
     DownlinkMessage m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
     queue.putDownlink(tim, m, proto);
     return CODE_OK;
+}
+
+void MessageTaskDispatcher::initBridges()
+{
+    for (auto b(appBridges.begin()); b != appBridges.end();) {
+        int r = (*b)->init("", "", nullptr);
+        if (r) {
+            onError(this, LOG_ERR, MODULE_NAME_GW_UPSTREAM, r, "");
+            b = appBridges.erase(b);
+        } else
+            b++;
+    }
+}
+
+void MessageTaskDispatcher::doneBridges()
+{
+    for (auto b: appBridges) {
+        b->done();
+    }
 }

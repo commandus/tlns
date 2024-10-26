@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <functional>
 
 #define DEF_PORT                    4250
 #define DEF_MAX_TCP_CONNECTIONS     1024
@@ -11,16 +12,13 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WS2tcpip.h>
 #include <Winsock2.h>
-#define close(x) closesocket(x)
-#define write(sock, b, sz) ::send(sock, b, sz, 0)
-// #define inet_pton InetPtonA
+#define sleep(x) Sleep(x)
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/un.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <functional>
 
 #define INVALID_SOCKET  (-1)
 #endif
@@ -45,7 +43,7 @@ TcpUdpV4Bridge::TcpUdpV4Bridge()
 int TcpUdpV4Bridge::openOnPayloadSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    return INVALID_SOCKET;
+    return ERR_CODE_SOCKET_CREATE;
 #else
     onPayloadSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (onPayloadSocket <= 0)
@@ -94,7 +92,7 @@ int TcpUdpV4Bridge::openSockets()
         return r;
 
     struct sockaddr_in srvAddr;
-    bzero(&srvAddr, sizeof(srvAddr));
+    memset(&srvAddr, 0, sizeof(srvAddr));
     srvAddr.sin_family = AF_INET;
 
     std::string a;

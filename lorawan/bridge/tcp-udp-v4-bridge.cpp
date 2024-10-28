@@ -45,6 +45,7 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
 #if defined(_MSC_VER) || defined(__MINGW32__)
     return ERR_CODE_SOCKET_CREATE;
 #else
+    unlink(onPayloadSocketPath.c_str());
     onPayloadSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (onPayloadSocket <= 0)
         return ERR_CODE_SOCKET_CREATE;
@@ -114,6 +115,18 @@ int TcpUdpV4Bridge::openSockets()
     if (tcpListenSocket == INVALID_SOCKET)
         return ERR_CODE_SOCKET_CREATE;
 
+    int on = 1;
+    if (setsockopt(tcpListenSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
+        close(tcpListenSocket);
+        tcpListenSocket = INVALID_SOCKET;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+    if (setsockopt(tcpListenSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
+        close(tcpListenSocket);
+        tcpListenSocket = INVALID_SOCKET;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+
     if (bind(tcpListenSocket, (struct sockaddr*) &srvAddr, sizeof(srvAddr)) != 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
@@ -131,6 +144,17 @@ int TcpUdpV4Bridge::openSockets()
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_CREATE;
     }
+    if (setsockopt(udpSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
+        close(tcpListenSocket);
+        tcpListenSocket = INVALID_SOCKET;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+    if (setsockopt(udpSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
+        close(tcpListenSocket);
+        tcpListenSocket = INVALID_SOCKET;
+        return ERR_CODE_SOCKET_OPEN;
+    }
+
     // binding server addr structure to udp sockfd
     if (bind(udpSocket, (struct sockaddr*) &srvAddr, sizeof(srvAddr)) != 0) {
         close(tcpListenSocket);
@@ -145,7 +169,6 @@ int TcpUdpV4Bridge::openSockets()
 
 void TcpUdpV4Bridge::closeOnPayloadSocket()
 {
-    unlink(onPayloadSocketPath.c_str());
     if (onPayloadSocket == INVALID_SOCKET)
         return;
     close(onPayloadSocket);
@@ -305,11 +328,12 @@ void TcpUdpV4Bridge::run()
     std::vector <SOCKET> tcpClientSockets;
 
     struct timeval selectTimeout;
-    selectTimeout.tv_sec = 1;
-    selectTimeout.tv_usec = 0;
 
     UdpClients udpClients(DEF_MAX_UDP_CONNECTIONS, DEF_MAX_UDP_CONNECTION_EXPIRATION_SECONDS);
     while (running) {
+        // set timeout value
+        selectTimeout.tv_sec = 1;
+        selectTimeout.tv_usec = 0;
         // add listen TCP socket and UDP socket
         FD_SET(tcpListenSocket, &rset);
         FD_SET(udpSocket, &rset);

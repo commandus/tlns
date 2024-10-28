@@ -16,7 +16,9 @@ class TcpUdpV4Bridge : public AppBridge {
 private:
     SOCKET tcpListenSocket;
     SOCKET udpSocket;
-    SOCKET onPayloadSocket;
+    SOCKET onPayloadListenSocket;
+    SOCKET onPayloadAcceptedSocket;
+    SOCKET onPayloadClientSocket;
     std::string addrAndPort;
     std::string onPayloadSocketPath;
     std::thread *thread;

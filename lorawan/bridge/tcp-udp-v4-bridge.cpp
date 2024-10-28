@@ -35,7 +35,8 @@ static const char *APP_BRIDGE_NAME = "tcp-udp-v4-app-bridge";
 
 TcpUdpV4Bridge::TcpUdpV4Bridge()
     : tcpListenSocket(INVALID_SOCKET), udpSocket(INVALID_SOCKET),
-      running(false), stopped(true), thread(nullptr), onPayloadSocketPath(DEF_ON_PAYLOAD_SOCKET_PATH)
+    onPayloadListenSocket(INVALID_SOCKET), onPayloadAcceptedSocket(INVALID_SOCKET), onPayloadClientSocket(INVALID_SOCKET),
+    running(false), stopped(true), thread(nullptr), onPayloadSocketPath(DEF_ON_PAYLOAD_SOCKET_PATH)
 {
 
 }
@@ -46,24 +47,24 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     return ERR_CODE_SOCKET_CREATE;
 #else
     unlink(onPayloadSocketPath.c_str());
-    onPayloadSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (onPayloadSocket <= 0)
+    onPayloadListenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (onPayloadListenSocket <= 0)
         return ERR_CODE_SOCKET_CREATE;
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
 
     // Allow socket descriptor to be reusable
     int on = 1;
-    int rc = setsockopt(onPayloadSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    int rc = setsockopt(onPayloadListenSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_CREATE;
     }
     // Set socket to be nonblocking
-    int flags = fcntl(onPayloadSocket, F_GETFL, 0);
-    fcntl(onPayloadSocket, F_SETFL, flags | O_NONBLOCK);
+    int flags = fcntl(onPayloadListenSocket, F_GETFL, 0);
+    fcntl(onPayloadListenSocket, F_SETFL, flags | O_NONBLOCK);
     // make sure
-    rc = ioctl(onPayloadSocket, FIONBIO, (char *) &on);
+    rc = ioctl(onPayloadListenSocket, FIONBIO, (char *) &on);
     if (rc < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_CREATE;
@@ -71,17 +72,26 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     // Bind socket to socket name
     sunAddr.sun_family = AF_UNIX;
     strncpy(sunAddr.sun_path, onPayloadSocketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
-    int r = bind(onPayloadSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    int r = bind(onPayloadListenSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_BIND;
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
-    r = listen(onPayloadSocket, 20);
+    r = listen(onPayloadListenSocket, 20);
     if (r < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_LISTEN;
     }
+
+    // client socket
+    onPayloadClientSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    r = connect(onPayloadClientSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    if (r < 0) {
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CONNECT;
+    }
+
     return CODE_OK;
 #endif
 }
@@ -169,11 +179,16 @@ int TcpUdpV4Bridge::openSockets()
 
 void TcpUdpV4Bridge::closeOnPayloadSocket()
 {
-    if (onPayloadSocket == INVALID_SOCKET)
-        return;
-    close(onPayloadSocket);
-    unlink(onPayloadSocketPath.c_str());
-    onPayloadSocket = INVALID_SOCKET;
+    if (onPayloadListenSocket != INVALID_SOCKET) {
+        close(onPayloadListenSocket);
+        unlink(onPayloadSocketPath.c_str());
+        onPayloadListenSocket = INVALID_SOCKET;
+    }
+
+    if (onPayloadListenSocket != INVALID_SOCKET) {
+        close(onPayloadClientSocket);
+        onPayloadClientSocket = INVALID_SOCKET;
+    }
 }
 
 void TcpUdpV4Bridge::closeSockets()
@@ -323,7 +338,6 @@ void TcpUdpV4Bridge::run()
 {
     // clear the descriptor set
     fd_set rset;
-    FD_ZERO(&rset);
     struct sockaddr_in clientAddr;
     std::vector <SOCKET> tcpClientSockets;
 
@@ -335,14 +349,21 @@ void TcpUdpV4Bridge::run()
         selectTimeout.tv_sec = 1;
         selectTimeout.tv_usec = 0;
         // add listen TCP socket and UDP socket
+        FD_ZERO(&rset);
         FD_SET(tcpListenSocket, &rset);
         FD_SET(udpSocket, &rset);
-        FD_SET(onPayloadSocket, &rset);
+        FD_SET(onPayloadListenSocket, &rset);
 
         // determine max socket number
         SOCKET maxSocketPlus1 = (tcpListenSocket > udpSocket ? tcpListenSocket : udpSocket);
-        if (onPayloadSocket > maxSocketPlus1)
+        if (onPayloadListenSocket > maxSocketPlus1)
             maxSocketPlus1 = maxSocketPlus1;
+
+        if (onPayloadAcceptedSocket != INVALID_SOCKET) {
+            FD_SET(onPayloadAcceptedSocket, &rset);
+            if (onPayloadAcceptedSocket > maxSocketPlus1)
+                maxSocketPlus1 = onPayloadAcceptedSocket;
+        }
 
         for (auto s : tcpClientSockets) {
             // add client's TCP socket
@@ -372,9 +393,19 @@ void TcpUdpV4Bridge::run()
 
         char buffer[4096];
 
-        if (FD_ISSET(onPayloadSocket, &rset)) {
+        if (FD_ISSET(onPayloadListenSocket, &rset)) {
+            // close previous socket if assigned
+            if (onPayloadAcceptedSocket != INVALID_SOCKET)
+                close(onPayloadAcceptedSocket);
+            // accept
+            len = sizeof(clientAddr);
+            onPayloadAcceptedSocket = accept(onPayloadListenSocket, (struct sockaddr*) &clientAddr, &len);
+        }
+
+        if (FD_ISSET(onPayloadAcceptedSocket, &rset)) {
             // payload and onSent event
-            ssize_t n = read(onPayloadSocket, buffer, sizeof(buffer));
+            ssize_t n = read(onPayloadAcceptedSocket, buffer, sizeof(buffer));
+
             if (n > 0) {
                 // write to all connected TCP clients
                 for (auto s: tcpClientSockets) {
@@ -422,7 +453,7 @@ void TcpUdpV4Bridge::onPayload(
 )
 {
     if (messageItem) {
-        if (onPayloadSocket >= 0) {
+        if (onPayloadClientSocket >= 0) {
             std::string s = messageItem->toJsonString();
             // remove "{"
             s.erase(0, 1);
@@ -432,7 +463,11 @@ void TcpUdpV4Bridge::onPayload(
                 << ", \"payloadMicMatched\": " << (micMatched ? "true" : "false")
                 << ", " << s;
             s = ss.str();
-            write(onPayloadSocket, (const char *) s.c_str(), s.size());
+            auto sz = s.size();
+            ssize_t bytes = write(onPayloadClientSocket, (const char *) s.c_str(), sz);
+            if (bytes < sz) {
+                std::cerr << "Error write " << bytes << ", errno: " << errno << std::endl;
+            }
         }
     }
 }
@@ -461,7 +496,7 @@ void TcpUdpV4Bridge::onSend(
 )
 {
     if (item) {
-        if (onPayloadSocket >= 0) {
+        if (onPayloadClientSocket >= 0) {
             std::string s = item->toJsonString();
             // remove "{"
             s.erase(0, 1);
@@ -470,7 +505,7 @@ void TcpUdpV4Bridge::onSend(
             ss << "{\"sendingResultCode\": " << code
                << ", " << s;
             s = ss.str();
-            write(onPayloadSocket, (const char *) s.c_str(), s.size());
+            write(onPayloadClientSocket, (const char *) s.c_str(), s.size());
         }
     }
 

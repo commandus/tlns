@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstring>
 #include <functional>
 
 #define DEF_PORT                    4250

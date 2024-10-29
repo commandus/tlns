@@ -59,13 +59,13 @@ public:
     /**
      * Prepare to send FOpts and/or payload to he end-device
      */
-    int send(
+    int send2addr(
         const TASK_TIME &tim,
         const DEVADDR &addr,
-        void *buffer,
+        void *payload,
         void *fopts,
         uint8_t fPort,
-        uint8_t bufferSize = 0,
+        uint8_t payloadSize = 0,
         uint8_t foptsSize = 0,
         uint8_t proto = 0
     );
@@ -89,7 +89,7 @@ public:
         uint8_t proto = 0
     );
 
-    int send(
+    int sendString(
         const TASK_TIME &tim,
         const DEVADDR &addr,
         uint8_t fPort,

@@ -1,7 +1,6 @@
 #include "lorawan/bridge/app-bridge.h"
 #include "lorawan/lorawan-error.h"
 #include "lorawan/task/message-task-dispatcher.h"
-#include "lorawan/lorawan-builder.h"
 
 AppBridge::AppBridge()
     : dispatcher(nullptr)
@@ -16,7 +15,7 @@ void AppBridge::setDispatcher(
     dispatcher = aDispatcher;
 }
 
-int AppBridge::send(
+int AppBridge::send2addr(
     const TASK_TIME &tim,
     const DEVADDR &addr,
     void *payload,
@@ -45,7 +44,7 @@ int AppBridge::sendFOpts(
     uint8_t proto
 )
 {
-    return send(tim, addr, nullptr, fopts, FPORT_NO_PAYLOAD, 0, size, proto);
+    return send2addr(tim, addr, nullptr, fopts, FPORT_NO_PAYLOAD, 0, size, proto);
 }
 
 int AppBridge::sendPayload(
@@ -57,10 +56,10 @@ int AppBridge::sendPayload(
     uint8_t proto
 )
 {
-    return send(tim, addr, payload, nullptr, fPort, size, 0, proto);
+    return send2addr(tim, addr, payload, nullptr, fPort, size, 0, proto);
 }
 
-int AppBridge::send(
+int AppBridge::sendString(
     const TASK_TIME &tim,
     const DEVADDR &addr,
     uint8_t fPort,
@@ -69,7 +68,7 @@ int AppBridge::send(
     uint8_t proto
 )
 {
-    return send(tim, addr, (void *) payload.c_str(), (void *) fOpts.c_str(),
+    return send2addr(tim, addr, (void *) payload.c_str(), (void *) fOpts.c_str(),
         fPort, payload.size(), fOpts.size(), proto);
 }
 
@@ -80,8 +79,8 @@ int AppBridge::sendFOpts(
     uint8_t proto
 )
 {
-    return send(tim, addr, nullptr, (void *) fOpts.c_str(),
-                FPORT_NO_PAYLOAD, 0, fOpts.size(), proto);
+    return send2addr(tim, addr, nullptr, (void *) fOpts.c_str(),
+                     FPORT_NO_PAYLOAD, 0, fOpts.size(), proto);
 }
 
 int AppBridge::sendPayload(
@@ -92,6 +91,6 @@ int AppBridge::sendPayload(
     uint8_t proto
 )
 {
-    return send(tim, addr, (void *) payload.c_str(), nullptr,
-        fPort, payload.size(), 0, proto);
+    return send2addr(tim, addr, (void *) payload.c_str(), nullptr,
+                     fPort, payload.size(), 0, proto);
 }

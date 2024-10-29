@@ -225,6 +225,12 @@ class InAddrPort {
 public:
     uint16_t port;
     uint32_t addr;
+    InAddrPort()
+        : port(0), addr(0)
+    {
+
+    }
+
     explicit InAddrPort(
         const struct sockaddr_in &a
     )
@@ -281,22 +287,36 @@ public:
 
     }
 
-    void cleanExpired() {
+    void cleanExpired(bool removeOldest = false) {
         time_t expTime(time(nullptr));
         expTime -= expirationSeconds;
+        time_t oldest = 0;
+        InAddrPort oldestKey;
         for (auto a(udpClientAddress.begin()); a != udpClientAddress.end();) {
             if (a->second.t > expTime) {
+                removeOldest = false; // element deleted, so do not delete extra items
                 a = udpClientAddress.erase(a);
                 continue;
             }
+            if (removeOldest && (a->second.t > oldest)) {
+                oldest = a->second.t;
+                oldestKey = a->first;
+            }
             a++;
+        }
+        // if expired items not found, remove oldest one
+        if (removeOldest && (oldest != 0)) {
+            auto it = udpClientAddress.find(oldestKey);
+            if (it != udpClientAddress.end()) {
+                udpClientAddress.erase(it);
+            }
         }
     }
 
     bool push(const struct sockaddr_in &a) {
         // check limits
         if (udpClientAddress.size() >= maxSize) {
-            cleanExpired();
+            cleanExpired(true);
             if (udpClientAddress.size() >= maxSize)
                 return false;
         }
@@ -383,9 +403,9 @@ void TcpUdpV4Bridge::run()
             len = sizeof(clientAddr);
             SOCKET clientConnectionSocket = accept(tcpListenSocket, (struct sockaddr*) &clientAddr, &len);
             if (clientConnectionSocket >= 0) {
-                if (tcpClientSockets.size() < DEF_MAX_TCP_CONNECTIONS)
+                if (tcpClientSockets.size() < DEF_MAX_TCP_CONNECTIONS) {
                     tcpClientSockets.push_back(clientConnectionSocket);
-                else
+                } else
                     close(clientConnectionSocket);
             }
         }
@@ -407,8 +427,17 @@ void TcpUdpV4Bridge::run()
 
             if (n > 0) {
                 // write to all connected TCP clients
-                for (auto s: tcpClientSockets) {
-                    write(s, (const char *) buffer, n);
+                // client's tcp connections
+                for (auto s(tcpClientSockets.begin()); s != tcpClientSockets.end();) {
+                    ssize_t nw = send(*s, (void *) buffer, n, MSG_NOSIGNAL);
+                    if (nw < 0) {
+                        // error occurs, close socket.
+                        close(*s);
+                        s = tcpClientSockets.erase(s);
+                        continue;
+                    }
+                    // next socket
+                    s++;
                 }
                 // send to UDP clients
                 udpClients.send2all(udpSocket, buffer, n);
@@ -426,7 +455,7 @@ void TcpUdpV4Bridge::run()
                 udpClients.push(clientAddr);
             }
         }
-        // client's tcp connections
+        // client's tcp connections read
         for (auto s(tcpClientSockets.begin()); s != tcpClientSockets.end();) {
             if (FD_ISSET(*s, &rset)) {
                 ssize_t n = read(*s, buffer, sizeof(buffer));

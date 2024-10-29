@@ -2,8 +2,7 @@
 #include <functional>
 
 #define DEF_PORT                    4250
-#define DEF_MAX_TCP_CONNECTIONS     1024
-#define DEF_MAX_UDP_CONNECTIONS     1024
+#define DEF_MAX_CONNECTIONS         1010
 // UDP clients must ping every hour
 #define DEF_MAX_UDP_CONNECTION_EXPIRATION_SECONDS   3600
 #define DEF_ON_PAYLOAD_SOCKET_PATH  "/tmp/tcp-udp-v4-bridge.socket"
@@ -277,25 +276,31 @@ public:
 
 class UdpClients {
 private:
-    size_t maxSize;
     int expirationSeconds;
 public:
     std::map<InAddrPort, UdpClient> udpClientAddress;
-    UdpClients(size_t aMaxSize, int aExpirationSeconds)
-        : maxSize(aMaxSize), expirationSeconds(aExpirationSeconds)
+    UdpClients(int aExpirationSeconds)
+        : expirationSeconds(aExpirationSeconds)
     {
 
     }
 
-    void cleanExpired(bool removeOldest = false) {
+    /**
+     * Remove expired client addresses.
+     * @param removeOldest force remove oldest client address if no expired clients found.
+     * @return true if at least one client has been removed.
+     */
+    bool cleanExpired(bool removeOldest = false) {
         time_t expTime(time(nullptr));
         expTime -= expirationSeconds;
         time_t oldest = 0;
         InAddrPort oldestKey;
+        bool removed = false;
         for (auto a(udpClientAddress.begin()); a != udpClientAddress.end();) {
             if (a->second.t > expTime) {
                 removeOldest = false; // element deleted, so do not delete extra items
                 a = udpClientAddress.erase(a);
+                removed = true;
                 continue;
             }
             if (removeOldest && (a->second.t > oldest)) {
@@ -309,18 +314,20 @@ public:
             auto it = udpClientAddress.find(oldestKey);
             if (it != udpClientAddress.end()) {
                 udpClientAddress.erase(it);
+                removed = true;
             }
         }
+        return removed;
     }
 
-    bool push(const struct sockaddr_in &a) {
+    bool push(
+        const struct sockaddr_in &a,
+        bool replaceOldest
+    ) {
         // check limits
-        if (udpClientAddress.size() >= maxSize) {
-            cleanExpired(true);
-            if (udpClientAddress.size() >= maxSize)
-                return false;
-        }
-        udpClientAddress[InAddrPort(a)] = UdpClient(a);
+        if (replaceOldest)
+            if (cleanExpired(true))
+                udpClientAddress[InAddrPort(a)] = UdpClient(a);
         return true;
     }
 
@@ -362,7 +369,7 @@ void TcpUdpV4Bridge::run()
 
     struct timeval selectTimeout;
 
-    UdpClients udpClients(DEF_MAX_UDP_CONNECTIONS, DEF_MAX_UDP_CONNECTION_EXPIRATION_SECONDS);
+    UdpClients udpClients(DEF_MAX_UDP_CONNECTION_EXPIRATION_SECONDS);
     while (running) {
         // set timeout value
         selectTimeout.tv_sec = 1;
@@ -403,7 +410,7 @@ void TcpUdpV4Bridge::run()
             len = sizeof(clientAddr);
             SOCKET clientConnectionSocket = accept(tcpListenSocket, (struct sockaddr*) &clientAddr, &len);
             if (clientConnectionSocket >= 0) {
-                if (tcpClientSockets.size() < DEF_MAX_TCP_CONNECTIONS) {
+                if (tcpClientSockets.size() + udpClients.udpClientAddress.size() < DEF_MAX_CONNECTIONS) {
                     tcpClientSockets.push_back(clientConnectionSocket);
                 } else
                     close(clientConnectionSocket);
@@ -452,7 +459,8 @@ void TcpUdpV4Bridge::run()
             if (n < 0) {
                 // error, nothing to do
             } else {
-                udpClients.push(clientAddr);
+                udpClients.push(clientAddr,
+                    tcpClientSockets.size() + udpClients.udpClientAddress.size() >= DEF_MAX_CONNECTIONS);
             }
         }
         // client's tcp connections read

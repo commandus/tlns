@@ -326,8 +326,9 @@ public:
     ) {
         // check limits
         if (replaceOldest)
-            if (cleanExpired(true))
-                udpClientAddress[InAddrPort(a)] = UdpClient(a);
+            if (!cleanExpired(true))
+                return false;
+        udpClientAddress[InAddrPort(a)] = UdpClient(a);
         return true;
     }
 

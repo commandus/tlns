@@ -35,6 +35,12 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
     size_t size
 )
 {
+    // clear
+    payload = "";
+    fopts = "";
+    tim = 0;
+    addresses.clear();
+
     command = PAYLOAD2DEVICE_COMMAND_INVALID;
 
     size_t start = 0;
@@ -58,9 +64,10 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
     }
 
     std::string token(expression + start, finish - start);
-    if (token == RESERVED_WORDS[0]) // "ping"
+    if (token == RESERVED_WORDS[0]) {// "ping"
         command = PAYLOAD2DEVICE_COMMAND_PING;
-    else
+        return command;
+    } else
         if (token == RESERVED_WORDS[1]) // "send"
             command = PAYLOAD2DEVICE_COMMAND_SEND;
         else
@@ -68,9 +75,8 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
 
     state = PAYLOAD2DEVICE_PARSER_STATE_ADDRESS;
 
-    start = finish;
-
     while (finish < size ) {
+        start = finish;
         // skip spaces if exists
         for (auto p = start; p < eolp; p++) {
             if (!std::isspace(expression[p])) {
@@ -87,6 +93,8 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
             }
         }
         token = std::string(expression + start, finish - start);
+        if (token.empty())
+            return command;
         if (token == RESERVED_WORDS[2]) { // "payload"
             state = PAYLOAD2DEVICE_PARSER_STATE_PAYLOAD;
         } else {
@@ -115,7 +123,6 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
                 }
             }
         }
-        start = finish;
     }
     return command;
 }

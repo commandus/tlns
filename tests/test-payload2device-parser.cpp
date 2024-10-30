@@ -10,10 +10,13 @@ int main(int argc, char **argv) {
 
     p.parse("send 1f00AA payload 112233445566ff at 2024-10-31T00:00:00+09");
     assert(p.command == PAYLOAD2DEVICE_COMMAND_SEND);
-    std::string s = p.toString();
-    std::cout << s << std::endl;
-    // assert(s == "send 001f00aa payload 112233445566ff at 2024-10-31T00:00:00+09");
+    std::cout << p.toString() << std::endl;
     p.parse("");
-
+    p.parse("pong  ");
+    p.parse("ping\t\t");
+    p.parse("send\t\t");
+    std::cout << p.toString() << std::endl;
+    p.parse("send at 2024-12-31T00:00:00+09\t\t");
+    std::cout << p.toString() << std::endl;
     return 0;
 }

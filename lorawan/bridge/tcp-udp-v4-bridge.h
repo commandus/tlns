@@ -67,7 +67,7 @@ private:
     void run();
 public:
     TcpUdpV4Bridge();
-    virtual ~TcpUdpV4Bridge() = default;
+    ~TcpUdpV4Bridge() override;
     void onPayload(
         const void *dispatcher,
         const MessageQueueItem *messageItem,
@@ -76,7 +76,7 @@ public:
     ) override;
 
     /**
-     *
+     * Open sockets
      * @param option    <address>:<port number>. "*:7890 or :7890"- any interface, port 7890, "*" or ""- any interface, port 4250
      * @param option2   unix socket file name. Default "/tmp/tcp-udp-v4-bridge.socket"
      * @param option3
@@ -87,6 +87,9 @@ public:
         const void *option3
     ) override;
 
+    /**
+     * Close sockets, free up other resources
+     */
     void done() override;
 
     void onSend(

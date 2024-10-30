@@ -30,6 +30,7 @@
 #include "lorawan/lorawan-error.h"
 
 static const char *APP_BRIDGE_NAME = "tcp-udp-v4-app-bridge";
+#define BUFFER_SIZE 4096
 
 TcpUdpV4Bridge::TcpUdpV4Bridge()
     : tcpListenSocket(INVALID_SOCKET), udpSocket(INVALID_SOCKET),
@@ -37,6 +38,11 @@ TcpUdpV4Bridge::TcpUdpV4Bridge()
     running(false), stopped(true), thread(nullptr), onPayloadSocketPath(DEF_ON_PAYLOAD_SOCKET_PATH)
 {
 
+}
+
+TcpUdpV4Bridge::~TcpUdpV4Bridge()
+{
+    stop();
 }
 
 int TcpUdpV4Bridge::openOnPayloadSocket()
@@ -48,8 +54,7 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     onPayloadListenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (onPayloadListenSocket <= 0)
         return ERR_CODE_SOCKET_CREATE;
-    struct sockaddr_un sunAddr;
-    memset(&sunAddr, 0, sizeof(struct sockaddr_un));
+    struct sockaddr_un sunAddr { AF_UNIX,'\0'};
 
     // Allow socket descriptor to be reusable
     int on = 1;
@@ -68,7 +73,6 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
         return ERR_CODE_SOCKET_CREATE;
     }
     // Bind socket to socket name
-    sunAddr.sun_family = AF_UNIX;
     strncpy(sunAddr.sun_path, onPayloadSocketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
     int r = bind(onPayloadListenSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
@@ -99,14 +103,10 @@ int TcpUdpV4Bridge::openSockets()
     int r = openOnPayloadSocket();
     if (r < 0)
         return r;
-
-    struct sockaddr_in srvAddr;
-    memset(&srvAddr, 0, sizeof(srvAddr));
-    srvAddr.sin_family = AF_INET;
-
     std::string a;
     uint16_t port;
     splitAddress(a, port, addrAndPort);
+    struct sockaddr_in srvAddr { AF_INET, 0, 0 };
     if (a.empty() || a == "*")
         srvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     else
@@ -147,7 +147,7 @@ int TcpUdpV4Bridge::openSockets()
     }
     // create UDP socket
     udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (tcpListenSocket == INVALID_SOCKET) {
+    if (udpSocket == INVALID_SOCKET) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_CREATE;
@@ -183,7 +183,7 @@ void TcpUdpV4Bridge::closeOnPayloadSocket()
         onPayloadListenSocket = INVALID_SOCKET;
     }
 
-    if (onPayloadListenSocket != INVALID_SOCKET) {
+    if (onPayloadClientSocket != INVALID_SOCKET) {
         close(onPayloadClientSocket);
         onPayloadClientSocket = INVALID_SOCKET;
     }
@@ -191,10 +191,14 @@ void TcpUdpV4Bridge::closeOnPayloadSocket()
 
 void TcpUdpV4Bridge::closeSockets()
 {
-    if (tcpListenSocket != INVALID_SOCKET)
+    if (tcpListenSocket != INVALID_SOCKET) {
         close(tcpListenSocket);
-    if (udpSocket != INVALID_SOCKET)
+        tcpListenSocket = INVALID_SOCKET;
+    }
+    if (udpSocket != INVALID_SOCKET) {
         close(udpSocket);
+        udpSocket = INVALID_SOCKET;
+    }
     closeOnPayloadSocket();
 }
 
@@ -246,7 +250,6 @@ public:
         return (port < rhs.port);
     }
 
-
 };
 
 class UdpClient {
@@ -254,13 +257,13 @@ public:
     time_t t;
     struct sockaddr_in addr;
     UdpClient()
-        : t(0)
+        : t(0), addr { AF_INET, 0, 0}
     {
-        addr.sin_port = 0;
-        addr.sin_addr.s_addr = 0;
     }
 
-    UdpClient(const UdpClient &value)
+    UdpClient(
+        const UdpClient &value
+    )
         : t(value.t), addr(value.addr)
     {
     }
@@ -279,7 +282,9 @@ private:
     int expirationSeconds;
 public:
     std::map<InAddrPort, UdpClient> udpClientAddress;
-    UdpClients(int aExpirationSeconds)
+    explicit UdpClients(
+        int aExpirationSeconds
+    )
         : expirationSeconds(aExpirationSeconds)
     {
 
@@ -363,20 +368,19 @@ public:
 
 void TcpUdpV4Bridge::run()
 {
-    // clear the descriptor set
     fd_set rset;
-    struct sockaddr_in clientAddr;
+    struct sockaddr_in clientAddr {AF_INET, 0, 0 };
+    struct timeval selectTimeout { 0, 0 };
+
     std::vector <SOCKET> tcpClientSockets;
-
-    struct timeval selectTimeout;
-
     UdpClients udpClients(DEF_MAX_UDP_CONNECTION_EXPIRATION_SECONDS);
     while (running) {
         // set timeout value
         selectTimeout.tv_sec = 1;
         selectTimeout.tv_usec = 0;
-        // add listen TCP socket and UDP socket
+        // clear the descriptor set
         FD_ZERO(&rset);
+        // add listen TCP, UDP and UNIX sockets
         FD_SET(tcpListenSocket, &rset);
         FD_SET(udpSocket, &rset);
         FD_SET(onPayloadListenSocket, &rset);
@@ -392,6 +396,7 @@ void TcpUdpV4Bridge::run()
                 maxSocketPlus1 = onPayloadAcceptedSocket;
         }
 
+        // add accepted TCP sockets to the set
         for (auto s : tcpClientSockets) {
             // add client's TCP socket
             FD_SET(s, &rset);
@@ -418,7 +423,7 @@ void TcpUdpV4Bridge::run()
             }
         }
 
-        char buffer[4096];
+        char buffer[BUFFER_SIZE];
 
         if (FD_ISSET(onPayloadListenSocket, &rset)) {
             // close previous socket if assigned

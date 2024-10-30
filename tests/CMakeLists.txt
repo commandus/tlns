@@ -33,8 +33,17 @@ add_executable(test-mac-parse
 target_include_directories(test-mac-parse PRIVATE .. ../third-party)
 target_link_libraries(test-mac-parse PRIVATE lorawan)
 
+
+add_executable(test-payload2device-parser
+	test-payload2device-parser.cpp
+)
+target_include_directories(test-payload2device-parser PRIVATE .. ../third-party)
+target_link_libraries(test-payload2device-parser PRIVATE lorawan)
+
 #
 add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-decode-1 COMMAND "test-decode-1")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
+add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
+

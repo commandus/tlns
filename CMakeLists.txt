@@ -123,6 +123,7 @@ else()
 		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp
 		lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/json-wired.cpp lorawan/proto/gw/json-wired-client.cpp
 		lorawan/proto/gw/set-gateway-metadata.cpp lorawan/proto/gw/parse-result.cpp
+		lorawan/proto/payload2device/payload2device-parser.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
 		lorawan/storage/client/device-best-gateway-direct-client.cpp
@@ -138,9 +139,7 @@ else()
 		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
 		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
 		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp
-		lorawan/task/task-unix-socket.cpp
 		lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
-
 		lorawan/task/task-timer-socket.cpp lorawan/task/task-time-addr.cpp
 		third-party/strptime.cpp
 		third-party/base64/base64.cpp
@@ -149,8 +148,11 @@ else()
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	else ()
-		set(SRC_LIBLORAWAN	${SRC_LIBLORAWAN} lorawan/task/task-unix-socket.cpp lorawan/task/task-unix-control-socket.cpp
-				lorawan/task/task-eventfd-control-socket.cpp)
+		set(SRC_LIBLORAWAN	${SRC_LIBLORAWAN}
+			lorawan/task/task-unix-socket.cpp
+			lorawan/task/task-unix-control-socket.cpp
+			lorawan/task/task-eventfd-control-socket.cpp
+		)
 	endif ()
 
 	if (ENABLE_GW_DEV_USB)
@@ -327,6 +329,7 @@ add_subdirectory(tests)
 add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
+add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
 
 # Print config
 message("")

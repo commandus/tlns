@@ -70,7 +70,7 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
 
     start = finish;
 
-    while(finish < size ) {
+    while (finish < size ) {
         // skip spaces if exists
         for (auto p = start; p < eolp; p++) {
             if (!std::isspace(expression[p])) {
@@ -117,6 +117,7 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
         }
         start = finish;
     }
+    return command;
 }
 
 std::string Payload2DeviceParser::toString() const
@@ -131,9 +132,9 @@ std::string Payload2DeviceParser::toString() const
             break;
         default:
             break;
-    };
+    }
 
-    for (auto a: addresses) {
+    for (auto &a: addresses) {
         ss << DEVADDR2string(a) << ' ';
     }
 

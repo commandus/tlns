@@ -4,7 +4,9 @@
 #include "lorawan/bridge/app-bridge.h"
 
 /**
- * App bridge example
+ * App bridge example. Write payload to "payload.json" file
+ * (if first parameter of init() is empty).
+ * This bridge cannot send data to another client.
  */
 class FileJsonBridge : public AppBridge {
 protected:

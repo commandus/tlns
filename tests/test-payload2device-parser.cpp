@@ -18,5 +18,9 @@ int main(int argc, char **argv) {
     std::cout << p.toString() << std::endl;
     p.parse("send at 2024-12-31T00:00:00+09\t\t");
     std::cout << p.toString() << std::endl;
+    p.parse("send at 2024-12-31T00:00:00+09   proto 3  \tfport2 fport 5 \t\t");
+    std::cout << p.toString() << std::endl;
+    p.parse("send at 2024-12-31T00:00:00+09   proto 3  \tfport2 fport 5 \t\t payload 11\t\t\t");
+    std::cout << p.toString() << std::endl;
     return 0;
 }

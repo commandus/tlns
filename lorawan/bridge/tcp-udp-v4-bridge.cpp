@@ -28,6 +28,7 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/lorawan-error.h"
+#include "lorawan/proto/payload2device/payload2device-parser.h"
 
 static const char *APP_BRIDGE_NAME = "tcp-udp-v4-app-bridge";
 #define BUFFER_SIZE 4096
@@ -467,6 +468,7 @@ void TcpUdpV4Bridge::run()
             } else {
                 udpClients.push(clientAddr,
                     tcpClientSockets.size() + udpClients.udpClientAddress.size() >= DEF_MAX_CONNECTIONS);
+                parseNsend2device((const char *) buffer, n);
             }
         }
         // client's tcp connections read
@@ -479,6 +481,7 @@ void TcpUdpV4Bridge::run()
                     s = tcpClientSockets.erase(s);
                     continue;
                 }
+                parseNsend2device((const char *) buffer, n);
             }
             // next socket
             s++;
@@ -556,6 +559,25 @@ void TcpUdpV4Bridge::onSend(
 const char *TcpUdpV4Bridge::name()
 {
     return APP_BRIDGE_NAME;
+}
+
+size_t TcpUdpV4Bridge::parseNsend2device(
+    const char *expression,
+    size_t size
+)
+{
+    size_t r = 0;
+    Payload2DeviceParser p;
+    if (p.parse(expression, size) == PAYLOAD2DEVICE_COMMAND_SEND) {
+        //
+        for (auto &a : p.addresses) {
+            TASK_TIME t;
+            this->send2addr(t, a, (void *) p.payload.c_str(), (void *) p.fopts.c_str(), p.fport,
+                p.payload.size(), p.fopts.size());
+            r++;
+        }
+    }
+    return r;
 }
 
 EXPORT_SHARED_C_FUNC AppBridge* makeBridge3()

@@ -85,8 +85,8 @@ static void bufferPrintHex(
 }
 
 std::string hexString(
-        const void *buffer,
-        size_t size
+    const void *buffer,
+    size_t size
 )
 {
     std::stringstream r;
@@ -100,14 +100,14 @@ std::string hexString(
  * @return
  */
 std::string hexString(
-        const std::string &data
+    const std::string &data
 )
 {
     return hexString((void *) data.c_str(), data.size());
 }
 
 static std::string readHex(
-        std::istream &s
+    std::istream &s
 )
 {
     std::stringstream r;
@@ -123,7 +123,7 @@ static std::string readHex(
 }
 
 std::string hex2string(
-        const std::string &hex
+    const std::string &hex
 )
 {
     std::stringstream ss(hex);
@@ -164,7 +164,7 @@ std::string firstCharToUpperCase(
 }
 
 std::string DEVICENAME2string(
-        const DEVICENAME &value
+    const DEVICENAME &value
 )
 {
     size_t sz = strnlen(value.c, sizeof(DEVICENAME::c));
@@ -172,7 +172,7 @@ std::string DEVICENAME2string(
 }
 
 std::string gatewayId2str(
-        uint64_t value
+    uint64_t value
 ) {
     std::stringstream ss;
     ss << std::hex << value;
@@ -201,7 +201,7 @@ std::string MIC2String(
 }
 
 std::string DEVADDR2string(
-        const DEVADDR &value
+    const DEVADDR &value
 )
 {
     uint32_t v = value.u;
@@ -211,7 +211,7 @@ std::string DEVADDR2string(
 }
 
 std::string DEVEUI2string(
-        const DEVEUI &value
+    const DEVEUI &value
 )
 {
     // EUI stored in memory as 8-bit integer x86 LSB first, ARM MSB first
@@ -223,28 +223,28 @@ std::string DEVEUI2string(
 }
 
 std::string KEY2string(
-        const KEY128 &value
+    const KEY128 &value
 )
 {
     return hexString(&value, sizeof(value));
 }
 
 std::string DEVNONCE2string(
-        const DEVNONCE &value
+    const DEVNONCE &value
 )
 {
     return hexString(&value, sizeof(value));
 }
 
 std::string JOINNONCE2string(
-        const JOINNONCE &value
+    const JOINNONCE &value
 )
 {
     return hexString(&value, sizeof(value));
 }
 
 DEVNONCE string2DEVNONCE(
-        const std::string &value
+    const std::string &value
 )
 {
     DEVNONCE r;

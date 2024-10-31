@@ -3,6 +3,10 @@
 
 #include "lorawan/bridge/app-bridge.h"
 
+/**
+ * App bridge example. Write payload to stdout.
+ * This bridge cannot send data to another client.
+ */
 class StdoutBridge : public AppBridge {
 public:
     StdoutBridge();

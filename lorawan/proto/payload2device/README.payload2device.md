@@ -18,10 +18,30 @@ The service does not send anything in response.
 ## send
 
 ```
-send <address> [payload <hex-string>] [fopts <hex-string>] [at <date-time>] 
+--send--+-------------+----+--+---+--+--+--
+        |    1..N     |    |  |   |  |  |
+        +--<address>--+    |  |   |  |  |
+        |                  |  |   |  |  |
+        +--fport <number>--+  |   |  |  |
+        |                     |   |  |  |
+        +--proto--<number>----+   |  |  |
+        |                         |  |  |
+        +--payload--<hex-string>--+  |  |
+        |                            |  |
+        +--fopts--<hex-string>-------+  |
+        |                               |
+        +--at--<date-time>--------------+
 ```
 
-date-time is date & time stamp in format:
+Specify one or more addresses.
+
+```
+send {<address>} [fport <uint>] [proto <uint>] [payload <hex-string>] [fopts <hex-string>] [at <date-time>] 
+```
+
+- fport FPort number 0..255. By default 1.
+- proto Protocol number. By default 0. 
+- at date-time is date & time stamp in format:
 ```
 YYYY-MM-DDThh:mm:ssTZ
 ```

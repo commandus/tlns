@@ -4,7 +4,8 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 
-static const char *APP_BRIDGE_NAME = "stdout-app-bridge";
+static const char *APP_BRIDGE_NAME = "file-json-app-bridge";
+#define DEF_FILE_JSON_NAME "payload.json"
 
 FileJsonBridge::FileJsonBridge() = default;
 
@@ -25,7 +26,10 @@ int FileJsonBridge::init(
     const void *option3
 )
 {
-    fileName = option;
+    if (option.empty())
+        fileName = DEF_FILE_JSON_NAME;
+    else
+        fileName = option;
     strm = new std::fstream(fileName, std::ios_base::out);
     if (!strm || !strm->is_open()) {
         delete strm;

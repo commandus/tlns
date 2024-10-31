@@ -2,9 +2,9 @@
 #define TLNS_TCP_UDP_V4_BRIDGE_H
 
 /**
- * Example how to implement TCP/UDP service
+ * App bridge example show how to implement TCP/UDP service.
  * Clients (up to 1010) can connect to any interface at port 4250 (by default).
- * init()
+ * If first parameter of init() is empty, bridge listen all interfaces at 4250 port.
  *
  * Files:
  *      Unix socket "/tmp/tcp-udp-v4-bridge.socket" used internally to route payload from the gateway(s) to clients.
@@ -65,6 +65,17 @@ private:
     int start();
     void stop();
     void run();
+
+    /**
+     * Parse received command: ("ping" or "send") and send to den-device payload/FOpts by address(es)
+     * @param expression "ping" or "send {<address>} [fport <uint>] [proto <uint>] [payload <hex-string>] [fopts <hex-string>] [at <date-time>]"
+     * @param size expression buffer size
+     * @return count of addresses
+     */
+    size_t parseNsend2device(
+        const char *expression,
+        size_t size
+    );
 public:
     TcpUdpV4Bridge();
     ~TcpUdpV4Bridge() override;

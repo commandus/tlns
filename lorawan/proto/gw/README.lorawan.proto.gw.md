@@ -3,8 +3,8 @@
 Network server communicate with end-device over gateway.
 
 Dispatcher receive message from the gateway and try to decode it using one of known protocols such
-"Basic communication protocol between Lora gateway and server" by the Semtech (Cycleo) 
-(see lorawan/proto/gw/basic-usp files).
+LNS (Basic communication protocol between Lora gateway and server) by the Semtech (Cycleo)
+(see [lorawan/proto/gw/basic-usp](lorawan/proto/gw/basic-usp)).
 
 Anyhow gateway can use other protocol.
 

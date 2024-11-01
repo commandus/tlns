@@ -2,7 +2,7 @@
 #define PROTO_GW_BASIC_UDP_H    1
 
 /**
- * Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo
+ * LNS: Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo
  * @see https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT
  */
 #include "lorawan/lorawan-types.h"
@@ -55,7 +55,7 @@ int parseTxAck(
 );
 
 /**
- * Semtech-Cycleo Basic communication protocol between Lora gateway and server
+ * LNS: Semtech-Cycleo Basic communication protocol between Lora gateway and server
  * @see https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT#L133C1-L147C58
  */
 class GatewayBasicUdpProtocol : public ProtoGwParser {

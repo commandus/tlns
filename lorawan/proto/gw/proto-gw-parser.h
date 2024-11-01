@@ -65,7 +65,7 @@ public:
     virtual const char* name() const = 0;
 
     /**
-     * Unique protocol number. 1- Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo
+     * Unique protocol number. 1- LNS (Basic communication protocol between Lora gateway and server (C)2013 Semtech-Cycleo)
      * 10..19 reserved for network server facilities
      * 20.. - user defined protocols
      * @return

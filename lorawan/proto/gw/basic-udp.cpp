@@ -9,7 +9,9 @@
 #include "lorawan/lorawan-date.h"
 #include "lorawan/power-dbm.h"
 
-static const char *GATEWAY_BASIC_UDP_PROTOCOL_NAME = "Basic communication protocol between Lora gateway and server";
+// LNS- Basic communication protocol between Lora gateway and server
+static const char *GATEWAY_BASIC_UDP_PROTOCOL_NAME = "LNS";
+
 /**
  * 	Section 3.3
  */

@@ -8,8 +8,8 @@
 #else
 #include <sys/param.h>
 #include <fcntl.h>
-
 #include <ftw.h>
+#include <pwd.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -445,5 +445,19 @@ std::string getCurrentDir()
 #else
     char wd[PATH_MAX];
     return getcwd(wd, PATH_MAX);
+#endif
+}
+
+std::string getHomeDir()
+{
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	CHAR path[MAX_PATH];
+	HRESULT result = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, profilePath);
+	if (!SUCCEEDED(result))
+		return "";
+	return std::string(path);
+#else
+	struct passwd *pw = getpwuid(getuid());
+	return std::string(pw->pw_dir);
 #endif
 }

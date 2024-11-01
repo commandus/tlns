@@ -25,8 +25,7 @@ namespace file {
 	 * @return count files
 	 * FreeBSD fts.h fts_*()
 	 */
-	size_t filesInPath
-	(
+	size_t filesInPath(
 		const std::string &path,
 		const std::string &suffix,
 		int flags,
@@ -61,5 +60,6 @@ public:
 };
 
 std::string getCurrentDir();
+std::string getHomeDir();
 
 #endif

@@ -1,4 +1,5 @@
 #include <sstream>
+
 #include "lorawan/proto/payload2device/payload2device-parser.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
@@ -11,7 +12,8 @@ static const std::string RESERVED_WORDS[] {
     "fopts",    // 3
     "at",       // 4
     "fport",    // 5
-    "proto"     // 6
+    "proto",    // 6
+    "quit"      // 7
 };
 
 Payload2DeviceParser::Payload2DeviceParser()
@@ -68,14 +70,18 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
     }
 
     std::string token(expression + start, finish - start);
-    if (token == RESERVED_WORDS[0]) {// "ping"
+    if (token == RESERVED_WORDS[0]) {   // "ping"
         command = PAYLOAD2DEVICE_COMMAND_PING;
         return command;
     } else
-        if (token == RESERVED_WORDS[1]) // "send"
-            command = PAYLOAD2DEVICE_COMMAND_SEND;
-        else
+        if (token == RESERVED_WORDS[7]) {   // "quit"
+            command = PAYLOAD2DEVICE_COMMAND_QUIT;
             return command;
+        } else
+            if (token == RESERVED_WORDS[1]) // "send"
+                command = PAYLOAD2DEVICE_COMMAND_SEND;
+            else
+                return command;             // none
 
     state = PAYLOAD2DEVICE_PARSER_STATE_ADDRESS;
 

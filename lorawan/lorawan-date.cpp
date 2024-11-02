@@ -6,6 +6,7 @@
 
 #include "lorawan/lorawan-date.h"
 
+#include <chrono>
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
@@ -16,14 +17,17 @@
 #include "strptime.h"
 #else
 #include <sys/time.h>
+#include <iostream>
+
 #define TMSIZE sizeof(struct tm)
 #define localtime_s(tm, time) memmove(tm, localtime(time), TMSIZE)
 #define gmtime_s(tm, time) memmove(tm, gmtime(time), TMSIZE)
 #endif
 
-const static char *dateformat0 = "%FT%T";
-const static char *dateformat1 = "%FT%T%Z";
-const static char *dateformat2 = "%F %T %Z";
+// hours offset
+const static char *dateformat_gmtoff = "%FT%T%z";
+// time zone name
+const static char *dateformat1_tm_zone = "%FT%T%Z";
 
 /**
  * Return formatted time stamp
@@ -41,7 +45,7 @@ static std::string TM2String(
     char dt[64];
     strftime(dt, sizeof(dt), format.c_str(), &value);
     if (usec < 0)
-        return std::string(dt);
+        return dt;
     std::stringstream ss;
     ss << std::string(dt) << "." << std::setw(6) << std::setfill('0') << usec;
     return ss.str();
@@ -85,25 +89,52 @@ std::string gtimeString(
     return TM2String(tm, usec, format);
 }
 
+static time_t mktimeWithOffset(
+    struct tm &tm,
+    long int tz
+)
+{
+    long o = tm.tm_gmtoff;
+    std::cout << "TZ: " << tz << std::endl;
+    long t = mktime(&tm);
+    return t - o - tz;
+}
+
 /**
  * Unix epoch time (seconds) or 2015-11-25T23:59:11
+ * @see https://stackoverflow.com/questions/28991427/why-is-mktime-unsetting-gmtoff-how-to-make-mktime-use-the-gmtoff-field
  */
 time_t parseDate(
     const char *v
 )
 {
-	struct tm tmd{};
-	memset(&tmd, 0, sizeof(struct tm));
-
-	time_t r;
-    if ((strptime(v, dateformat0, &tmd) == nullptr)
-        && (strptime(v, dateformat1, &tmd) == nullptr)
-        && (strptime(v, dateformat2, &tmd) == nullptr)
-    )
-        r = strtol(v, nullptr, 0);
-    else
-        r = mktime(&tmd);
-    return r;
+    struct tm tmd0 {};
+    long tz = timezone;
+    if (tz == 0) {
+        // somehow in Ubuntu
+        std::time_t gt = std::time(0);
+        auto gm = *std::gmtime(&gt);
+        std::time_t lt = std::mktime(&gm);
+        tz = (lt-gt);
+    }
+    bool invFmt = strptime(v, dateformat_gmtoff, &tmd0) == nullptr;
+    if (invFmt) {
+        invFmt = strptime(v, dateformat1_tm_zone, &tmd0) == nullptr;
+        if (invFmt)
+            return strtol(v, nullptr, 0);
+        else
+            return mktimeWithOffset(tmd0, tz);
+    } else {
+        // check TZ if 0
+        if (tmd0.tm_gmtoff == 0) {
+            //
+            struct tm tmd1 {};
+            strptime(v, dateformat1_tm_zone, &tmd1);
+            if (tmd1.tm_gmtoff != 0)
+                return mktimeWithOffset(tmd1, tz);
+        }
+        return mktimeWithOffset(tmd0, tz);
+    }
 }
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -139,7 +170,7 @@ int gettimeofday(
 #endif
 
 static time_t time_ms(unsigned int &ms) {
-	struct timeval tp;
+	struct timeval tp {};
 	gettimeofday(&tp, nullptr);
 	ms = tp.tv_usec / 1000;
 	return tp.tv_sec;
@@ -226,7 +257,7 @@ std::string timeval2string(
 	char buf[64];
 	const time_t t = val.tv_sec;	// time_t 32/64 bits
 	struct tm *tm = localtime(&t);
-	strftime(buf, sizeof(buf), dateformat0, tm);
+	strftime(buf, sizeof(buf), dateformat_gmtoff, tm);
 	std::stringstream ss;
 	ss << buf << "." << std::setw(6) << std::setfill('0') << val.tv_usec;
 	return ss.str();
@@ -240,8 +271,8 @@ std::string time2string(
 	struct tm *tm = localtime(&val);
     if (!tm)
         return "0";
-	strftime(buf, sizeof(buf), dateformat1, tm);
-	return std::string(buf);
+	strftime(buf, sizeof(buf), dateformat_gmtoff, tm);
+	return buf;
 }
 
 void incTimeval(
@@ -280,7 +311,7 @@ std::string taskTime2string(
         tm = std::gmtime(&t);
     std::stringstream ss;
 
-    ss << std::put_time(tm, dateformat1);
+    ss << std::put_time(tm, dateformat_gmtoff);
 
     // add milliseconds
     auto duration = time.time_since_epoch();

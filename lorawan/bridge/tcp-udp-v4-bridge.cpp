@@ -11,6 +11,7 @@
 #include <WS2tcpip.h>
 #include <Winsock2.h>
 #define sleep(x) Sleep(x)
+#define MSG_NOSIGNAL    0
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -130,12 +131,14 @@ int TcpUdpV4Bridge::openSockets()
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
     if (setsockopt(tcpListenSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
-
+#endif
     if (bind(tcpListenSocket, (struct sockaddr*) &srvAddr, sizeof(srvAddr)) != 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
@@ -158,12 +161,14 @@ int TcpUdpV4Bridge::openSockets()
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
     if (setsockopt(udpSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
-
+#endif
     // binding server addr structure to udp sockfd
     if (bind(udpSocket, (struct sockaddr*) &srvAddr, sizeof(srvAddr)) != 0) {
         close(tcpListenSocket);
@@ -443,7 +448,7 @@ void TcpUdpV4Bridge::run()
                 // write to all connected TCP clients
                 // client's tcp connections
                 for (auto s(tcpClientSockets.begin()); s != tcpClientSockets.end();) {
-                    ssize_t nw = send(*s, (void *) buffer, n, MSG_NOSIGNAL);
+                    ssize_t nw = send(*s, (const char *) buffer, n, MSG_NOSIGNAL);
                     if (nw < 0) {
                         // error occurs, close socket.
                         close(*s);

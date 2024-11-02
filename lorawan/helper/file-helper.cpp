@@ -4,6 +4,7 @@
 #include <io.h>
 #include <cwchar>
 #include <cstdio>
+#include <shlobj.h>
 #define PATH_DELIMITER "\\"
 #else
 #include <sys/param.h>
@@ -452,7 +453,7 @@ std::string getHomeDir()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
 	CHAR path[MAX_PATH];
-	HRESULT result = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, profilePath);
+	HRESULT result = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path);
 	if (!SUCCEEDED(result))
 		return "";
 	return std::string(path);

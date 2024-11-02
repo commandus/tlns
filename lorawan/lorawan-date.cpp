@@ -94,10 +94,15 @@ static time_t mktimeWithOffset(
     long int tz
 )
 {
-    long o = tm.tm_gmtoff;
-    std::cout << "TZ: " << tz << std::endl;
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    long o = 0;
     long t = mktime(&tm);
     return t - o - tz;
+#else
+    long o = tm.tm_gmtoff;
+    long t = mktime(&tm);
+    return t - o - tz;
+#endif
 }
 
 /**
@@ -125,6 +130,7 @@ time_t parseDate(
         else
             return mktimeWithOffset(tmd0, tz);
     } else {
+#if !(defined(_MSC_VER) || defined(__MINGW32__))
         // check TZ if 0
         if (tmd0.tm_gmtoff == 0) {
             //
@@ -133,6 +139,7 @@ time_t parseDate(
             if (tmd1.tm_gmtoff != 0)
                 return mktimeWithOffset(tmd1, tz);
         }
+#endif
         return mktimeWithOffset(tmd0, tz);
     }
 }

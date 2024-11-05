@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 #include <chrono>
+#include <functional>
 
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-string.h"
@@ -17,6 +18,28 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #pragma warning(disable: 4996)
 #endif
+
+/**
+ * @see https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+ */
+// trim from start
+static inline std::string &ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+        std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return s;
+}
+
+// trim from end
+static inline std::string &rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+        std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
+}
+
+// trim from both ends
+std::string &trim(std::string &s) {
+    return ltrim(rtrim(s));
+}
 
 /**
  * @see https://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string

@@ -2,6 +2,8 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
 
+std::string &trim(std::string &s);
+
 /**
  * Text representation helper functions. Most of them return text representation for LoRaWAN values like
  * keys, EUI, spreading factor, frequency etc.

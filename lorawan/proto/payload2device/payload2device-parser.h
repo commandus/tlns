@@ -23,8 +23,14 @@ enum PAYLOAD2DEVICE_PARSER_STATE {
 };
 
 class Payload2DeviceParser {
+private:
+    uint8_t flagsStateClause;
+    uint8_t flagsStateValue;
+    void setFlagSendOptionName(PAYLOAD2DEVICE_PARSER_STATE state);
+    void setFlagOptionValue(PAYLOAD2DEVICE_PARSER_STATE state);
 public:
     PAYLOAD2DEVICE_PARSER_STATE state;
+    PAYLOAD2DEVICE_PARSER_STATE lastSendOption;
     PAYLOAD2DEVICE_COMMAND command;
     std::vector <DEVADDR> addresses;
     uint8_t fport;
@@ -42,6 +48,9 @@ public:
         const std::string &expression
     );
     std::string toString() const;
+
+    bool hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE state);
+    bool hasSendOptionValue(PAYLOAD2DEVICE_PARSER_STATE state);
 };
 
 #endif

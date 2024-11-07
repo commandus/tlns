@@ -16,6 +16,8 @@ std::string replaceAll(std::string str, const std::string& from, const std::stri
 
 std::string uint64_t2string(const uint64_t &value);
 
+bool isDec(const std::string &value);
+
 bool isHex(const std::string &value);
 
 /**

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <fstream>
 #include <chrono>
-#include <functional>
+#include <algorithm>
 
 #include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-string.h"
@@ -71,6 +71,17 @@ bool isHex(
     const std::string &value
 ) {
     return value.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
+}
+
+bool isDec(
+    const std::string &value
+) {
+    return !value.empty()
+        && std::find_if(value.begin(), value.end(),
+        [] (unsigned char c) {
+            return !std::isdigit(c);
+        }
+    ) == value.end();
 }
 
 // http://stackoverflow.com/questions/673240/how-do-i-print-an-unsigned-char-as-hex-in-c-using-ostream

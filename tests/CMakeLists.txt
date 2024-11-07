@@ -5,6 +5,8 @@ set(VERSION_INFO 1.0.3)
 
 project("tlns-test" VERSION ${VERSION_INFO})
 
+set(CMAKE_CXX_STANDARD 11)
+
 add_executable(test-printf
 	test-printf.cpp
 	../third-party/libloragw/subst-call-c.cpp

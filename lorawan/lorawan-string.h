@@ -4,6 +4,12 @@
 
 std::string &trim(std::string &s);
 
+// Concatenate two words and place ONE space between them
+std::string concatenateWordsWithSpace(
+    const std::string &sLeft,
+    const std::string &sRight
+);
+
 /**
  * Text representation helper functions. Most of them return text representation for LoRaWAN values like
  * keys, EUI, spreading factor, frequency etc.

@@ -41,6 +41,18 @@ std::string &trim(std::string &s) {
     return ltrim(rtrim(s));
 }
 
+// Concatenate two words and place ONE space between them
+std::string concatenateWordsWithSpace(
+    const std::string &sLeft,
+    const std::string &sRight
+) {
+    std::string s1(sLeft);
+    rtrim(s1);
+    std::string s2(sRight);
+    ltrim(s2);
+    return s1 + ' ' + s2;
+}
+
 /**
  * @see https://stackoverflow.com/questions/2896600/how-to-replace-all-occurrences-of-a-character-in-string
  */

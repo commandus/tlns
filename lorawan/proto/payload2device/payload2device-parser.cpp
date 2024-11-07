@@ -329,12 +329,35 @@ std::string Payload2DeviceParser::complition(
         return expression;
     }
 
-    if (parser.lastToken.empty())
+    // finish last not ended phrase
+    if (!parser.lastToken.empty()) {
+        if (parser.lastSendOption <= PAYLOAD2DEVICE_PARSER_STATE_COMMAND || parser.hasSendOptionValue(parser.lastSendOption)) {
+            for (int i = 3; i < 8; i++) {
+                if (strncmp(parser.lastToken.c_str(), RESERVED_WORDS[i], parser.lastToken.length()) == 0) {
+                    return expression + &RESERVED_WORDS[i][parser.lastToken.length()];
+                }
+            }
+        }
+        // if not, return as is
         return expression;
+    }
 
-    for (int i = 3; i < 8; i++) {
-        if (strncmp(parser.lastToken.c_str(), RESERVED_WORDS[i], parser.lastToken.length()) == 0) {
-            return expression + RESERVED_WORDS[i][parser.lastToken.length()];
+    if (parser.hasSendOptionValue(parser.lastSendOption)) {
+        // try add new option name
+        if (!parser.hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_PAYLOAD)) {
+            return concatenateWordsWithSpace(expression, "payload");
+        }
+        if (!parser.hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_FOPTS)) {
+            return concatenateWordsWithSpace(expression, "fopts");
+        }
+        if (!parser.hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_FPORT)) {
+            return concatenateWordsWithSpace(expression, "fport");
+        }
+        if (!parser.hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_TIME)) {
+            return concatenateWordsWithSpace(expression, "at");
+        }
+        if (!parser.hasSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_PROTO)) {
+            return concatenateWordsWithSpace(expression, "proto");
         }
     }
     return expression;

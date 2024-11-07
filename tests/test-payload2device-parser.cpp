@@ -6,6 +6,8 @@
 int main(int argc, char **argv) {
     Payload2DeviceParser p;
     char *EXAMPLES[] {
+            "send 1f00AA 1f00AA11 1f00AA22 payload 23456",
+            "send 1f00AA 1f00AA11 1f00AA22 payload 23456 ",
             "send 1f00AA 1f00AA11 1f00AA22 pay",
             "send 1f00AA 1f00AA11 1f00AA22 payloa",
             "send 1f00AA 1f00AA11 1f00AA22 payload",

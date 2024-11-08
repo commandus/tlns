@@ -80,20 +80,22 @@ PAYLOAD2DEVICE_COMMAND Payload2DeviceParser::parse(
     std::string token(expression + start, finish - start);
     if (token == RESERVED_WORDS[0]) {   // "send"
         command = PAYLOAD2DEVICE_COMMAND_SEND;
+        state = PAYLOAD2DEVICE_PARSER_STATE_COMMAND;
         setFlagSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_COMMAND);
     } else {
         if (token == RESERVED_WORDS[1]) {   // "ping"
             command = PAYLOAD2DEVICE_COMMAND_PING;
+            state = PAYLOAD2DEVICE_PARSER_STATE_COMMAND;
             setFlagSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_COMMAND);
             return command;
         } else if (token == RESERVED_WORDS[2]) { // "quit"
             command = PAYLOAD2DEVICE_COMMAND_QUIT;
+            state = PAYLOAD2DEVICE_PARSER_STATE_COMMAND;
             setFlagSendOptionName(PAYLOAD2DEVICE_PARSER_STATE_COMMAND);
             return command;
         } else
             return command;             // none
     }
-    state = PAYLOAD2DEVICE_PARSER_STATE_COMMAND;
 
     // read send options
     while (finish < size ) {

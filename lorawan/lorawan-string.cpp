@@ -23,22 +23,24 @@
  * @see https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
  */
 // trim from start
-static inline std::string &ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))));
-    return s;
+inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
 }
 
 // trim from end
-static inline std::string &rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-    return s;
+inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
 }
 
 // trim from both ends
 std::string &trim(std::string &s) {
-    return ltrim(rtrim(s));
+    ltrim(s);
+    rtrim(s);
+    return s;
 }
 
 // Concatenate two words and place ONE space between them

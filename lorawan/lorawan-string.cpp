@@ -1439,3 +1439,44 @@ void string2DATA_RATE(
             break;
     }
 }
+
+#define NIP_COUNT 13
+static const char *NETWORK_IDENTITY_PROPERTY_NAMES[NIP_COUNT] {
+    "",
+    "activation",     ///< activation type: ABP or OTAA
+    "class",          ///< A, B, C
+    "deveui",	      ///< device identifier 8 bytes (ABP device may not store EUI)
+    "nwkskey",		  ///< shared session key 16 bytes
+    "appskey",        ///< private key 16 bytes
+    "version",
+    // OTAA
+    "appeui",		  ///< OTAA application identifier
+    "appkey",		  ///< OTAA application private key
+    "nwkkey",         ///< OTAA network key
+    "devnonce",       ///< last device nonce
+    "joinnonce",     ///< last Join nonce
+    // added for searching
+    "name"
+};
+
+const char *NETWORK_IDENTITY_PROPERTY2string(
+    NETWORK_IDENTITY_PROPERTY p
+)
+{
+    if ((int) p >= NIP_COUNT || (int) p < 0)
+        p = NIP_NONE;
+    return NETWORK_IDENTITY_PROPERTY_NAMES[(int) p];
+}
+
+NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(
+    const char *value
+)
+{
+    auto f = std::find_if(NETWORK_IDENTITY_PROPERTY_NAMES, NETWORK_IDENTITY_PROPERTY_NAMES + NIP_COUNT,
+      [value](const char *v) {
+          return strcmp(value, v) == 0;
+    });
+    if (f == NETWORK_IDENTITY_PROPERTY_NAMES + NIP_COUNT)
+        return NIP_NONE;
+    return (NETWORK_IDENTITY_PROPERTY) (f - NETWORK_IDENTITY_PROPERTY_NAMES);
+}

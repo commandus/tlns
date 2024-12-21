@@ -191,3 +191,6 @@ bool string2file(
     const std::string &filename,
     const std::string &value
 );
+
+const char *NETWORK_IDENTITY_PROPERTY2string(NETWORK_IDENTITY_PROPERTY p);
+NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(const char *value);

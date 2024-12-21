@@ -568,6 +568,24 @@ typedef PACK( struct {
 
 #define SIZE_REGIONAL_PARAMETERS_VERSION 1
 
+enum NETWORK_IDENTITY_PROPERTY {
+    NIP_NONE = 0,
+    NIP_ACTIVATION,     ///< activation type: ABP or OTAA
+    NIP_DEVICE_CLASS,   ///< A, B, C
+    NIP_DEVEUI,		    ///< device identifier 8 bytes (ABP device may not store EUI)
+    NIP_NWKSKEY,		///< shared session key 16 bytes
+    NIP_APPSKEY,        ///< private key 16 bytes
+    NIP_LORAWAN_VERSION,
+    // OTAA
+    NIP_APPEUI,			///< OTAA application identifier
+    NIP_APPKEY,			///< OTAA application private key
+    NIP_NWKKEY,         ///< OTAA network key
+    NIP_DEVNONCE,       ///< last device nonce
+    NIP_JOINNONCE,      ///< last Join nonce
+    // added for searching
+    NIP_DEVICENAME
+};
+
 class NETWORKIDENTITY;
 PACK(class DEVICEID {
 public:

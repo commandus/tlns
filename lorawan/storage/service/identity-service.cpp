@@ -30,7 +30,7 @@ int IdentityService::joinAccept(
     JOIN_ACCEPT_FRAME_HEADER &retval,
     NETWORKIDENTITY &networkIdentity
 ) {
-    if (isDEVADDREmpty(networkIdentity.devaddr)) {
+    if (isDEVADDREmpty(networkIdentity.value.devaddr)) {
         // No assigned address, generate a new one
         // return network identifier
         netid.get(retval.netId);
@@ -41,18 +41,18 @@ int IdentityService::joinAccept(
         // return network identifier
         netid.get(retval.netId);
         // return address
-        memmove(&retval.devAddr.c, &newNetworkIdentity.devaddr.c, sizeof(DEVADDR));
-        memmove(&retval.joinNonce.c, &newNetworkIdentity.devid.joinNonce.c, sizeof(JOINNONCE));
+        memmove(&retval.devAddr.c, &newNetworkIdentity.value.devaddr.c, sizeof(DEVADDR));
+        memmove(&retval.joinNonce.c, &newNetworkIdentity.value.devid.id.joinNonce.c, sizeof(JOINNONCE));
         // return address in the identity too
-        memmove(&networkIdentity.devaddr.c, &newNetworkIdentity.devaddr.c, sizeof(DEVADDR));
+        memmove(&networkIdentity.value.devaddr.c, &newNetworkIdentity.value.devaddr.c, sizeof(DEVADDR));
     } else {
         // re-use old address, return network identifier
         netid.get(retval.netId);
         // return address
-        memmove(&retval.devAddr.c, &networkIdentity.devaddr.c, sizeof(DEVADDR));
-        memmove(&retval.joinNonce.c, &networkIdentity.devid.joinNonce.c, sizeof(JOINNONCE));
+        memmove(&retval.devAddr.c, &networkIdentity.value.devaddr.c, sizeof(DEVADDR));
+        memmove(&retval.joinNonce.c, &networkIdentity.value.devid.id.joinNonce.c, sizeof(JOINNONCE));
         // return address in the identity too
-        memmove(&networkIdentity.devaddr.c, &networkIdentity.devaddr.c, sizeof(DEVADDR));
+        memmove(&networkIdentity.value.devaddr.c, &networkIdentity.value.devaddr.c, sizeof(DEVADDR));
     }
     return 0;
 }

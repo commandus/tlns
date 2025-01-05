@@ -7,11 +7,8 @@
 #include <string>
 #include <vector>
 
-/**
- * File name helper functions.
- * Do not forget namespace file::
- */
 namespace file {
+    bool mkDir(const std::string &path);
 	bool rmDir(const std::string &path);
 	bool rmFile(const std::string &fn);
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -25,7 +22,8 @@ namespace file {
 	 * @return count files
 	 * FreeBSD fts.h fts_*()
 	 */
-	size_t filesInPath(
+	size_t filesInPath
+	(
 		const std::string &path,
 		const std::string &suffix,
 		int flags,
@@ -53,13 +51,12 @@ public:
     std::string path;
     std::string query;
     URL(const std::string &url);
-    // getUplink query parameter value (first one)
+    // get query parameter value (first one)
     std::string get(const std::string &name);
-    // getUplink query parameter value as integer (first one)
+    // get query parameter value as integer (first one)
     int getInt(const std::string &name);
 };
 
 std::string getCurrentDir();
-std::string getHomeDir();
 
 #endif

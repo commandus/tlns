@@ -18,6 +18,7 @@
 #include <map>
 #include <ctime>
 #include <cinttypes>
+#include <vector>
 
 #include "lorawan-const.h"
 
@@ -479,9 +480,16 @@ typedef PACK( struct {
 #define SIZE_MIC    4
 
 typedef PACK( struct {
-    uint8_t RX2DataRate: 4;	    ///< downlink data rate that serves to communicate with the end-device on the second receive window (RX2)
-    uint8_t RX1DROffset: 3;	    ///< offset between the uplink data rate and the downlink data rate used to communicate with the end-device on the first receive window (RX1)
-    uint8_t optNeg: 1;     	    ///< 1.0- RFU, 1.1- optNeg
+	union
+	{
+		uint8_t c;
+		struct
+		{
+			uint8_t RX2DataRate: 4;	    ///< downlink data rate that serves to communicate with the end-device on the second receive window (RX2)
+			uint8_t RX1DROffset: 3;	    ///< offset between the uplink data rate and the downlink data rate used to communicate with the end-device on the first receive window (RX1)
+			uint8_t optNeg: 1;     	    ///< 1.0- RFU, 1.1- optNeg
+		};
+	};
 } ) DLSETTINGS;	        // 1 byte
 
 #define SIZE_DLSETTINGS 1
@@ -568,63 +576,97 @@ typedef PACK( struct {
 
 #define SIZE_REGIONAL_PARAMETERS_VERSION 1
 
-enum NETWORK_IDENTITY_PROPERTY {
-    NIP_NONE = 0,
-    NIP_ACTIVATION,     ///< activation type: ABP or OTAA
-    NIP_DEVICE_CLASS,   ///< A, B, C
-    NIP_DEVEUI,		    ///< device identifier 8 bytes (ABP device may not store EUI)
-    NIP_NWKSKEY,		///< shared session key 16 bytes
-    NIP_APPSKEY,        ///< private key 16 bytes
-    NIP_LORAWAN_VERSION,
-    // OTAA
-    NIP_APPEUI,			///< OTAA application identifier
-    NIP_APPKEY,			///< OTAA application private key
-    NIP_NWKKEY,         ///< OTAA network key
-    NIP_DEVNONCE,       ///< last device nonce
-    NIP_JOINNONCE,      ///< last Join nonce
-    // added for searching
-    NIP_DEVICENAME
+enum NETWORK_IDENTITY_COMPARISON_OPERATOR {
+    NICO_NONE = 0,
+    NICO_EQ,
+    NICO_NE,
+    NICO_GT,
+    NICO_LT,
+    NICO_GE,
+    NICO_LE
 };
 
+enum NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR {
+	NILPO_NONE = 0,
+    NILPO_AND,
+    NILPO_OR
+};
+
+enum NETWORK_IDENTITY_PROPERTY {
+    NIP_NONE = 0,
+    NIP_ADDRESS = 1,
+    NIP_ACTIVATION = 2,     ///< activation type: ABP or OTAA
+    NIP_DEVICE_CLASS = 3,   ///< A, B, C
+    NIP_DEVEUI = 4,		    ///< device identifier 8 bytes (ABP device may not store EUI)
+    NIP_NWKSKEY = 5,		///< shared session key 16 bytes
+    NIP_APPSKEY = 6,        ///< private key 16 bytes
+    NIP_LORAWAN_VERSION = 7,
+    // OTAA
+    NIP_APPEUI = 8,			///< OTAA application identifier
+    NIP_APPKEY = 9,			///< OTAA application private key
+    NIP_NWKKEY = 10,        ///< OTAA network key
+    NIP_DEVNONCE = 11,      ///< last device nonce
+    NIP_JOINNONCE = 12,     ///< last Join nonce
+    // added for searching
+    NIP_DEVICENAME = 13
+};
+
+typedef PACK( struct {
+    enum NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR pre;  ///< and/or previous statement
+    enum NETWORK_IDENTITY_PROPERTY property;
+    enum NETWORK_IDENTITY_COMPARISON_OPERATOR comparisonOperator;
+    uint8_t length; // 0..16
+    char filterData[16];
+} ) NETWORK_IDENTITY_FILTER;    // 20 bytes long
+
+typedef PACK( struct {
+    uint8_t length;                     ///< filers count: 1..255
+    NETWORK_IDENTITY_FILTER filters[1]; ///< filters 1..255
+} ) NETWORK_IDENTITY_FILTERS;   // 21, 41, .. 5101
+
 class NETWORKIDENTITY;
+
+typedef PACK( struct {
+    // value, no key
+    ACTIVATION activation;	///< activation type: ABP or OTAA   1 1
+    DEVICECLASS deviceclass;///< device class A, B, C           1 2
+    DEVEUI devEUI;		    ///< device identifier 8 bytes (ABP device may not store EUI) 8 10
+    KEY128 nwkSKey;			///< shared session key 16 bytes    16 26
+    KEY128 appSKey;			///< private key 16 bytes           16 42
+    LORAWAN_VERSION version;///< 1                              1  43
+    // OTAA
+    DEVEUI appEUI;			///< OTAA application identifier    8 51
+    KEY128 appKey;			///< OTAA application private key   16 67
+    KEY128 nwkKey;          ///< OTAA network key               16 83
+    DEVNONCE devNonce;      ///< last device nonce              2  85
+    JOINNONCE joinNonce;    ///< last Join nonce                3  88
+    DEVICENAME name;        ///< name, comment or tag           8 96
+} ) DEVICE_ID;
+
 PACK(class DEVICEID {
 public:
     DEVICEID(uint64_t devEUI);
     DEVICEID(const DEVEUI &devEUI);
 
-    // value, no key
-	ACTIVATION activation;	///< activation type: ABP or OTAA
-	DEVICECLASS deviceclass;
-	DEVEUI devEUI;		    ///< device identifier 8 bytes (ABP device may not store EUI)
-	KEY128 nwkSKey;			///< shared session key 16 bytes
-	KEY128 appSKey;			///< private key 16 bytes
-	LORAWAN_VERSION version;
-	// OTAA
-	DEVEUI appEUI;			///< OTAA application identifier
-	KEY128 appKey;			///< OTAA application private key
-    KEY128 nwkKey;          ///< OTAA network key
-	DEVNONCE devNonce;      ///< last device nonce
-	JOINNONCE joinNonce;    ///< last Join nonce
-	// added for searching
-	DEVICENAME name;
+    DEVICE_ID id;
 
 	size_t operator()(const DEVICEID &value) const {
-		return value.devEUI.u;
+		return value.id.devEUI.u;
 	}
 	bool operator==(const DEVICEID &rhs) const {
-		return rhs.devEUI.u == devEUI.u;
+		return rhs.id.devEUI.u == id.devEUI.u;
 	}
 	bool operator==(const DEVEUI &rhs) const {
-		return rhs == devEUI;
+		return rhs == id.devEUI;
 	}
 	bool operator<(const DEVICEID &rhs) const {
-		return rhs.devEUI.u < devEUI.u;
+		return rhs.id.devEUI.u < id.devEUI.u;
 	}
 	bool operator>(const DEVICEID &rhs) const {
-		return rhs.devEUI.u > devEUI.u;
+		return rhs.id.devEUI.u > id.devEUI.u;
 	}
 	bool operator!=(const DEVICEID &rhs) const {
-		return rhs.devEUI.u != devEUI.u;
+		return rhs.id.devEUI.u != id.devEUI.u;
 	}
 
 	DEVICEID();
@@ -653,6 +695,7 @@ public:
     );
 
 	DEVICEID(const DEVICEID &value);
+
 	DEVICEID& operator=(const DEVICEID& other);
 	DEVICEID& operator=(const NETWORKIDENTITY& other);
 
@@ -667,19 +710,23 @@ public:
     std::string toString(const DEVADDR &addr) const;
 	std::string toJsonString() const;
     std::string toJsonString(const DEVADDR &addr) const;
+    void toArray(void *buffer, size_t size) const;
+    void fromArray(const void *buffer, size_t size);
 	void setProperties(std::map<std::string, std::string> &retval) const;
 
     bool empty() const;
-});					// 44 bytes + 8 + 18 = 70
+});					// 96 bytes
 
-#define SIZE_DEVICEID 70
+#define SIZE_DEVICEID 96
 
-PACK(class NETWORKIDENTITY {
+typedef PACK(struct {
+    DEVADDR devaddr;        ///< network address 4 bytes
+    DEVICEID devid;         // 96 bytes
+} ) NETWORK_IDENTITY;
+
+class NETWORKIDENTITY {
 public:
-	// key
-	DEVADDR devaddr;		///< network address 4 bytes
-	DEVICEID devid;         // 91 bytes
-
+    NETWORK_IDENTITY value;
 	NETWORKIDENTITY();
 	NETWORKIDENTITY(const DEVADDR &a, const DEVICEID &id);
     NETWORKIDENTITY(const NETWORKIDENTITY &id);
@@ -689,9 +736,9 @@ public:
 	void set(const DEVADDR &addr, const DEVICEID &value);
 	std::string toString() const;
     std::string toJsonString() const;
-});  // 95 bytes
+};  // 100 bytes
 
-#define SIZE_NETWORKIDENTITY 96
+#define SIZE_NETWORKIDENTITY 100
 
 typedef PACK(struct {
      uint16_t vendorId;
@@ -741,5 +788,27 @@ public:
     void setFSK(uint32_t bps);
     std::string toString() const;
 };
+
+bool isIdentityFiltered(
+    const NETWORKIDENTITY &identity,
+    const NETWORK_IDENTITY_FILTER &filter
+);
+
+bool isIdentityFiltered2(
+    const DEVADDR &addr,
+    const DEVICE_ID &deviceId,
+    const NETWORK_IDENTITY_FILTER &filter
+);
+
+bool isIdentityFilteredV(
+    const NETWORKIDENTITY &identity,
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters
+);
+
+bool isIdentityFilteredV2(
+    const DEVADDR &addr,
+    const DEVICE_ID &deviceId,
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters
+);
 
 #endif

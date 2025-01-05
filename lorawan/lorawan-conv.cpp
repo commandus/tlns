@@ -53,7 +53,7 @@ uint8_t payloadSize(
 {
     if (!value || size <= SIZE_RFM_HEADER)
         return 0;
-    int sz = size - SIZE_RFM_HEADER - SIZE_FPORT - SIZE_MIC;
+    auto sz = size - SIZE_RFM_HEADER - SIZE_FPORT - SIZE_MIC;
     if (sz > 0)
         return (uint8_t) sz;
     return 0;

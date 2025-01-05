@@ -74,13 +74,13 @@ int MemoryIdentityService::getNetworkIdentity(
 )
 {
     for(auto & it : storage) {
-        if (it.second.devEUI.u == eui.u) {
-            retVal.devaddr = it.first;
-            retVal.devid = it.second;
+        if (it.second.id.devEUI.u == eui.u) {
+            retVal.value.devaddr = it.first;
+            retVal.value.devid = it.second;
             return CODE_OK;
         }
     }
-    return ERR_CODE_GATEWAY_NOT_FOUND;
+    return ERR_CODE_DEVICE_EUI_NOT_FOUND;
 }
 
 /**
@@ -156,8 +156,8 @@ EXPORT_SHARED_C_FUNC IdentityService* makeMemoryIdentityService()
 int MemoryIdentityService::cGet(const DEVADDR &request)
 {
     IdentityGetResponse r;
-    r.response.devaddr = request;
-    get(r.response.devid, request);
+    r.response.value.devaddr = request;
+    get(r.response.value.devid, request);
     if (responseClient)
         responseClient->onIdentityGet(nullptr, &r);
     return CODE_OK;
@@ -201,6 +201,45 @@ int MemoryIdentityService::cList(
     if (responseClient)
         responseClient->onIdentityList(nullptr, &r);
    return CODE_OK;
+}
+
+int MemoryIdentityService::filter(
+    std::vector<NETWORKIDENTITY> &retVal,
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters,
+    uint32_t offset,
+    uint8_t size
+)
+{
+    size_t o = 0;
+    size_t sz = 0;
+    for (auto & it : storage) {
+        if (!isIdentityFilteredV2(it.first, it.second.id, filters))
+            continue;
+        if (o < offset) {
+            // skip first
+            o++;
+            continue;
+        }
+        sz++;
+        if (sz > size)
+            break;
+        retVal.emplace_back(it.first, it.second);
+    }
+    return CODE_OK;
+}
+
+int MemoryIdentityService::cFilter(
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters,
+    uint32_t offset,
+    uint8_t size
+)
+{
+    IdentityListResponse r;
+    r.response = filter(r.identities, filters, offset, size);
+    r.size = (uint8_t) r.identities.size();
+    if (responseClient)
+        responseClient->onIdentityList(nullptr, &r);
+    return CODE_OK;
 }
 
 int MemoryIdentityService::cSize()

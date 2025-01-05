@@ -4,13 +4,12 @@
 #include <io.h>
 #include <cwchar>
 #include <cstdio>
-#include <shlobj.h>
 #define PATH_DELIMITER "\\"
 #else
 #include <sys/param.h>
 #include <fcntl.h>
+
 #include <ftw.h>
-#include <pwd.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -68,6 +67,13 @@ bool file::rmAllDir(const char *path)
 
 	SHFileOperationA(&shfo);
     return true;
+}
+
+bool file::mkDir(
+    const std::string &path
+)
+{
+    return CreateDirectoryA(path.c_str(), nullptr);
 }
 
 bool file::rmDir(const std::string &path)
@@ -207,6 +213,21 @@ static int rmnode
 	return 0;
 }
 
+bool file::mkDir(
+    const std::string &path
+)
+{
+    Stat st;
+    if (stat(path.c_str(), &st) != 0) {
+        // Directory does not exist. EEXIST for race condition
+        if (mkdir(path, mode) != 0 && errno != EEXIST)
+            return false;
+    } else if (!S_ISDIR(st.st_mode)) {
+        return false;
+    }
+    return true;
+}
+
 bool file::rmDir(const std::string &path)
 {
 	if (path.size() <= 1)
@@ -308,10 +329,7 @@ std::string file::expandFileName(
 )
 {
     char realPath[PATH_MAX + 1];
-    auto r = realpath((char *) relativeName.c_str(), realPath);
-    if (r)
-        return std::string(r);
-    return relativeName;
+    return std::string(realpath((char *) relativeName.c_str(), realPath));
 }
 
 #endif
@@ -446,19 +464,5 @@ std::string getCurrentDir()
 #else
     char wd[PATH_MAX];
     return getcwd(wd, PATH_MAX);
-#endif
-}
-
-std::string getHomeDir()
-{
-#if defined(_MSC_VER) || defined(__MINGW32__)
-	CHAR path[MAX_PATH];
-	HRESULT result = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path);
-	if (!SUCCEEDED(result))
-		return "";
-	return std::string(path);
-#else
-	struct passwd *pw = getpwuid(getuid());
-	return std::string(pw->pw_dir);
 #endif
 }

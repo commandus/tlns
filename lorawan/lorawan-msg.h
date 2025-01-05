@@ -70,13 +70,24 @@
 #define ERR_INVALID_JSON				"Invalid JSON"
 #define ERR_DEVICE_ADDRESS_NOTFOUND		"Device not found, address is not registered"
 #define ERR_FAIL_IDENTITY_SERVICE		"Identity service failure"
+
 #define ERR_LMDB_TXN_BEGIN				"Can not begin LMDB transaction "
 #define ERR_LMDB_TXN_COMMIT				"Can not commit LMDB transaction "
-#define ERR_LMDB_OPEN					"Can not openUDPSocket database file "
-#define ERR_LMDB_CLOSE					"Can not closeSocket database file "
-#define ERR_LMDB_PUT					"Can not putUplink LMDB "
-#define ERR_LMDB_PUT_PROBE				"Can not putUplink LMDB probe "
+#define ERR_LMDB_OPEN					"Can not open LMDB database file "
+#define ERR_LMDB_ENV_CREATE				"Can not create LMDB environment "
+#define ERR_LMDB_ENV_OPEN				"Can not open LMDB environment "
+#define ERR_LMDB_CLOSE					"Can not close LMDB database file "
+#define ERR_LMDB_PUT					"Can not put LMDB "
+#define ERR_LMDB_CURSOR_OPEN			"Can not open LMDB cursor "
 #define ERR_LMDB_GET					"Can not request LMDB "
+
+#define ERR_LMDB_FULL_ENV_INFO			"map full, mdb_env_info error"
+#define ERR_LMDB_FULL_DB_CLOSE			"map full, mdb_env_create error"
+#define ERR_LMDB_FULL_ENV_CREATE		"map full, mdb_env_create error"
+#define ERR_LMDB_FULL_SET_SIZE			"map full, mdb_env_set_mapsize error"
+#define ERR_LMDB_FULL_DB_OPEN			"map full, error re-open database"
+#define ERR_LMDB_FULL_TXN_BEGIN		    "map full, begin transaction error"
+
 #define ERR_WRONG_PARAM					"Wrong parameter"
 #define ERR_INSUFFICIENT_MEMORY			"Insufficient memory"
 #define ERR_NO_CONFIG					"No config is provided"
@@ -368,6 +379,7 @@
 
 #define MSG_RESTART_REQUEST             "Restart"
 
+#define MSG_LMDB_INCREASE_MAP_SIZE      "map full, increase map size"
 #define MSG_CHECK_SYSLOG 	            "Check syslog."
 #define MSG_QUERY                       "Query"
 

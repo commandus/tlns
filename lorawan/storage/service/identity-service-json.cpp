@@ -74,13 +74,13 @@ int JsonIdentityService::getNetworkIdentity(
 )
 {
     for(auto & it : storage) {
-        if (it.second.devEUI.u == eui.u) {
-            retVal.devaddr = it.first;
-            retVal.devid = it.second;
+        if (it.second.id.devEUI.u == eui.u) {
+            retVal.value.devaddr = it.first;
+            retVal.value.devid = it.second;
             return CODE_OK;
         }
     }
-    return ERR_CODE_GATEWAY_NOT_FOUND;
+    return ERR_CODE_DEVICE_EUI_NOT_FOUND;
 }
 
 /**
@@ -129,30 +129,30 @@ bool JsonIdentityService::load()
         string2DEVADDR(a, e["addr"]);
         DEVICEID id;
         if (e.contains("activation"))
-            id.activation = string2activation(e["activation"]);
+            id.id.activation = string2activation(e["activation"]);
         if (e.contains("class"))
             id.setClass(string2deviceclass(e["class"]));
         if (e.contains("deveui"))
-            string2DEVEUI(id.devEUI, e["deveui"]);
+            string2DEVEUI(id.id.devEUI, e["deveui"]);
         if (e.contains("nwkSKey"))
-            string2KEY(id.nwkSKey, e["nwkSKey"]);
+            string2KEY(id.id.nwkSKey, e["nwkSKey"]);
         if (e.contains("appSKey"))
-            string2KEY(id.appSKey, e["appSKey"]);
+            string2KEY(id.id.appSKey, e["appSKey"]);
         if (e.contains("version"))
-            id.version = string2LORAWAN_VERSION(e["version"]);
+            id.id.version = string2LORAWAN_VERSION(e["version"]);
         if (e.contains("appeui"))
-            string2DEVEUI(id.appEUI, e["appeui"]);
+            string2DEVEUI(id.id.appEUI, e["appeui"]);
         if (e.contains("appKey"))
-            string2KEY(id.appKey, e["appKey"]);
+            string2KEY(id.id.appKey, e["appKey"]);
         if (e.contains("nwkKey"))
-            string2KEY(id.nwkKey, e["nwkKey"]);
+            string2KEY(id.id.nwkKey, e["nwkKey"]);
         if (e.contains("devNonce"))
-            id.devNonce = string2DEVNONCE(e["devNonce"]);
+            id.id.devNonce = string2DEVNONCE(e["devNonce"]);
         if (e.contains("joinNonce"))
-            string2JOINNONCE(id.joinNonce, e["joinNonce"]);
+            string2JOINNONCE(id.id.joinNonce, e["joinNonce"]);
         if (e.contains("name")) {
             std::string s = e["name"];
-            string2DEVICENAME(id.name, s.c_str());
+            string2DEVICENAME(id.id.name, s.c_str());
         }
         storage[a] = id;
     }

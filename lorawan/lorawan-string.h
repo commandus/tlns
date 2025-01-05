@@ -192,5 +192,25 @@ bool string2file(
     const std::string &value
 );
 
-const char *NETWORK_IDENTITY_PROPERTY2string(NETWORK_IDENTITY_PROPERTY p);
-NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(const char *value);
+const char *NETWORK_IDENTITY_PROPERTY2string(
+    NETWORK_IDENTITY_PROPERTY p
+);
+
+std::string NETWORK_IDENTITY_FILTER2string(
+    const NETWORK_IDENTITY_FILTER &filter,
+    bool isFirst
+);
+
+std::string NETWORK_IDENTITY_FILTERS2string(
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters
+);
+
+NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(
+    const char *value
+);
+
+int string2NETWORK_IDENTITY_FILTERS(
+    std::vector <NETWORK_IDENTITY_FILTER> &retVal,
+    const char *expression,
+    size_t size
+);

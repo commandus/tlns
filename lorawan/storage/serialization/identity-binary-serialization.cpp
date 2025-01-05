@@ -23,34 +23,34 @@ static void serializeNETWORKIDENTITY(
 )
 {
     unsigned char *p = retBuf;
-    memmove(p, &response.devaddr.u, sizeof(uint32_t));      // 4
+    memmove(p, &response.value.devaddr.u, sizeof(uint32_t));      // 4
     p += sizeof(uint32_t);
-    *(uint8_t *) p = (uint8_t) response.devid.activation;	// 1 activation type: ABP or OTAA
+    *(uint8_t *) p = (uint8_t) response.value.devid.id.activation;	// 1 activation type: ABP or OTAA
     p++;
-    *(uint8_t *) p = (uint8_t) response.devid.deviceclass;	// 1 DEVICECLASS: A, B. C
+    *(uint8_t *) p = (uint8_t) response.value.devid.id.deviceclass;	// 1 DEVICECLASS: A, B. C
     p++;
-    ((DEVEUI *) p)->u = response.devid.devEUI.u;	        // 8 device identifier (ABP device may not store EUI) (14)
+    ((DEVEUI *) p)->u = response.value.devid.id.devEUI.u;	        // 8 device identifier (ABP device may not store EUI) (14)
     p += 8;
-    memmove(p, &response.devid.nwkSKey, 16);	            // 16 shared session key
+    memmove(p, &response.value.devid.id.nwkSKey, 16);	            // 16 shared session key
     p += 16;
-    memmove(p, &response.devid.appSKey, 16);	            // 16 private key
+    memmove(p, &response.value.devid.id.appSKey, 16);	            // 16 private key
     p += 16;
-    *(uint8_t *) p = response.devid.version.c;	            // 1 LORAWAN_VERSION 1
+    *(uint8_t *) p = response.value.devid.id.version.c;	            // 1 LORAWAN_VERSION 1
     p++;
     // OTAA
-    ((DEVEUI *) p)->u = response.devid.appEUI.u;	        // 8 OTAA application identifier
+    ((DEVEUI *) p)->u = response.value.devid.id.appEUI.u;	        // 8 OTAA application identifier
     p += 8;
-    memmove(p, &response.devid.appKey, 16);	                // 16 OTAA application private key
+    memmove(p, &response.value.devid.id.appKey, 16);	                // 16 OTAA application private key
     p += 16;
-    memmove(p, &response.devid.nwkKey, 16);	                // 16 OTAA network key
+    memmove(p, &response.value.devid.id.nwkKey, 16);	                // 16 OTAA network key
     p += 16;
-    ((DEVNONCE *) p)->u = response.devid.devNonce.u;	    // 2 last device nonce (87)
+    ((DEVNONCE *) p)->u = response.value.devid.id.devNonce.u;	    // 2 last device nonce (87)
     p += 2;
-    memmove(p, &response.devid.joinNonce.c, 3);	// 3 Join nonce
+    memmove(p, &response.value.devid.id.joinNonce.c, 3);	// 3 Join nonce
     p += 3;
 
     // added for searching
-    memmove(p, &response.devid.name, 8);	                // 8 total 141
+    memmove(p, &response.value.devid.id.name, 8);	                // 8 total 141
 }
 
 static void deserializeNETWORKIDENTITY(
@@ -58,33 +58,33 @@ static void deserializeNETWORKIDENTITY(
     const unsigned char* buf
 )
 {
-    memmove(&retVal.devaddr.u, buf, sizeof(uint32_t)); // 4
+    memmove(&retVal.value.devaddr.u, buf, sizeof(uint32_t)); // 4
     unsigned char *p = (unsigned char *) buf + sizeof(uint32_t);
-    retVal.devid.activation = (ACTIVATION) *(uint8_t *) p;	    // 1 activation type: ABP or OTAA
+    retVal.value.devid.id.activation = (ACTIVATION) *(uint8_t *) p;	    // 1 activation type: ABP or OTAA
     p++;
-    retVal.devid.deviceclass = (DEVICECLASS) *(uint8_t *) p;	// 1 Device class: A, B, C
+    retVal.value.devid.id.deviceclass = (DEVICECLASS) *(uint8_t *) p;	// 1 Device class: A, B, C
     p++;
-    retVal.devid.devEUI.u = ((DEVEUI *) p)->u;	    // 8 device identifier (ABP device may not store EUI)
+    retVal.value.devid.id.devEUI.u = ((DEVEUI *) p)->u;	    // 8 device identifier (ABP device may not store EUI)
     p += 8;
-    memmove(&retVal.devid.nwkSKey.c, p, 16);	        // 16 shared session key
+    memmove(&retVal.value.devid.id.nwkSKey.c, p, 16);	        // 16 shared session key
     p += 16;
-    memmove(&retVal.devid.appSKey.c, p, 16);	        // 16 private key
+    memmove(&retVal.value.devid.id.appSKey.c, p, 16);	        // 16 private key
     p += 16;
-    retVal.devid.version = (LORAWAN_VERSION) *(uint8_t *) p;	// 1
+    retVal.value.devid.id.version = (LORAWAN_VERSION) *(uint8_t *) p;	// 1
     p++;
     // OTAA
-    retVal.devid.appEUI.u = ((DEVEUI *) p)->u;	    // 8 OTAA application identifier
+    retVal.value.devid.id.appEUI.u = ((DEVEUI *) p)->u;	    // 8 OTAA application identifier
     p += 8;
-    memmove(&retVal.devid.appKey.c, p, 16);	        // 16 OTAA application private key
+    memmove(&retVal.value.devid.id.appKey.c, p, 16);	        // 16 OTAA application private key
     p += 16;
-    memmove(&retVal.devid.nwkKey.c, p, 16);	        // 16 OTAA network key
+    memmove(&retVal.value.devid.id.nwkKey.c, p, 16);	        // 16 OTAA network key
     p += 16;
-    retVal.devid.devNonce.u = ((DEVNONCE *) p)->u;	// 2 last device nonce
+    retVal.value.devid.id.devNonce.u = ((DEVNONCE *) p)->u;	// 2 last device nonce
     p += 2;
-    memmove(&retVal.devid.joinNonce.c, &(((JOINNONCE *) p)->c), 3);	// 3 Join nonce
+    memmove(&retVal.value.devid.id.joinNonce.c, &(((JOINNONCE *) p)->c), 3);	// 3 Join nonce
     p += 3;
     // added for searching
-    memmove(&retVal.devid.name, p, 8);	            // 8
+    memmove(&retVal.value.devid.id.name, p, 8);	            // 8
 }
 
 IdentityEUIRequest::IdentityEUIRequest()
@@ -197,7 +197,7 @@ IdentityAssignRequest::IdentityAssignRequest(
     : ServiceMessage(buf, sz)   // 13
 {
     if (sz >= SIZE_ASSIGN_REQUEST) {
-        memmove(&identity.devaddr.u, buf + SIZE_SERVICE_MESSAGE, sizeof(identity.devaddr.u));   // 4
+        memmove(&identity.value.devaddr.u, buf + SIZE_SERVICE_MESSAGE, sizeof(identity.value.devaddr.u));   // 4
         deserializeNETWORKIDENTITY(identity, buf + SIZE_SERVICE_MESSAGE);
     }   // 108
 }
@@ -215,8 +215,8 @@ IdentityAssignRequest::IdentityAssignRequest(
 void IdentityAssignRequest::ntoh()
 {
     ServiceMessage::ntoh();
-    identity.devaddr.u = NTOH4(identity.devaddr.u);
-    identity.devid.devEUI.u = NTOH8(identity.devid.devEUI.u);
+    identity.value.devaddr.u = NTOH4(identity.value.devaddr.u);
+    identity.value.devid.id.devEUI.u = NTOH8(identity.value.devid.id.devEUI.u);
 }
 
 size_t IdentityAssignRequest::serialize(
@@ -310,11 +310,11 @@ static void ntohNETWORKIDENTITY(
     NETWORKIDENTITY &value
 )
 {
-    value.devaddr.u = NTOH4(value.devaddr.u);
-    value.devid.devEUI.u = NTOH8(value.devid.devEUI.u);
+    value.value.devaddr.u = NTOH4(value.value.devaddr.u);
+    value.value.devid.id.devEUI.u = NTOH8(value.value.devid.id.devEUI.u);
     // OTAA
-    value.devid.appEUI.u = NTOH8(value.devid.appEUI.u);
-    value.devid.devNonce.u = NTOH2(value.devid.devNonce.u);
+    value.value.devid.id.appEUI.u = NTOH8(value.value.devid.id.appEUI.u);
+    value.value.devid.id.devNonce.u = NTOH2(value.value.devid.id.devNonce.u);
 }
 
 IdentityGetResponse::IdentityGetResponse(
@@ -586,17 +586,17 @@ size_t IdentitySerialization::query(
             {
                 auto gr = (IdentityEUIRequest *) pMsg;
                 r = new IdentityGetResponse(*gr);
-                ((IdentityGetResponse*) r)->response.devid.devEUI.u = gr->eui.u;
+                ((IdentityGetResponse*) r)->response.value.devid.id.devEUI.u = gr->eui.u;
                 int errCode;
-                if (((IdentityGetResponse*) r)->response.devaddr.empty())
+                if (((IdentityGetResponse*) r)->response.value.devaddr.empty())
                     errCode = svc->getNetworkIdentity(((IdentityGetResponse*) r)->response,
-                        ((IdentityGetResponse*) r)->response.devid.devEUI);
+                        ((IdentityGetResponse*) r)->response.value.devid.id.devEUI);
                 else
-                    errCode = svc->get(((IdentityGetResponse*) r)->response.devid, ((IdentityGetResponse*) r)->response.devaddr);
+                    errCode = svc->get(((IdentityGetResponse*) r)->response.value.devid, ((IdentityGetResponse*) r)->response.value.devaddr);
 
                 if (errCode) {
                     // indicate nothing there
-                    ((IdentityGetResponse*) r)->response.devid.devEUI.u = 0;
+                    ((IdentityGetResponse*) r)->response.value.devid.id.devEUI.u = 0;
                 }
                 break;
             }
@@ -604,15 +604,15 @@ size_t IdentitySerialization::query(
             {
                 auto gr = (IdentityAddrRequest *) pMsg;
                 r = new IdentityGetResponse(*gr);
-                ((IdentityGetResponse*) r)->response.devaddr.u = gr->addr.u;
-                svc->get(((IdentityGetResponse*) r)->response.devid, ((IdentityGetResponse*) r)->response.devaddr);
+                ((IdentityGetResponse*) r)->response.value.devaddr.u = gr->addr.u;
+                svc->get(((IdentityGetResponse*) r)->response.value.devid, ((IdentityGetResponse*) r)->response.value.devaddr);
                 break;
             }
-        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) device address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (put) device address to the gateway by identifier
             {
                 auto gr = (IdentityAssignRequest *) pMsg;
                 r = new IdentityOperationResponse(*gr);
-                ((IdentityOperationResponse*) r)->response = svc->put(gr->identity.devaddr, gr->identity.devid);
+                ((IdentityOperationResponse*) r)->response = svc->put(gr->identity.value.devaddr, gr->identity.value.devid);
                 if (((IdentityOperationResponse*) r)->response == 0)
                     ((IdentityOperationResponse *) r)->size = 1;    // count of placed entries
                 break;
@@ -703,7 +703,7 @@ enum IdentityQueryTag validateIdentityQuery(
             if (size < SIZE_DEVICE_ADDR_REQUEST)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_EUI;
-        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
             if (size < SIZE_DEVICE_ADDR_REQUEST)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_ASSIGN;
@@ -759,7 +759,7 @@ enum IdentityQueryTag validateIdentityResponse(
             if (size < SIZE_GET_RESPONSE)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_EUI;
-        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
             if (size < SIZE_OPERATION_RESPONSE)
                 return QUERY_IDENTITY_NONE;
             return QUERY_IDENTITY_ASSIGN;
@@ -845,7 +845,7 @@ ServiceMessage* deserializeIdentity(
                 return nullptr;
             r = new IdentityAddrRequest(buf, sz);
             break;
-        case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
+        case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
             if (sz < SIZE_ASSIGN_REQUEST)
                 return nullptr;
             r = new IdentityAssignRequest(buf, sz);
@@ -996,17 +996,17 @@ size_t IdentityBinarySerialization::query(
     {
         auto gr = (IdentityEUIRequest*)pMsg;
         r = new IdentityGetResponse(*gr);
-        ((IdentityGetResponse*)r)->response.devid.devEUI.u = gr->eui.u;
+        ((IdentityGetResponse*)r)->response.value.devid.id.devEUI.u = gr->eui.u;
         int errCode;
-        if (((IdentityGetResponse*)r)->response.devaddr.empty())
+        if (((IdentityGetResponse*)r)->response.value.devaddr.empty())
             errCode = svc->getNetworkIdentity(((IdentityGetResponse*)r)->response,
-                ((IdentityGetResponse*)r)->response.devid.devEUI);
+                ((IdentityGetResponse*)r)->response.value.devid.id.devEUI);
         else
-            errCode = svc->get(((IdentityGetResponse*)r)->response.devid, ((IdentityGetResponse*)r)->response.devaddr);
+            errCode = svc->get(((IdentityGetResponse*)r)->response.value.devid, ((IdentityGetResponse*)r)->response.value.devaddr);
 
         if (errCode) {
             // indicate nothing there
-            ((IdentityGetResponse*)r)->response.devid.devEUI.u = 0;
+            ((IdentityGetResponse*)r)->response.value.devid.id.devEUI.u = 0;
         }
         break;
     }
@@ -1014,15 +1014,15 @@ size_t IdentityBinarySerialization::query(
     {
         auto gr = (IdentityAddrRequest*)pMsg;
         r = new IdentityGetResponse(*gr);
-        ((IdentityGetResponse*)r)->response.devaddr.u = gr->addr.u;
-        svc->get(((IdentityGetResponse*)r)->response.devid, ((IdentityGetResponse*)r)->response.devaddr);
+        ((IdentityGetResponse*)r)->response.value.devaddr.u = gr->addr.u;
+        svc->get(((IdentityGetResponse*)r)->response.value.devid, ((IdentityGetResponse*)r)->response.value.devaddr);
         break;
     }
-    case QUERY_IDENTITY_ASSIGN:   // assign (putUplink) gateway address to the gateway by identifier
+    case QUERY_IDENTITY_ASSIGN:   // assign (put) gateway address to the gateway by identifier
     {
         auto gr = (IdentityAssignRequest*)pMsg;
         r = new IdentityOperationResponse(*gr);
-        ((IdentityOperationResponse*)r)->response = svc->put(gr->identity.devaddr, gr->identity.devid);
+        ((IdentityOperationResponse*)r)->response = svc->put(gr->identity.value.devaddr, gr->identity.value.devid);
         if (((IdentityOperationResponse*)r)->response == 0)
             ((IdentityOperationResponse*)r)->size = 1;    // count of placed entries
         break;

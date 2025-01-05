@@ -381,7 +381,7 @@ std::string DOWNLINK_STORAGE2String(
     if (value.f.foptslen) {
         ss << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
         MacPtr macPtr((const char *) value.fopts(), value.f.foptslen, true);
-        ss << "\", \"mac\": " << (macPtr.toJSONString());
+        ss << R"(", "mac": )" << (macPtr.toJSONString());
         if (macPtr.errorcode) {
             // ignore
         }
@@ -418,7 +418,7 @@ std::string UPLINK_STORAGE2String(
     if (value.f.foptslen) {
         ss << R"(, "fopts": ")" << hexString((const char *) value.fopts(), (int) value.f.foptslen);
         MacPtr macPtr((const char *) value.fopts(), value.f.foptslen, false);
-        ss << "\", \"mac\": " << (macPtr.toJSONString());
+        ss << R"(", "mac": )" << (macPtr.toJSONString());
         if (macPtr.errorcode) {
             // ignore
         }
@@ -449,7 +449,7 @@ static const char *ACTIVATION_NAMES[2] = {
 };
 
 std::string activation2string(
-        ACTIVATION value
+    ACTIVATION value
 )
 {
     if ((unsigned int) value > OTAA)
@@ -458,7 +458,7 @@ std::string activation2string(
 }
 
 std::string MODULATION2String(
-        MODULATION value
+    MODULATION value
 )
 {
     switch (value) {
@@ -472,7 +472,7 @@ std::string MODULATION2String(
 }
 
 std::string BANDWIDTH2String(
-        BANDWIDTH value
+    BANDWIDTH value
 ) {
     switch (value) {
         case BANDWIDTH_INDEX_7KHZ:
@@ -669,7 +669,7 @@ std::string rfm_header2string(
 }
 
 ACTIVATION string2activation(
-        const std::string &value
+    const std::string &value
 )
 {
     if (value == "OTAA")
@@ -679,7 +679,7 @@ ACTIVATION string2activation(
 }
 
 ACTIVATION pchar2activation(
-        const char *name
+    const char *name
 )
 {
     for (int i = 0; i < 2; i++) {
@@ -691,19 +691,19 @@ ACTIVATION pchar2activation(
 }
 
 MODULATION string2MODULATION(
-        const char *value
+    const char *value
 )
 {
     if (strcmp(value, "FSK") == 0)
         return MODULATION_FSK;
     else
-    if (strcmp(value, "LORA") == 0)
-        return MODULATION_LORA;
+        if (strcmp(value, "LORA") == 0)
+            return MODULATION_LORA;
     return MODULATION_UNDEFINED;
 }
 
 BANDWIDTH string2BANDWIDTH(
-        const char *value
+    const char *value
 )
 {
     if (strcmp(value, "7.8") == 0)
@@ -752,16 +752,18 @@ LORAWAN_VERSION string2LORAWAN_VERSION(
 
 
 DEVICECLASS string2deviceclass(
-        const std::string &value
+    const std::string &value
 )
 {
-    if (value == "A")
+    if (value.empty())
+        return CLASS_C;
+    if (value[0] == 'A' || value[0] == 'a')
         return CLASS_A;
     else
-    if (value == "B")
-        return CLASS_B;
-    else
-        return CLASS_C;
+        if (value[0] == 'B' || value[0] == 'b')
+            return CLASS_B;
+        else
+            return CLASS_C;
 }
 
 void string2DEVADDR(
@@ -781,16 +783,16 @@ void string2DEVADDR(
 }
 
 void string2DEVEUI(
-        DEVEUI &retval,
-        const std::string &value
+    DEVEUI &retval,
+    const std::string &value
 )
 {
     retval.u = strtoull(value.c_str(), nullptr, 16);
 }
 
 void string2DEVEUI(
-        DEVEUI &retval,
-        const char *value
+    DEVEUI &retval,
+    const char *value
 )
 {
     retval.u = strtoull(value, nullptr, 16);
@@ -893,10 +895,10 @@ std::string freq2string(
 )
 {
     std::stringstream ss;
-    int mhz = freq / 1000000;
+    int mhz = (int) freq / 1000000;
     ss << mhz << "." << (freq - (mhz * 1000000));
     return ss.str();
-};
+}
 
 uint64_t string2gatewayId(
         const std::string& value
@@ -906,51 +908,51 @@ uint64_t string2gatewayId(
 }
 
 static void setIdentity(
-        NETWORKIDENTITY &retVal,
-        int fieldNo,
-        char *start,
-        char *finish
+    NETWORKIDENTITY &retVal,
+    NETWORK_IDENTITY_PROPERTY property,
+    char *start,
+    char *finish
 ) {
     std::string s(start, finish - start);
-    switch (fieldNo) {
-        case 0:
-            string2DEVADDR(retVal.devaddr, s);
+    switch (property) {
+        case NIP_ADDRESS:
+            string2DEVADDR(retVal.value.devaddr, s);
             break;
-        case 1:
-            retVal.devid.activation = string2activation(s);
+        case NIP_ACTIVATION:
+            retVal.value.devid.id.activation = string2activation(s);
             break;
-        case 2:
-            retVal.devid.deviceclass = string2deviceclass(s);
+        case NIP_DEVICE_CLASS:
+            retVal.value.devid.id.deviceclass = string2deviceclass(s);
             break;
-        case 3:
-            string2DEVEUI(retVal.devid.devEUI, s);
+        case NIP_DEVEUI:
+            string2DEVEUI(retVal.value.devid.id.devEUI, s);
             break;
-        case 4:
-            string2KEY(retVal.devid.nwkSKey, s);
+        case NIP_NWKSKEY:
+            string2KEY(retVal.value.devid.id.nwkSKey, s);
             break;
-        case 5:
-            string2KEY(retVal.devid.appSKey, s);
+        case NIP_APPSKEY:
+            string2KEY(retVal.value.devid.id.appSKey, s);
             break;
-        case 6:
-            retVal.devid.version = string2LORAWAN_VERSION(s);
+        case NIP_LORAWAN_VERSION:
+            retVal.value.devid.id.version = string2LORAWAN_VERSION(s);
             break;
-        case 7:
-            string2DEVEUI(retVal.devid.appEUI, s);
+        case NIP_APPEUI:
+            string2DEVEUI(retVal.value.devid.id.appEUI, s);
             break;
-        case 8:
-            string2KEY(retVal.devid.appKey, s);
+        case NIP_APPKEY:
+            string2KEY(retVal.value.devid.id.appKey, s);
             break;
-        case 9:
-            string2KEY(retVal.devid.nwkKey, s);
+        case NIP_NWKKEY:
+            string2KEY(retVal.value.devid.id.nwkKey, s);
             break;
-        case 10:
-            retVal.devid.devNonce = string2DEVNONCE(s);
+        case NIP_DEVNONCE:
+            retVal.value.devid.id.devNonce = string2DEVNONCE(s);
             break;
-        case 11:
-            string2JOINNONCE(retVal.devid.joinNonce, s);
+        case NIP_JOINNONCE:
+            string2JOINNONCE(retVal.value.devid.id.joinNonce, s);
             break;
-        case 12:
-            string2DEVICENAME(retVal.devid.name, s.c_str());
+        case NIP_DEVICENAME:
+            string2DEVICENAME(retVal.value.devid.id.name, s.c_str());
             break;
         default:
             break;
@@ -958,21 +960,21 @@ static void setIdentity(
 }
 
 bool string2NETWORKIDENTITY(
-        NETWORKIDENTITY &retVal,
-        const char *identityString
+    NETWORKIDENTITY &retVal,
+    const char *identityString
 )
 {
-    int c = 0;
+    int c = (int) NIP_ADDRESS;
     char *start = (char *) identityString;
     char *p = start;
     for (; *p != 0; p++) {
         if (*p == ',') {
-            setIdentity(retVal, c, start, p);
+            setIdentity(retVal, (NETWORK_IDENTITY_PROPERTY) c, start, p);
             c++;
             start = p + 1;
         }
     }
-    setIdentity(retVal, c, start, p);
+    setIdentity(retVal, (NETWORK_IDENTITY_PROPERTY) c, start, p);
     return true;
 }
 
@@ -1125,7 +1127,7 @@ std::string datr2string(
  * @param LoRa LoRa ECC coding rate identifier e.g. "4/6"
  */
 CODING_RATE string2codingRate(
-        const std::string &value
+    const std::string &value
 )
 {
     size_t sz = value.size();
@@ -1255,7 +1257,7 @@ REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
 }
 
 static std::string file2string(
-        std::istream &strm
+    std::istream &strm
 )
 {
     if (!strm)
@@ -1264,7 +1266,7 @@ static std::string file2string(
 }
 
 std::string file2string(
-        const char *filename
+    const char *filename
 )
 {
     if (!filename)
@@ -1274,8 +1276,8 @@ std::string file2string(
 }
 
 bool string2file(
-        const std::string &filename,
-        const std::string &value
+    const std::string &filename,
+    const std::string &value
 )
 {
     FILE* f = fopen(filename.c_str(), "w");
@@ -1440,9 +1442,10 @@ void string2DATA_RATE(
     }
 }
 
-#define NIP_COUNT 13
+#define NIP_COUNT 14
 static const char *NETWORK_IDENTITY_PROPERTY_NAMES[NIP_COUNT] {
     "",
+    "addr",           ///< address
     "activation",     ///< activation type: ABP or OTAA
     "class",          ///< A, B, C
     "deveui",	      ///< device identifier 8 bytes (ABP device may not store EUI)
@@ -1452,8 +1455,8 @@ static const char *NETWORK_IDENTITY_PROPERTY_NAMES[NIP_COUNT] {
     // OTAA
     "appeui",		  ///< OTAA application identifier
     "appkey",		  ///< OTAA application private key
-    "nwkkey",         ///< OTAA network key
-    "devnonce",       ///< last device nonce
+    "nwkkey",        ///< OTAA network key
+    "devnonce",      ///< last device nonce
     "joinnonce",     ///< last Join nonce
     // added for searching
     "name"
@@ -1468,6 +1471,68 @@ const char *NETWORK_IDENTITY_PROPERTY2string(
     return NETWORK_IDENTITY_PROPERTY_NAMES[(int) p];
 }
 
+#define NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING_SIZE    7
+const char *NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING [NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING_SIZE] {
+    "",
+    "=",
+    "<>",
+    ">",
+    "<",
+    ">=",
+    "<="
+};
+
+#define NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING_SIZE    3
+const char *NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING [NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING_SIZE] {
+    "",
+    "and",
+    "or"
+};
+
+static const char *NETWORK_IDENTITY_COMPARISON_OPERATOR2string(
+    NETWORK_IDENTITY_COMPARISON_OPERATOR value
+)
+{
+    if ((int) value >= NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING_SIZE)
+       value = NICO_NONE;
+    return NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING[value];
+}
+
+static NETWORK_IDENTITY_COMPARISON_OPERATOR stringNETWORK_IDENTITY_COMPARISON_OPERATOR(
+    const char *value
+)
+{
+    for (int a = 0; a < NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING_SIZE; a++)
+    {
+        if (strcmp(value, NETWORK_IDENTITY_COMPARISON_OPERATOR_STRING[a]) == 0)
+            return (NETWORK_IDENTITY_COMPARISON_OPERATOR) a;
+
+    }
+    return NICO_NONE;
+}
+
+static const char *NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR2string(
+    NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR value
+)
+{
+    if ((int) value >= NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING_SIZE)
+        value = NILPO_NONE;
+    return NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING[value];
+}
+
+static NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR string2NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR(
+    const char *value
+)
+{
+    for (int a = 0; a < NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING_SIZE; a++)
+    {
+        if (strcmp(value, NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR_STRING[a]) == 0)
+            return (NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR) a;
+
+    }
+    return NILPO_NONE;
+}
+
 NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(
     const char *value
 )
@@ -1479,4 +1544,204 @@ NETWORK_IDENTITY_PROPERTY string2NETWORK_IDENTITY_PROPERTY(
     if (f == NETWORK_IDENTITY_PROPERTY_NAMES + NIP_COUNT)
         return NIP_NONE;
     return (NETWORK_IDENTITY_PROPERTY) (f - NETWORK_IDENTITY_PROPERTY_NAMES);
+}
+
+static std::string filterValue2string(
+    const NETWORK_IDENTITY_FILTER &filter
+)
+{
+    std::string r;
+    switch (filter.property) {
+        case NIP_ADDRESS:
+            r = DEVADDR2string(*(DEVADDR*) &filter.filterData);
+            break;
+        case NIP_ACTIVATION:
+            r = activation2string(*(ACTIVATION *) &filter.filterData);
+            break;
+        case NIP_DEVICE_CLASS:
+            r = deviceclass2string(*(DEVICECLASS *) &filter.filterData);
+            break;
+        case NIP_DEVEUI:
+        case NIP_APPEUI:
+            r = DEVEUI2string(*(DEVEUI *) &filter.filterData);
+            break;
+        case NIP_NWKSKEY:
+        case NIP_APPSKEY:
+        case NIP_APPKEY:
+        case NIP_NWKKEY:
+            r = KEY2string(*(KEY128 *) &filter.filterData);
+            break;
+        case NIP_LORAWAN_VERSION:
+            r = LORAWAN_VERSION2string(*(LORAWAN_VERSION *) &filter.filterData);
+            break;
+        case NIP_DEVNONCE:
+            r = DEVNONCE2string(*(DEVNONCE *) &filter.filterData);
+            break;
+        case NIP_JOINNONCE:
+            r = JOINNONCE2string(*(JOINNONCE *) &filter.filterData);
+            break;
+        case NIP_DEVICENAME:
+            r = DEVICENAME2string(*(DEVICENAME *) &filter.filterData);
+            break;
+        default:
+            break;
+    }
+    return r;
+}
+
+std::string NETWORK_IDENTITY_FILTER2string(
+    const NETWORK_IDENTITY_FILTER &filter,
+    bool isFirst
+)
+{
+    std::stringstream ss;
+    if (!isFirst)
+        ss << NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR2string(filter.pre) << ' ';
+    ss << NETWORK_IDENTITY_PROPERTY2string(filter.property)
+        << ' ' << NETWORK_IDENTITY_COMPARISON_OPERATOR2string(filter.comparisonOperator)
+        << " '" << filterValue2string(filter) << "'";
+    // compareWith.
+    return ss.str();
+}
+
+std::string NETWORK_IDENTITY_FILTERS2string(
+    const std::vector<NETWORK_IDENTITY_FILTER> &filters
+) {
+    bool isFirst = true;
+    std::stringstream statement;
+    for (auto &f: filters) {
+        statement << NETWORK_IDENTITY_FILTER2string(f, isFirst) << ' ';
+        isFirst = false;
+    }
+    return statement.str();
+}
+
+enum IdentityFiltersParseState
+{
+    IFPS_PROPERTY,
+    IFPS_COMPARE,
+    IFPS_VALUE,
+    IFPS_AND_OR
+};
+
+static void stripQuotes(
+    std::string &quotedString
+)
+{
+    if (quotedString.empty())
+        return;
+    if (quotedString[0] == '"' || quotedString[0] == '\'')
+        quotedString = quotedString.substr(1);
+    size_t l = quotedString.size();
+    if (quotedString[l - 1] == '"' || quotedString[l - 1] == '\'')
+        quotedString = quotedString.substr(0, l - 1);
+}
+
+int string2NETWORK_IDENTITY_FILTERS(
+    std::vector <NETWORK_IDENTITY_FILTER> &retVal,
+    const char *expression,
+    size_t size
+)
+{
+    size_t start = 0;
+    size_t eolp = size;
+    size_t finish;
+
+    NETWORK_IDENTITY_FILTER f {NILPO_AND, NIP_NONE, NICO_NONE, 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+    IdentityFiltersParseState state = IFPS_PROPERTY;
+    while (start < size) {
+        // skip spaces if exists
+        for (auto p = start; p < eolp; p++) {
+            if (!std::isspace(expression[p])) {
+                start = p;
+                break;
+            }
+        }
+
+        // read token
+        finish = eolp;
+        for (auto p = start; p < eolp; p++) {
+            if (isspace(expression[p])) {
+                finish = p;
+                break;
+            }
+        }
+
+        std::string token(expression + start, finish - start);
+
+        if (token.empty())
+            break;
+        switch (state) {
+        case IFPS_PROPERTY:
+            f.property = string2NETWORK_IDENTITY_PROPERTY(token.c_str());
+            if (f.property == NIP_NONE)
+                break;
+            state = IFPS_COMPARE;
+            break;
+        case IFPS_COMPARE:
+            f.comparisonOperator = stringNETWORK_IDENTITY_COMPARISON_OPERATOR(token.c_str());
+            state = IFPS_VALUE;
+            break;
+        case IFPS_VALUE:
+            stripQuotes(token);
+            switch (f.property) {
+                case NIP_ADDRESS:
+                    string2DEVADDR((DEVADDR &) f.filterData, token);
+                    f.length = sizeof(DEVADDR);
+                    break;
+                case NIP_ACTIVATION:
+                    *(ACTIVATION *) f.filterData = string2activation(token);
+                    f.length = sizeof(ACTIVATION);
+                    break;
+                case NIP_DEVICE_CLASS:
+                    *(DEVICECLASS *) f.filterData = string2deviceclass(token);
+                    f.length = sizeof(DEVICECLASS);
+                    break;
+                case NIP_DEVEUI:
+                case NIP_APPEUI:
+                    string2DEVEUI((DEVEUI &) f.filterData, token);
+                    f.length = sizeof(DEVEUI);
+                    break;
+                case NIP_NWKSKEY:
+                case NIP_APPSKEY:
+                case NIP_APPKEY:
+                case NIP_NWKKEY:
+                    string2KEY((KEY128 &) f.filterData, token);
+                    f.length = sizeof(KEY128);
+                    break;
+                case NIP_LORAWAN_VERSION:
+                    *(LORAWAN_VERSION *) f.filterData = string2LORAWAN_VERSION(token);
+                    f.length = sizeof(LORAWAN_VERSION);
+                    break;
+                case NIP_DEVNONCE:
+                    (DEVNONCE) f.filterData = string2DEVNONCE(token);
+                    f.length = sizeof(DEVNONCE);
+                    break;
+                case NIP_JOINNONCE:
+                    string2JOINNONCE((JOINNONCE &) f.filterData, token);
+                    f.length = sizeof(JOINNONCE);
+                    break;
+                case NIP_DEVICENAME:
+                    string2DEVICENAME((DEVICENAME &) f.filterData, token.c_str());
+                    f.length = (uint8_t) (token.size() < sizeof(DEVICENAME) ? token.size() : sizeof(DEVICENAME));
+                    break;
+                default:
+                    break;
+            }
+            retVal.push_back(f);
+            f.property = NIP_NONE;
+            state = IFPS_AND_OR;
+            break;
+        case IFPS_AND_OR:
+            f.pre = string2NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR(token.c_str());
+            if (f.pre == NILPO_NONE)
+                break;
+            state = IFPS_PROPERTY;
+            break;
+        default:
+            break;
+        }
+        start = finish;
+    }
+    return 0;
 }

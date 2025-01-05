@@ -1,17 +1,26 @@
 #include "plugin-client.h"
 
 #include "lorawan/lorawan-string.h"
-#include "lorawan/lorawan-conv.h"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
 
 #define PLUGIN_FILE_NAME_PREFIX "lib"
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define dlopen(fileName, opt) LoadLibraryA(fileName)
+#define dlclose FreeLibrary
+#define dlsym GetProcAddress
+#define PLUGIN_FILE_NAME_SUFFIX ".dll"
+#else
+#include <dlfcn.h>
+#include <algorithm>
+#define PLUGIN_FILE_NAME_SUFFIX ".so"
+#endif
 
 #ifdef ENABLE_DEBUG
 #include <iostream>
 #include <cstring>
-#include "lorawan/lorawan-msg.h"
+#include "lorawan-msg.h"
 #endif
 
 typedef IdentityService*(*makeIdentityServiceFunc)();
@@ -38,8 +47,8 @@ int PluginClient::load(
 
     handleSvc = dlopen(fn.c_str(), RTLD_LAZY);
     if (handleSvc) {
-        auto fI0 = (makeIdentityServiceFunc) dlsym(handleSvc, "makeIdentityService");
-        auto fG0 = (makeGatewayServiceFunc) dlsym(handleSvc, "makeGatewayService");
+        auto fI0 = (makeIdentityServiceFunc) dlsym(handleSvc, "makeIdentityClient");
+        auto fG0 = (makeGatewayServiceFunc) dlsym(handleSvc, "makeGatewayClient");
         if (fI0 && fG0) {
             svcIdentity = fI0();
             svcGateway = fG0();
@@ -48,8 +57,8 @@ int PluginClient::load(
         // in case of static linking function name differs by last number 1..9
         for (int i = 1; i < 10; i++) {
             std::string n = std::to_string(i);
-            std::string funcNameI = "makeIdentityService" + n;
-            std::string funcNameG = "makeGatewayService" + n;
+            std::string funcNameI = "makeIdentityClient" + n;
+            std::string funcNameG = "makeGatewayClient" + n;
             auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, funcNameI.c_str());
             auto fG = (makeGatewayServiceFunc) dlsym(handleSvc, funcNameG.c_str());
             if (fI && fG) {
@@ -90,6 +99,7 @@ PluginClient::PluginClient(
 {
     load(fileName);
 }
+
 
 PluginClient::~PluginClient()
 {

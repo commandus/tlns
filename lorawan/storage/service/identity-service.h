@@ -15,11 +15,13 @@
  *
  * Synchronous version                                                    Asynchronous version
  *
- * getUplink(DEVICEID &retVal, const DEVADDR &devAddr)                          cGet(const DEVADDR &devAddr)
+ * get(DEVICEID &retVal, const DEVADDR &devAddr)                          cGet(const DEVADDR &devAddr)
  * getNetworkIdentity(NETWORKIDENTITY &retval, const DEVEUI &eui)         cGetNetworkIdentity(const DEVEUI &eui)
- * putUplink(const DEVADDR &devaddr, const DEVICEID &id)                        cPut(const DEVADDR &devaddr, const DEVICEID &id)
+ * put(const DEVADDR &devaddr, const DEVICEID &id)                        cPut(const DEVADDR &devaddr, const DEVICEID &id)
  * rm(const DEVADDR &addr)                                                cRm(const DEVADDR &addr)
  * list(std::vector<NETWORKIDENTITY> &retVal, size_t offset, size_t size) cList(size_t offset, size_t size)
+ * filter(std::vector<NETWORKIDENTITY> &retVal, const std::vector<NETWORK_IDENTITY_FILTER> &filters, size_t offset, size_t size)
+ *  cFilter(const std::vector<NETWORK_IDENTITY_FILTER> &filters, size_t offset, size_t size)
  * size()                                                                 cSize()
  * next(NETWORKIDENTITY &retVal                                           cNext()
  */
@@ -108,9 +110,26 @@ public:
      * @param retVal return values
      * @param offset 0..
      * @param size 0- all
+     * @return 0- success
      */
     virtual int list(
         std::vector<NETWORKIDENTITY> &retVal,
+        uint32_t offset,
+        uint8_t size
+    ) = 0;
+
+    /**
+     * synchronous list entries with filter(s)
+     * @param retVal return values
+     * @param compareWith identity to compare
+     * @param filters filters
+     * @param offset 0..
+     * @param size 0- all
+     * @return 0- success
+     */
+    virtual int filter(
+        std::vector<NETWORKIDENTITY> &retVal,
+        const std::vector<NETWORK_IDENTITY_FILTER> &filters,
         uint32_t offset,
         uint8_t size
     ) = 0;
@@ -121,6 +140,19 @@ public:
      * @param size 0- all
      */
     virtual int cList(
+        uint32_t offset,
+        uint8_t size
+    ) = 0;
+
+    /**
+     * asynchronous list entries with filter(s)
+     * @param compareWith identity to compare
+     * @param filters filters
+     * @param offset 0..
+     * @param size 0- all
+     */
+    virtual int cFilter(
+        const std::vector<NETWORK_IDENTITY_FILTER> &filters,
         uint32_t offset,
         uint8_t size
     ) = 0;

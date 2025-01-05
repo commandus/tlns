@@ -1,7 +1,3 @@
-//
-// Created by andrei on 02.08.24.
-//
-
 #ifndef TLNS_PLUGIN_HELPER_H
 #define TLNS_PLUGIN_HELPER_H
 

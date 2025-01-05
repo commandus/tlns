@@ -217,10 +217,10 @@ bool file::mkDir(
     const std::string &path
 )
 {
-    Stat st;
+    struct stat st;
     if (stat(path.c_str(), &st) != 0) {
         // Directory does not exist. EEXIST for race condition
-        if (mkdir(path, mode) != 0 && errno != EEXIST)
+        if (mkdir(path.c_str(), 0777) != 0 && errno != EEXIST)
             return false;
     } else if (!S_ISDIR(st.st_mode)) {
         return false;

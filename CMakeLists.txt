@@ -319,6 +319,7 @@ endif()
 # MQTT support
 #
 if (ENABLE_MQTT)
+	message("Install Eclipse Paho MQTT C library and C++ wrapper from the source (see bridge/mqtt/README.bridge.mqtt.md)")
 	add_subdirectory(bridge/mqtt)
 endif()
 

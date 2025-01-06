@@ -836,15 +836,24 @@ void string2DEVICENAME(
 }
 
 void string2JOINNONCE(
-        JOINNONCE &retval,
-        const std::string &value
+    JOINNONCE &retval,
+    const std::string &value
 )
 {
-    uint32_t r = strtol(value.c_str(), nullptr, 16);
+    return string2JOINNONCE(retval, value.c_str());
+}
+
+void string2JOINNONCE(
+    JOINNONCE &retval,
+    const char *value
+)
+{
+    uint32_t r = strtol(value, nullptr, 16);
     retval.c[2] = r & 0xff;
     retval.c[1] = (r >> 8) & 0xff;
     retval.c[0] = (r >> 16) & 0xff;
 }
+
 
 void string2APPNONCE(
         APPNONCE& retval,

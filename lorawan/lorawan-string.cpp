@@ -767,16 +767,16 @@ DEVICECLASS string2deviceclass(
 }
 
 void string2DEVADDR(
-        DEVADDR &retVal,
-        const char *value
+    DEVADDR &retVal,
+    const char *value
 )
 {
     retVal.u = strtoul(value, nullptr, 16);
 }
 
 void string2DEVADDR(
-        DEVADDR &retVal,
-        const std::string &value
+    DEVADDR &retVal,
+    const std::string &value
 )
 {
     retVal.u = strtoul(value.c_str(), nullptr, 16);
@@ -799,8 +799,8 @@ void string2DEVEUI(
 }
 
 void string2KEY(
-        KEY128 &retVal,
-        const char *str
+    KEY128 &retVal,
+    const char *str
 )
 {
     char c[3] = {0, 0, 0};
@@ -820,8 +820,8 @@ void string2KEY(
 }
 
 void string2KEY(
-        KEY128 &retVal,
-        const std::string &str
+    KEY128 &retVal,
+    const std::string &str
 )
 {
     string2KEY(retVal, str.c_str());
@@ -856,8 +856,8 @@ void string2JOINNONCE(
 
 
 void string2APPNONCE(
-        APPNONCE& retval,
-        const std::string& value
+    APPNONCE& retval,
+    const std::string& value
 )
 {
     uint32_t r = strtol(value.c_str(), nullptr, 16);
@@ -867,8 +867,8 @@ void string2APPNONCE(
 }
 
 void string2NETID(
-        NETID &retVal,
-        const char *value
+    NETID &retVal,
+    const char *value
 ) {
     std::string str = hex2string(value);
     size_t len = str.size();
@@ -880,8 +880,8 @@ void string2NETID(
 }
 
 void string2FREQUENCY(
-        FREQUENCY &retVal,
-        const char *value
+    FREQUENCY &retVal,
+    const char *value
 ) {
     std::string str = hex2string(value);
     size_t len = str.size();
@@ -910,7 +910,7 @@ std::string freq2string(
 }
 
 uint64_t string2gatewayId(
-        const std::string& value
+    const std::string& value
 )
 {
     return strtoull(value.c_str(), nullptr, 16);
@@ -1002,7 +1002,7 @@ const std::string ERR_CODE_TX_STR[] {
 };
 
 const std::string& ERR_CODE_TX2string(
-        ERR_CODE_TX code
+    ERR_CODE_TX code
 )
 {
     if (code > JIT_TX_ERROR_INVALID)
@@ -1011,7 +1011,7 @@ const std::string& ERR_CODE_TX2string(
 }
 
 ERR_CODE_TX string2ERR_CODE_TX(
-        const std::string &value
+    const std::string &value
 )
 {
     for (int c = 0; c <= JIT_TX_ERROR_INVALID; c++) {
@@ -1028,8 +1028,8 @@ ERR_CODE_TX string2ERR_CODE_TX(
  * @returns preading factor
  */
 SPREADING_FACTOR string2datr(
-        BANDWIDTH &bandwidth,
-        const std::string &value
+    BANDWIDTH &bandwidth,
+    const std::string &value
 )
 {
     size_t sz = value.size();
@@ -1085,8 +1085,8 @@ SPREADING_FACTOR string2datr(
  * @return LoRa datarate identifier e.g. "SF7BW125"
  */
 std::string datr2string(
-        SPREADING_FACTOR spreadingFactor,
-        BANDWIDTH bandwidth
+    SPREADING_FACTOR spreadingFactor,
+    BANDWIDTH bandwidth
 )
 {
     int bandwidthValue;
@@ -1170,7 +1170,7 @@ CODING_RATE string2codingRate(
 }
 
 std::string codingRate2string(
-        CODING_RATE codingRate
+    CODING_RATE codingRate
 )
 {
     switch (codingRate) {
@@ -1195,7 +1195,7 @@ std::string codingRate2string(
 }
 
 std::string SEMTECH_PROTOCOL_METADATA_RX2string(
-        const SEMTECH_PROTOCOL_METADATA_RX &value
+    const SEMTECH_PROTOCOL_METADATA_RX &value
 )
 {
     std::stringstream ss;
@@ -1240,13 +1240,13 @@ std::string SEMTECH_PROTOCOL_METADATA_TX2string(
 }
 
 std::string REGIONAL_PARAMETERS_VERSION2string(
-        REGIONAL_PARAMETERS_VERSION value
+    REGIONAL_PARAMETERS_VERSION value
 ) {
     return LORAWAN_VERSION2string(*(LORAWAN_VERSION*) &value);
 }
 
 REGIONAL_PARAMETERS_VERSION string2REGIONAL_PARAMETERS_VERSION(
-        const std::string &value
+    const std::string &value
 ) {
     std::stringstream ss(value);
     int ma = 1, mi = 0, re = 0;

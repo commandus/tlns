@@ -292,13 +292,22 @@ std::string JOINNONCE2string(
 }
 
 DEVNONCE string2DEVNONCE(
-    const std::string &value
+    const char *value
 )
 {
     DEVNONCE r;
-    r.u = (uint16_t) strtoul(value.c_str(), nullptr, 16);
+    if (!value)
+        return r;
+    r.u = (uint16_t) strtoul(value, nullptr, 16);
     r.u = NTOH2(r.u);
     return r;
+}
+
+DEVNONCE string2DEVNONCE(
+    const std::string &value
+)
+{
+    return string2DEVNONCE(value.c_str());
 }
 
 std::string JOIN_ACCEPT_FRAME_HEADER2string(
@@ -669,6 +678,16 @@ std::string rfm_header2string(
 }
 
 ACTIVATION string2activation(
+    const char *value
+)
+{
+    if (strcmp(value, "OTAA") == 0)
+        return OTAA;
+    else
+        return ABP;
+}
+
+ACTIVATION string2activation(
     const std::string &value
 )
 {
@@ -730,7 +749,7 @@ BANDWIDTH string2BANDWIDTH(
 }
 
 LORAWAN_VERSION string2LORAWAN_VERSION(
-        const std::string &value
+    const char *value
 )
 {
     std::stringstream ss(value);
@@ -750,6 +769,27 @@ LORAWAN_VERSION string2LORAWAN_VERSION(
     return r;
 }
 
+LORAWAN_VERSION string2LORAWAN_VERSION(
+    const std::string &value
+)
+{
+    return string2LORAWAN_VERSION(value.c_str());
+}
+
+DEVICECLASS string2deviceclass(
+    const char *value
+)
+{
+    if (!value)
+        return CLASS_C;
+    if (value[0] == 'A' || value[0] == 'a')
+        return CLASS_A;
+    else
+    if (value[0] == 'B' || value[0] == 'b')
+        return CLASS_B;
+    else
+        return CLASS_C;
+}
 
 DEVICECLASS string2deviceclass(
     const std::string &value
@@ -795,6 +835,8 @@ void string2DEVEUI(
     const char *value
 )
 {
+    if (!value)
+        return;
     retval.u = strtoull(value, nullptr, 16);
 }
 
@@ -803,6 +845,8 @@ void string2KEY(
     const char *str
 )
 {
+    if (!str)
+        return;
     char c[3] = {0, 0, 0};
     int i = 0;
     while (*str) {
@@ -828,10 +872,12 @@ void string2KEY(
 }
 
 void string2DEVICENAME(
-        DEVICENAME &retval,
-        const char *str
+    DEVICENAME &retval,
+    const char *str
 )
 {
+    if (!str)
+        return;
     strncpy(retval.c, str, sizeof(DEVICENAME::c));
 }
 
@@ -848,6 +894,8 @@ void string2JOINNONCE(
     const char *value
 )
 {
+    if (!value)
+        return;
     uint32_t r = strtol(value, nullptr, 16);
     retval.c[2] = r & 0xff;
     retval.c[1] = (r >> 8) & 0xff;

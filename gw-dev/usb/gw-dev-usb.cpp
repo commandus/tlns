@@ -319,7 +319,9 @@ static void run()
 
     PluginClient identityClient(localConfig.pluginFilePath);
     if (!identityClient.svcIdentity || !identityClient.svcGateway) {
-        std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": " << ERR_LOAD_PLUGINS_FAILED << std::endl;
+        std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": "
+        << ERR_LOAD_PLUGINS_FAILED << localConfig.pluginFilePath
+        << std::endl;
         return;
     }
 

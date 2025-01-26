@@ -23,6 +23,9 @@
 #include "lorawan-msg.h"
 #endif
 
+static const char * FUNC_NAME_MAKE_IDENTITY_SERVICE = "makeIdentityService";
+static const char * FUNC_NAME_MAKE_GATEWAY_SERVICE = "makeGatewayService";
+
 typedef IdentityService*(*makeIdentityServiceFunc)();
 typedef GatewayService*(*makeGatewayServiceFunc)();
 
@@ -47,8 +50,8 @@ int PluginClient::load(
 
     handleSvc = dlopen(fn.c_str(), RTLD_LAZY);
     if (handleSvc) {
-        auto fI0 = (makeIdentityServiceFunc) dlsym(handleSvc, "makeIdentityClient");
-        auto fG0 = (makeGatewayServiceFunc) dlsym(handleSvc, "makeGatewayClient");
+        auto fI0 = (makeIdentityServiceFunc) dlsym(handleSvc, FUNC_NAME_MAKE_IDENTITY_SERVICE);
+        auto fG0 = (makeGatewayServiceFunc) dlsym(handleSvc, FUNC_NAME_MAKE_GATEWAY_SERVICE);
         if (fI0 && fG0) {
             svcIdentity = fI0();
             svcGateway = fG0();
@@ -57,8 +60,8 @@ int PluginClient::load(
         // in case of static linking function name differs by last number 1..9
         for (int i = 1; i < 10; i++) {
             std::string n = std::to_string(i);
-            std::string funcNameI = "makeIdentityClient" + n;
-            std::string funcNameG = "makeGatewayClient" + n;
+            std::string funcNameI = FUNC_NAME_MAKE_IDENTITY_SERVICE + n;
+            std::string funcNameG = FUNC_NAME_MAKE_GATEWAY_SERVICE + n;
             auto fI = (makeIdentityServiceFunc) dlsym(handleSvc, funcNameI.c_str());
             auto fG = (makeGatewayServiceFunc) dlsym(handleSvc, funcNameG.c_str());
             if (fI && fG) {

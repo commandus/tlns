@@ -138,7 +138,7 @@ int parseCmd(
     struct arg_str *a_device_path = arg_str1(nullptr, nullptr, _("<device-name>"), _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
 
-    struct arg_str *a_identity_plugin_file = arg_str0("p", "plugin", _("<identity-plugin-file-name>"), _("Default none"));
+    struct arg_str *a_identity_plugin_file = arg_str0("I", "plugin", _("<identity-plugin-file-name>"), _("Default none"));
     struct arg_str *a_identity_file_name = arg_str0("i", "id", _("<id-file-name>"), _("Device identities JSON file name"));
     struct arg_str *a_gateway_file_name = arg_str0("g", "gw", _("<gw-file-name>"), _("Gateways JSON file name"));
 

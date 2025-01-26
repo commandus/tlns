@@ -62,8 +62,8 @@ int TaskTimerSocket::setStartupTime(
     ns -= s;
     // set timer structure
     struct itimerspec t = {
-        .it_interval = { .tv_sec = 0, .tv_nsec = 0},
-        .it_value = { .tv_sec = s.count(), .tv_nsec = ns.count()}
+        .it_interval = { .tv_sec = 0, .tv_nsec = 0 },
+        .it_value = { .tv_sec = s.count(), .tv_nsec = static_cast<long>(ns.count()) }
     };
 #if defined(_MSC_VER) || defined(__MINGW32__)
     return ERR_CODE_PARAM_INVALID;

@@ -7,7 +7,7 @@
 #include "lorawan/task/task-platform.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#include <stdint.h> // portable: uint64_t   MSVC: __int64
+#include <cstdint> // portable: uint64_t   MSVC: __int64
 #else
 #include <sys/time.h>
 #endif

@@ -114,7 +114,11 @@ time_t parseDate(
 )
 {
     struct tm tmd0 {};
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    long tz = _timezone;
+#else
     long tz = timezone;
+#endif
     if (tz == 0) {
         // somehow in Ubuntu
         std::time_t gt = std::time(0);

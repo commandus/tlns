@@ -4,12 +4,13 @@
 #include <io.h>
 #include <cwchar>
 #include <cstdio>
+#include <shlobj.h>
 #define PATH_DELIMITER "\\"
 #else
 #include <sys/param.h>
 #include <fcntl.h>
-
 #include <ftw.h>
+#include <pwd.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -44,6 +45,34 @@
 #endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+/**
+* A FILETIME is the number of 100-nanosecond intervals since January 1, 1601.
+* A time_t is the number of 1-second intervals since January 1, 1970.
+* 116444736000000000
+* @link https://www.gamedev.net/forums/topic/565693-converting-filetime-to-time_t-on-windows/
+*/
+static time_t filetime2time_t(
+    FILETIME const& ft
+)
+{
+    ULARGE_INTEGER ull;
+    ull.LowPart = ft.dwLowDateTime;
+    ull.HighPart = ft.dwHighDateTime;
+    return (ull.QuadPart / 10000000ULL) - 11644473600ULL;
+}
+
+bool file::isOrdinalFile(
+    time_t& retModificationTime,
+    const char* path
+) {
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    GetFileAttributesExA(path, GetFileExInfoStandard, (void*) &fileInfo);
+    retModificationTime = filetime2time_t(fileInfo.ftLastWriteTime);
+    if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        return false;
+    return true;
+}
+
 bool file::rmAllDir(const char *path)
 {
 	if (!path)
@@ -67,13 +96,6 @@ bool file::rmAllDir(const char *path)
 
 	SHFileOperationA(&shfo);
     return true;
-}
-
-bool file::mkDir(
-    const std::string &path
-)
-{
-    return CreateDirectoryA(path.c_str(), nullptr);
 }
 
 bool file::rmDir(const std::string &path)
@@ -213,21 +235,6 @@ static int rmnode
 	return 0;
 }
 
-bool file::mkDir(
-    const std::string &path
-)
-{
-    struct stat st;
-    if (stat(path.c_str(), &st) != 0) {
-        // Directory does not exist. EEXIST for race condition
-        if (mkdir(path.c_str(), 0777) != 0 && errno != EEXIST)
-            return false;
-    } else if (!S_ISDIR(st.st_mode)) {
-        return false;
-    }
-    return true;
-}
-
 bool file::rmDir(const std::string &path)
 {
 	if (path.size() <= 1)
@@ -329,7 +336,23 @@ std::string file::expandFileName(
 )
 {
     char realPath[PATH_MAX + 1];
-    return std::string(realpath((char *) relativeName.c_str(), realPath));
+    auto r = realpath((char *) relativeName.c_str(), realPath);
+    if (r)
+        return std::string(r);
+    return relativeName;
+}
+
+bool file::isOrdinalFile(
+	time_t &retModificationTime,
+	const char *path
+) {
+	struct stat s;
+	if (stat(path, &s) == 0 ) {
+		retModificationTime = s.st_mtime;
+		if (s.st_mode & S_IFREG )
+			return true;
+	}
+	return false;
 }
 
 #endif
@@ -339,23 +362,17 @@ bool file::rmFile(const std::string &fn)
 	return std::remove((const char*) fn.c_str()) == 0;
 }
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
 /**
- * @see https://www.gamedev.net/forums/topic/565693-converting-filetime-to-time_t-on-windows/#:~:text=A%20FILETIME%20is%20the%20number,intervals%20since%20January%201%2C%201970.
- * A FILETIME is the number of 100-nanosecond intervals since January 1, 1601.
- * A time_t is the number of 1-second intervals since January 1, 1970.
+ * Return true if file name extension is .json
+ * @param path file name to examine
+ * @return true if file name extension is .json
  */
-static time_t filetime2time_t
-(
-	const FILETIME &ft
+bool file::fileIsJSON(
+	const std::string &path
 )
 {
-	ULARGE_INTEGER ull;
-	ull.LowPart = ft.dwLowDateTime;		//  was LowPart;
-	ull.HighPart = ft.dwHighDateTime;	//  was HighPart;
-	return ull.QuadPart / 10000000ULL - 11644473600ULL;
+	return (path.find(".json") == path.size() - 5);
 }
-#endif
 
 /**
  * @return last modification file time, seconds since unix epoch
@@ -464,5 +481,36 @@ std::string getCurrentDir()
 #else
     char wd[PATH_MAX];
     return getcwd(wd, PATH_MAX);
+#endif
+}
+
+std::string getHomeDir()
+{
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	CHAR path[MAX_PATH];
+	HRESULT result = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path);
+	if (!SUCCEEDED(result))
+		return "";
+	return std::string(path);
+#else
+	struct passwd *pw = getpwuid(getuid());
+	return std::string(pw->pw_dir);
+#endif
+}
+
+std::string getProgramDir()
+{
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    // Windows
+    CHAR path[MAX_PATH];
+    HRESULT result = GetModuleFileNameA(nullptr,path,MAX_PATH);
+    if (!SUCCEEDED(result))
+        return "";
+    return std::string(path);
+#else
+    // Linux
+    char path[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
+    return std::string(path, (count > 0) ? count : 0);
 #endif
 }

@@ -12,11 +12,11 @@ for f in $(ls po/*.po) ; do
       'gateway-config2cpp') FM='util/gateway-config2cpp.cpp';;
       'regional-parameters2cpp') FM='util/regional-parameters2cpp.cpp';;
       'tlns-check') FM='cli-main-check.cpp';;
-      'lorawan-identity-query') FM='cli-query-main.cpp';;
-      'lorawan-identity-service') FM='cli-main.cpp';;
-      'lorawan-identity-direct') FM='cli-query-plugin-main.cpp';;
-      'lorawan-identity-print') FM='cli-print.cpp';;
-      'lorawan-tag') FM='cli-tag.cpp';;
+      'lorawan-identity-direct') FM='storage/cli-query-plugin-main.cpp';;
+      'lorawan-identity-print') FM='storage/cli-print.cpp';;
+      'lorawan-identity-query') FM='storage/cli-query-main.cpp';;
+      'lorawan-identity-service') FM='storage/cli-main.cpp';;
+      'lorawan-tag') FM='storage/cli-tag.cpp';;
       *) FM='*';;
     esac
 

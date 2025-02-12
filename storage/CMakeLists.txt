@@ -12,7 +12,6 @@
 # -DENABLE_LMDB=off  	enable LMDB backend. liblmdb++-dev (and liblmdb-dev) dependencies required.
 # -DENABLE_IPV6=off   	enable IPv6 (reserved)
 # -DENABLE_JSON=off		Build with JSON file
-# -DENABLE_MINIZ=off	Build with miniz
 # -DENABLE_MINIZIP=off	Build with minizip
 #
 # Example:
@@ -50,7 +49,6 @@ else()
 	option(ENABLE_SQLITE "Build with SQLite" OFF)
 	option(ENABLE_LMDB "Build with LMDB" OFF)
 	option(ENABLE_JSON "Build with JSON file" ON)
-	option(ENABLE_MINIZ "Build with miniz" OFF)
 	option(ENABLE_MINIZIP "Build with minizip" OFF)
 
 	set(ARGTABLE ${SRC_ROOT}/third-party/argtable3/argtable3.c)
@@ -200,7 +198,6 @@ else()
 	message("-DENABLE_LMDB=${ENABLE_LMDB} \t enable LMDB backend")
 	message("-DENABLE_IPV6=${ENABLE_IPV6} \t enable IPv6 (reserved)")
 	message("-DENABLE_JSON=${ENABLE_JSON} \t build with JSON file backend. -DENABLE_HTTP=on required")
-	message("-DENABLE_MINIZ=${ENABLE_MINIZ} \t build with miniz")
 	message("-DENABLE_MINIZIP=${ENABLE_MINIZ} \t build with minizip.")
 	message("")
 

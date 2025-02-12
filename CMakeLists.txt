@@ -223,7 +223,6 @@ else()
 		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/listener/http-listener.cpp)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_HTTP)
 		find_library(LIBMICROHTTPD NAMES microhttpd libmicrohttpd-dll.lib HINTS /usr/lib/x86_64-linux-gnu/ ${VCPKG_LIB} ${MINGW_LIB})
-		set(BACKEND_DB_LIB ${BACKEND_DB_LIB} ${LIBMICROHTTPD})
 	endif()
 
 	if(ENABLE_QRCODE)

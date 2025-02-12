@@ -124,7 +124,7 @@ time_t parseDate(
         std::time_t gt = std::time(0);
         auto gm = *std::gmtime(&gt);
         std::time_t lt = std::mktime(&gm);
-        tz = (lt-gt);
+        tz = (long) (lt - gt);
     }
     bool invFmt = strptime(v, dateformat_gmtoff, &tmd0) == nullptr;
     if (invFmt) {

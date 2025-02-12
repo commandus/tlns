@@ -1,0 +1,55 @@
+#: cli-tag.cpp:108 cli-tag.cpp:109 cli-tag.cpp:110
+msgid "<hex>"
+msgstr "<шестнадцатиричное число>"
+
+#: cli-tag.cpp:108 cli-tag.cpp:109
+msgid "8 bytes (16 hex digits)"
+msgstr "8 байт (16 шестнадцатиричных цифр)"
+
+#: cli-tag.cpp:110
+msgid "4 bytes (8 hex digits)"
+msgstr "4 байта (8 шестнадцатиричных цифр)"
+
+#: cli-tag.cpp:111 cli-tag.cpp:112 cli-tag.cpp:113
+msgid "<string>"
+msgstr "<строка>"
+
+#: cli-tag.cpp:111
+msgid "Owner token"
+msgstr "Пользовательский токен"
+
+#: cli-tag.cpp:112
+msgid "Serial number"
+msgstr "Серийный номер"
+
+#: cli-tag.cpp:113
+msgid "Proprietary value"
+msgstr "Проприетарное свойство"
+
+#: cli-tag.cpp:114
+msgid "add CRC-16"
+msgstr "включить CRC-16"
+
+#: cli-tag.cpp:116
+msgid "print QR code to console"
+msgstr "вывести QR код в консоль"
+
+#: cli-tag.cpp:117
+msgid "print QR code as SVG"
+msgstr "вывести QR код как SVG"
+
+#: cli-tag.cpp:119
+msgid "-v verbose -vv debug"
+msgstr "-v детальные сообщения -vv отладочная информация"
+
+#: cli-tag.cpp:120
+msgid "Show this help"
+msgstr "Показать эту справку"
+
+#: cli-tag.cpp:163
+msgid "Usage: "
+msgstr "Использование: "
+
+#: cli-tag.cpp:165
+msgid "Print LoRaWAN device tag"
+msgstr "Печать меток LoRaWAN устройств"

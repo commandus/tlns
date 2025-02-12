@@ -1,0 +1,160 @@
+#: cli-print.cpp:69
+msgid "Service: "
+msgstr "Сервис: "
+
+#: cli-print.cpp:70
+msgid " code: "
+msgstr " код: "
+
+#: cli-print.cpp:70
+msgid " access code: "
+msgstr " код доступа: "
+
+#: cli-print.cpp:73
+msgid "Plugin: "
+msgstr "Плагин: "
+
+#: cli-print.cpp:76
+msgid "Identity source: "
+msgstr "Источник удостоверений: "
+
+#: cli-print.cpp:79
+msgid ". Database file name: "
+msgstr ". Имя файла базы данных: "
+
+#: cli-print.cpp:80
+msgid ". Pass-phrase: "
+msgstr ". Ключевая фраза: "
+
+#: cli-print.cpp:80
+msgid ". Verbose: "
+msgstr ". Детальность вывода: "
+
+#: cli-print.cpp:102
+msgid "NetId"
+msgstr "NetId"
+
+#: cli-print.cpp:103
+msgid "Type"
+msgstr "Тип"
+
+#: cli-print.cpp:104
+msgid "Id"
+msgstr "Id"
+
+#: cli-print.cpp:105
+msgid "NwkId"
+msgstr "NwkId"
+
+#: cli-print.cpp:106
+msgid "DEVADDR min"
+msgstr "Адрес мин"
+
+#: cli-print.cpp:107
+msgid "DEVADDR max"
+msgstr "Адрес макс"
+
+#: cli-print.cpp:130
+msgid ", errno: "
+msgstr ", код ошибки: "
+
+#: cli-print.cpp:285 cli-print.cpp:299 cli-print.cpp:311 cli-print.cpp:317
+#: cli-print.cpp:322 cli-print.cpp:331
+msgid "n/a"
+msgstr "н/д"
+
+#: cli-print.cpp:291
+msgid "fcnt: "
+msgstr "fcnt: "
+
+#: cli-print.cpp:292
+msgid "direction: "
+msgstr "направление: "
+
+#: cli-print.cpp:293
+msgid "devAddr: "
+msgstr "адрес: "
+
+#: cli-print.cpp:294
+msgid "appSKey: "
+msgstr "appSKey: "
+
+#: cli-print.cpp:349 cli-print.cpp:356
+msgid "<hex>"
+msgstr "<шестнадцатиричное число>"
+
+#: cli-print.cpp:349
+msgid "payload"
+msgstr "полезные данные"
+
+#: cli-print.cpp:350
+msgid "<address:port>"
+msgstr "<адрес:порт>"
+
+#: cli-print.cpp:351
+msgid "<plugin>"
+msgstr "<плагин>"
+
+#: cli-print.cpp:351 cli-print.cpp:353
+msgid "Default "
+msgstr "По умолчанию "
+
+#: cli-print.cpp:352
+msgid "<database file>"
+msgstr "<файл базы данных>"
+
+#: cli-print.cpp:352
+msgid "database file name. Default none"
+msgstr "имя файла базы данных. По умолчанию нет"
+
+#: cli-print.cpp:353
+msgid "<pass-phrase>"
+msgstr "<ключевая-фраза>"
+
+#: cli-print.cpp:354
+msgid "<hex|hex:hex>"
+msgstr "<hex|hex:hex>"
+
+#: cli-print.cpp:354
+msgid "Hexadecimal <network-id> or <net-type>:<net-id>. Default 0"
+msgstr "Шестнадцатиричное <network-id> или <net-type>:<net-id>. По умолчанию 0"
+
+#: cli-print.cpp:355
+msgid "<number>"
+msgstr "<число>"
+
+#: cli-print.cpp:355
+msgid "Default 42. 0x - hex number prefix"
+msgstr "По умолчанию 42. 0x - префикс шестнадцатиричного числа"
+
+#: cli-print.cpp:356
+msgid "Default 2a (42 decimal)"
+msgstr "По умолчанию 2a (42 десятичное)"
+
+#: cli-print.cpp:357
+msgid "use TCP protocol. Default UDP"
+msgstr "использовать TCP протокол. По умолчанию UDP"
+
+#: cli-print.cpp:358
+msgid "-v verbose -vv debug"
+msgstr "-v детальные сообщения -vv отладочная информация"
+
+#: cli-print.cpp:359
+msgid "Show this help"
+msgstr "Показать эту справку"
+
+#: cli-print.cpp:390
+msgid "Invalid service address:port "
+msgstr "Неверный адрес:порт сервиса"
+
+#: cli-print.cpp:405
+msgid "Invalid \"static\" plugin \""
+msgstr "Неверный \"статичный\" плагин \""
+
+#: cli-print.cpp:434
+msgid "Usage: "
+msgstr "Использование: "
+
+#: cli-print.cpp:436
+msgid "Print LoRaWAN packet"
+msgstr "Показать пакет LoRaWAN"

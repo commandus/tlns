@@ -1,0 +1,95 @@
+#: cli-query-plugin-main.cpp:58
+msgid "Plugin: "
+msgstr "Плагин: "
+
+#: cli-query-plugin-main.cpp:60
+msgid "Direct service: "
+msgstr "Встроенный сервис: "
+
+#: cli-query-plugin-main.cpp:62
+msgid ". Database file name: "
+msgstr ". Имя файла базы данных: "
+
+#: cli-query-plugin-main.cpp:65
+msgid ". gateway database file name: "
+msgstr ". имя файла базы данных шлюзов: "
+
+#: cli-query-plugin-main.cpp:68
+msgid "command: "
+msgstr "команда: "
+
+#: cli-query-plugin-main.cpp:69
+msgid ", offset: "
+msgstr ", смещение: "
+
+#: cli-query-plugin-main.cpp:69
+msgid ", size: "
+msgstr ", размер: "
+
+#: cli-query-plugin-main.cpp:230
+msgid "<command | id | address"
+msgstr "<команда | идентификатор | адрес:порт>"
+
+#: cli-query-plugin-main.cpp:232
+msgid "<plugin>"
+msgstr "<плагин>"
+
+#: cli-query-plugin-main.cpp:232 cli-query-plugin-main.cpp:239
+msgid "Default "
+msgstr "По умолчанию "
+
+#: cli-query-plugin-main.cpp:233 cli-query-plugin-main.cpp:235
+msgid "<database file>"
+msgstr "<файл базы данных>"
+
+#: cli-query-plugin-main.cpp:233 cli-query-plugin-main.cpp:235
+msgid "database file name. Default none"
+msgstr "имя файла базы данных. По умолчанию нет"
+
+#: cli-query-plugin-main.cpp:237
+msgid "<0..>"
+msgstr "<0..>"
+
+#: cli-query-plugin-main.cpp:237
+msgid "list offset. Default 0. Max 4294967295"
+msgstr "смещение списка. По умолчанию 0. Максимальное значение 4294967295"
+
+#: cli-query-plugin-main.cpp:238
+msgid "list size limit. Default 10. Max 255"
+msgstr ""
+
+#: cli-query-plugin-main.cpp:239
+msgid "<pass-phrase>"
+msgstr "<ключевая-фраза>"
+
+#: cli-query-plugin-main.cpp:240
+msgid "<hex|hex:hex>"
+msgstr "<hex|hex:hex>"
+
+#: cli-query-plugin-main.cpp:240
+msgid "Hexadecimal <network-id> or <net-type>:<net-id>. Default 0"
+msgstr "Шестнадцатиричное <network-id> или <net-type>:<net-id>. По умолчанию 0"
+
+#: cli-query-plugin-main.cpp:241
+msgid "-v verbose -vv debug"
+msgstr "-v детальные сообщения -vv отладочная информация"
+
+#: cli-query-plugin-main.cpp:242
+msgid "Show this help"
+msgstr "Показать эту справку"
+
+#: cli-query-plugin-main.cpp:372
+msgid "Usage: "
+msgstr "Использование: "
+
+#: cli-query-plugin-main.cpp:374
+msgid "LoRaWAN storage query"
+msgstr "Запросы к хранилищу удостоверений LoRaWAN"
+
+#: cli-query-plugin-main.cpp:376
+msgid "Commands:\n"
+msgstr "Команды:\n"
+
+#: cli-query-plugin-main.cpp:377
+msgid "Plugins:\n"
+msgstr "Плагины:\n"

@@ -127,7 +127,7 @@ else()
 	)
 
 	add_executable(lorawan-identity-service ${LORAWAN_IDENTITY_SERVICE_SRC})
-	target_link_libraries(lorawan-identity-service PRIVATE ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBMICROHTTPD} ${LIBINTL} ${LIBUVA} lorawan)
+	target_link_libraries(lorawan-identity-service PRIVATE ${OS_SPECIFIC_LIBS} lorawan ${BACKEND_DB_LIB} ${LIBMICROHTTPD} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(lorawan-identity-service PRIVATE ${TLNS_DEF})
 
 	#

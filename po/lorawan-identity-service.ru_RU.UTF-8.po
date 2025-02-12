@@ -1,136 +1,165 @@
-#: cli-main.cpp:154
+# Copyright (C) 2024, Andrei Ivanov <andrei.i.ivanov@gmail.com>
+# This file is distributed under the same license as the tlns package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-12 20:16+0900\n"
+"PO-Revision-Date: 2025-02-12 20:10+0900\n"
+"Last-Translator: Andrei Ivanov <andrei.i.ivanov@gmail.com>\n"
+"Language: RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: storage/cli-main.cpp:161
 msgid "Service: "
 msgstr "Сервис: "
 
-#: cli-main.cpp:156
+#: storage/cli-main.cpp:163
 msgid "HTTP: "
 msgstr "HTTP: "
 
-#: cli-main.cpp:157
+#: storage/cli-main.cpp:164
 msgid "HTML page root directory: "
 msgstr "Корневой каталог HTML страниц: "
 
-#: cli-main.cpp:157
+#: storage/cli-main.cpp:164
 msgid "none"
 msgstr "не задано"
 
-#: cli-main.cpp:160
+#: storage/cli-main.cpp:167
 msgid "HTTP QR Code: "
 msgstr "HTTP QR код: "
 
-#: cli-main.cpp:162
+#: storage/cli-main.cpp:169
 msgid "Code: "
 msgstr "Код: "
 
-#: cli-main.cpp:162
+#: storage/cli-main.cpp:169
 msgid ", access code: "
 msgstr ", код доступа: "
 
-#: cli-main.cpp:164
+#: storage/cli-main.cpp:171
 msgid "database file name: "
 msgstr "имя файла базы данных: "
 
-#: cli-main.cpp:167
+#: storage/cli-main.cpp:174
 msgid "gateway database file name: "
 msgstr "имя файла базы данных шлюзов: "
 
-#: cli-main.cpp:281
+#: storage/cli-main.cpp:295
 msgid "Identities: "
 msgstr "Удостоверения: "
 
-#: cli-main.cpp:289 cli-main.cpp:292 cli-main.cpp:296
+#: storage/cli-main.cpp:303 storage/cli-main.cpp:306 storage/cli-main.cpp:310
 msgid "IP addr:port"
 msgstr "<IP адрес:порт>"
 
-#: cli-main.cpp:289
+#: storage/cli-main.cpp:303
 msgid "Default *:4244"
 msgstr "По умолчанию *:4244"
 
-#: cli-main.cpp:292
+#: storage/cli-main.cpp:306
 msgid "Default *:4246"
 msgstr "По умолчанию *:4246"
 
-#: cli-main.cpp:293
+#: storage/cli-main.cpp:307
 msgid "<path>"
 msgstr "<путь>"
 
-#: cli-main.cpp:293
+#: storage/cli-main.cpp:307
 msgid "web root path. Default none"
 msgstr "путь корневого каталога веб. По умолчанию нет"
 
-#: cli-main.cpp:296
+#: storage/cli-main.cpp:310
 msgid "Default *:4248"
 msgstr "По умолчанию *:4248"
 
-#: cli-main.cpp:298 cli-main.cpp:300
-msgid "<database file>"
+#: storage/cli-main.cpp:313
+#, fuzzy
+msgid "<database JSON file>"
 msgstr "<файл базы данных>"
 
-#: cli-main.cpp:298 cli-main.cpp:300
+#: storage/cli-main.cpp:313 storage/cli-main.cpp:319
 msgid "database file name. Default "
 msgstr "имя файла базы данных. По умолчанию "
 
-#: cli-main.cpp:302
+#: storage/cli-main.cpp:316
+msgid "<database SQLITE path>"
+msgstr "<путь файла базы данных SQLITE>"
+
+#: storage/cli-main.cpp:316
+#, fuzzy
+msgid "database path name. Default "
+msgstr "имя файла базы данных. По умолчанию "
+
+#: storage/cli-main.cpp:319
+msgid "<database file>"
+msgstr "<файл базы данных>"
+
+#: storage/cli-main.cpp:321
 msgid "<number>"
 msgstr "<число>"
 
-#: cli-main.cpp:302
+#: storage/cli-main.cpp:321
 msgid "Default 42. 0x - hex number prefix"
 msgstr "По умолчанию 42. 0x - префикс шестнадцатиричного числа"
 
-#: cli-main.cpp:304
+#: storage/cli-main.cpp:323
 msgid "master-key"
 msgstr "master-key"
 
-#: cli-main.cpp:304
+#: storage/cli-main.cpp:323
 msgid "<pass-phrase>"
 msgstr "<ключевая-фраза>"
 
-#: cli-main.cpp:304
+#: storage/cli-main.cpp:323
 msgid "Default "
 msgstr "По умолчанию "
 
-#: cli-main.cpp:305
+#: storage/cli-main.cpp:324
 msgid "<hex|hex:hex>"
 msgstr "<hex|hex:hex"
 
-#: cli-main.cpp:305
+#: storage/cli-main.cpp:324
 msgid "Hexadecimal <network-id> or <net-type>:<net-id>. Default 0"
 msgstr "шестнадцатиричное <network-id> или <net-type>:<net-id>. По умолчанию 0"
 
-#: cli-main.cpp:308
+#: storage/cli-main.cpp:327
 msgid "<hex>"
 msgstr "<шестнадцатиричное число>"
 
-#: cli-main.cpp:308
+#: storage/cli-main.cpp:327
 msgid "Default 2a (42 decimal)"
 msgstr "По умолчанию 2a (42 десятичное)"
 
-#: cli-main.cpp:309
+#: storage/cli-main.cpp:328
 msgid "run daemon"
 msgstr "запустить как демон"
 
-#: cli-main.cpp:310
+#: storage/cli-main.cpp:329
 msgid "<file>"
 msgstr "<файл>"
 
-#: cli-main.cpp:310
+#: storage/cli-main.cpp:329
 msgid "Check whether a process has created the file pidfile"
 msgstr "Проверить, создал ли процесс pid-файл"
 
-#: cli-main.cpp:311
+#: storage/cli-main.cpp:330
 msgid "-v - verbose, -vv - debug"
 msgstr "-v детальные сообщения -vv отладочная информация"
 
-#: cli-main.cpp:312
+#: storage/cli-main.cpp:331
 msgid "Show this help"
 msgstr "Показать эту справку"
 
-#: cli-main.cpp:414
+#: storage/cli-main.cpp:450
 msgid "Usage: "
 msgstr "Использование: "
 
-#: cli-main.cpp:416
+#: storage/cli-main.cpp:452
 msgid "LoRaWAN gateway storage service"
 msgstr "Сервис хранилища удостоверений LoRaWAN"
-

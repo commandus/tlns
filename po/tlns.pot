@@ -1,66 +1,74 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) Andrei Ivanov <andrei.i.ivanov@gmail.com>, 2024
-# This file is distributed under the same license as the tlns package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-21 18:47+0900\n"
+"POT-Creation-Date: 2025-02-12 20:21+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: cli-main-check.cpp:54
-msgid "Verbose: "
+#: storage/cli-tag.cpp:108 storage/cli-tag.cpp:109 storage/cli-tag.cpp:110
+msgid "<hex>"
 msgstr ""
 
-#: cli-main-check.cpp:124
-msgid "Region"
+#: storage/cli-tag.cpp:108 storage/cli-tag.cpp:109
+msgid "8 bytes (16 hex digits)"
 msgstr ""
 
-#: cli-main-check.cpp:142
-msgid "Enter packet (hex string) or  'q' to stop"
+#: storage/cli-tag.cpp:110
+msgid "4 bytes (8 hex digits)"
 msgstr ""
 
-#: cli-main-check.cpp:160
+#: storage/cli-tag.cpp:111 storage/cli-tag.cpp:112 storage/cli-tag.cpp:113
+msgid "<string>"
+msgstr ""
+
+#: storage/cli-tag.cpp:111
+msgid "Owner token"
+msgstr ""
+
+#: storage/cli-tag.cpp:112
+msgid "Serial number"
+msgstr ""
+
+#: storage/cli-tag.cpp:113
+msgid "Proprietary value"
+msgstr ""
+
+#: storage/cli-tag.cpp:114
+msgid "add CRC-16"
+msgstr ""
+
+#: storage/cli-tag.cpp:116
+msgid "print QR code to console"
+msgstr ""
+
+#: storage/cli-tag.cpp:117
+msgid "print QR code as SVG"
+msgstr ""
+
+#: storage/cli-tag.cpp:119
 msgid "-v verbose -vv debug"
 msgstr ""
 
-#: cli-main-check.cpp:161
-msgid "<region-name>"
-msgstr ""
-
-#: cli-main-check.cpp:161
-msgid "Region name, e.g. \"EU433\" or \"US\""
-msgstr ""
-
-#: cli-main-check.cpp:162
+#: storage/cli-tag.cpp:120
 msgid "Show this help"
 msgstr ""
 
-#: cli-main-check.cpp:189
-msgid "Region "
-msgstr ""
-
-#: cli-main-check.cpp:189
-msgid "not found"
-msgstr ""
-
-#: cli-main-check.cpp:198
+#: storage/cli-tag.cpp:163
 msgid "Usage: "
 msgstr ""
 
-#: cli-main-check.cpp:200
-msgid "tlns check utility"
+#: storage/cli-tag.cpp:165
+msgid "Print LoRaWAN device tag"
 msgstr ""
-
-#: cli-main-check.cpp:202
-msgid "Regions: "
-msgstr ""
-

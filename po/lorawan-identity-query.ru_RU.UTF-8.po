@@ -1,100 +1,117 @@
-#: cli-query-main.cpp:60
+# Copyright (C) 2024, Andrei Ivanov <andrei.i.ivanov@gmail.com>
+# This file is distributed under the same license as the tlns package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-12 20:16+0900\n"
+"PO-Revision-Date: 2025-02-12 20:10+0900\n"
+"Last-Translator: Andrei Ivanov <andrei.i.ivanov@gmail.com>\n"
+"Language: RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: storage/cli-query-main.cpp:60
 msgid "Service: "
 msgstr "Сервис: "
 
-#: cli-query-main.cpp:61
+#: storage/cli-query-main.cpp:61
 msgid "command: "
 msgstr "команда: "
 
-#: cli-query-main.cpp:61
+#: storage/cli-query-main.cpp:61
 msgid ", code: "
 msgstr ", код: "
 
-#: cli-query-main.cpp:61
+#: storage/cli-query-main.cpp:61
 msgid ", access code: "
 msgstr ", код доступа: "
 
-#: cli-query-main.cpp:62
+#: storage/cli-query-main.cpp:62
 msgid "offset: "
 msgstr "смещение: "
 
-#: cli-query-main.cpp:62
+#: storage/cli-query-main.cpp:62
 msgid ", size: "
 msgstr ", размер: "
 
-#: cli-query-main.cpp:98
+#: storage/cli-query-main.cpp:98
 msgid ", errno: "
 msgstr ", код ошибки: "
 
-#: cli-query-main.cpp:133 cli-query-main.cpp:179
+#: storage/cli-query-main.cpp:133 storage/cli-query-main.cpp:179
 msgid " completed\n"
 msgstr " завершено\n"
 
-#: cli-query-main.cpp:241
+#: storage/cli-query-main.cpp:241
 msgid "disconnected\n"
 msgstr "отсоединен\n"
 
-#: cli-query-main.cpp:336
+#: storage/cli-query-main.cpp:336
 msgid "<command | id | address:port>"
 msgstr "<команда | идентификатор | адрес:порт>"
 
-#: cli-query-main.cpp:338
+#: storage/cli-query-main.cpp:338
 msgid "<ipaddr:port>"
 msgstr "<IP адрес:порт>"
 
-#: cli-query-main.cpp:338
+#: storage/cli-query-main.cpp:338
 msgid "Default localhost:4244"
 msgstr "По умолчанию localhost:4244"
 
-#: cli-query-main.cpp:339 cli-query-main.cpp:343
+#: storage/cli-query-main.cpp:339 storage/cli-query-main.cpp:343
 msgid "<number>"
 msgstr "<число>"
 
-#: cli-query-main.cpp:339
+#: storage/cli-query-main.cpp:339
 msgid "Default 42. 0x - hex number prefix"
 msgstr "По умолчанию 42. 0x - префикс шестнадцатиричного числа"
 
-#: cli-query-main.cpp:340
+#: storage/cli-query-main.cpp:340
 msgid "<hex>"
 msgstr "<шестнадцатиричное число>"
 
-#: cli-query-main.cpp:340
+#: storage/cli-query-main.cpp:340
 msgid "Default 2a (42 decimal)"
 msgstr "По умолчанию 2a (42 десятичное)"
 
-#: cli-query-main.cpp:341
+#: storage/cli-query-main.cpp:341
 msgid "use TCP protocol. Default UDP"
 msgstr "использовать TCP протокол. По умолчанию UDP"
 
-#: cli-query-main.cpp:342
+#: storage/cli-query-main.cpp:342
 msgid "<0..>"
 msgstr "<0..>"
 
-#: cli-query-main.cpp:342
+#: storage/cli-query-main.cpp:342
 msgid "list offset. Default 0. Max 4294967295"
 msgstr "смещение списка. По умолчанию 0. Максимальное значение 4294967295"
 
-#: cli-query-main.cpp:343
+#: storage/cli-query-main.cpp:343
 msgid "list size limit. Default 10. Max 255"
-msgstr "лимит числа строк в списке. По умолчанию 10. Максимально допустимое значение 255"
+msgstr "размер списка. По умолчанию 10. Макс. 255"
+"лимит числа строк в списке. По умолчанию 10. Максимально допустимое значение "
+"255"
 
-#: cli-query-main.cpp:344
+#: storage/cli-query-main.cpp:344
 msgid "-v verbose -vv debug"
 msgstr "-v детальные сообщения -vv отладочная информация"
 
-#: cli-query-main.cpp:345
+#: storage/cli-query-main.cpp:345
 msgid "Show this help"
 msgstr "Показать эту справку"
 
-#: cli-query-main.cpp:467
+#: storage/cli-query-main.cpp:467
 msgid "Usage: "
 msgstr "Использование: "
 
-#: cli-query-main.cpp:469
+#: storage/cli-query-main.cpp:469
 msgid "LoRaWAN storage query"
 msgstr "Запросы к хранилищу удостоверений LoRaWAN"
 
-#: cli-query-main.cpp:471
+#: storage/cli-query-main.cpp:471
 msgid "Commands:\n"
 msgstr "Команды:\n"
-

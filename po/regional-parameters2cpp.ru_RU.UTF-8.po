@@ -37,3 +37,4 @@ msgstr "Файл: "
 #: util/regional-parameters2cpp.cpp:151
 msgid "Regions: "
 msgstr "Регионгы: "
+

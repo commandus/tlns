@@ -29,3 +29,4 @@ msgid ""
 msgstr ""
 "\t./gateway-config2cpp ~/git/rak_common_for_gateway/lora/rak2287/"
 "global_conf_usb/*.json > gateway_usb_conf.h"
+

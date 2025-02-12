@@ -53,3 +53,4 @@ msgstr "Использование: "
 #: cli-tag.cpp:165
 msgid "Print LoRaWAN device tag"
 msgstr "Печать меток LoRaWAN устройств"
+

@@ -93,3 +93,4 @@ msgstr "Команды:\n"
 #: cli-query-plugin-main.cpp:377
 msgid "Plugins:\n"
 msgstr "Плагины:\n"
+

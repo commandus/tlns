@@ -158,3 +158,4 @@ msgstr "Использование: "
 #: cli-print.cpp:436
 msgid "Print LoRaWAN packet"
 msgstr "Показать пакет LoRaWAN"
+

@@ -97,3 +97,4 @@ msgstr "Запросы к хранилищу удостоверений LoRaWAN"
 #: cli-query-main.cpp:471
 msgid "Commands:\n"
 msgstr "Команды:\n"
+

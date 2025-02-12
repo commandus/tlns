@@ -133,3 +133,4 @@ msgstr "Использование: "
 #: cli-main.cpp:416
 msgid "LoRaWAN gateway storage service"
 msgstr "Сервис хранилища удостоверений LoRaWAN"
+

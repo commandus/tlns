@@ -203,7 +203,7 @@ else()
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	else ()
-		set(SRC_LIBLORAWAN	${SRC_LIBLORAWAN}
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN}
 			lorawan/task/task-unix-socket.cpp
 			lorawan/task/task-unix-control-socket.cpp
 			lorawan/task/task-eventfd-control-socket.cpp

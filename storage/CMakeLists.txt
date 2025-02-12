@@ -127,7 +127,7 @@ else()
 	)
 
 	add_executable(lorawan-identity-service ${LORAWAN_IDENTITY_SERVICE_SRC})
-	target_link_libraries(lorawan-identity-service PRIVATE ${OS_SPECIFIC_LIBS} lorawan ${BACKEND_DB_LIB} ${LIBMICROHTTPD} ${LIBINTL} ${LIBUVA})
+	target_link_libraries(lorawan-identity-service PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBMICROHTTPD} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(lorawan-identity-service PRIVATE ${TLNS_DEF})
 
 	#
@@ -138,7 +138,7 @@ else()
 		${LORAWAN}/storage/network-identity.cpp
 		${ARGTABLE}
 	)
-	target_link_libraries(lorawan-identity-query PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} ${LIBUVA} lorawan)
+	target_link_libraries(lorawan-identity-query PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(lorawan-identity-query PRIVATE ${TLNS_DEF})
 
 	#
@@ -149,7 +149,7 @@ else()
 		${STORAGE_JSON}
 		${ARGTABLE}
 	)
-	target_link_libraries(lorawan-query-identity-direct PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} ${BACKEND_DB_LIB} lorawan)
+	target_link_libraries(lorawan-query-identity-direct PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL} ${BACKEND_DB_LIB})
 	target_compile_definitions(lorawan-query-identity-direct PRIVATE ${TLNS_DEF})
 
 	#
@@ -159,14 +159,14 @@ else()
 		${STORAGE_JSON}
 		${ARGTABLE}
 	)
-	target_link_libraries(lorawan-identity-print PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} ${BACKEND_DB_LIB} lorawan)
+	target_link_libraries(lorawan-identity-print PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL} ${BACKEND_DB_LIB})
 	target_include_directories(lorawan-identity-print PRIVATE ${BACKEND_DB_INC})
 
 	#
 	# lorawan-tag
 	#
 	add_executable(lorawan-tag cli-tag.cpp cli-helper.cpp ${ARGTABLE})
-	target_link_libraries(lorawan-tag PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan)
+	target_link_libraries(lorawan-tag PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(lorawan-tag PRIVATE ${TLNS_DEF})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")

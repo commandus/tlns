@@ -95,8 +95,8 @@ static time_t mktimeWithOffset(
 )
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    long o = 0;
-    long t = mktime(&tm);
+    time_t o = 0;
+    time_t t = mktime(&tm);
     return t - o - tz;
 #else
     long o = tm.tm_gmtoff;

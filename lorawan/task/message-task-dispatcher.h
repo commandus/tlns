@@ -85,7 +85,7 @@ private:
      * @param retValReadSet
      * @return max socket file descriptor number plus 1
      */
-    int getMaxDescriptor1(
+    SOCKET getMaxDescriptor1(
         fd_set &retValReadSet
     );
 protected:

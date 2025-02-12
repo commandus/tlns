@@ -80,7 +80,7 @@ public:
      * @return  if no messages to respond, return DEF_TIME_FOR_ALL_GATEWAYS_IN_MICROSECONDS.
      * Otherwise it is time of the oldest message plus required delay.
      */
-    long waitTimeForAllGatewaysInMicroseconds(TASK_TIME since) const;
+    long long waitTimeForAllGatewaysInMicroseconds(TASK_TIME since) const;
 };
 
 #endif

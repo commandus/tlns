@@ -7,13 +7,16 @@ project("tlns-test" VERSION ${VERSION_INFO})
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(test-printf
-	test-printf.cpp
-	../third-party/libloragw/subst-call-c.cpp
-	../third-party/libloragw/libloragw-helper.cpp
-)
-target_include_directories(test-printf PRIVATE .. ../third-party/libloragw ../gw-dev/usb)
-
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+else ()
+	add_executable(test-printf
+		test-printf.cpp
+		../third-party/libloragw/subst-call-c.cpp
+		../third-party/libloragw/libloragw-helper.cpp
+	)
+	target_include_directories(test-printf PRIVATE .. ../third-party/libloragw ../gw-dev/usb)
+	add_test(NAME test-printf COMMAND "test-printf")
+endif()
 
 add_executable(test-decode-rxpk
 	test-decode-rxpk.cpp
@@ -43,7 +46,6 @@ target_include_directories(test-payload2device-parser PRIVATE .. ../third-party)
 target_link_libraries(test-payload2device-parser PRIVATE lorawan)
 
 #
-add_test(NAME test-printf COMMAND "test-printf")
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-decode-1 COMMAND "test-decode-1")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")

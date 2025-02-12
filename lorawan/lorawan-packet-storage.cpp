@@ -346,7 +346,7 @@ void LORAWAN_MESSAGE_STORAGE::setSize(
             break;
         case MTYPE_UNCONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_UP:
-            payloadSize = size - SIZE_MHDR - SIZE_UPLINK_EMPTY_STORAGE - data.uplink.f.foptslen - SIZE_MIC;
+            payloadSize = (int) (size - SIZE_MHDR - SIZE_UPLINK_EMPTY_STORAGE - data.uplink.f.foptslen - SIZE_MIC);
             // FPort
             if (payloadSize > 1)
                 payloadSize--;
@@ -355,7 +355,7 @@ void LORAWAN_MESSAGE_STORAGE::setSize(
             break;
         case MTYPE_UNCONFIRMED_DATA_DOWN:
         case MTYPE_CONFIRMED_DATA_DOWN:
-            payloadSize = size - SIZE_MHDR - SIZE_DOWNLINK_EMPTY_STORAGE - data.downlink.f.foptslen - SIZE_MIC;
+            payloadSize = (int) (size - SIZE_MHDR - SIZE_DOWNLINK_EMPTY_STORAGE - data.downlink.f.foptslen - SIZE_MIC);
             // FPort
             if (payloadSize > 1)
                 payloadSize--;

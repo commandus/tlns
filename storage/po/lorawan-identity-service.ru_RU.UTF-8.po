@@ -1,0 +1,135 @@
+#: cli-main.cpp:154
+msgid "Service: "
+msgstr "Сервис: "
+
+#: cli-main.cpp:156
+msgid "HTTP: "
+msgstr "HTTP: "
+
+#: cli-main.cpp:157
+msgid "HTML page root directory: "
+msgstr "Корневой каталог HTML страниц: "
+
+#: cli-main.cpp:157
+msgid "none"
+msgstr "не задано"
+
+#: cli-main.cpp:160
+msgid "HTTP QR Code: "
+msgstr "HTTP QR код: "
+
+#: cli-main.cpp:162
+msgid "Code: "
+msgstr "Код: "
+
+#: cli-main.cpp:162
+msgid ", access code: "
+msgstr ", код доступа: "
+
+#: cli-main.cpp:164
+msgid "database file name: "
+msgstr "имя файла базы данных: "
+
+#: cli-main.cpp:167
+msgid "gateway database file name: "
+msgstr "имя файла базы данных шлюзов: "
+
+#: cli-main.cpp:281
+msgid "Identities: "
+msgstr "Удостоверения: "
+
+#: cli-main.cpp:289 cli-main.cpp:292 cli-main.cpp:296
+msgid "IP addr:port"
+msgstr "<IP адрес:порт>"
+
+#: cli-main.cpp:289
+msgid "Default *:4244"
+msgstr "По умолчанию *:4244"
+
+#: cli-main.cpp:292
+msgid "Default *:4246"
+msgstr "По умолчанию *:4246"
+
+#: cli-main.cpp:293
+msgid "<path>"
+msgstr "<путь>"
+
+#: cli-main.cpp:293
+msgid "web root path. Default none"
+msgstr "путь корневого каталога веб. По умолчанию нет"
+
+#: cli-main.cpp:296
+msgid "Default *:4248"
+msgstr "По умолчанию *:4248"
+
+#: cli-main.cpp:298 cli-main.cpp:300
+msgid "<database file>"
+msgstr "<файл базы данных>"
+
+#: cli-main.cpp:298 cli-main.cpp:300
+msgid "database file name. Default "
+msgstr "имя файла базы данных. По умолчанию "
+
+#: cli-main.cpp:302
+msgid "<number>"
+msgstr "<число>"
+
+#: cli-main.cpp:302
+msgid "Default 42. 0x - hex number prefix"
+msgstr "По умолчанию 42. 0x - префикс шестнадцатиричного числа"
+
+#: cli-main.cpp:304
+msgid "master-key"
+msgstr "master-key"
+
+#: cli-main.cpp:304
+msgid "<pass-phrase>"
+msgstr "<ключевая-фраза>"
+
+#: cli-main.cpp:304
+msgid "Default "
+msgstr "По умолчанию "
+
+#: cli-main.cpp:305
+msgid "<hex|hex:hex>"
+msgstr "<hex|hex:hex"
+
+#: cli-main.cpp:305
+msgid "Hexadecimal <network-id> or <net-type>:<net-id>. Default 0"
+msgstr "шестнадцатиричное <network-id> или <net-type>:<net-id>. По умолчанию 0"
+
+#: cli-main.cpp:308
+msgid "<hex>"
+msgstr "<шестнадцатиричное число>"
+
+#: cli-main.cpp:308
+msgid "Default 2a (42 decimal)"
+msgstr "По умолчанию 2a (42 десятичное)"
+
+#: cli-main.cpp:309
+msgid "run daemon"
+msgstr "запустить как демон"
+
+#: cli-main.cpp:310
+msgid "<file>"
+msgstr "<файл>"
+
+#: cli-main.cpp:310
+msgid "Check whether a process has created the file pidfile"
+msgstr "Проверить, создал ли процесс pid-файл"
+
+#: cli-main.cpp:311
+msgid "-v - verbose, -vv - debug"
+msgstr "-v детальные сообщения -vv отладочная информация"
+
+#: cli-main.cpp:312
+msgid "Show this help"
+msgstr "Показать эту справку"
+
+#: cli-main.cpp:414
+msgid "Usage: "
+msgstr "Использование: "
+
+#: cli-main.cpp:416
+msgid "LoRaWAN gateway storage service"
+msgstr "Сервис хранилища удостоверений LoRaWAN"

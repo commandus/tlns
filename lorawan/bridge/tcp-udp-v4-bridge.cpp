@@ -9,8 +9,12 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WS2tcpip.h>
+#include <io.h>
 #include <Winsock2.h>
 #define sleep(x) Sleep(x)
+#define unlink(x)
+#define write _write
+#define read _read
 #define MSG_NOSIGNAL    0
 #else
 #include <unistd.h>
@@ -357,7 +361,7 @@ public:
     ) {
         size_t count = 0;
         for (auto a(udpClientAddress.begin()); a != udpClientAddress.end();) {
-            ssize_t r = sendto(socket, (const char *) message, size, 0,
+            ssize_t r = (ssize_t) sendto(socket, (const char *) message, (int)size, 0,
                    (struct sockaddr *) &a->second.addr, sizeof(struct sockaddr_in));
             if (r < 0) {
                 // smth wrong, remove client address from the list
@@ -412,7 +416,7 @@ void TcpUdpV4Bridge::run()
         maxSocketPlus1++;
 
         // select the ready descriptor
-        int socketsReady = select(maxSocketPlus1, &rset, nullptr, nullptr, &selectTimeout);
+        int socketsReady = select((int) maxSocketPlus1, &rset, nullptr, nullptr, &selectTimeout);
         if (socketsReady <= 0)
             continue;
         // if tcp socket is readable then handle
@@ -442,13 +446,13 @@ void TcpUdpV4Bridge::run()
 
         if (FD_ISSET(onPayloadAcceptedSocket, &rset)) {
             // payload and onSent event
-            ssize_t n = read(onPayloadAcceptedSocket, buffer, sizeof(buffer));
+            ssize_t n = read((int) onPayloadAcceptedSocket, buffer, (int) sizeof(buffer));
 
             if (n > 0) {
                 // write to all connected TCP clients
                 // client's tcp connections
                 for (auto s(tcpClientSockets.begin()); s != tcpClientSockets.end();) {
-                    ssize_t nw = send(*s, (const char *) buffer, n, MSG_NOSIGNAL);
+                    ssize_t nw = (ssize_t) send(*s, (const char *) buffer, (int) n, MSG_NOSIGNAL);
                     if (nw < 0) {
                         // error occurs, close socket.
                         close(*s);
@@ -479,7 +483,7 @@ void TcpUdpV4Bridge::run()
         // client's tcp connections read
         for (auto s(tcpClientSockets.begin()); s != tcpClientSockets.end();) {
             if (FD_ISSET(*s, &rset)) {
-                ssize_t n = read(*s, buffer, sizeof(buffer));
+                ssize_t n = read((int) *s, buffer, (int) sizeof(buffer));
                 if (n < 0) {
                     // error occurs, close socket.
                     close(*s);
@@ -514,7 +518,7 @@ void TcpUdpV4Bridge::onPayload(
                 << ", " << s;
             s = ss.str();
             auto sz = s.size();
-            ssize_t bytes = write(onPayloadClientSocket, (const char *) s.c_str(), sz);
+            ssize_t bytes = (ssize_t) write((int) onPayloadClientSocket, (const char *) s.c_str(), (int) sz);
             if (bytes < sz) {
                 std::cerr << "Error write " << bytes << ", errno: " << errno << std::endl;
             }
@@ -555,7 +559,7 @@ void TcpUdpV4Bridge::onSend(
             ss << "{\"sendingResultCode\": " << code
                << ", " << s;
             s = ss.str();
-            write(onPayloadClientSocket, (const char *) s.c_str(), s.size());
+            write((int) onPayloadClientSocket, (const char *) s.c_str(), (int) s.size());
         }
     }
 
@@ -578,7 +582,7 @@ size_t TcpUdpV4Bridge::parseNsend2device(
         for (auto &a : p.addresses) {
             TASK_TIME t;
             this->send2addr(t, a, (void *) p.payload.c_str(), (void *) p.fopts.c_str(), p.fport,
-                p.payload.size(), p.fopts.size());
+                (uint8_t ) p.payload.size(), (uint8_t) p.fopts.size());
             r++;
         }
     }

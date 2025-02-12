@@ -95,25 +95,25 @@ public:
     bool number_unsigned(number_unsigned_t val) override {
         switch (nameIndex) {
             case 2: // tmms
-                item->rxMetadata.tmst = gps2utc(val);
+                item->rxMetadata.tmst = (uint32_t) gps2utc((uint32_t) val);
                 break;
             case 3: // tmst
-                item->rxMetadata.tmst = val;
+                item->rxMetadata.tmst = (uint32_t) val;
                 break;
             case 4: // freq, uint
-                item->rxMetadata.freq = val * 1000000;
+                item->rxMetadata.freq = (uint32_t) (val * 1000000);
                 break;
             case 5: // chan
                 item->rxMetadata.chan = (uint8_t) val;
                 break;
             case 6: // rfch
-                item->rxMetadata.rfch = val;
+                item->rxMetadata.rfch = (uint8_t) val;
                 break;
             case 7: // stat
                 item->rxMetadata.stat = (int8_t) val;
                 break;
             case 9: // datr, MODULATION_FSK bits per second
-                item->rxMetadata.bps = val;
+                item->rxMetadata.bps = (uint32_t) val;
                 break;
             case 11: // rssi
                 item->rxMetadata.rssi = (int16_t) val;
@@ -288,13 +288,13 @@ public:
     bool number_unsigned(number_unsigned_t val) override {
         switch (nameIndex) {
             case 2: // "tmst" Send packet on a certain timestamp value (will ignore time)
-                item->txMetadata.count_us = gps2utc(val);
+                item->txMetadata.count_us = (uint32_t) gps2utc((uint32_t) val);
                 break;
             case 3: // "tmms" Send packet at a certain GPS time (GPS synchronization required)
-                item->txMetadata.count_us = val;
+                item->txMetadata.count_us = (uint32_t) val;
                 break;
             case 4: // "freq"TX central frequency in MHz (Hz precision)
-                item->txMetadata.freq_hz = val * 1000000;
+                item->txMetadata.freq_hz = (uint32_t) (val * 1000000);
                 break;
             case 5: // "rfch" Concentrator "RF chain" used for TX
                 item->txMetadata.rf_chain = (uint8_t) val;
@@ -303,13 +303,13 @@ public:
                 item->txMetadata.rf_power = (int8_t) val;
                 break;
             case 8: // "datr" MODULATION_FSK data rate in bits per second
-                item->txMetadata.datarate = val; // bits pre second FSK
+                item->txMetadata.datarate = (uint32_t) val; // bits pre second FSK
                 break;
             case 10: // "fdev" MODULATION_FSK frequency deviation in Hz
-                item->txMetadata.f_dev = val;
+                item->txMetadata.f_dev = (uint8_t) val;
                 break;
             case 12: // "prea" RF preamble size
-                item->txMetadata.preamble = val;
+                item->txMetadata.preamble = (uint16_t) val;
                 break;
             // case 13: // "size" RF packet payload size in bytes
             //    break;

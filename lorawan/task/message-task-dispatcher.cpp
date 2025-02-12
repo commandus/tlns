@@ -1,3 +1,7 @@
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "message-task-dispatcher.h"
 
 #include <algorithm>
@@ -86,7 +90,7 @@ void MessageTaskDispatcher::send2uplink(
 )
 {
     if (controlSocket)
-        write(controlSocket->sock, (const char *) cmd, size);
+        write(controlSocket->sock, (const char *) cmd, (int) size);
 }
 
 /**
@@ -198,7 +202,7 @@ void MessageTaskDispatcher::clearSockets()
 }
 
 
-int MessageTaskDispatcher::getMaxDescriptor1(
+SOCKET MessageTaskDispatcher::getMaxDescriptor1(
     fd_set &retValReadSet
 )
 {
@@ -252,7 +256,7 @@ int MessageTaskDispatcher::runUplink()
         // Initialize the timeval struct
         timeout.tv_sec = DEF_TIMEOUT_SECONDS;
         timeout.tv_usec = 0;
-        int rc = select(maxFD1, &workingSocketSet, nullptr, nullptr, &timeout);
+        int rc = select((int) maxFD1, &workingSocketSet, nullptr, nullptr, &timeout);
         if (rc < 0)     // select error
             break;
 
@@ -417,7 +421,7 @@ ssize_t MessageTaskDispatcher::sendACK(
     ssize_t sz = parser->ack(ack, MAX_ACK_SIZE, packet, packetSize);
     if (sz <= 0)
         return sz;
-    return sendto(taskSocket->sock, (const char *)  &ack, sz, 0, &destAddr, destAddrLen);
+    return sendto(taskSocket->sock, (const char *)  &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
 }
 
 ssize_t MessageTaskDispatcher::sendConfirm(

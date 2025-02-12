@@ -4,14 +4,19 @@
 #
 # Options:
 # -DENABLE_GW_DEV_USB=off   build RAK2287 USB gateway backend
-# -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only
+# -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only. libuv dependency required.
 # -DENABLE_DEBUG=off   		enable debugging output
 # -DENABLE_GEN=on   		enable key generator (default in memory storage)
-# -DENABLE_SQLITE=off  		enable sqlite3 backend
+# -DENABLE_SQLITE=off  		enable SQLite3 backend. sqlite3 libsqlite3-dev dependencies required.
+# -DENABLE_LMDB=off  		enable LMDB backend. liblmdb++-dev (and liblmdb-dev) dependencies required.
 # -DENABLE_JSON=off   	    enable JSON file backend
 # -DENABLE_MQTT=off			build with MQTT bridge
 # -DENABLE_IPV6=off   		enable IPv6 (reserved)
-#
+#  storage specific options
+# -DENABLE_HTTP=off			enable HTTP storage service. libmicrohttpd dependency required.
+# -DENABLE_QRCODE=off		enable HTTP QRCode URN storage service.
+# -DENABLE_MINIZIP=off		Build storage with minizip
+
 # Example:
 # cmake -DENABLE_LIBUV=on
 #
@@ -93,8 +98,12 @@ else()
 	option(ENABLE_LIBUV "Build with libuv" OFF)
 	option(ENABLE_GEN "Build with generator" OFF)
 	option(ENABLE_SQLITE "Build with SQLite" OFF)
+	option(ENABLE_LMDB "Build with LMDB" OFF)
 	option(ENABLE_MQTT "Build with MQTT" OFF)
 	option(ENABLE_JSON "Build with JSON file" ON)
+	option(ENABLE_HTTP "Build storage with HTTP" OFF)
+	option(ENABLE_QRCODE "Build storage with HTTP QRCode URN" OFF)
+	option(ENABLE_MINIZIP "Build storage with minizip" OFF)
 
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
@@ -112,37 +121,83 @@ else()
 	endif ()
 
 	set(SRC_LIBLORAWAN
-		lorawan/bridge/app-bridge.cpp lorawan/bridge/plugin-bridge.cpp
-		lorawan/lorawan-conv.cpp lorawan/lorawan-date.cpp lorawan/lorawan-error.cpp lorawan/lorawan-mac.cpp
-		lorawan/lorawan-msg.cpp lorawan/lorawan-string.cpp lorawan/lorawan-types.cpp lorawan/lorawan-mic.cpp
-		lorawan/lorawan-key.cpp lorawan/power-dbm.cpp
-		lorawan/helper/key128gen.cpp lorawan/helper/aes-helper.cpp
-		lorawan/lorawan-packet-storage.cpp lorawan/lorawan-builder.cpp
+		lorawan/bridge/app-bridge.cpp
+		lorawan/bridge/plugin-bridge.cpp
+		lorawan/helper/aes-helper.cpp
+		lorawan/helper/crc-helper.cpp
 		lorawan/helper/file-helper.cpp
-		lorawan/helper/tlns-cli-helper.cpp lorawan/helper/ip-address.cpp lorawan/helper/thread-helper.cpp
-		lorawan/proto/gw/gw.cpp lorawan/proto/gw/proto-gw-parser.cpp
-		lorawan/proto/gw/basic-udp.cpp lorawan/proto/gw/json-wired.cpp lorawan/proto/gw/json-wired-client.cpp
-		lorawan/proto/gw/set-gateway-metadata.cpp lorawan/proto/gw/parse-result.cpp
+		lorawan/helper/ip-address.cpp
+		lorawan/helper/ip-helper.cpp
+		lorawan/helper/key128gen.cpp
+		lorawan/helper/thread-helper.cpp
+		lorawan/helper/tlns-cli-helper.cpp
+		lorawan/lorawan-builder.cpp
+		lorawan/lorawan-conv.cpp
+		lorawan/lorawan-date.cpp
+		lorawan/lorawan-error.cpp
+		lorawan/lorawan-key.cpp
+		lorawan/lorawan-mac.cpp
+		lorawan/lorawan-mic.cpp
+		lorawan/lorawan-msg.cpp
+		lorawan/lorawan-packet-storage.cpp
+		lorawan/lorawan-string.cpp
+		lorawan/lorawan-types.cpp
+		lorawan/power-dbm.cpp
+		lorawan/proto/gw/basic-udp.cpp
+		lorawan/proto/gw/gw.cpp
+		lorawan/proto/gw/json-wired-client.cpp
+		lorawan/proto/gw/json-wired.cpp
+		lorawan/proto/gw/parse-result.cpp
+		lorawan/proto/gw/proto-gw-parser.cpp
+		lorawan/proto/gw/set-gateway-metadata.cpp
 		lorawan/proto/payload2device/payload2device-parser.cpp
-		lorawan/regional-parameters/regional-parameter-channel-plan.cpp lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/regional-parameters/regional-parameter-channel-plan-mem.cpp
+		lorawan/regional-parameters/regional-parameter-channel-plan.cpp
+		lorawan/regional-parameters/regional-parameter-channel-plans.cpp
 		lorawan/storage/client/device-best-gateway-direct-client.cpp
-		lorawan/storage/client/direct-client.cpp lorawan/storage/client/plugin-client.cpp
-		lorawan/storage/service/device-best-gateway.cpp lorawan/storage/service/device-best-gateway-mem.cpp
-		lorawan/storage/service/identity-service.cpp lorawan/storage/service/identity-service-mem.cpp
-		lorawan/storage/service/identity-service-json.cpp
-		lorawan/storage/service/gateway-service.cpp
-		lorawan/storage/serialization/serialization.cpp lorawan/storage/serialization/service-serialization.cpp
-		lorawan/storage/serialization/identity-serialization.cpp
+		lorawan/storage/client/direct-client.cpp
+		lorawan/storage/client/plugin-client.cpp
+		lorawan/storage/client/plugin-query-client.cpp
+		lorawan/storage/client/query-client.cpp
+		lorawan/storage/client/service-client.cpp
+		lorawan/storage/client/sync-query-client.cpp
+		lorawan/storage/client/sync-response-client.cpp
+		lorawan/storage/client/udp-client.cpp
+		lorawan/storage/gateway-identity.cpp
+		lorawan/storage/listener/storage-listener.cpp
+		lorawan/storage/listener/udp-listener.cpp
+		lorawan/storage/network-identity.cpp
+		lorawan/storage/serialization/gateway-binary-serialization.cpp
+		lorawan/storage/serialization/gateway-serialization.cpp
 		lorawan/storage/serialization/identity-binary-serialization.cpp
-		lorawan/storage/gateway-identity.cpp lorawan/storage/network-identity.cpp
-		lorawan/task/message-queue-item.cpp lorawan/task/message-queue.cpp lorawan/task/task-descriptor.cpp
-		lorawan/task/message-task-dispatcher.cpp lorawan/task/task-response.cpp
-		lorawan/task/task-socket.cpp lorawan/task/task-accepted-socket.cpp
-		lorawan/task/task-udp-socket.cpp lorawan/task/task-udp-control-socket.cpp
-		lorawan/task/task-timer-socket.cpp lorawan/task/task-time-addr.cpp
-		third-party/strptime.cpp
+		lorawan/storage/serialization/identity-serialization.cpp
+		lorawan/storage/serialization/identity-text-urn-serialization.cpp
+		lorawan/storage/serialization/serialization.cpp
+		lorawan/storage/serialization/service-serialization.cpp
+		lorawan/storage/serialization/urn-helper.cpp
+		lorawan/storage/service/device-best-gateway-mem.cpp
+		lorawan/storage/service/device-best-gateway.cpp
+		lorawan/storage/service/gateway-service-mem.cpp
+		lorawan/storage/service/gateway-service.cpp
+		lorawan/storage/service/identity-service-c-wrapper.cpp
+		lorawan/storage/service/identity-service-gen.cpp
+		lorawan/storage/service/identity-service-json.cpp
+		lorawan/storage/service/identity-service-mem.cpp
+		lorawan/storage/service/identity-service-udp.cpp
+		lorawan/storage/service/identity-service.cpp
+		lorawan/task/message-queue-item.cpp
+		lorawan/task/message-queue.cpp
+		lorawan/task/message-task-dispatcher.cpp
+		lorawan/task/task-accepted-socket.cpp
+		lorawan/task/task-descriptor.cpp
+		lorawan/task/task-response.cpp
+		lorawan/task/task-socket.cpp
+		lorawan/task/task-time-addr.cpp
+		lorawan/task/task-timer-socket.cpp
+		lorawan/task/task-udp-control-socket.cpp
+		lorawan/task/task-udp-socket.cpp
 		third-party/base64/base64.cpp
+		third-party/strptime.cpp
 		${AES_SRC}
 	)
 
@@ -164,6 +219,17 @@ else()
 			endif()
 	endif()
 
+	if(ENABLE_HTTP)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/listener/http-listener.cpp)
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_HTTP)
+		find_library(LIBMICROHTTPD NAMES microhttpd libmicrohttpd-dll.lib HINTS /usr/lib/x86_64-linux-gnu/ ${VCPKG_LIB} ${MINGW_LIB})
+	endif()
+
+	if(ENABLE_QRCODE)
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_QRCODE)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/serialization/qr-helper.cpp third-party/nayuki/qrcodegen.cpp)
+	endif()
+
 	if (ENABLE_IPV6)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_IPV6 )
 	endif()
@@ -173,6 +239,9 @@ else()
 	endif()
 
 	if (ENABLE_LIBUV)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/helper/uv-mem.cpp
+				lorawan/storage/client/uv-client.cpp lorawan/storage/listener/uv-listener.cpp
+		)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_LIBUV)
 		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			set(LIBUV LibUV)
@@ -190,19 +259,42 @@ else()
 
 	if (ENABLE_SQLITE)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_SQLITE)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/service/identity-service-sqlite.cpp lorawan/storage/service/gateway-service-sqlite.cpp
+				lorawan/helper/sqlite-helper.cpp)
 		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			find_package(unofficial-sqlite3 CONFIG REQUIRED)
-			set(BACKEND_DB_LIB unofficial::sqlite3::sqlite3)
+			set(BACKEND_DB_LIB ${BACKEND_DB_LIB} unofficial::sqlite3::sqlite3)
+			set(BACKEND_DB_INC ${BACKEND_DB_INC} ${SQLite3_INCLUDE_DIRS})
 		else ()
 			find_package(SQLite3 REQUIRED)
-			set(BACKEND_DB_LIB ${SQLite3_LIBRARIES})
-			set(BACKEND_DB_INC ${SQLite3_INCLUDE_DIRS})
+			set(BACKEND_DB_LIB ${BACKEND_DB_LIB} ${SQLite3_LIBRARIES})
+			set(BACKEND_DB_INC ${BACKEND_DB_INC} ${SQLite3_INCLUDE_DIRS})
+		endif ()
+	endif()
+
+	if (ENABLE_LMDB)
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_LMDB)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/service/identity-service-lmdb.cpp lorawan/storage/service/gateway-service-lmdb.cpp lorawan/helper/lmdb-helper.cpp)
+		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+			find_package(unofficial-lmdb CONFIG REQUIRED)
+			set(BACKEND_DB_LIB ${BACKEND_DB_LIB} unofficial::lmdb::lmdb)
+			set(BACKEND_DB_INC ${BACKEND_DB_INC} ${LMDB_INCLUDE_DIRS})
+		else ()
+			find_library(LIBLMDB NAMES lmdb)
+			set(BACKEND_DB_LIB ${BACKEND_DB_LIB} ${LIBLMDB})
 		endif ()
 	endif()
 
 	if (ENABLE_JSON)
-		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_JSON)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN}
+			lorawan/regional-parameters/regional-parameter-channel-plan-file-json.cpp
+			lorawan/storage/serialization/json-helper.cpp
+			lorawan/storage/serialization/identity-text-json-serialization.cpp
+			lorawan/storage/serialization/gateway-text-json-serialization.cpp
+			lorawan/helper/crc-helper.h
+			lorawan/helper/crc-helper.cpp
+		)
 	endif()
 
 	add_library(lorawan STATIC ${SRC_LIBLORAWAN})
@@ -220,17 +312,18 @@ else()
 		task-response-threaded.cpp
 		${ARGTABLE}
 	)
-	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
-		third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
-	)
-	target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
-	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
-	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
-		${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# Semtech's gateway source does not Windows compatible yet
 	else ()
+		add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
+				third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
+		)
+		target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
+		target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
+		target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
+				${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+
 		#
 		# Semtech's gateway JSON config file to c++ source convert utility
 		#
@@ -324,13 +417,18 @@ if (ENABLE_MQTT)
 endif()
 
 #
+# Gateway and identifier storage
+#
+add_subdirectory(storage)
+
+#
 # Tests
 #
 add_subdirectory(tests)
-add_test(NAME test-printf COMMAND "test-printf")
-add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
-add_test(NAME test-mac-parse COMMAND "test-mac-parse")
-add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
+# add_test(NAME test-printf COMMAND "test-printf")
+# add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
+# add_test(NAME test-mac-parse COMMAND "test-mac-parse")
+# add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
 
 # Print config
 message("")
@@ -342,9 +440,15 @@ message("-DENABLE_DEBUG=${ENABLE_DEBUG} \t enable debugging output")
 message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory storage)")
 message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 message("-DENABLE_SQLITE=${ENABLE_SQLITE} \t enable SQLITE3 backend (reserved)")
+message("-DENABLE_LMDB=${ENABLE_LMDB} \t enable LMDB backend")
 message("-DENABLE_JSON=${ENABLE_JSON} \t build with JSON file backend")
 message("-DENABLE_MQTT=${ENABLE_MQTT} \t build with MQTT bridge")
 message("-DENABLE_IPV6=${ENABLE_IPV6} \t enable IPv6 (reserved)")
+message("	storage:")
+message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
+message("-DENABLE_QRCODE=${ENABLE_QRCODE} \t enable HTTP QRCode URN service")
+message("-DENABLE_MINIZIP=${ENABLE_MINIZ} \t build with minizip.")
+message("")
 message(" Windows: with -DENABLE_SQLITE=on must provide VCPKG options like -DCMAKE_TOOLCHAIN_FILE=C:\\git\\vcpkg\\")
 message("   scripts\\buildsystems\\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows")
 message("")

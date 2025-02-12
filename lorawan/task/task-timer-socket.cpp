@@ -55,6 +55,9 @@ int TaskTimerSocket::setStartupTime(
     TASK_TIME time
 )
 {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    return ERR_CODE_PARAM_INVALID;
+#else
     // getUplink seconds
     auto s = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
     // getUplink nanoseconds: extract seconds from the time
@@ -65,9 +68,6 @@ int TaskTimerSocket::setStartupTime(
         .it_interval = { .tv_sec = 0, .tv_nsec = 0 },
         .it_value = { .tv_sec = s.count(), .tv_nsec = static_cast<long>(ns.count()) }
     };
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    return ERR_CODE_PARAM_INVALID;
-#else
     return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr);
 #endif
 }

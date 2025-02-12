@@ -1,0 +1,74 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-18 19:12+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cli-tag.cpp:108 cli-tag.cpp:109 cli-tag.cpp:110
+msgid "<hex>"
+msgstr ""
+
+#: cli-tag.cpp:108 cli-tag.cpp:109
+msgid "8 bytes (16 hex digits)"
+msgstr ""
+
+#: cli-tag.cpp:110
+msgid "4 bytes (8 hex digits)"
+msgstr ""
+
+#: cli-tag.cpp:111 cli-tag.cpp:112 cli-tag.cpp:113
+msgid "<string>"
+msgstr ""
+
+#: cli-tag.cpp:111
+msgid "Owner token"
+msgstr ""
+
+#: cli-tag.cpp:112
+msgid "Serial number"
+msgstr ""
+
+#: cli-tag.cpp:113
+msgid "Proprietary value"
+msgstr ""
+
+#: cli-tag.cpp:114
+msgid "add CRC-16"
+msgstr ""
+
+#: cli-tag.cpp:116
+msgid "print QR code to console"
+msgstr ""
+
+#: cli-tag.cpp:117
+msgid "print QR code as SVG"
+msgstr ""
+
+#: cli-tag.cpp:119
+msgid "-v verbose -vv debug"
+msgstr ""
+
+#: cli-tag.cpp:120
+msgid "Show this help"
+msgstr ""
+
+#: cli-tag.cpp:163
+msgid "Usage: "
+msgstr ""
+
+#: cli-tag.cpp:165
+msgid "Print LoRaWAN device tag"
+msgstr ""

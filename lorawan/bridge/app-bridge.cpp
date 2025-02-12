@@ -69,7 +69,7 @@ int AppBridge::sendString(
 )
 {
     return send2addr(tim, addr, (void *) payload.c_str(), (void *) fOpts.c_str(),
-        fPort, payload.size(), fOpts.size(), proto);
+        fPort, (uint8_t) payload.size(), (uint8_t) fOpts.size(), proto);
 }
 
 int AppBridge::sendFOpts(
@@ -80,7 +80,7 @@ int AppBridge::sendFOpts(
 )
 {
     return send2addr(tim, addr, nullptr, (void *) fOpts.c_str(),
-                     FPORT_NO_PAYLOAD, 0, fOpts.size(), proto);
+        FPORT_NO_PAYLOAD, 0, (uint8_t) fOpts.size(), proto);
 }
 
 int AppBridge::sendPayload(
@@ -92,5 +92,5 @@ int AppBridge::sendPayload(
 )
 {
     return send2addr(tim, addr, (void *) payload.c_str(), nullptr,
-                     fPort, payload.size(), 0, proto);
+        fPort, (uint8_t ) payload.size(), 0, proto);
 }

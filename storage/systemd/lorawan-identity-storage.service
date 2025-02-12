@@ -1,0 +1,17 @@
+[Unit]
+Description=LoRaWAN identity storage service
+
+[Service]
+Type=forking
+# The PID file is optional, but recommended in the manpage
+# "so that systemd can identify the main process of the daemon"
+PIDFile=/var/run/lorawan-storage.pid
+#
+# Change lora-ws path below
+#
+ExecStart=/home/andrei/src/ws-lora/build/lora-ws \
+  -d --pidfile /var/run/lorawan-identity-storage.pid
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

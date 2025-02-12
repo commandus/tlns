@@ -46,7 +46,7 @@ int JsonWiredClient::JsonWiredClient::send(
     std::stringstream ss;
     makeMessage(ss, token, gatewayId, addr,fopts, payload);
     std::string s = ss.str();
-    write(sock, s.c_str(), s.size());
+    write(sock, s.c_str(), (int) s.size());
     return CODE_OK;
 }
 

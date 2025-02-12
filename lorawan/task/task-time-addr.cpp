@@ -137,7 +137,7 @@ bool TimeAddrSet::pop(
  * @return  if no messages to respond, return -1
  * Otherwise it is time of the oldest message plus required delay.
  */
-long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
+long long TimeAddrSet::waitTimeForAllGatewaysInMicroseconds(
     TASK_TIME since
 ) const
 {

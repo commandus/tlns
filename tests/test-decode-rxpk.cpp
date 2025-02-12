@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     s = hex2string("40e26a7e0080e10002c0529426466da92c");
     std::cout << "Expected MIC " << std::hex << NTOH4(0x466da92c) << std::endl;
     uint32_t mic = calculateMICFrmPayload(
-        reinterpret_cast<const unsigned char *>(s.c_str()), s.size() - 4,
+        reinterpret_cast<const unsigned char *>(s.c_str()), (uint8_t) (s.size() - 4),
         225, LORAWAN_UPLINK, DEVADDR(0x007e6ae2), nwkSKey);
     std::cout << "MIC: " << MIC2String(mic) << std::endl;
     if (mic != NTOH4(0x466da92c))

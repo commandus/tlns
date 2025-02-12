@@ -39,7 +39,7 @@ static void invalidateSEMTECH_PROTOCOL_METADATA_TX(
     // RF channel
     // RF channel frequency
     if (val.rf_power > plan.value.maxUplinkEIRP)
-        val.rf_power = plan.value.maxUplinkEIRP;
+        val.rf_power = (int8_t) plan.value.maxUplinkEIRP;
     bool found = false;
     for (auto ch = plan.value.downlinkChannels.begin(); ch != plan.value.downlinkChannels.end(); ch++) {
         if (ch->value.frequency == val.freq_hz) {

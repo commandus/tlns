@@ -6,6 +6,7 @@
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 #else
 #include <sys/ioctl.h>
+#include <unistd.h>
 #endif
 
 #include "lorawan/lorawan-error.h"

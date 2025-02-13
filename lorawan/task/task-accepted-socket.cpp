@@ -4,6 +4,8 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define close(x) closesocket(x)
+#else
+#include <unistd.h>
 #endif
 
 TaskAcceptedSocket::TaskAcceptedSocket(

@@ -3,6 +3,10 @@
 
 #include "lorawan-types.h"
 
+#ifdef __ANDROID__
+#include <endian.h>
+#endif
+
 /*
  * Conversion functions from one type to another except string.
  * String conversion defined in the @see lorawan-string.h

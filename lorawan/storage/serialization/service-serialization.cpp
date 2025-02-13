@@ -147,8 +147,7 @@ size_t serializeSocketAddress(
                 retBuf[16] = addrIn->sin6_addr.u.Byte[13];
                 retBuf[17] = addrIn->sin6_addr.u.Byte[14];
                 retBuf[18] = addrIn->sin6_addr.u.Byte[15];
-#else
-#ifdef ESP_PLATFORM
+#elif defined(ESP_PLATFORM)
                 retBuf[3] = addrIn->sin6_addr.un.u8_addr[0];
                 retBuf[4] = addrIn->sin6_addr.un.u8_addr[1];
                 retBuf[5] = addrIn->sin6_addr.un.u8_addr[2];
@@ -168,6 +167,26 @@ size_t serializeSocketAddress(
                 retBuf[16] = addrIn->sin6_addr.un.u8_addr[13];
                 retBuf[17] = addrIn->sin6_addr.un.u8_addr[14];
                 retBuf[18] = addrIn->sin6_addr.un.u8_addr[15];
+#elif defined(__ANDROID__)
+                retBuf[3] = addrIn->sin6_addr.in6_u.u6_addr8[0];
+                retBuf[4] = addrIn->sin6_addr.in6_u.u6_addr8[1];
+                retBuf[5] = addrIn->sin6_addr.in6_u.u6_addr8[2];
+                retBuf[6] = addrIn->sin6_addr.in6_u.u6_addr8[3];
+
+                retBuf[7] = addrIn->sin6_addr.in6_u.u6_addr8[4];
+                retBuf[8] = addrIn->sin6_addr.in6_u.u6_addr8[5];
+                retBuf[9] = addrIn->sin6_addr.in6_u.u6_addr8[6];
+                retBuf[10] = addrIn->sin6_addr.in6_u.u6_addr8[7];
+
+                retBuf[11] = addrIn->sin6_addr.in6_u.u6_addr8[8];
+                retBuf[12] = addrIn->sin6_addr.in6_u.u6_addr8[9];
+                retBuf[13] = addrIn->sin6_addr.in6_u.u6_addr8[10];
+                retBuf[14] = addrIn->sin6_addr.in6_u.u6_addr8[11];
+
+                retBuf[15] = addrIn->sin6_addr.in6_u.u6_addr8[12];
+                retBuf[16] = addrIn->sin6_addr.in6_u.u6_addr8[13];
+                retBuf[17] = addrIn->sin6_addr.in6_u.u6_addr8[14];
+                retBuf[18] = addrIn->sin6_addr.in6_u.u6_addr8[15];
 #else
                 retBuf[3] = addrIn->sin6_addr.__in6_u.__u6_addr8[0];
                 retBuf[4] = addrIn->sin6_addr.__in6_u.__u6_addr8[1];
@@ -188,7 +207,6 @@ size_t serializeSocketAddress(
                 retBuf[16] = addrIn->sin6_addr.__in6_u.__u6_addr8[13];
                 retBuf[17] = addrIn->sin6_addr.__in6_u.__u6_addr8[14];
                 retBuf[18] = addrIn->sin6_addr.__in6_u.__u6_addr8[15];
-#endif
 #endif
             }
             r = 19;
@@ -261,8 +279,7 @@ size_t deserializeSocketAddress(
                 addrIn->sin6_addr.u.Byte[13] = retBuf[16];
                 addrIn->sin6_addr.u.Byte[14] = retBuf[17];
                 addrIn->sin6_addr.u.Byte[15] = retBuf[18];
-#else
-#ifdef ESP_PLATFORM
+#elif defined(ESP_PLATFORM)
                 addrIn->sin6_addr.un.u8_addr[0] = retBuf[3];
                 addrIn->sin6_addr.un.u8_addr[1] = retBuf[4];
                 addrIn->sin6_addr.un.u8_addr[2] = retBuf[5];
@@ -282,6 +299,26 @@ size_t deserializeSocketAddress(
                 addrIn->sin6_addr.un.u8_addr[13] = retBuf[16];
                 addrIn->sin6_addr.un.u8_addr[14] = retBuf[17];
                 addrIn->sin6_addr.un.u8_addr[15] = retBuf[18];
+#elif defined(__ANDROID__)
+                addrIn->sin6_addr.in6_u.u6_addr8[0] = retBuf[3];
+                addrIn->sin6_addr.in6_u.u6_addr8[1] = retBuf[4];
+                addrIn->sin6_addr.in6_u.u6_addr8[2] = retBuf[5];
+                addrIn->sin6_addr.in6_u.u6_addr8[3] = retBuf[6];
+
+                addrIn->sin6_addr.in6_u.u6_addr8[4] = retBuf[7];
+                addrIn->sin6_addr.in6_u.u6_addr8[5] = retBuf[8];
+                addrIn->sin6_addr.in6_u.u6_addr8[6] = retBuf[9];
+                addrIn->sin6_addr.in6_u.u6_addr8[7] = retBuf[10];
+
+                addrIn->sin6_addr.in6_u.u6_addr8[8] = retBuf[11];
+                addrIn->sin6_addr.in6_u.u6_addr8[9] = retBuf[12];
+                addrIn->sin6_addr.in6_u.u6_addr8[10] = retBuf[13];
+                addrIn->sin6_addr.in6_u.u6_addr8[11] = retBuf[14];
+
+                addrIn->sin6_addr.in6_u.u6_addr8[12] = retBuf[15];
+                addrIn->sin6_addr.in6_u.u6_addr8[13] = retBuf[16];
+                addrIn->sin6_addr.in6_u.u6_addr8[14] = retBuf[17];
+                addrIn->sin6_addr.in6_u.u6_addr8[15] = retBuf[18];
 #else
                 addrIn->sin6_addr.__in6_u.__u6_addr8[0] = retBuf[3];
                 addrIn->sin6_addr.__in6_u.__u6_addr8[1] = retBuf[4];
@@ -302,7 +339,6 @@ size_t deserializeSocketAddress(
                 addrIn->sin6_addr.__in6_u.__u6_addr8[13] = retBuf[16];
                 addrIn->sin6_addr.__in6_u.__u6_addr8[14] = retBuf[17];
                 addrIn->sin6_addr.__in6_u.__u6_addr8[15] = retBuf[18];
-#endif
 #endif
             }
             r = 19;

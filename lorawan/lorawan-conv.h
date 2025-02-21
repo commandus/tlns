@@ -52,21 +52,12 @@
     #define HTON4(x) (x)
     #define HTON8(x) (x)
 #else
-    #ifdef ESP_PLATFORM
-        #define NTOH2(x) lwip_htons(x)
-        #define NTOH4(x) lwip_htonl(x)
-        #define NTOH8(x) ((((uint64_t)lwip_htonl(x)) << 32) + lwip_htonl((uint64_t)(x) >> 32))
-        #define HTON2(x) lwip_htons(x)
-        #define HTON4(x) lwip_htonl(x)
-        #define HTON8(x) ((((uint64_t)lwip_htonl(x)) << 32) + lwip_htonl((uint64_t)(x) >> 32))
-    #else
-        #define NTOH2(x) be16toh(x)
-        #define NTOH4(x) be32toh(x)
-        #define NTOH8(x) be64toh(x)
-        #define HTON2(x) htobe16(x)
-        #define HTON4(x) htobe32(x)
-        #define HTON8(x) htobe64(x)
-    #endif
+    #define NTOH2(x) SWAP_BYTES_2(x)
+    #define NTOH4(x) SWAP_BYTES_4(x)
+    #define NTOH8(x) SWAP_BYTES_8(x)
+    #define HTON2(x) SWAP_BYTES_2(x)
+    #define HTON4(x) SWAP_BYTES_4(x)
+    #define HTON8(x) SWAP_BYTES_92(x)
 #endif
 
 bool isDEVADDREmpty(const DEVADDR &addr);

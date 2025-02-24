@@ -382,7 +382,7 @@ bool file::isOrdinalFile(
 	struct stat s;
 	if (stat(path, &s) == 0 ) {
 		retModificationTime = s.st_mtime;
-		if (S_IFREG(s.st_mode))
+		if (S_ISREG(s.st_mode))
 			return true;
 	}
 	return false;

@@ -57,7 +57,7 @@ else()
 endif()
 
 add_executable(test-usb-init ${TEST_USB_SRC})
-target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party)
+target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party ../gw-dev/usb)
 target_link_libraries(test-usb-init PRIVATE lorawan loragw)
 
 #

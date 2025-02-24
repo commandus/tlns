@@ -17,13 +17,7 @@
 #include <string>
 #include <sstream>
 
-class Log {
-public:
-    virtual void log(
-            int level,
-            const std::string &msg
-    ) = 0;
-};
+#include "log-intf.h"
 
 class LibLoragwOpenClose {
     public:

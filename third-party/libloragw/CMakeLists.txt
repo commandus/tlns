@@ -41,9 +41,12 @@ set(LIBLORAGW_SRC
     ${LIBLORAGW_SRC_DIR}/loragw_sx1302_timestamp.c
     ${LIBLORAGW_SRC_DIR}/loragw_sx1302_rx.c
     ${LIBLORAGW_SRC_DIR}/loragw_ad5338r.c
-#   Tiny Mersenne Twister only 127 bit internal state
+    #   Tiny Mersenne Twister only 127 bit internal state
     ${LIBLORAGW_ROOT}/tinymt32.c
     ${LIBLORAGW_ROOT}/jitqueue.c
+
+    ${LIBLORAGW_ROOT}/subst-call-c.cpp
+    ${LIBLORAGW_ROOT}/libloragw-helper.cpp
 )
 #
 #    ${LIBLORAGW_ROOT}/../packet_forwarder/src/jitqueue.c

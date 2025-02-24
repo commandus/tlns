@@ -382,7 +382,7 @@ bool file::isOrdinalFile(
 	struct stat s;
 	if (stat(path, &s) == 0 ) {
 		retModificationTime = s.st_mtime;
-		if (s.st_mode & S_IFREG )
+		if (S_IFREG(s.st_mode))
 			return true;
 	}
 	return false;
@@ -393,7 +393,7 @@ bool file::isDirectory(
 ) {
 	struct stat s;
 	if (stat(path, &s) == 0 ) {
-		if (s.st_mode & S_ISDIR )
+		if (S_ISDIR(s.st_mode))
 			return true;
 	}
 	return false;

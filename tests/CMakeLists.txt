@@ -35,11 +35,10 @@ target_link_libraries(test-decode-1 PRIVATE lorawan)
 
 
 add_executable(test-mac-parse
-		test-mac-parse.cpp
+	test-mac-parse.cpp
 )
 target_include_directories(test-mac-parse PRIVATE .. ../third-party)
 target_link_libraries(test-mac-parse PRIVATE lorawan)
-
 
 add_executable(test-payload2device-parser
 	test-payload2device-parser.cpp
@@ -47,9 +46,16 @@ add_executable(test-payload2device-parser
 target_include_directories(test-payload2device-parser PRIVATE .. ../third-party)
 target_link_libraries(test-payload2device-parser PRIVATE lorawan)
 
-add_executable(test-usb-init
-	test-usb-init.cpp
-)
+
+set(TEST_USB_SRC test-usb-init.cpp)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	set(TEST_USB_SRC ${TEST_USB_SRC}
+		../third-party/libloragw/subst-call-c.cpp
+		../third-party/libloragw/libloragw-helper.cpp
+	)
+endif()
+
+add_executable(test-usb-init ${TEST_USB_SRC})
 target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party)
 target_link_libraries(test-usb-init PRIVATE lorawan loragw)
 

@@ -314,7 +314,7 @@ else()
 		# Semtech's gateway source does not Windows compatible yet
 	else ()
 		add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
-				third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
+			third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
 		)
 		target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
 		target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})

@@ -44,9 +44,6 @@ set(LIBLORAGW_SRC
     #   Tiny Mersenne Twister only 127 bit internal state
     ${LIBLORAGW_ROOT}/tinymt32.c
     ${LIBLORAGW_ROOT}/jitqueue.c
-
-    ${LIBLORAGW_ROOT}/subst-call-c.cpp
-    ${LIBLORAGW_ROOT}/libloragw-helper.cpp
 )
 #
 #    ${LIBLORAGW_ROOT}/../packet_forwarder/src/jitqueue.c

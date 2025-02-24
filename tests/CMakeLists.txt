@@ -49,7 +49,11 @@ target_link_libraries(test-payload2device-parser PRIVATE lorawan)
 
 set(TEST_USB_SRC test-usb-init.cpp)
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	set(TEST_USB_SRC ${TEST_USB_SRC})
+else()
+	set(TEST_USB_SRC ${TEST_USB_SRC}
+		../third-party/libloragw/subst-call-c.cpp
+		../third-party/libloragw/libloragw-helper.cpp
+	)
 endif()
 
 add_executable(test-usb-init ${TEST_USB_SRC})

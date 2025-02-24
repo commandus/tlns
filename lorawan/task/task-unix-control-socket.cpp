@@ -24,7 +24,7 @@ SOCKET TaskUnixControlSocket::openSocket()
     return INVALID_SOCKET;
 #else
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock <= 0) {
+    if (sock == INVALID_SOCKET) {
         lastError = ERR_CODE_SOCKET_CREATE;
         return sock;
     }
@@ -34,7 +34,7 @@ SOCKET TaskUnixControlSocket::openSocket()
     strncpy(sunAddr.sun_path, socketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
     int r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_CONNECT;
         return sock;
     }
@@ -44,9 +44,9 @@ SOCKET TaskUnixControlSocket::openSocket()
 
 void TaskUnixControlSocket::closeSocket()
 {
-    if (sock > 0) {
+    if (sock != INVALID_SOCKET) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
     }
     unlink(socketPath.c_str());
 }

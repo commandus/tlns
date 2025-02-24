@@ -33,13 +33,13 @@ SOCKET TaskTimerSocket::openSocket()
 
 void TaskTimerSocket::closeSocket()
 {
-    if (sock > 0) {
+    if (sock != INVALID_SOCKET) {
 #if defined(_MSC_VER) || defined(__MINGW32__)
         closesocket(sock);
 #else
         close(sock);
 #endif
-        sock = -1;
+        sock = INVALID_SOCKET;
     }
 }
 

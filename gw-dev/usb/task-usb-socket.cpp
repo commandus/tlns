@@ -83,7 +83,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
 SOCKET TaskUsbGatewaySocket::openSocket()
 {
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock <= 0)
+    if (sock == INVALID_SOCKET)
         return sock;
 #ifdef _MSC_VER
     struct sockaddr_in sunAddr;
@@ -119,14 +119,18 @@ SOCKET TaskUsbGatewaySocket::openSocket()
 
     // Bind socket to socket name
 #ifdef _MSC_VER
-    string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress);
+    if (!string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress)) {
+        // if address is invalid, assign loop-back interface and any random port number
+        sunAddr.sin_addr.S_un.S_addr = INADDR_LOOPBACK;
+        sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
+    }
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
 #endif
     if (r < 0) {
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_BIND;
         return sock;
     }

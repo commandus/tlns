@@ -58,7 +58,7 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
 #else
     unlink(onPayloadSocketPath.c_str());
     onPayloadListenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (onPayloadListenSocket <= 0)
+    if (onPayloadListenSocket == INVALID_SOCKET)
         return ERR_CODE_SOCKET_CREATE;
     struct sockaddr_un sunAddr { AF_UNIX,'\0'};
 

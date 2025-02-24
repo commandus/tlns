@@ -27,8 +27,14 @@ TaskUDPControlSocket::TaskUDPControlSocket(
 )
 {
     sockaddr sa;
-    string2sockaddr(&sa, addrNPort);
-    memmove(&addr, &((sockaddr_in*) &sa)->sin_addr, sizeof(in_addr_t));
+    sockaddr_in* si = (sockaddr_in*) &sa;
+    if (!string2sockaddr(&sa, addrNPort)) {
+        // if address is invalid, assign loop-back interface and any random port number
+        si->sin_family = AF_INET;
+        si->sin_addr.S_un.S_addr = INADDR_LOOPBACK;
+        si->sin_port = 0;   // TCP/IP stack assign random port number
+    }
+    memmove(&addr, &si->sin_addr, sizeof(in_addr_t));
 }
 
 TaskUDPControlSocket::~TaskUDPControlSocket()
@@ -39,7 +45,7 @@ TaskUDPControlSocket::~TaskUDPControlSocket()
 SOCKET TaskUDPControlSocket::openSocket()
 {
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock < 0) {
+    if (sock == INVALID_SOCKET) {
         lastError = ERR_CODE_SOCKET_CREATE;
         return -1;
     }
@@ -86,7 +92,7 @@ SOCKET TaskUDPControlSocket::openSocket()
 
 void TaskUDPControlSocket::closeSocket()
 {
-    if (sock >= 0)
+    if (sock != INVALID_SOCKET)
         close(sock);
-    sock = -1;
+    sock = INVALID_SOCKET;
 }

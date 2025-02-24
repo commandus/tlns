@@ -12,7 +12,7 @@
 #include "lorawan/lorawan-error.h"
 
 TaskSocket::TaskSocket()
-    : sock(-1), socketAccept(SA_NONE), lastError(CODE_OK)
+    : sock(INVALID_SOCKET), socketAccept(SA_NONE), lastError(CODE_OK)
 {
 
 }
@@ -20,7 +20,7 @@ TaskSocket::TaskSocket()
 TaskSocket::TaskSocket(
     ENUM_SOCKET_ACCEPT aAccept
 )
-    : sock(-1), socketAccept(aAccept), lastError(CODE_OK)
+    : sock(INVALID_SOCKET), socketAccept(aAccept), lastError(CODE_OK)
 {
 
 }

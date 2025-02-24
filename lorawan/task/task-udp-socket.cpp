@@ -29,7 +29,7 @@ TaskUDPSocket::~TaskUDPSocket()
 SOCKET TaskUDPSocket::openSocket()
 {
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock < 0) {
+    if (sock == INVALID_SOCKET) {
         lastError = ERR_CODE_SOCKET_CREATE;
         return -1;
     }
@@ -51,7 +51,7 @@ SOCKET TaskUDPSocket::openSocket()
     rc = ioctl(sock, FIONBIO, (char *)&on);
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
         return -1;
     }

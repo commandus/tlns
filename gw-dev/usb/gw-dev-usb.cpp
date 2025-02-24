@@ -131,6 +131,9 @@ static void stop()
 
 static void done()
 {
+#ifdef _MSC_VER
+    WSACleanup();
+#endif
 }
 
 /**
@@ -467,6 +470,12 @@ int main(
     int r = parseCmd(&localConfig, argc, argv);
     if (r)
         return r;
+#ifdef _MSC_VER
+    WSADATA wsaData;
+    r = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (r)
+        return r;
+#endif
     if (localConfig.daemonize)	{
         Daemonize daemonize(programName, getCurrentDir(), run, stop, done, 0, localConfig.pidfile);
     } else {

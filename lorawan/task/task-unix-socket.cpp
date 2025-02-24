@@ -31,7 +31,7 @@ SOCKET TaskUnixSocket::openSocket()
     return INVALID_SOCKET;
 #else
     sock = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock <= 0)
+    if (sock == INVALID_SOCKET)
         return sock;
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));

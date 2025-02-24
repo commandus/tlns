@@ -12,16 +12,16 @@ TaskEventFDControlSocket::TaskEventFDControlSocket()
 SOCKET TaskEventFDControlSocket::openSocket()
 {
     sock = eventfd(0, 0);
-    if (sock <= 0)
+    if (sock == INVALID_SOCKET)
         lastError = ERR_CODE_SOCKET_CREATE;
     return sock;
 }
 
 void TaskEventFDControlSocket::closeSocket()
 {
-    if (sock > 0) {
+    if (sock != INVALID_SOCKET) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
     }
 }
 

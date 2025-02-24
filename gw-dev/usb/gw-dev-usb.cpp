@@ -160,7 +160,7 @@ int parseCmd(
 #if defined(_MSC_VER) || defined(__MINGW32__)
     struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<address:port>"), _("Socket address. Default " DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
 #else
-    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<file>"), _("Socket file name. Default " DEF_UNIX_SOCKET_FILE_NAME));
+    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<file>"), _("Socket file name. Default " DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
 #endif
 #if defined(_MSC_VER) || defined(__MINGW32__)
     struct arg_str *a_control_socket_file_name_or_address_n_port = arg_str0("U", "control", _("<address:port>"), _("Socket address. Default " DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));

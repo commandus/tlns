@@ -19,7 +19,7 @@ enum ENUM_SOCKET_ACCEPT {
 };
 
 /**
- * TaskSocket is read/write interface for incoming/outcoming messages.
+ * TaskSocket is read/write interface for incoming/outgoing messages.
  * Network server (MessageTaskDispatcher) open TaskSocket on create time to read messages from the gateway.
  * MessageTaskDispatcher close TaskSocket on destroy time
  * When TaskSocket receive message, it returns to the MessageTaskDispatcher.

@@ -4,23 +4,22 @@
 #include <string>
 #include "lorawan/task/task-socket.h"
 #include "rak2287.h"
-#include "libloragw-helper.h"
 
-class TaskUsbGatewayUnixSocket : public TaskSocket {
+class TaskUsbGatewaySocket : public TaskSocket {
 private:
     MessageTaskDispatcher *dispatcher;
-    std::string socketPath;
+    std::string socketNameOrAddress;
     LoraGatewayListener listener;
     ProtoGwParser *parser;
 public:
     /**
      * Open Unix domain socket
-     * @param socketFileName Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
+     * @param socketFileNameOrAddress Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"
      * @param devicePath Gateway device file name e.g. "/dev/ttyACM0"
      */
-    TaskUsbGatewayUnixSocket(
+    TaskUsbGatewaySocket(
         MessageTaskDispatcher *dispatcher,
-        const std::string &socketFileName,
+        const std::string &socketFileNameOrAddress,
         GatewaySettings *settings,
         Log *log,
         bool enableSend,
@@ -29,7 +28,7 @@ public:
     );
     SOCKET openSocket() override;
     void closeSocket() override;
-    ~TaskUsbGatewayUnixSocket() override;
+    ~TaskUsbGatewaySocket() override;
 };
 
 #endif

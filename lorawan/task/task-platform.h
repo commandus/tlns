@@ -13,7 +13,7 @@ typedef std::chrono::time_point<std::chrono::system_clock> TASK_TIME;
 typedef SSIZE_T ssize_t;
 typedef struct in_addr in_addr_t;
 #define sleep(x) Sleep(x)
-#define close(x) closesocket(x)
+// #define close(x) _close(x)
 #endif
 
 #endif

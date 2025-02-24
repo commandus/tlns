@@ -12,7 +12,12 @@
 #include <thread>
 #include <cmath>
 #include <fcntl.h>
+
+#ifdef _MSC_VER
+#include <WinSock2.h>
+#else
 #include <sys/un.h>
+#endif
 
 // XTAL correction constants
 #define GPS_REF_MAX_AGE     30          // maximum admitted delay in seconds of GPS loss before considering latest GPS sync unusable
@@ -193,6 +198,11 @@ const char *MEASUREMENT_SHORT_NAME[MEASUREMENT_COUNT_SIZE] = {
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_FREQUENCY       "Unsupported frequency, TX aborted"
 #define ERR_LORA_GATEWAY_TX_UNSUPPORTED_POWER           "RF power is not supported, closest lower power used"
 
+#ifdef _MSC_VER
+#define clock_settime(clock, value) 0
+#endif
+
+#ifdef __ANDROID__
 class PosixLibLoragwOpenClose : public LibLoragwOpenClose {
 private:
     std::string devicePath;
@@ -218,6 +228,7 @@ public:
         return close(fd);
     }
 };
+#endif
 
 GatewayMeasurements::GatewayMeasurements()
 {
@@ -903,9 +914,9 @@ void LoraGatewayListener::upstreamRunner()
         setLORAWAN_MESSAGE_STORAGE(mqi.radioPacket, payload);
          */
         // gateway src address is unix domain name address because socket family is AF_UNIX
-        struct sockaddr_un srcAddr;
+        struct sockaddr srcAddr; // sockaddr_un
         if (socket) {
-            socklen_t sz = sizeof(struct sockaddr_un);
+            socklen_t sz = sizeof(srcAddr);  // sockaddr_un
             // getsockname() anyway truncate address to ~14 bytes
             getsockname(socket->sock, (struct sockaddr *) &srcAddr, &sz);
         }
@@ -1516,11 +1527,13 @@ LoraGatewayListener::LoraGatewayListener()
 
 LoraGatewayListener::~LoraGatewayListener()
 {
+#ifdef __ANDROID__
     libLoragwHelper.flush();
     if (helperOpenClose) {
         delete helperOpenClose;
         helperOpenClose = nullptr;
     }
+#endif
 }
 
 void LoraGatewayListener::setLogVerbosity(
@@ -1848,8 +1861,10 @@ void LoraGatewayListener::init(
 ) {
     config = aConfig;
     if (config) {
+#ifdef __ANDROID__
         helperOpenClose = new PosixLibLoragwOpenClose(config->sx130x.boardConf.com_path);
         libLoragwHelper.bind(aLog, helperOpenClose);
+#endif
     }
 }
 

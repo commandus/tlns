@@ -9,7 +9,9 @@
 #include "log-intf.h"
 #include "lorawan/lorawan-types.h"
 #include "lorawan/task/message-task-dispatcher.h"
+#ifdef __ANDROID__
 #include "libloragw-helper.h"
+#endif
 
 #define MEASUREMENT_COUNT_SIZE 23
 
@@ -157,9 +159,9 @@ private:
     void gpsCheckTimeRunner();
 
     bool getTxGainLutIndex(uint8_t rf_chain, int8_t rf_power, uint8_t * lut_index);
-
+#ifdef __ANDROID__
     LibLoragwOpenClose *helperOpenClose;
-
+#endif
 protected:
     // Apply config
     int setup();
@@ -182,8 +184,9 @@ public:
 
     int fdGpsTty;        ///< file descriptor of the GPS TTY port
     uint64_t eui;        ///< Gateway EUI
-
+#ifdef __ANDROID__
     LibLoragwHelper libLoragwHelper;
+#endif
     // parent socket
     TaskSocket *socket;
     LoraGatewayListener();

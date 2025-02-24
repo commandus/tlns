@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv) {
     Payload2DeviceParser p;
-    char *EXAMPLES[] {
+    const char *EXAMPLES[] {
             "send 1f00AA 1f00AA11 1f00AA22 payload 23456",
             "send 1f00AA 1f00AA11 1f00AA22 payload 23456 ",
             "send 1f00AA 1f00AA11 1f00AA22 pay",

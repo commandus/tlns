@@ -12,14 +12,9 @@ extern "C" {
 #endif
 
 int open_c(const char *file, int flags);
-
 int close_c (int fd);
-
 int printf_c(const char* format, ... );
 
 #ifdef __cplusplus
 }
-#endif
-
-#ifdef __cplusplus
 #endif

@@ -3,7 +3,6 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WS2tcpip.h>
 #include <Winsock2.h>
-#define close(x) closesocket(x)
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 // #define inet_pton InetPtonA
 #else
@@ -141,6 +140,10 @@ int JsonWiredClient::openConnection() {
 
 void JsonWiredClient::closeConnection() {
     if (sock > 0)
+#if defined(_MSC_VER) || defined(__MINGW32__)
+        closesocket(sock);
+#else
         close(sock);
+#endif
     sock = INVALID_SOCKET;
 }

@@ -110,10 +110,14 @@ size_t PluginBridges::add(
 {
     size_t count = 0;
     for (auto &fileName: fileNames) {
-        PluginBridge pb(fileName);
-        if (pb.valid()) {
-            bridges.emplace_back(pb);
-            count++;
+        if (file::isDirectory(fileName.c_str())) {
+            addDirectory(fileName, 0);
+        } else {
+            PluginBridge pb(fileName);
+            if (pb.valid()) {
+                bridges.emplace_back(pb);
+                count++;
+            }
         }
     }
     return count;
@@ -126,7 +130,7 @@ size_t PluginBridges::addDirectory(
 {
     size_t count = 0;
     std::vector<std::string> files;
-    file::filesInPath(directory, PLUGIN_FILE_NAME_SUFFIX, 0, &files);
+    file::filesInPath(directory, PLUGIN_FILE_NAME_SUFFIX, 1, &files);
     for (auto &f : files) {
         int r = add(f);
         if (r < 0)

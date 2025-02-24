@@ -5,10 +5,12 @@ set(VERSION_INFO 1.0.3)
 
 project("tlns-test" VERSION ${VERSION_INFO})
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	set(INC_LIBLORAGW ../third-party/libloragw-win ../third-party/jitqueue)
 else ()
+	set(SRC_LIBLORAGW ../third-party/libloragw)
 	add_executable(test-printf
 		test-printf.cpp
 		../third-party/libloragw/subst-call-c.cpp
@@ -45,9 +47,16 @@ add_executable(test-payload2device-parser
 target_include_directories(test-payload2device-parser PRIVATE .. ../third-party)
 target_link_libraries(test-payload2device-parser PRIVATE lorawan)
 
+add_executable(test-usb-init
+	test-usb-init.cpp
+)
+target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party)
+target_link_libraries(test-usb-init PRIVATE lorawan loragw)
+
 #
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-decode-1 COMMAND "test-decode-1")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
 add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
+add_test(NAME test-usb-init COMMAND "test-usb-init")
 

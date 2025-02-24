@@ -23,6 +23,7 @@ public:
      * @param port port number
      */
     TaskUDPControlSocket(in_addr_t aAddr, uint16_t port);
+    TaskUDPControlSocket(const std::string &addrNPort);
     /**
     * Open UDP socket for listen
     * @return -1 if fail

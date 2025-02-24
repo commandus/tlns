@@ -4,14 +4,18 @@
 #include <iostream>
 #include <cstring>
 #include <csignal>
+#include <algorithm>
 
-#define DEF_UNIX_SOCKET_FILE_NAME "/tmp/usb.socket"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#define DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "127.0.0.1:42287"
+#define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "127.0.0.1:42288"
 #else
 #include <execinfo.h>
 #include <algorithm>
 
+#define DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/usb.socket"
+#define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/control.socket"
 #endif
 
 #include "argtable3/argtable3.h"
@@ -26,7 +30,12 @@
 
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
+
+#ifdef _MSC_VER
+#include "lorawan/task/task-udp-control-socket.h"
+#else
 #include "lorawan/task/task-unix-control-socket.h"
+#endif
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/bridge/plugin-bridge.h"
@@ -70,7 +79,8 @@ public:
     bool daemonize;
     int verbosity;
     std::string pidfile;
-    std::string unixSocketFileName;
+    std::string usbSocketFileNameOrAddressAndPort;
+    std::string controlSocketFileNameOrAddressAndPort;
     LocalGatewayConfiguration()
         : regionIdx(0), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0) {
 
@@ -147,18 +157,27 @@ int parseCmd(
     struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
-    struct arg_str *a_unix_socket_file = arg_str0("u", "socket-name", _("<file>"), _("UNIX socket file name. Default /tmp/usb.socket"));
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<address:port>"), _("Socket address. Default " DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
+#else
+    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<file>"), _("Socket file name. Default " DEF_UNIX_SOCKET_FILE_NAME));
+#endif
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    struct arg_str *a_control_socket_file_name_or_address_n_port = arg_str0("U", "control", _("<address:port>"), _("Socket address. Default " DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
+#else
+    struct arg_str *a_control_socket_file_name_or_address_n_port = arg_str0("U", "control", _("<file>"), _("Socket file name. Default " DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
+#endif
     struct arg_str *a_pidfile = arg_str0("p", "pidfile", _("<file>"), _("Check whether a process has created the file pidfile"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-        a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
-        a_bridge_plugin,
-        a_enable_send, a_enable_beacon,
-        a_daemonize, a_unix_socket_file,
-        a_pidfile, a_verbosity, a_help, a_end
+            a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
+            a_bridge_plugin,
+            a_enable_send, a_enable_beacon,
+            a_daemonize, a_socket_file_name_or_address_n_port, a_control_socket_file_name_or_address_n_port,
+            a_pidfile, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -213,10 +232,15 @@ int parseCmd(
     else
         config->pidfile = "";
 
-    if (a_unix_socket_file->count)
-        config->unixSocketFileName = *a_unix_socket_file->sval;
+    if (a_socket_file_name_or_address_n_port->count)
+        config->usbSocketFileNameOrAddressAndPort = *a_socket_file_name_or_address_n_port->sval;
     else
-        config->unixSocketFileName = DEF_UNIX_SOCKET_FILE_NAME;
+        config->usbSocketFileNameOrAddressAndPort = DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT;
+
+    if (a_control_socket_file_name_or_address_n_port->count)
+        config->controlSocketFileNameOrAddressAndPort = *a_control_socket_file_name_or_address_n_port->sval;
+    else
+        config->controlSocketFileNameOrAddressAndPort = DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT;
 
     config->verbosity = a_verbosity->count;
 
@@ -413,12 +437,18 @@ static void run()
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 
-    taskUSBSocket = new TaskUsbGatewayUnixSocket(&dispatcher, localConfig.unixSocketFileName, settings,
-        &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.usbSocketFileNameOrAddressAndPort, settings,
+                                             &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket
-    TaskSocket *taskControlSocket = new TaskUnixControlSocket(localConfig.unixSocketFileName);
+    TaskSocket *taskControlSocket
+#ifdef _MSC_VER
+    = new TaskUDPControlSocket(localConfig.controlSocketFileNameOrAddressAndPort);
+#else
+    = new TaskUnixControlSocket(localConfig.controlSocketFileNameOrAddressAndPort);
+#endif
+
     dispatcher.sockets.push_back(taskControlSocket);
     dispatcher.setControlSocket(taskControlSocket);
 

@@ -73,6 +73,14 @@ bool file::isOrdinalFile(
     return true;
 }
 
+bool file::isDirectory(
+    const char *path
+) {
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    GetFileAttributesExA(path, GetFileExInfoStandard, (void*) &fileInfo);
+    return (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}
+
 bool file::rmAllDir(const char *path)
 {
 	if (!path)
@@ -375,6 +383,17 @@ bool file::isOrdinalFile(
 	if (stat(path, &s) == 0 ) {
 		retModificationTime = s.st_mtime;
 		if (s.st_mode & S_IFREG )
+			return true;
+	}
+	return false;
+}
+
+bool file::isDirectory(
+    const char *path
+) {
+	struct stat s;
+	if (stat(path, &s) == 0 ) {
+		if (s.st_mode & S_ISDIR )
 			return true;
 	}
 	return false;

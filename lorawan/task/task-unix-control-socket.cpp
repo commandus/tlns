@@ -3,9 +3,9 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <sys/un.h>
+#include <unistd.h>
 #endif
 
-#include <unistd.h>
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 

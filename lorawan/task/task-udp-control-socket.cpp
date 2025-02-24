@@ -11,6 +11,7 @@
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/task/task-udp-control-socket.h"
+#include "lorawan/helper/ip-address.h"
 
 TaskUDPControlSocket::TaskUDPControlSocket(
     in_addr_t aAddr,
@@ -19,6 +20,15 @@ TaskUDPControlSocket::TaskUDPControlSocket(
     : TaskSocket(SA_NONE), addr(aAddr), port(aPort)
 {
 
+}
+
+TaskUDPControlSocket::TaskUDPControlSocket(
+    const std::string &addrNPort
+)
+{
+    sockaddr sa;
+    string2sockaddr(&sa, addrNPort);
+    memmove(&addr, &((sockaddr_in*) &sa)->sin_addr, sizeof(in_addr_t));
 }
 
 TaskUDPControlSocket::~TaskUDPControlSocket()

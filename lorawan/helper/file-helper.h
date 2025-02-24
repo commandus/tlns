@@ -48,6 +48,9 @@ namespace file {
 		time_t &reModificationTime,
 		const char *path
 	);
+    bool isDirectory(
+        const char *path
+    );
 
 	/**
 	 * Return true if file name extension is .json

@@ -1,6 +1,5 @@
 #include "lorawan/task/task-timer-socket.h"
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#define close(x) closesocket(x)
 #else
 #include <unistd.h>
 #include <sys/timerfd.h>
@@ -35,7 +34,11 @@ SOCKET TaskTimerSocket::openSocket()
 void TaskTimerSocket::closeSocket()
 {
     if (sock > 0) {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+        closesocket(sock);
+#else
         close(sock);
+#endif
         sock = -1;
     }
 }

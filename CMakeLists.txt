@@ -3,7 +3,7 @@
 # mkdir build; cd build; cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_SQLITE=on
 #
 # Options:
-# -DENABLE_GW_DEV_USB=off   build RAK2287 USB gateway backend
+# -DENABLE_GW_DEV_USB=on    build RAK2287 USB gateway backend
 # -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only. libuv dependency required.
 # -DENABLE_DEBUG=off   		enable debugging output
 # -DENABLE_GEN=on   		enable key generator (default in memory storage)
@@ -92,7 +92,7 @@ else()
 
 	set(CMAKE_CXX_STANDARD 11)
 
-	option(ENABLE_GW_DEV_USB "Build RAK2287 USB gateway backend" OFF)
+	option(ENABLE_GW_DEV_USB "Build RAK2287 USB gateway backend" ON)
 	option(ENABLE_IPV6 "Build with IPv6" OFF)
 	option(ENABLE_DEBUG "Build with debug" OFF)
 	option(ENABLE_LIBUV "Build with libuv" OFF)
@@ -116,6 +116,7 @@ else()
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 		set (OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
+		add_subdirectory("third-party/libloragw-win")
 	else ()
 		add_subdirectory("third-party/libloragw")
 	endif ()
@@ -211,12 +212,8 @@ else()
 	endif ()
 
 	if (ENABLE_GW_DEV_USB)
-		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-			message("-DENABLE_GW_DEV_USB=${ENABLE_GW_DEV_USB} no effect on Windows")
-		else()
-			set(TLNS_DEF ${TLNS_DEF} ENABLE_GW_DEV_USB )
-			add_subdirectory("gw-dev/usb")
-			endif()
+		set(TLNS_DEF ${TLNS_DEF} ENABLE_GW_DEV_USB )
+		add_subdirectory("gw-dev/usb")
 	endif()
 
 	if(ENABLE_HTTP)

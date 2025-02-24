@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set(INC_LIBLORAGW ../third-party/libloragw-win ../third-party/jitqueue)
 else ()
-	set(SRC_LIBLORAGW ../third-party/libloragw)
+	set(INC_LIBLORAGW ../third-party/libloragw ../third-party/libloragw/inc ../third-party/jitqueue)
 	add_executable(test-printf
 		test-printf.cpp
 		../third-party/libloragw/subst-call-c.cpp

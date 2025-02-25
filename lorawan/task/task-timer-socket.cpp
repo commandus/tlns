@@ -44,8 +44,8 @@ SOCKET TaskTimerSocket::openSocket()
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    saddr.sin_port = 0;
-    rc = connect(sock, (struct sockaddr *) &saddr, sizeof(saddr));
+    saddr.sin_port = DEF_UDP_TIMER_PORT;
+    rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
         std::cerr << GetLastError() << std::endl;
         closesocket(sock);
@@ -87,7 +87,14 @@ TaskTimerSocket::~TaskTimerSocket()
 #if defined(_MSC_VER) || defined(__MINGW32__)
 void TaskTimerSocket::onWindowsTimer() {
     count++;
-    int sz = send(sock, (const char*) &count, (int) sizeof(uint64_t), 0);
+
+    struct sockaddr_in saddr {};
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;
+    saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    saddr.sin_port = DEF_UDP_TIMER_PORT;
+
+    int sz = sendto(sock, (const char*) &count, (int) sizeof(uint64_t), 0, (const sockaddr*) &saddr, sizeof(saddr));
     std::cerr << "Sent Time " << count << " size " << sz << std::endl;
 }
 

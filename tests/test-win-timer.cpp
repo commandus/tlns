@@ -52,7 +52,7 @@ static void testSelect() {
     TaskTimerSocket taskTimerSocket;
     SOCKET ts = taskTimerSocket.openSocket();
 
-    TASK_TIME t = std::chrono::system_clock::now() + std::chrono::seconds(5);
+    TASK_TIME t = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
     taskTimerSocket.setStartupTime(t);
 
     FD_ZERO(&masterReadSocketSet);
@@ -76,11 +76,11 @@ static void testSelect() {
         }
         if (FD_ISSET(ts, &workingSocketSet)) {
             int sz = recv(ts, (char *) &cnt, (int) sizeof(cnt), 0);
-            std::cout << cnt << " size " << sz << std::endl;
+            std::cout << cnt << std::endl;
             if (sz < 0)
                 std::cerr << "Error " << GetLastError() << std::endl;
 
-            TASK_TIME t = std::chrono::system_clock::now() + std::chrono::seconds(1);
+            TASK_TIME t = std::chrono::system_clock::now() + std::chrono::milliseconds (100);
             taskTimerSocket.setStartupTime(t);
         }
         running = cnt < 5;

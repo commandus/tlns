@@ -1,7 +1,5 @@
-#include <iostream>
 #include "lorawan/task/task-timer-socket.h"
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#define DEF_UDP_TIMER_PORT  54321
 #else
 #include <unistd.h>
 #include <sys/timerfd.h>
@@ -16,6 +14,7 @@ TaskTimerSocket::TaskTimerSocket()
 #if defined(_MSC_VER) || defined(__MINGW32__)
     hTimerQueue = CreateTimerQueue();
     count = 0;
+    nPort = 0;
 #endif
 }
 
@@ -44,15 +43,18 @@ SOCKET TaskTimerSocket::openSocket()
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    saddr.sin_port = DEF_UDP_TIMER_PORT;
+    saddr.sin_port = 0; // TCP/IP stack assign random port, getsockname() return that port number
     rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
-        std::cerr << GetLastError() << std::endl;
         closesocket(sock);
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_BIND;
         return INVALID_SOCKET;
     }
+    int nameLen = sizeof(saddr);
+    rc = getsockname(sock, (sockaddr *) &saddr, &nameLen);
+    nPort = saddr.sin_port;
+
     lastError = CODE_OK;
     return sock;
 #else
@@ -92,10 +94,8 @@ void TaskTimerSocket::onWindowsTimer() {
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    saddr.sin_port = DEF_UDP_TIMER_PORT;
-
+    saddr.sin_port = nPort;
     int sz = sendto(sock, (const char*) &count, (int) sizeof(uint64_t), 0, (const sockaddr*) &saddr, sizeof(saddr));
-    std::cerr << "Sent Time " << count << " size " << sz << std::endl;
 }
 
 VOID CALLBACK onTimerCb(
@@ -104,7 +104,6 @@ VOID CALLBACK onTimerCb(
 ) {
     TaskTimerSocket *s = (TaskTimerSocket *) lpParam;
     DeleteTimerQueueTimer(s->hTimerQueue, s->hTimer, nullptr);
-    std::cerr << "Time " << std::endl;
     s->onWindowsTimer();
 }
 #endif
@@ -124,7 +123,6 @@ int TaskTimerSocket::setStartupTime(
     );
     BOOL r = CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) onTimerCb,
         this, (DWORD) ms.count(), 0, WT_EXECUTEINTIMERTHREAD | WT_EXECUTEONLYONCE);
-    std::cout << "Set startup time " << (r ? "success" : "failed") << std::endl;
     return r ? CODE_OK : ERR_CODE_PARAM_INVALID;
 #else
     // getUplink seconds

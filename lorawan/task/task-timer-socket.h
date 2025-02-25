@@ -12,6 +12,7 @@ public:
     HANDLE hTimerQueue;
     HANDLE hTimer;
     uint64_t count;
+    uint16_t nPort; ///< random assigned port (in network byte order)
     void onWindowsTimer();
 #endif
 

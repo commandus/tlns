@@ -12,6 +12,9 @@ private:
     LoraGatewayListener listener;
     ProtoGwParser *parser;
 public:
+#ifdef _MSC_VER
+    uint16_t nPort; ///< random assigned UDP port (in network byte order).
+#endif
     /**
      * Open Unix domain socket
      * @param socketFileNameOrAddress Unix domain socket name is file name with owner, group access rights e.g. "/tmp/gw-dev-usb.socket"

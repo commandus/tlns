@@ -124,6 +124,9 @@ SOCKET TaskUsbGatewaySocket::openSocket()
         sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
     }
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    int nameLen = sizeof(struct sockaddr_in);
+    rc = getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
+    nPort = sunAddr.sin_port;
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));

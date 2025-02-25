@@ -31,19 +31,21 @@ SOCKET TaskUDPSocket::openSocket()
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == INVALID_SOCKET) {
         lastError = ERR_CODE_SOCKET_CREATE;
-        return -1;
+        return INVALID_SOCKET;
     }
     // Allow socket descriptor to be reusable
     int on = 1;
     int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
-        return -1;
+        return INVALID_SOCKET;
     }
     // Set socket to be nonblocking
 #if defined(_MSC_VER) || defined(__MINGW32__)
+    u_long onw = 1;
+    rc = ioctlsocket(sock, FIONBIO, &onw);
 #else
     int flags = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
@@ -69,9 +71,9 @@ SOCKET TaskUDPSocket::openSocket()
     rc = bind(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_BIND;
-        return -1;
+        return INVALID_SOCKET;
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
     /* UDP do not require listen()
@@ -89,5 +91,5 @@ void TaskUDPSocket::closeSocket()
 {
     if (sock >= 0)
         close(sock);
-    sock = -1;
+    sock = INVALID_SOCKET;
 }

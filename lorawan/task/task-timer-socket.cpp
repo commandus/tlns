@@ -1,5 +1,7 @@
+#include <iostream>
 #include "lorawan/task/task-timer-socket.h"
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#define DEF_UDP_TIMER_PORT  54321
 #else
 #include <unistd.h>
 #include <sys/timerfd.h>
@@ -9,20 +11,50 @@
 #include "lorawan/lorawan-error.h"
 
 TaskTimerSocket::TaskTimerSocket()
-    : TaskSocket(SA_TIMER), currentTime{}
+    : TaskSocket(SA_TIMER)
 {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    hTimerQueue = CreateTimerQueue();
+    count = 0;
+#endif
 }
 
 SOCKET TaskTimerSocket::openSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    /* @see https://blog.grijjy.com/2017/04/20/cross-platform-timer-queues-for-windows-and-linux/
-     * TimerQueueHandle h = CreateTimerQueue();
-     * DeleteTimerQueueEx(h, INVALID_HANDLE_VALUE);
-     * if (CreateTimerQueueTimer(h, TimerQueueHandle, @WaitOrTimerCallback, MyObject, 0, Interval, 0))
-     * {}
-     */
-    sock = INVALID_SOCKET;
+    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock == INVALID_SOCKET) {
+        lastError = ERR_CODE_SOCKET_CREATE;
+        return INVALID_SOCKET;
+    }
+    // Allow socket descriptor to be reusable
+    int on = 1;
+    int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (rc < 0) {
+        closesocket(sock);
+        sock = INVALID_SOCKET;
+        lastError = ERR_CODE_SOCKET_OPEN;
+        return INVALID_SOCKET;
+    }
+    // Set socket to be nonblocking
+    u_long onw = 1;
+    rc = ioctlsocket(sock, FIONBIO, &onw);
+    // Bind the socket
+    struct sockaddr_in saddr {};
+    memset(&saddr, 0, sizeof(saddr));
+    saddr.sin_family = AF_INET;
+    saddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    saddr.sin_port = 0;
+    rc = connect(sock, (struct sockaddr *) &saddr, sizeof(saddr));
+    if (rc < 0) {
+        std::cerr << GetLastError() << std::endl;
+        closesocket(sock);
+        sock = INVALID_SOCKET;
+        lastError = ERR_CODE_SOCKET_BIND;
+        return INVALID_SOCKET;
+    }
+    lastError = CODE_OK;
+    return sock;
 #else
     sock = timerfd_create(CLOCK_REALTIME, 0);
 #endif
@@ -47,24 +79,51 @@ void TaskTimerSocket::closeSocket()
 TaskTimerSocket::~TaskTimerSocket()
 {
     closeSocket();
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    DeleteTimerQueue(hTimerQueue);
+#endif
 }
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+void TaskTimerSocket::onWindowsTimer() {
+    count++;
+    int sz = send(sock, (const char*) &count, (int) sizeof(uint64_t), 0);
+    std::cerr << "Sent Time " << count << " size " << sz << std::endl;
+}
+
+VOID CALLBACK onTimerCb(
+    PVOID lpParam,
+    BOOLEAN timedOut
+) {
+    TaskTimerSocket *s = (TaskTimerSocket *) lpParam;
+    DeleteTimerQueueTimer(s->hTimerQueue, s->hTimer, nullptr);
+    std::cerr << "Time " << std::endl;
+    s->onWindowsTimer();
+}
+#endif
 
 /**
  * Set expiration time for timer
- * @param time time to set
+ * @param tim time to set
  * @return true if success
  */
 int TaskTimerSocket::setStartupTime(
-    TASK_TIME time
+    TASK_TIME tim
 )
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    return ERR_CODE_PARAM_INVALID;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            (tim - std::chrono::system_clock::now())
+    );
+    BOOL r = CreateTimerQueueTimer(&hTimer, hTimerQueue, (WAITORTIMERCALLBACK) onTimerCb,
+        this, (DWORD) ms.count(), 0, WT_EXECUTEINTIMERTHREAD | WT_EXECUTEONLYONCE);
+    std::cout << "Set startup time " << (r ? "success" : "failed") << std::endl;
+    return r ? CODE_OK : ERR_CODE_PARAM_INVALID;
 #else
     // getUplink seconds
-    auto s = std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch());
+    auto s = std::chrono::duration_cast<std::chrono::seconds>(tim.time_since_epoch());
     // getUplink nanoseconds: extract seconds from the time
-    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
+    auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(tim.time_since_epoch());
     ns -= s;
     // set timer structure
     struct itimerspec t = {

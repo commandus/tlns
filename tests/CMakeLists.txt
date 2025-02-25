@@ -48,7 +48,12 @@ target_link_libraries(test-payload2device-parser PRIVATE lorawan)
 
 
 set(TEST_USB_SRC test-usb-init.cpp)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	add_executable(test-win-timer test-win-timer.cpp)
+	target_include_directories(test-win-timer PRIVATE .. ../third-party)
+	target_link_libraries(test-win-timer PRIVATE lorawan)
+
 else()
 	set(TEST_USB_SRC ${TEST_USB_SRC}
 		../third-party/libloragw/subst-call-c.cpp

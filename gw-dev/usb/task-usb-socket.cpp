@@ -99,9 +99,9 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
-        return -1;
+        return INVALID_SOCKET;
     }
     // Set socket to be nonblocking
 #ifdef _MSC_VER
@@ -112,16 +112,15 @@ SOCKET TaskUsbGatewaySocket::openSocket()
 #endif
     if (rc < 0) {
         close(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
-        return -1;
+        return INVALID_SOCKET;
     }
-
     // Bind socket to socket name
 #ifdef _MSC_VER
     if (!string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress)) {
         // if address is invalid, assign loop-back interface and any random port number
-        sunAddr.sin_addr.S_un.S_addr = INADDR_LOOPBACK;
+        sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
         sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
     }
     int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
@@ -137,13 +136,13 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
     r = listen(sock, 20);
     if (r < 0) {
-        sock = -1;
+        sock = INVALID_SOCKET;
         return sock;
     }
 
     r = listener.start();
     if (r < 0) {
-        sock = -1;
+        sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_LISTEN;
     }
     return sock;

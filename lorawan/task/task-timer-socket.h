@@ -8,7 +8,13 @@
  */
 class TaskTimerSocket : public TaskSocket {
 public:
-    TASK_TIME currentTime;
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    HANDLE hTimerQueue;
+    HANDLE hTimer;
+    uint64_t count;
+    void onWindowsTimer();
+#endif
+
     /**
      * Task timer socket
      */

@@ -33,12 +33,28 @@ SOCKET TaskUnixControlSocket::openSocket()
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
     sunAddr.sun_family = AF_UNIX;
     strncpy(sunAddr.sun_path, socketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
-    int r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+
+    int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    if (r < 0) {
+        sock = INVALID_SOCKET;
+        lastError = ERR_CODE_SOCKET_BIND;
+        return sock;
+    }
+
+    // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
+    r = listen(sock, 20);
+    if (r < 0) {
+        sock = INVALID_SOCKET;
+        return sock;
+    }
+    /* 2025-02-26 connect replaced by listen()!
+    r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_CONNECT;
         return sock;
     }
+     */
     return sock;
 #endif
 }

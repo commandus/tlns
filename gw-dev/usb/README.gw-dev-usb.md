@@ -25,9 +25,18 @@ cd gw-dev\usb
 gw-dev-usb -c EU-863-870 -I ..\..\storage\storage-json.dll -o ..\.. -i identity.json -g gateway.json -vvvvvvv COM3
 ```
 
-## 
+## Allow non-root access to /dev/ttyACM0
+
+Unable to access the device connected in /dev/ttyACM0 0 you get message:
+
 ```
 failed to open COM port /dev/ttyACM0 - Permission denied
 ```
 
+Add user to the 'dialout' group:
+
+```
 sudo usermod -a -G dialout $USER 
+```
+
+Reboot computer.

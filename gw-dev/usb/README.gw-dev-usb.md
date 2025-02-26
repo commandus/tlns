@@ -24,3 +24,10 @@ Windows
 cd gw-dev\usb
 gw-dev-usb -c EU-863-870 -I ..\..\storage\storage-json.dll -o ..\.. -i identity.json -g gateway.json -vvvvvvv COM3
 ```
+
+## 
+```
+failed to open COM port /dev/ttyACM0 - Permission denied
+```
+
+sudo usermod -a -G dialout $USER 

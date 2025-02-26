@@ -51,4 +51,6 @@ set(LIBLORAGW_SRC
 add_library(loragw STATIC ${LIBLORAGW_SRC})
 set_property(TARGET loragw PROPERTY C_STANDARD 99)
 target_include_directories(loragw PRIVATE ${LIBLORAGW_INC_DIRS})
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 target_compile_options(loragw PRIVATE -include subst.h)
+endif()

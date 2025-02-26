@@ -1,5 +1,4 @@
 #include "task-usb-socket.h"
-#include <iostream>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
@@ -82,22 +81,25 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
 
 SOCKET TaskUsbGatewaySocket::openSocket()
 {
-    sock = socket(AF_UNIX, SOCK_STREAM, 0);
+#ifdef _MSC_VER
+    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == INVALID_SOCKET)
         return sock;
-#ifdef _MSC_VER
     struct sockaddr_in sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_in));
     sunAddr.sin_family = AF_INET;
 #else
+    sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCKET)
+        return sock;
     struct sockaddr_un sunAddr;
     memset(&sunAddr, 0, sizeof(struct sockaddr_un));
     sunAddr.sun_family = AF_UNIX;
 #endif
     int on = 1;
     // Allow socket descriptor to be reusable
-    int rc = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
-    if (rc < 0) {
+    int r = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (r < 0) {
         close(sock);
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
@@ -106,11 +108,11 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     // Set socket to be nonblocking
 #ifdef _MSC_VER
     u_long onw = 1;
-    rc = ioctlsocket(sock, FIONBIO, &onw);
+    r = ioctlsocket(sock, FIONBIO, &onw);
 #else
     rc = ioctl(sock, FIONBIO, (char *)&on);
 #endif
-    if (rc < 0) {
+    if (r < 0) {
         close(sock);
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
@@ -119,13 +121,13 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     // Bind socket to socket name
 #ifdef _MSC_VER
     if (!string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress)) {
-        // if address is invalid, assign loop-back interface and any random port number
+        // if address is not assigned or invalid, assign loop-back interface and any random port number
         sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
         sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
     }
-    int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
     int nameLen = sizeof(struct sockaddr_in);
-    rc = getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
+    getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
     nPort = sunAddr.sin_port;
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
@@ -136,13 +138,6 @@ SOCKET TaskUsbGatewaySocket::openSocket()
         lastError = ERR_CODE_SOCKET_BIND;
         return sock;
     }
-    // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
-    r = listen(sock, 20);
-    if (r < 0) {
-        sock = INVALID_SOCKET;
-        return sock;
-    }
-
     r = listener.start();
     if (r < 0) {
         sock = INVALID_SOCKET;

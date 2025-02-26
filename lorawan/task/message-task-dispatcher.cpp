@@ -19,6 +19,8 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <Winsock2.h>
+#include <sstream>
+
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 #define read(sock, b, sz) ::recv(sock, b, sz, 0)
 typedef in_addr in_addr_t;
@@ -678,7 +680,9 @@ void MessageTaskDispatcher::initBridges()
     for (auto b(appBridges.begin()); b != appBridges.end();) {
         int r = (*b)->init("", "", nullptr);
         if (r) {
-            onError(this, LOG_ERR, MODULE_NAME_GW_UPSTREAM, r, "");
+            std::stringstream ss;
+            ss << "Bridge " << (*b)->name() << " initialization error";
+            onError(this, LOG_ERR, MODULE_NAME_GW_UPSTREAM, r, ss.str());
             b = appBridges.erase(b);
         } else
             b++;

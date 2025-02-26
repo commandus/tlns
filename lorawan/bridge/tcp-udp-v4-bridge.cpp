@@ -15,6 +15,7 @@
 #define unlink(x)
 #define write _write
 #define read _read
+#define close(x) closesocket(x)
 #define MSG_NOSIGNAL    0
 #else
 #include <unistd.h>
@@ -54,7 +55,45 @@ TcpUdpV4Bridge::~TcpUdpV4Bridge()
 int TcpUdpV4Bridge::openOnPayloadSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    return ERR_CODE_SOCKET_CREATE;
+    onPayloadListenSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (onPayloadListenSocket == INVALID_SOCKET)
+        return ERR_CODE_SOCKET_CREATE;
+    struct sockaddr_in sunAddr { AF_INET,0 };
+
+    // Allow socket descriptor to be reusable
+    int on = 1;
+    int rc = setsockopt(onPayloadListenSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (rc < 0) {
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CREATE;
+    }
+    // Set socket to be nonblocking
+    u_long onw = 1;
+    rc = ioctlsocket(onPayloadListenSocket, FIONBIO, &onw);
+    if (rc < 0) {
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CREATE;
+    }
+
+    // Bind socket to socket name
+    sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+    sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
+    int r = bind(onPayloadListenSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    if (r < 0) {
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_BIND;
+    }
+    // get port number back
+    int nameLen = sizeof(struct sockaddr_in);
+    getsockname(onPayloadListenSocket, (sockaddr *) &sunAddr, &nameLen);
+
+    // client socket
+    onPayloadClientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    r = connect(onPayloadClientSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    if (r < 0) {
+        closeOnPayloadSocket();
+        return ERR_CODE_SOCKET_CONNECT;
+    }
 #else
     unlink(onPayloadSocketPath.c_str());
     onPayloadListenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -99,9 +138,8 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_CONNECT;
     }
-
-    return CODE_OK;
 #endif
+    return CODE_OK;
 }
 
 int TcpUdpV4Bridge::openSockets()
@@ -128,14 +166,13 @@ int TcpUdpV4Bridge::openSockets()
     tcpListenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (tcpListenSocket == INVALID_SOCKET)
         return ERR_CODE_SOCKET_CREATE;
-
     int on = 1;
+#if defined(_MSC_VER) || defined(__MINGW32__)
     if (setsockopt(tcpListenSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
-#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     if (setsockopt(tcpListenSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);
@@ -153,19 +190,20 @@ int TcpUdpV4Bridge::openSockets()
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_LISTEN;
     }
+
     // create UDP socket
-    udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (udpSocket == INVALID_SOCKET) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_CREATE;
     }
+#if defined(_MSC_VER) || defined(__MINGW32__)
     if (setsockopt(udpSocket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);
         tcpListenSocket = INVALID_SOCKET;
         return ERR_CODE_SOCKET_OPEN;
     }
-#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     if (setsockopt(udpSocket, SOL_SOCKET,  SO_REUSEPORT, (char *)&on, sizeof(on)) < 0) {
         close(tcpListenSocket);

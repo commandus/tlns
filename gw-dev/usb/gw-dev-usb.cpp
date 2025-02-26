@@ -79,7 +79,6 @@ public:
     bool daemonize;
     int verbosity;
     std::string pidfile;
-    std::string usbSocketFileNameOrAddressAndPort;
     std::string controlSocketFileNameOrAddressAndPort;
     LocalGatewayConfiguration()
         : regionIdx(0), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0) {
@@ -161,11 +160,6 @@ int parseCmd(
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<address:port>"), _("Socket address. Default " DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
-#else
-    struct arg_str *a_socket_file_name_or_address_n_port = arg_str0("u", "socket", _("<file>"), _("Socket file name. Default " DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
-#endif
-#if defined(_MSC_VER) || defined(__MINGW32__)
     struct arg_str *a_control_socket_file_name_or_address_n_port = arg_str0("U", "control", _("<address:port>"), _("Socket address. Default " DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
 #else
     struct arg_str *a_control_socket_file_name_or_address_n_port = arg_str0("U", "control", _("<file>"), _("Socket file name. Default " DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT));
@@ -179,7 +173,7 @@ int parseCmd(
             a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
             a_bridge_plugin,
             a_enable_send, a_enable_beacon,
-            a_daemonize, a_socket_file_name_or_address_n_port, a_control_socket_file_name_or_address_n_port,
+            a_daemonize, a_control_socket_file_name_or_address_n_port,
             a_pidfile, a_verbosity, a_help, a_end
     };
 
@@ -234,11 +228,6 @@ int parseCmd(
         config->pidfile = *a_pidfile->sval;
     else
         config->pidfile = "";
-
-    if (a_socket_file_name_or_address_n_port->count)
-        config->usbSocketFileNameOrAddressAndPort = *a_socket_file_name_or_address_n_port->sval;
-    else
-        config->usbSocketFileNameOrAddressAndPort = DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT;
 
     if (a_control_socket_file_name_or_address_n_port->count)
         config->controlSocketFileNameOrAddressAndPort = *a_control_socket_file_name_or_address_n_port->sval;
@@ -440,7 +429,7 @@ static void run()
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 
-    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.usbSocketFileNameOrAddressAndPort, settings,
+    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, "", settings,
                                              &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 

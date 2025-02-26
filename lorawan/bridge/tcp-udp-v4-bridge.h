@@ -2,13 +2,13 @@
 #define TLNS_TCP_UDP_V4_BRIDGE_H
 
 /**
- * App bridge example show how to implement TCP/UDP service.
- * Clients (up to 1010) can connect to any interface at port 4250 (by default).
- * If first parameter of init() is empty, bridge listen all interfaces at 4250 port.
+ * The application bridge example shows how to implement a TCP/UDP service.
+ * Clients (up to 1010 in number) can connect to any network interface on port 4250 (the default port number).
+ * If the first parameter of init() is empty, the bridge listens on all interfaces on port 4250.
  *
  * Files:
  *      Unix socket "/tmp/tcp-udp-v4-bridge.socket" used internally to route payload from the gateway(s) to clients.
- * Tou can change Unix socket file name in second parameter of init()
+ * You can change Unix socket file name in second parameter of init()
  *
  * Test with netcat:
  * TCP

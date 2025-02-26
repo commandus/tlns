@@ -5,6 +5,7 @@
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include <fcntl.h>

@@ -21,7 +21,9 @@ License: Revised BSD License, see LICENSE.Semtech.txt file include in the projec
 /* -------------------------------------------------------------------------- */
 /* --- DEPENDANCIES --------------------------------------------------------- */
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <stdint.h>     /* C99 types */
 #include <time.h>       /* time library */
 #include <termios.h>    /* speed_t */

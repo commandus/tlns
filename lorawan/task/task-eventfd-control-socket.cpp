@@ -4,6 +4,11 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#else
+#define INVALID_SOCKET  (-1)
+#endif
+
 TaskEventFDControlSocket::TaskEventFDControlSocket()
     : TaskSocket(SA_EVENTFD)
 {

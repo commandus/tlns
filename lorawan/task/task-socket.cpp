@@ -4,6 +4,7 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <sys/ioctl.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include <sstream>

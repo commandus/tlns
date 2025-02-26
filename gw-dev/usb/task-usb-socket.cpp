@@ -5,6 +5,7 @@
 #include <sys/un.h>
 #include <sys/syslog.h>
 #include <sys/ioctl.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include "lorawan/lorawan-msg.h"
@@ -110,7 +111,7 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     u_long onw = 1;
     r = ioctlsocket(sock, FIONBIO, &onw);
 #else
-    rc = ioctl(sock, FIONBIO, (char *)&on);
+    r = ioctl(sock, FIONBIO, (char *)&on);
 #endif
     if (r < 0) {
         close(sock);
@@ -131,7 +132,7 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     nPort = sunAddr.sin_port;
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
-    int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
 #endif
     if (r < 0) {
         sock = INVALID_SOCKET;

@@ -3,6 +3,7 @@
 #else
 #include <unistd.h>
 #include <sys/timerfd.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include "lorawan/lorawan-string.h"

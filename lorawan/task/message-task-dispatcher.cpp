@@ -9,6 +9,7 @@
 #include <csignal>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/proto/gw/basic-udp.h"
@@ -19,7 +20,6 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <Winsock2.h>
-#include <sstream>
 
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 #define read(sock, b, sz) ::recv(sock, b, sz, 0)

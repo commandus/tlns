@@ -7,6 +7,7 @@
 #else
 #include <sys/ioctl.h>
 #include <unistd.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include "lorawan/lorawan-error.h"
@@ -31,7 +32,8 @@ TaskUDPControlSocket::TaskUDPControlSocket(
     if (!string2sockaddr(&sa, addrNPort)) {
         // if address is invalid, assign IPv4 loop-back interface and any random port number
         si->sin_family = AF_INET;
-        si->sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+//      si->sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+        si->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
         si->sin_port = 0;   // TCP/IP stack assign random port number
     }
     memmove(&addr, &si->sin_addr, sizeof(in_addr_t));

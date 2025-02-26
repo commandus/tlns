@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-12 20:21+0900\n"
+"POT-Creation-Date: 2025-02-12 20:25+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,58 +17,54 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: storage/cli-tag.cpp:108 storage/cli-tag.cpp:109 storage/cli-tag.cpp:110
-msgid "<hex>"
+#: cli-main-check.cpp:55
+msgid "Verbose: "
 msgstr ""
 
-#: storage/cli-tag.cpp:108 storage/cli-tag.cpp:109
-msgid "8 bytes (16 hex digits)"
+#: cli-main-check.cpp:126
+msgid "Region"
 msgstr ""
 
-#: storage/cli-tag.cpp:110
-msgid "4 bytes (8 hex digits)"
+#: cli-main-check.cpp:147
+msgid "Enter packet (hex string) or 'q' to stop"
 msgstr ""
 
-#: storage/cli-tag.cpp:111 storage/cli-tag.cpp:112 storage/cli-tag.cpp:113
-msgid "<string>"
-msgstr ""
-
-#: storage/cli-tag.cpp:111
-msgid "Owner token"
-msgstr ""
-
-#: storage/cli-tag.cpp:112
-msgid "Serial number"
-msgstr ""
-
-#: storage/cli-tag.cpp:113
-msgid "Proprietary value"
-msgstr ""
-
-#: storage/cli-tag.cpp:114
-msgid "add CRC-16"
-msgstr ""
-
-#: storage/cli-tag.cpp:116
-msgid "print QR code to console"
-msgstr ""
-
-#: storage/cli-tag.cpp:117
-msgid "print QR code as SVG"
-msgstr ""
-
-#: storage/cli-tag.cpp:119
+#: cli-main-check.cpp:174
 msgid "-v verbose -vv debug"
 msgstr ""
 
-#: storage/cli-tag.cpp:120
+#: cli-main-check.cpp:175
+msgid "<region-name>"
+msgstr ""
+
+#: cli-main-check.cpp:175
+msgid "Region name, e.g. \"EU433\" or \"US\""
+msgstr ""
+
+#: cli-main-check.cpp:176
 msgid "Show this help"
 msgstr ""
 
-#: storage/cli-tag.cpp:163
+#: cli-main-check.cpp:203
+msgid "Region "
+msgstr ""
+
+#: cli-main-check.cpp:203
+msgid "not found"
+msgstr ""
+
+#: cli-main-check.cpp:207
+msgid "  region name: "
+msgstr ""
+
+#: cli-main-check.cpp:218
 msgid "Usage: "
 msgstr ""
 
-#: storage/cli-tag.cpp:165
-msgid "Print LoRaWAN device tag"
+#: cli-main-check.cpp:220
+msgid "tlns check utility"
+msgstr ""
+
+#: cli-main-check.cpp:222
+msgid "Regions: "
 msgstr ""

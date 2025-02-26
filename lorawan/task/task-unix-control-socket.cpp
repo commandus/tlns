@@ -4,6 +4,7 @@
 #else
 #include <sys/un.h>
 #include <unistd.h>
+#define INVALID_SOCKET  (-1)
 #endif
 
 #include "lorawan/lorawan-string.h"

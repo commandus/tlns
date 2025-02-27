@@ -24,7 +24,7 @@ public:
     int parseString(const std::string &json);
     virtual int parse(nlohmann::json &jsonValue) = 0;
     virtual void toJSON(nlohmann::json &jsonValue) const = 0;
-    virtual void toHeader(std::ostream &retVal, const std::string &name) const = 0;
+    virtual void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const = 0;
     std::string toString() const;
 };
 
@@ -35,7 +35,7 @@ public:
 
     int parse(nlohmann::json &jsonValue) override;
     void toJSON(nlohmann::json &jsonValue) const override;
-    void toHeader(std::ostream &retVal, const std::string &name) const override;
+    void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const override;
     void reset();
 
     bool operator==(const GatewaySX1261Config &value) const;
@@ -50,7 +50,7 @@ public:
     void reset();
     int parse(nlohmann::json &jsonValue) override;
     void toJSON(nlohmann::json &jsonValue) const override;
-    void toHeader(std::ostream &retVal, const std::string &name) const override;
+    void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const override;
 
     bool operator==(const GatewaySX130xConfig &value) const;
 
@@ -67,7 +67,7 @@ public:
     void reset();
     int parse(nlohmann::json &jsonValue) override;
     void toJSON(nlohmann::json &jsonValue) const override;
-    void toHeader(std::ostream &retVal, const std::string &name) const override;
+    void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const override;
 
     bool operator==(const GatewayGatewayConfig &value) const;
 };
@@ -79,7 +79,7 @@ public:
     void reset();
     int parse(nlohmann::json &jsonValue) override;
     void toJSON(nlohmann::json &jsonValue) const override;
-    void toHeader(std::ostream &retVal, const std::string &name) const override;
+    void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const override;
     bool operator==(const GatewayDebugConfig &value) const;
 };
 
@@ -95,7 +95,7 @@ public:
     void reset();
     int parse(nlohmann::json &jsonValue) override;
     void toJSON(nlohmann::json &jsonValue) const override;
-    void toHeader(std::ostream &retVal, const std::string &name) const override;
+    void toHeader(std::ostream &retVal, const std::string &name, bool cpp20 = true) const override;
 
     std::string toString() const;
     bool operator==(const GatewayConfigFileJson &value) const;

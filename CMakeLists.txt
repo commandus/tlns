@@ -312,7 +312,9 @@ else()
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# Semtech's gateway source does not Windows compatible yet
+		set(LIBLORAGW_INC third-party/libloragw-win)
 	else ()
+		set(LIBLORAGW_INC third-party/libloragw third-party/libloragw/inc)
 		add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
 			third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
 		)
@@ -321,19 +323,20 @@ else()
 		target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
 				${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
-		#
-		# Semtech's gateway JSON config file to c++ source convert utility
-		#
-		add_executable(gateway-config2cpp
-			util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp
-			${ARGTABLE}
-		)
-		target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
-		target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
-		target_include_directories(gateway-config2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
-				${VCPKG_INC} ${Intl_INCLUDE_DIRS}
-		)
 	endif ()
+
+	#
+	# Semtech's gateway JSON config file to c++ source convert utility
+	#
+	add_executable(gateway-config2cpp
+		util/gateway-config2cpp.cpp lorawan/proto/gw/gateway-file-json.cpp
+		${ARGTABLE}
+	)
+	target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
+	target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
+	target_include_directories(gateway-config2cpp PRIVATE "." "third-party" ${LIBLORAGW_INC}
+		${VCPKG_INC} ${Intl_INCLUDE_DIRS}
+	)
 
 	#
 	# Regional parameters JSON file to c++ 11 source convert utility

@@ -15,7 +15,7 @@ else()
 	set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 	include_directories(${VCPKG_INC})
 
-	set(CMAKE_CXX_STANDARD 20)
+	set(CMAKE_CXX_STANDARD 11)
 
 	set(ARGTABLE "../../third-party/argtable3/argtable3.c")
 	set(AES_SRC ../../third-party/system/crypto/aes.c ../../third-party/system/crypto/cmac.c)

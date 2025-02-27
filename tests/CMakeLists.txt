@@ -5,7 +5,7 @@ set(VERSION_INFO 1.0.3)
 
 project("tlns-test" VERSION ${VERSION_INFO})
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 11)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set(INC_LIBLORAGW ../third-party/libloragw-win ../third-party/jitqueue)

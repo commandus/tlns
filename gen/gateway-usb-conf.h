@@ -389,7 +389,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"AS-915-928" // name
 },
 {
@@ -770,7 +770,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"AS-917-920" // name
 },
 {
@@ -1151,7 +1151,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"AS-920-923" // name
 },
 {
@@ -1532,7 +1532,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"au1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"AU-915-928" // name
 },
 {
@@ -1913,7 +1913,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"au1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"CN-470-510" // name
 },
 {
@@ -2294,7 +2294,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"EU-433" // name
 },
 {
@@ -2675,7 +2675,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"EU-863-870" // name
 },
 {
@@ -3056,7 +3056,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"IN-865-867" // name
 },
 {
@@ -3437,7 +3437,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"nam1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"KR-920-923" // name
 },
 {
@@ -3818,7 +3818,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"eu1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"RU-864-870" // name
 },
 {
@@ -4199,6 +4199,6 @@ GatewaySettings lorawanGatewaySettings[] = {
 		"loragw_hal.log" // log_file_name
 	},
 	"nam1.cloud.thethings.network", // serverAddr
-	"/dev/ttyAMA0" // gpsTtyPath,
+	"/dev/ttyAMA0", // gpsTtyPath
 	"US-902-928" // name
 }};

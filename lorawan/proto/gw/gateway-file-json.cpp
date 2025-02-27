@@ -65,6 +65,13 @@ bool GatewaySX1261Config::operator==(
 
 int GatewaySX1261Config::parse(nlohmann::json &jsonValue)
 {
+    auto jEnable = jsonValue.find("enable");
+    if (jEnable != jsonValue.end()) {
+        if (jEnable->is_boolean()) {
+            value.sx1261.enable = *jEnable;
+        }
+    }
+
     auto jSpiPath = jsonValue.find("spi_path");
     if (jSpiPath != jsonValue.end()) {
         if (jSpiPath->is_string()) {
@@ -234,6 +241,7 @@ void GatewaySX1261Config::toHeader(
     if (cpp20) {
         retVal << "\t// " << name << "\n\t\t.sx1261 = {\n"
             "\t\t\t.sx1261 = {\n"
+            "\t\t\t.enable = " << (value.sx1261.enable ? "true" : "false") << ",\n"
             "\t\t\t\t.spi_path = \"" << value.sx1261.spi_path << "\",\n"
             "\t\t\t\t.rssi_offset = " << (int) value.sx1261.rssi_offset << "\n"
             "\t\t\t},\n"
@@ -1820,7 +1828,7 @@ void GatewayConfigFileJson::toHeader(
             "\t.name = \"" << niceName << "\",\n}";
     else
         retVal << ",\n\t\"" << gatewayConf.serverAddr << "\", // serverAddr\n"
-        "\t\"" << gatewayConf.gpsTtyPath << "\" // gpsTtyPath,\n"
+        "\t\"" << gatewayConf.gpsTtyPath << "\", // gpsTtyPath\n"
         "\t\"" << niceName << "\" // name\n}";
 }
 

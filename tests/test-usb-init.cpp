@@ -175,7 +175,7 @@ int main(
 	char *argv[]
 )
 {
-    int region = 7;
+    int region = 6;
     int r = getConfigForCOMPortAndRegion(argc > 1 ? argv[1] : "COM3", region);
 
     if (!r) {

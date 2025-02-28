@@ -355,9 +355,13 @@ static void run()
     identityClient.svcGateway->init(localConfig.gatewayFileName, nullptr);
     if (localConfig.verbosity > 1) {
         std::cout
-            << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n'
+            << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n'
             << MSG_IDENTITIES << identityClient.svcIdentity->size() << '\n'
-            << MSG_GATEWAYS << identityClient.svcGateway->size() << std::endl;
+            << MSG_GATEWAYS << identityClient.svcGateway->size()
+            << "\nBridges:" << std::endl;
+        for (auto &b : pluginBridges.bridges) {
+            std::cout << '\t' << b.bridge->name() << '\n';
+        }
     }
 
     dispatcher.setIdentityClient(&identityClient);

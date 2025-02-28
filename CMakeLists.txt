@@ -398,7 +398,7 @@ else()
 	target_include_directories(tcp-udp-bridge PRIVATE ".")
 	set_target_properties(tcp-udp-bridge PROPERTIES SOVERSION ${VERSION_INFO})
 
-	install(FILES README.md LICENSE HISTORY COPYING TODO CODE_OF_CONDUCT.md CONTRIBUTING.md DESTINATION doc)
+	install(FILES README.md LICENSE HISTORY COPYING TODO CODE_OF_CONDUCT.md CONTRIBUTING.md DESTINATION third-party/gw-regional-settings)
 
 	include(InstallRequiredSystemLibraries)
 

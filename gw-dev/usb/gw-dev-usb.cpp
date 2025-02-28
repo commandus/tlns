@@ -8,13 +8,11 @@
 
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#define DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "127.0.0.1:42287"
 #define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "127.0.0.1:42288"
 #else
 #include <execinfo.h>
 #include <algorithm>
 
-#define DEF_USB_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/usb.socket"
 #define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/control.socket"
 #endif
 
@@ -434,8 +432,8 @@ static void run()
 
     GatewaySettings* settings = getGatewayConfig(&localConfig);
 
-    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, "", settings,
-                                             &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.controlSocketFileNameOrAddressAndPort, settings,
+        &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
     dispatcher.sockets.push_back(taskUSBSocket);
 
     // control socket

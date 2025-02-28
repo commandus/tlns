@@ -1,3 +1,4 @@
+#include <iostream>
 #include "task-usb-socket.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -53,7 +54,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
     bool enableBeacon,
     int verbosity
 )
-    : TaskSocket(SA_REQUIRE), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
+    : TaskSocket(SA_NONE), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
 {
     listener.socket = this;
     if (!aLog)
@@ -126,7 +127,11 @@ SOCKET TaskUsbGatewaySocket::openSocket()
         sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
         sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
     }
+
     r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+
+    std::cout << "USB Listen UDP socket " << sockaddr2string((sockaddr*) &sunAddr) << std::endl;
+
     int nameLen = sizeof(struct sockaddr_in);
     getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
     nPort = sunAddr.sin_port;

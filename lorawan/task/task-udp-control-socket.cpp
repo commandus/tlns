@@ -1,5 +1,6 @@
 #include <cstring>
 #include <csignal>
+#include <iostream>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define close closesocket
@@ -63,25 +64,30 @@ SOCKET TaskUDPControlSocket::openSocket()
     }
     // Set socket to be nonblocking
 #if defined(_MSC_VER) || defined(__MINGW32__)
+    u_long onw = 1;
+    rc = ioctlsocket(sock, FIONBIO, &onw);
 #else
-    rc = ioctl(sock, FIONBIO, (char *)&on);
+    rc = ioctl(sock, FIONBIO, (char *) &on);
+#endif
     if (rc < 0) {
         close(sock);
         sock = -1;
         lastError = ERR_CODE_SOCKET_OPEN;
         return -1;
     }
-#endif
     // Connect
     struct sockaddr_in saddr {};
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    saddr.sin_addr.s_addr = htonl(addr.S_un.S_addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
+    saddr.sin_addr.s_addr = addr.S_un.S_addr;
 #else
-    saddr.sin_addr.s_addr = htonl(addr); // inet_pton(AF_INET, addr.c_str(), &(saddr.sin_addr));
+    saddr.sin_addr.s_addr = addr;
 #endif
     saddr.sin_port = htons(port);
+
+    std::cout << "Connect control UDP socket " << sockaddr2string((sockaddr*) &saddr) << std::endl;
+
     rc = connect(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {
         close(sock);

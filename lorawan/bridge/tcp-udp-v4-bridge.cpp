@@ -58,7 +58,7 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     onPayloadListenSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (onPayloadListenSocket == INVALID_SOCKET)
         return ERR_CODE_SOCKET_CREATE;
-    struct sockaddr_in sunAddr { AF_INET,0 };
+    struct sockaddr_in sinAddr {AF_INET, 0 };
 
     // Allow socket descriptor to be reusable
     int on = 1;
@@ -76,20 +76,20 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     }
 
     // Bind socket to socket name
-    sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
-    sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
-    int r = bind(onPayloadListenSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    sinAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+    sinAddr.sin_port = 0;   // TCP/IP stack assign random port number
+    int r = bind(onPayloadListenSocket, (const struct sockaddr *) &sinAddr, sizeof(struct sockaddr_in));
     if (r < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_BIND;
     }
     // get port number back
     int nameLen = sizeof(struct sockaddr_in);
-    getsockname(onPayloadListenSocket, (sockaddr *) &sunAddr, &nameLen);
+    getsockname(onPayloadListenSocket, (sockaddr *) &sinAddr, &nameLen);
 
     // client socket
     onPayloadClientSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    r = connect(onPayloadClientSocket, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
+    r = connect(onPayloadClientSocket, (const struct sockaddr *) &sinAddr, sizeof(struct sockaddr_in));
     if (r < 0) {
         closeOnPayloadSocket();
         return ERR_CODE_SOCKET_CONNECT;
@@ -556,7 +556,9 @@ void TcpUdpV4Bridge::onPayload(
                 << ", " << s;
             s = ss.str();
             auto sz = s.size();
-            ssize_t bytes = (ssize_t) write((int) onPayloadClientSocket, (const char *) s.c_str(), (int) sz);
+            // Invalid in WIndows- it does not work with sockets
+            // ssize_t bytes = (ssize_t) write((SOCKET) onPayloadClientSocket, (const char *) s.c_str(), (int) sz);
+            ssize_t bytes = (ssize_t) send(onPayloadClientSocket, (const char *) s.c_str(), (int) sz, 0);
             if (bytes < sz) {
                 std::cerr << "Error write " << bytes << ", errno: " << errno << std::endl;
             }
@@ -597,7 +599,7 @@ void TcpUdpV4Bridge::onSend(
             ss << "{\"sendingResultCode\": " << code
                << ", " << s;
             s = ss.str();
-            write((int) onPayloadClientSocket, (const char *) s.c_str(), (int) s.size());
+            write((SOCKET) onPayloadClientSocket, (const char *) s.c_str(), (int) s.size());
         }
     }
 

@@ -172,7 +172,7 @@ bool MessageTaskDispatcher::openSockets()
 {
     bool r = true;
     for (auto s : sockets) {
-        if (s->lastError || s->openSocket() < 0) {
+        if (s->lastError || s->openSocket() == INVALID_SOCKET) {
             r = false;
             break;
         }
@@ -596,6 +596,7 @@ void MessageTaskDispatcher::sendPayloadOverBridge(
     bool micMatched = item->radioPacket.matchMic(item->task.deviceId.nwkSKey);
     bool decoded = item->radioPacket.decode(&item->task.deviceId);
     for (auto b: appBridges) {
+        std::cout << "Send payload, bridge " << b->name() << std::endl;
         b->onPayload(this, item, decoded, micMatched);
     }
 }

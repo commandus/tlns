@@ -59,6 +59,20 @@ typedef void(*OnDestroyProc)(
     MessageTaskDispatcher* dispatcher
 );
 
+typedef void(*OnStartProc)(
+    MessageTaskDispatcher* dispatcher
+);
+
+typedef void(*OnStopProc)(
+    MessageTaskDispatcher* dispatcher
+);
+
+typedef void(*OnGatewayPingProc)(
+    MessageTaskDispatcher* dispatcher,
+    uint64_t id,
+    SOCKET socket
+);
+
 class MessageTaskDispatcher;
 
 typedef int(*TaskProc)(
@@ -114,6 +128,9 @@ public:
     OnTxpkAckProc onTxPkAck;
     OnDestroyProc onDestroy;
     OnErrorProc onError;
+    OnStartProc onStart;
+    OnStopProc onStop;
+    OnGatewayPingProc onGatewayPing;
 
     std::vector<ProtoGwParser*> parsers;
     const RegionalParameterChannelPlan *regionalPlan;

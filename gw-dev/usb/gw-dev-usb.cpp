@@ -370,7 +370,6 @@ static void run()
         TASK_TIME receivedTime
     )
     {
-
         // Print out received row packet
         if (localConfig.verbosity)
             std::cout << hexString(buffer, bufferSize) << std::endl;
@@ -424,6 +423,27 @@ static void run()
         const std::string &message
     ) {
         std::cerr << ERR_MESSAGE << code << ": " << message << " ("<< module<< ")" << std::endl;
+    };
+
+    dispatcher.onStart = [] (
+        MessageTaskDispatcher* dispatcher
+    ) {
+        std::cerr << MSG_UPSTREAM_STARTED << std::endl;
+    };
+
+    dispatcher.onStop = [] (
+            MessageTaskDispatcher* dispatcher
+    ) {
+        std::cerr << MSG_UPSTREAM_FINISHED << std::endl;
+    };
+
+
+    dispatcher.onGatewayPing = [] (
+        MessageTaskDispatcher* dispatcher,
+        uint64_t id,
+        SOCKET socket
+    ) {
+        std::cerr << MSG_GATEWAY << gatewayId2str(id) << std::endl;
     };
 
     DeviceBestGatewayServiceMem m(0, nullptr);

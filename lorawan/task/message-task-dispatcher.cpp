@@ -41,7 +41,7 @@ MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), threadUplink(nullptr),
     deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), runningUplink(false),
     onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
-    onError(nullptr)
+    onError(nullptr), onStart(nullptr), onStop(nullptr), onGatewayPing(nullptr)
 {
     queue.setDispatcher(this);
     sockets.push_back(timerSocket);
@@ -55,7 +55,8 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     regionalPlan(value.regionalPlan), identityClient(value.identityClient), queue(value.queue),
     runningUplink(value.runningUplink), onReceiveRawData(value.onReceiveRawData),
     onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
-    onDestroy(value.onDestroy), onError(nullptr)
+    onDestroy(value.onDestroy), onError(value.onError), onStart(value.onStart), onStop(value.onStop),
+    onGatewayPing(value.onGatewayPing)
 {
 }
 
@@ -248,6 +249,9 @@ int MessageTaskDispatcher::runUplink()
     SOCKET maxFD1 = getMaxDescriptor1(masterReadSocketSet);
     char buffer[4096];
 
+    if (onStart) {
+        onStart(this);
+    }
     ParseResult pr;
     struct sockaddr srcAddr {};
     socklen_t srcAddrLen = sizeof(srcAddr);
@@ -404,6 +408,10 @@ int MessageTaskDispatcher::runUplink()
     }
     closeSockets();
     doneBridges();
+    if (onStop) {
+        onStop(this);
+    }
+
     runningUplink = false;
     return CODE_OK;
 

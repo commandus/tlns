@@ -1,12 +1,13 @@
-#include <iostream>
 #include "task-usb-socket.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#define TASK_SOCKET_ACCEPT SA_NONE
 #else
 #include <sys/un.h>
 #include <sys/syslog.h>
 #include <sys/ioctl.h>
 #define INVALID_SOCKET  (-1)
+#define TASK_SOCKET_ACCEPT SA_REQUIRE
 #endif
 
 #include "lorawan/lorawan-msg.h"
@@ -54,7 +55,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
     bool enableBeacon,
     int verbosity
 )
-    : TaskSocket(SA_REQUIRE), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
+    : TaskSocket(TASK_SOCKET_ACCEPT), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
 {
     listener.socket = this;
     if (!aLog)
@@ -130,7 +131,7 @@ SOCKET TaskUsbGatewaySocket::openSocket()
 
     r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_in));
 
-    std::cout << "USB Listen UDP socket " << sockaddr2string((sockaddr*) &sunAddr) << std::endl;
+    // std::cout << "USB Listen UDP socket " << sockaddr2string((sockaddr*) &sunAddr) << std::endl;
 
     int nameLen = sizeof(struct sockaddr_in);
     getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
@@ -150,11 +151,13 @@ SOCKET TaskUsbGatewaySocket::openSocket()
         lastError = ERR_CODE_SOCKET_LISTEN;
     }
     // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
+#ifndef _MSC_VER
     r = listen(sock, 20);
     if (r < 0) {
         sock = INVALID_SOCKET;
         return sock;
     }
+#endif
     return sock;
 }
 

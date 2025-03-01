@@ -1,6 +1,4 @@
 #include <cstring>
-#include <csignal>
-#include <iostream>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define close closesocket
@@ -86,7 +84,7 @@ SOCKET TaskUDPControlSocket::openSocket()
 #endif
     saddr.sin_port = htons(port);
 
-    std::cout << "Connect control UDP socket " << sockaddr2string((sockaddr*) &saddr) << std::endl;
+    // std::cout << "Connect control UDP socket " << sockaddr2string((sockaddr*) &saddr) << std::endl;
 
     rc = connect(sock, (struct sockaddr *) &saddr, sizeof(saddr));
     if (rc < 0) {

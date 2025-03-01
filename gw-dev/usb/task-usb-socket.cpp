@@ -54,7 +54,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
     bool enableBeacon,
     int verbosity
 )
-    : TaskSocket(SA_NONE), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
+    : TaskSocket(SA_REQUIRE), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
 {
     listener.socket = this;
     if (!aLog)
@@ -148,6 +148,12 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     if (r < 0) {
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_LISTEN;
+    }
+    // Prepare for accepting connections. The backlog size is set to 20. So while one request is being processed other requests can be waiting.
+    r = listen(sock, 20);
+    if (r < 0) {
+        sock = INVALID_SOCKET;
+        return sock;
     }
     return sock;
 }

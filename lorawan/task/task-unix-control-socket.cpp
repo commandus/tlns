@@ -3,6 +3,7 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
 #include <sys/un.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #define INVALID_SOCKET  (-1)
 #endif
@@ -34,7 +35,31 @@ SOCKET TaskUnixControlSocket::openSocket()
     sunAddr.sun_family = AF_UNIX;
     strncpy(sunAddr.sun_path, socketPath.c_str(), sizeof(sunAddr.sun_path) - 1);
 
-    int r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
+    int on = 1;
+    // Allow socket descriptor to be reusable
+    int r = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+    if (r < 0) {
+        close(sock);
+        sock = INVALID_SOCKET;
+        lastError = ERR_CODE_SOCKET_OPEN;
+        return INVALID_SOCKET;
+    }
+    // Set socket to be nonblocking
+#ifdef _MSC_VER
+    u_long onw = 1;
+    r = ioctlsocket(sock, FIONBIO, &onw);
+#else
+    r = ioctl(sock, FIONBIO, (char *)&on);
+#endif
+    if (r < 0) {
+        close(sock);
+        sock = INVALID_SOCKET;
+        lastError = ERR_CODE_SOCKET_OPEN;
+        return INVALID_SOCKET;
+    }
+    /*
+
+    r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_BIND;
@@ -47,14 +72,15 @@ SOCKET TaskUnixControlSocket::openSocket()
         sock = INVALID_SOCKET;
         return sock;
     }
-    /* 2025-02-26 connect replaced by listen()!
+*/
+    /* 2025-02-26 connect replaced by listen()! */
+
     r = connect(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));
     if (r < 0) {
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_CONNECT;
         return sock;
     }
-     */
     return sock;
 #endif
 }

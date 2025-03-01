@@ -25,6 +25,7 @@
 #define read(sock, b, sz) ::recv(sock, b, sz, 0)
 typedef in_addr in_addr_t;
 #else
+#define INVALID_SOCKET (-1)
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>

@@ -16,6 +16,7 @@
 # -DENABLE_HTTP=off			enable HTTP storage service. libmicrohttpd dependency required.
 # -DENABLE_QRCODE=off		enable HTTP QRCode URN storage service.
 # -DENABLE_MINIZIP=off		Build storage with minizip
+# -DENABLE_VIEW_IDENTITY=off		enable example of identity viewer. ncurses (pdcurses) dependency required.
 
 # Example:
 # cmake -DENABLE_LIBUV=on
@@ -104,6 +105,7 @@ else()
 	option(ENABLE_HTTP "Build storage with HTTP" OFF)
 	option(ENABLE_QRCODE "Build storage with HTTP QRCode URN" OFF)
 	option(ENABLE_MINIZIP "Build storage with minizip" OFF)
+	option(ENABLE_VIEW_IDENTITY "Build identity viewer example" OFF)
 
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
@@ -416,6 +418,10 @@ if (ENABLE_MQTT)
 	add_subdirectory(bridge/mqtt)
 endif()
 
+if (ENABLE_VIEW_IDENTITY)
+	add_subdirectory(util/tui-editor)
+endif()
+
 #
 # Gateway and identifier storage
 #
@@ -438,7 +444,6 @@ message("-DENABLE_GW_DEV_USB=${ENABLE_GW_DEV_USB} \t build RAK2287 USB gateway b
 message("-DENABLE_LIBUV=${ENABLE_LIBUV} \t enable libuv UDP/TCP")
 message("-DENABLE_DEBUG=${ENABLE_DEBUG} \t enable debugging output")
 message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory storage)")
-message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 message("-DENABLE_SQLITE=${ENABLE_SQLITE} \t enable SQLITE3 backend (reserved)")
 message("-DENABLE_LMDB=${ENABLE_LMDB} \t enable LMDB backend")
 message("-DENABLE_JSON=${ENABLE_JSON} \t build with JSON file backend")
@@ -447,7 +452,9 @@ message("-DENABLE_IPV6=${ENABLE_IPV6} \t enable IPv6 (reserved)")
 message("	storage:")
 message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 message("-DENABLE_QRCODE=${ENABLE_QRCODE} \t enable HTTP QRCode URN service")
+message("	experimental:")
 message("-DENABLE_MINIZIP=${ENABLE_MINIZ} \t build with minizip.")
+message("-DENABLE_VIEW_IDENTITY=${ENABLE_VIEW_IDENTITY} \t build identity viewer example. ncurses (pdcurses) dependency required.")
 message("")
 message(" Windows: with -DENABLE_SQLITE=on must provide VCPKG options like -DCMAKE_TOOLCHAIN_FILE=C:\\git\\vcpkg\\")
 message("   scripts\\buildsystems\\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows")

@@ -65,7 +65,7 @@ static TaskSocket *taskUSBSocket = nullptr;
 
 class LocalGatewayConfiguration {
 public:
-    std::string devicePath;
+    std::vector <std::string> devicePaths;
     std::string identityFileName;
     std::string gatewayFileName;
     std::string pluginFilePath;
@@ -84,9 +84,9 @@ public:
     }
 };
 
-GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config) {
+GatewaySettings* getGatewayConfig(LocalGatewayConfiguration *config, int deviceIndex) {
     // set COM port device path, just in case
-    strncpy(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path, config->devicePath.c_str(),
+    strncpy(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path, config->devicePaths[deviceIndex].c_str(),
             sizeof(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path));
     return &lorawanGatewaySettings[config->regionIdx];
 }
@@ -145,7 +145,7 @@ int parseCmd(
 )
 {
     // device path
-    struct arg_str *a_device_path = arg_str1(nullptr, nullptr, _("<device-name>"), _("USB gateway device e.g. /dev/ttyACM0"));
+    struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 100, _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
 
     struct arg_str *a_identity_plugin_file = arg_str0("I", "plugin", _("<identity-plugin-file-name>"), _("Default none"));
@@ -183,10 +183,8 @@ int parseCmd(
     // Parse the command line as defined by argtable[]
     int nErrors = arg_parse(argc, argv, argtable);
 
-    if (a_device_path->count)
-        config->devicePath = std::string(*a_device_path->sval);
-    else
-        config->devicePath = "";
+    for (int i = 0; i < a_device_path->count; i++)
+        config->devicePaths.push_back(a_device_path->sval[i]);
 
     // try load shared library
     if (a_identity_plugin_file->count > 0) {
@@ -450,11 +448,12 @@ static void run()
     DeviceBestGatewayDirectClient deviceBestGatewayDirectClient(&m);
     dispatcher.setDeviceBestGatewayClient(&deviceBestGatewayDirectClient);
 
-    GatewaySettings* settings = getGatewayConfig(&localConfig);
-
-    taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.controlSocketFileNameOrAddressAndPort, settings,
-        &errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
-    dispatcher.sockets.push_back(taskUSBSocket);
+    for (int i = 0; i < localConfig.identityFileName.size(); i++) {
+        GatewaySettings *settings = getGatewayConfig(&localConfig, i);
+        taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.controlSocketFileNameOrAddressAndPort,
+            settings,&errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+        dispatcher.sockets.push_back(taskUSBSocket);
+    }
 
     // control socket
     TaskSocket *taskControlSocket

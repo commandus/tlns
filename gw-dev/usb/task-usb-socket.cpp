@@ -123,7 +123,8 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     }
     // Bind socket to socket name
 #ifdef _MSC_VER
-    if (!string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress)) {
+    bool addressSpecified = string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress);
+    if (!addressSpecified) {
         // if address is not assigned or invalid, assign loop-back interface and any random port number
         sunAddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
         sunAddr.sin_port = 0;   // TCP/IP stack assign random port number
@@ -133,9 +134,13 @@ SOCKET TaskUsbGatewaySocket::openSocket()
 
     // std::cout << "USB Listen UDP socket " << sockaddr2string((sockaddr*) &sunAddr) << std::endl;
 
-    int nameLen = sizeof(struct sockaddr_in);
-    getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
-    nPort = sunAddr.sin_port;
+    if (!addressSpecified) {
+        int nameLen = sizeof(struct sockaddr_in);
+        getsockname(sock, (sockaddr *) &sunAddr, &nameLen);
+        uint16_t nPort = htons(sunAddr.sin_port); // random assigned UDP port (in network byte order).
+        socketNameOrAddress = "127.0.0.1:" + std::to_string(nPort);
+    }
+
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
     r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));

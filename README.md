@@ -262,6 +262,11 @@ If -p (--plugin) option is not set then option -i (--identity) specify file name
 If -p (--plugin) option is provided then this option loads plugin and initialize that plugin with -i(--identity) option.
 It can be identity database file/directory name or network/web service address of the identity service.  
 
+Example:
+```
+./wire-send -g 16c001ff19d128 -s 127.0.0.1:42288 -a 00550116 -i identity.json AA111234
+```
+
 ### regional-parameters2cpp
 
 regional-parameters2cpp read regional settings from the JSON file and

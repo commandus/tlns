@@ -448,10 +448,11 @@ static void run()
     DeviceBestGatewayDirectClient deviceBestGatewayDirectClient(&m);
     dispatcher.setDeviceBestGatewayClient(&deviceBestGatewayDirectClient);
 
-    for (int i = 0; i < localConfig.identityFileName.size(); i++) {
+    for (int i = 0; i < localConfig.devicePaths.size(); i++) {
         GatewaySettings *settings = getGatewayConfig(&localConfig, i);
         taskUSBSocket = new TaskUsbGatewaySocket(&dispatcher, localConfig.controlSocketFileNameOrAddressAndPort,
             settings,&errLog, localConfig.enableSend, localConfig.enableBeacon, localConfig.verbosity);
+        std::cout << MSG_GATEWAY << ((TaskUsbGatewaySocket*) taskUSBSocket)->socketNameOrAddress << std::endl;
         dispatcher.sockets.push_back(taskUSBSocket);
     }
 

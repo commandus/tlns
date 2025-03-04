@@ -95,10 +95,10 @@ static void run() {
 int main(int argc, char **argv) {
     struct arg_str *a_gateway_id = arg_str1("g", "gateway", _("<hex-number>"), _("Gateway identifer"));
     struct arg_str *a_network_server_address_n_port = arg_str1("s", "service", _("<IP address>:<port number>"), _("Network service address and port"));
-    struct arg_str *a_device_address = arg_str1("a", "address", _("<hex-number>"), _("Gateway identifer"));
-    struct arg_str *a_fopts = arg_str0("o", "fopts", _("<hex-sequence>"), _("FOpts (up to 16 bytes"));
-    struct arg_str *a_payload = arg_str0(nullptr, nullptr, _("<hex-sequence>"), _("payload (up to 255 bytes"));
-    struct arg_str *a_identity_plugin_file = arg_str0("p", "plugin", _("<identity-plugin-file-name>"), _("Default none"));
+    struct arg_str *a_device_address = arg_str1("a", "address", _("<hex-number>"), _("Device address"));
+    struct arg_str *a_fopts = arg_str0("o", "fopts", _("<hex-sequence>"), _("FOpts (up to 16 bytes)"));
+    struct arg_str *a_payload = arg_str0(nullptr, nullptr, _("<hex-sequence>"), _("payload (up to 255 bytes)"));
+    struct arg_str *a_identity_plugin_file = arg_str0("p", "plugin", _("<identity-plugin-file-name>"), _("Default JSON file"));
     struct arg_str *a_identity_file_name = arg_str1("i", "identity", _("<file>"), _("Identities JSON file name"));
 
     struct arg_lit *a_verbose = arg_litn("v", "verbose", 0, 2, _("-v verbose -vv debug"));

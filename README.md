@@ -220,7 +220,8 @@ name of the function creates access object.
 ## Tools
 
 - gateway-config2cpp
-- 
+- wire-send
+- regional-parameters2cpp
 
 ### gateway-config2cpp
 
@@ -239,6 +240,28 @@ Usage:
 ./gateway-config2cpp /home/andrei/git/rak_common_for_gateway/lora/rak2287/global_conf_usb/ *.json > gateway-usb-conf.h
 ```
 
+### wire-send
+
+Send downlink message (as is from the device to the network server) via specified gateway (by gateway id). 
+
+Mandatory arguments are:
+
+- -g, --gateway=<hex-number>  Gateway identifer
+- -s, --service=<IP address>:<port number> Network service address and port
+- -a, --address=<hex-number>  Device address
+- -i, --identity=<file>       Identities JSON file name
+
+Optional arguments set unnecessary payload and FOpts in hex.
+
+- -o, --fopts=<hex-sequence>  FOpts (up to 16 bytes)
+- <hex-sequence>              payload (up to 255 bytes)
+- -p, --plugin=<identity-plugin-file-name> Default JSON file
+
+If -p (--plugin) option is not set then option -i (--identity) specify file name. This file is JSON array of identities.
+
+If -p (--plugin) option is provided then this option loads plugin and initialize that plugin with -i(--identity) option.
+It can be identity database file/directory name or network/web service address of the identity service.  
+
 ### regional-parameters2cpp
 
 regional-parameters2cpp read regional settings from the JSON file and
@@ -250,6 +273,8 @@ Usage:
 ```
 ./regional-parameters2cpp gen/regional-parameters.json > gen/regional-parameters-3.h
 ```
+
+Please note gateway-config2cpp is for gateway and regional-parameters2cpp is for network server. 
 
 ## MSVC
 

@@ -328,7 +328,6 @@ static void run()
 {
     GatewayBasicUdpProtocol parser(&dispatcher);
     dispatcher.addParser(&parser);
-
     PluginClient identityClient(localConfig.pluginFilePath);
     if (!identityClient.svcIdentity || !identityClient.svcGateway) {
         std::cerr << ERR_MESSAGE << ERR_CODE_LOAD_PLUGINS_FAILED << ": "

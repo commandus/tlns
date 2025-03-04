@@ -274,7 +274,7 @@ public:
      * @param fPort 0- FOpts in the payload, 1..255- user defined payload
      * @param payloadSize 0..255
      * @param fOptsSize 0..15
-     * @param proto protocol to serialize packet
+     * @param proto protocol to serialize packet (unused)
      * @return 0- success
      */
     int sendDownlink(
@@ -285,7 +285,7 @@ public:
         uint8_t fPort,
         uint8_t payloadSize,
         uint8_t fOptsSize,
-        ProtoGwParser *proto
+        ProtoGwParser *proto = nullptr
     );
 
     void initBridges();

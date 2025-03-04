@@ -75,10 +75,22 @@ static void run() {
             << MSG_IDENTITIES << identityClient.svcIdentity->size() << '\n'
             << params.toString() << std::endl;
     }
+    DEVICEID did;
+    DEVADDR devAddr(params.deviceAddress);
+    int r = identityClient.svcIdentity->get(did, devAddr);
+    if (r) {
+        std::cerr << ERR_DEVICE_ADDRESS_NOTFOUND << std::endl;
+        return;
+    }
+
     JsonWiredClient jsonWiredClient(&identityClient,
         params.gwId, params.networkServerAddress, params.networkServerPort, params.deviceAddress);
 
     std::thread thread(std::bind(&JsonWiredClient::run, &jsonWiredClient));
+    // wait thread is running
+    while (jsonWiredClient.status != CODE_OK) {
+        sleep(1);
+    }
 
     std::cout << _("Enter 'q' to stop") << std::endl;
     while (jsonWiredClient.status != ERR_CODE_STOPPED) {

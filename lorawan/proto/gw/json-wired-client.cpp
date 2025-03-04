@@ -28,7 +28,7 @@ JsonWiredClient::JsonWiredClient(
 )
     : directClient(aDirectClient), gwId(aGwId), networkServerAddress(aNetworkServerAddress),
     networkServerPort(aNetworkServerPort), deviceAddress(aDeviceAddress),
-    sock(INVALID_SOCKET), status(CODE_OK)
+    sock(INVALID_SOCKET), status(ERR_CODE_STOPPED)
 {
 }
 
@@ -43,7 +43,7 @@ int JsonWiredClient::JsonWiredClient::send(
 )
 {
     std::stringstream ss;
-    makeMessage(ss, token, gatewayId, addr,fopts, payload);
+    makeMessage(ss, token, gatewayId, addr, fopts, payload);
     std::string s = ss.str();
     write(sock, s.c_str(), (int) s.size());
     return CODE_OK;

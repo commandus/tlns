@@ -113,7 +113,7 @@ int32_t legacy_timestamp_correction(uint8_t bandwidth, uint8_t sf, uint8_t cr, b
     }
 
     /* Prepare variables for delay computing */
-    clk_period = 250E3 / bw_pow;
+    clk_period = (uint64_t) (250E3 / bw_pow);
 
     nb_nibble = (payload_length + 2 * crc_en) * 2 + 5;
 
@@ -150,7 +150,7 @@ int32_t legacy_timestamp_correction(uint8_t bandwidth, uint8_t sf, uint8_t cr, b
     }
 
     /* Filtering delay : I/Q 32Mhz -> 4Mhz */
-    filtering_delay = 16000E3 / bw_pow + 2031250;
+    filtering_delay = (uint64_t) (16000E3 / bw_pow + 2031250);
 
     /* demap delay */
     if (payload_fits_in_header == true) {

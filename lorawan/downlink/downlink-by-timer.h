@@ -11,7 +11,11 @@ private:
     std::vector<NETWORKIDENTITY> identities;
     size_t index;
 public:
-    DownlinkByTimer(MessageTaskDispatcher *dispatcher, DirectClient *identityClient, uint32_t seconds);
+    DownlinkByTimer(
+        MessageTaskDispatcher *dispatcher,
+        DirectClient *identityClient,
+        uint32_t seconds = 1
+    );
     void run() override;
 };
 

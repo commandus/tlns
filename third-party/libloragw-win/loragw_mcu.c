@@ -398,7 +398,7 @@ int decode_ack_get_status(const uint8_t * hdr, const uint8_t * payload, s_status
 
     temperature_sensor = (int16_t)(payload[ACK_GET_STATUS__TEMPERATURE_15_8] << 8) |
                          (int16_t)(payload[ACK_GET_STATUS__TEMPERATURE_7_0]  << 0);
-    status->temperature = (float)temperature_sensor / 100.0;
+    status->temperature = (float) (temperature_sensor / 100.0);
 
 
 #if DEBUG_VERBOSE

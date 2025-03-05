@@ -39,6 +39,7 @@
 #include "lorawan/bridge/plugin-bridge.h"
 #include "lorawan/bridge/stdout-bridge.h"
 #include "lorawan/storage/service/device-best-gateway-mem.h"
+#include "lorawan/downlink/downlink-by-timer.h"
 
 // i18n
 // #include <libintl.h>
@@ -434,7 +435,6 @@ static void run()
         std::cerr << MSG_UPSTREAM_FINISHED << std::endl;
     };
 
-
     dispatcher.onGatewayPing = [] (
         MessageTaskDispatcher* dispatcher,
         uint64_t id,
@@ -468,7 +468,9 @@ static void run()
 
     if (!localConfig.daemonize)
         setSignalHandler();
-    // downlonkRun() in separate thread
+    // downlinkRun() in separate thread
+    DownlinkByTimer downlinkByTimer(&dispatcher, &identityClient);
+    downlinkByTimer.start();
     // run() in main thread
     dispatcher.runUplink();
 }

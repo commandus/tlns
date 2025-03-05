@@ -270,6 +270,7 @@ int MessageTaskDispatcher::runUplink()
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
         if (rc == 0) {   // select() timed out.
+            sendDownlinkMessages();
             cleanupOldMessages(receivedTime);
             continue;
         }
@@ -566,6 +567,20 @@ void MessageTaskDispatcher::prepareSendConfirmation(
 )
 {
     queue.time2ResponseAddr.push(addr, receivedTime);
+}
+
+void MessageTaskDispatcher::sendDownlinkMessages()
+{
+    for (auto it = queue.downlinkMessages.begin(); it != queue.downlinkMessages.end();) {
+        const DEVADDR &a = it->first;
+        GatewayMetadata gwm;
+        uint64_t gw = it->second.getBestGatewayAddress(gwm);
+        if (gw) {
+            std::cout << "send downlink " << DEVADDR2string(a) << " to gateway " << gatewayId2str(gw) << std::endl;
+            // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
+        }
+        it = queue.downlinkMessages.erase(it);
+    }
 }
 
 void MessageTaskDispatcher::cleanupOldMessages(

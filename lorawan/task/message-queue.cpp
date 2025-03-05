@@ -140,7 +140,7 @@ void MessageQueue::putDownlink(
         // update or skip
     } else {
         MessageQueueItem qi(this, time, parser);
-        auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
+        auto i = downlinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
     }
     time2ResponseAddr.push(msg.msg.getAddr(), time);
 }

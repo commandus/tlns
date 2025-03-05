@@ -211,6 +211,8 @@ public:
         TASK_TIME receivedTime
     );
 
+    void sendDownlinkMessages();
+
     void cleanupOldMessages(
         TASK_TIME now
     );

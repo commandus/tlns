@@ -540,5 +540,5 @@ static PassPhraseGen gen;
 
 std::string getPassphrase()
 {
-    return ru_left[gen.distLeft->operator()(gen.randomGenerator)] + '-' + ru_right[gen.distRight->operator()(gen.randomGenerator)];
+    return en_left[gen.distLeft->operator()(gen.randomGenerator)] + '-' + en_right[gen.distRight->operator()(gen.randomGenerator)];
 }

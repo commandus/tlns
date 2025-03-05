@@ -638,13 +638,13 @@ int MessageTaskDispatcher::sendDownlink(
         return ERR_CODE_WRONG_PARAM;
     if (fOptsSize > 15)
         return ERR_CODE_MAC_INVALID;
-    if (identityClient)
+    if (!identityClient)
         return ERR_CODE_WRONG_PARAM;
-    if (identityClient->svcIdentity)
+    if (!identityClient->svcIdentity)
         return ERR_CODE_WRONG_PARAM;
-    if (deviceBestGatewayClient)
+    if (!deviceBestGatewayClient)
         return ERR_CODE_WRONG_PARAM;
-    if (deviceBestGatewayClient->svc)
+    if (!deviceBestGatewayClient->svc)
         return ERR_CODE_WRONG_PARAM;
 
     MessageQueueItem *item = queue.getUplink(addr);
@@ -665,16 +665,18 @@ int MessageTaskDispatcher::sendDownlink(
         // determine best gateway
         uint64_t gwId = deviceBestGatewayClient->svc->get(addr);
         if (gwId == 0) {
-            // if there are no information which gateway is the best yet, gat any gateway
+            // if there are no information which gateway is the best yet, get any gateway
             // check gateway list
-            if (identityClient->svcGateway)
+            if (!identityClient->svcGateway)
                 return ERR_CODE_WRONG_PARAM;
 
             std::vector<GatewayIdentity> ls;
             // getUplink any gateway from the list
             r = identityClient->svcGateway->list(ls, 0, 1);
-            if (r <= 0)
+            if (r < 0)
                 return ERR_CODE_WRONG_PARAM;    // no gateway found, exit
+            if (ls.empty())
+                return ERR_CODE_WRONG_PARAM;
             td.gatewayId = ls[0];
         } else
             td.gatewayId = gwId;
@@ -682,6 +684,9 @@ int MessageTaskDispatcher::sendDownlink(
     // build downlink message
     DownlinkMessage m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
     queue.putDownlink(tim, m, proto);
+
+    std::cout << "downlink message queued" << std::endl;
+
     return CODE_OK;
 }
 

@@ -2,16 +2,12 @@
 #include "lorawan/downlink/downlink-by-timer.h"
 #include "lorawan/helper/passphrase.h"
 
-#ifdef _MSC_VER
-#define sleep(x) Sleep(x)
-#endif
-
 DownlinkByTimer::DownlinkByTimer(
     MessageTaskDispatcher *dispatcher,
     DirectClient *aIdentityClient,
     uint32_t aSeconds
 )
-    : RunDownlink(dispatcher), identityClient(aIdentityClient), seconds(seconds), index(0)
+    : RunDownlink(dispatcher), identityClient(aIdentityClient), seconds(aSeconds), index(0)
 {
     identityClient->svcIdentity->list(identities, 0, 100);
 }
@@ -20,7 +16,7 @@ void DownlinkByTimer::run()
 {
     while (state != DLRS_STOP) {
         if (index >= identities.size())
-            index == 0;
+            index = 0;
         else {
             TASK_TIME timeNow = std::chrono::system_clock::now();
             DEVADDR devAddr = identities[index].value.devaddr;
@@ -35,6 +31,10 @@ void DownlinkByTimer::run()
             dispatcher->sendDownlink(timeNow, devAddr, payload, fOpts, fPort, payloadSize, fOptsSize);
             index++;
         }
+#ifdef _MSC_VER
+        Sleep(seconds * 1000);
+#else
         sleep(seconds);
+#endif
     }
 }

@@ -1,5 +1,6 @@
 #include <thread>
 #include "lorawan/downlink/downlink-by-timer.h"
+#include "lorawan/helper/passphrase.h"
 
 #ifdef _MSC_VER
 #define sleep(x) Sleep(x)
@@ -21,8 +22,17 @@ void DownlinkByTimer::run()
         if (index >= identities.size())
             index == 0;
         else {
-            identities[index];
-            // dispatcher->sendDownlink()
+            TASK_TIME timeNow = std::chrono::system_clock::now();
+            DEVADDR devAddr = identities[index].value.devaddr;
+
+            std::string s = getPassphrase();
+
+            void *payload = (void *) s.c_str();
+            void *fOpts = nullptr;
+            uint8_t fPort = 2;
+            uint8_t payloadSize = (uint8_t) s.size();
+            uint8_t fOptsSize = 0;
+            dispatcher->sendDownlink(timeNow, devAddr, payload, fOpts, fPort, payloadSize, fOptsSize);
             index++;
         }
         sleep(seconds);

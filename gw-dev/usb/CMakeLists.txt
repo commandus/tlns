@@ -45,9 +45,11 @@ else()
         gw-dev-usb.cpp task-usb-socket.cpp rak2287.cpp
 		${ARGTABLE}
 		../../task-response-threaded.cpp
-		../../lorawan/downlink/run-diwnlink.cpp
-		../../lorawan/downlink/diwnlink-by-timer.cpp
 		../../lorawan/bridge/stdout-bridge.cpp
+		../../lorawan/downlink/run-downlink.cpp
+		../../lorawan/downlink/downlink-by-timer.cpp
+		../../lorawan/bridge/stdout-bridge.cpp
+		../../lorawan/helper/passphrase.cpp
 		../../third-party/daemonize.cpp
 		${EXTRA_SRC}
 	)

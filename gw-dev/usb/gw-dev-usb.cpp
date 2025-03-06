@@ -438,15 +438,21 @@ static void run()
     dispatcher.onGatewayPing = [] (
         MessageTaskDispatcher* dispatcher,
         uint64_t id,
-        SOCKET socket
+        TaskSocket *taskSocket
     ) {
         // update gateway address
         if (dispatcher->identityClient) {
             if (dispatcher->identityClient->svcGateway) {
+                if (!taskSocket)
+                    return;
+#if defined(_MSC_VER) || defined(__MINGW32__)
                 struct sockaddr addr;
                 socklen_t sz = sizeof(struct sockaddr);
-                getsockname(socket, &addr, &sz);
+                getsockname(taskSocket->sock, &addr, &sz);
                 GatewayIdentity gwId(id, addr);
+#else
+                struct sockaddr_un addr {AF_UNIX, ((TaskUsbGatewaySocket *)taskSocket)->socketNameOrAddress.c_str()};
+#endif
                 dispatcher->identityClient->svcGateway->put(gwId);
                 std::cout << MSG_GATEWAY << gatewayId2str(id) << std::endl;
             }

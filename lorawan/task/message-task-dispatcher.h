@@ -70,7 +70,8 @@ typedef void(*OnStopProc)(
 typedef void(*OnGatewayPingProc)(
     MessageTaskDispatcher* dispatcher,
     uint64_t id,
-    SOCKET socket
+    TaskSocket *taskSocket
+    // SOCKET socket
 );
 
 class MessageTaskDispatcher;

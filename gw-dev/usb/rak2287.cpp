@@ -1649,7 +1649,7 @@ int LoraGatewayListener::start()
 
     if (dispatcher) {
         if (dispatcher->onGatewayPing)
-            dispatcher->onGatewayPing(dispatcher, eui, socket ? socket->sock : 0);
+            dispatcher->onGatewayPing(dispatcher, eui, socket);
     }
 
     if (!upstreamThreadRunning) {

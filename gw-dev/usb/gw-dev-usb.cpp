@@ -440,7 +440,17 @@ static void run()
         uint64_t id,
         SOCKET socket
     ) {
-        std::cerr << MSG_GATEWAY << gatewayId2str(id) << std::endl;
+        // update gateway address
+        if (dispatcher->identityClient) {
+            if (dispatcher->identityClient->svcGateway) {
+                struct sockaddr addr;
+                socklen_t sz = sizeof(struct sockaddr);
+                getsockname(socket, &addr, &sz);
+                GatewayIdentity gwId(id, addr);
+                dispatcher->identityClient->svcGateway->put(gwId);
+                std::cout << MSG_GATEWAY << gatewayId2str(id) << std::endl;
+            }
+        }
     };
 
     DeviceBestGatewayServiceMem m(0, nullptr);

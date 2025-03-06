@@ -576,9 +576,15 @@ void MessageTaskDispatcher::sendDownlinkMessages()
         GatewayMetadata gwm;
         uint64_t gw = it->second.getBestGatewayAddress(gwm);
         if (gw) {
-            std::cout << "send downlink " << DEVADDR2string(a) << " to gateway " << gatewayId2str(gw) << std::endl;
+            std::cout << "send downlink to device " << DEVADDR2string(a)
+                << " over gateway " << gatewayId2str(gw)
+                << " " << sockaddr2string(&gwm.addr)
+                << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
+        } else {
+            std::cerr << "no gateway available" << std::endl;
         }
+
         it = queue.downlinkMessages.erase(it);
     }
 }

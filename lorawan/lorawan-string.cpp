@@ -356,8 +356,8 @@ std::string JOIN_REQUEST_FRAME2string(
         const JOIN_REQUEST_FRAME &value
 ) {
     return R"({"joinEUI": ")" + DEVEUI2string(value.joinEUI) + "\", "
-           + R"("devEUI": ")" + DEVEUI2string(value.devEUI) + "\", "
-           + R"("devNonce": ")" + DEVNONCE2string(value.devNonce) + "\"}";
+       + R"("devEUI": ")" + DEVEUI2string(value.devEUI) + "\", "
+       + R"("devNonce": ")" + DEVNONCE2string(value.devNonce) + "\"}";
 }
 
 std::string JOIN_ACCEPT_FRAME_CFLIST2string(
@@ -443,7 +443,7 @@ std::string UPLINK_STORAGE2String(
 }
 
 std::string NETID2String(
-        const NETID &value
+    const NETID &value
 )
 {
     uint32_t r = NETID2int(value);
@@ -453,8 +453,8 @@ std::string NETID2String(
 }
 
 static const char *ACTIVATION_NAMES[2] = {
-        "ABP",
-        "OTAA"
+"ABP",
+"OTAA"
 };
 
 std::string activation2string(

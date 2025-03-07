@@ -56,7 +56,7 @@ DownlinkMessage::DownlinkMessage(
     const void *fopts, // up to 15 bytes, can be NULL
     uint8_t foptsSize
 )
-    : MessageBuilder(taskDescriptor)
+    : MessageBuilder(taskDescriptor), payloadSize(payloadSize + foptsSize)
 {
     // set direction
     msg.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_DOWN;

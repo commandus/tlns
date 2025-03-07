@@ -30,6 +30,7 @@ public:
  */
 class DownlinkMessage : public MessageBuilder {
 public:
+    uint8_t payloadSize;
     /**
      * @param taskDescriptor. Provide task to reply to or create a new task
      * @param fport >0 if payload exists

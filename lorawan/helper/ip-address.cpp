@@ -27,6 +27,14 @@ std::string sockaddr2string(
             }
             port = ntohs(((struct sockaddr_in6 *) value)->sin6_port);
             break;
+        case AF_UNIX:
+#ifdef _MSC_VER
+            buf[0] = '\0';
+            port = 0;
+            break;
+#else
+            return (struct sockaddr_un *) value)->sun_path;
+#endif
         default:
             return "";
     }

@@ -99,7 +99,7 @@ int TcpUdpV4Bridge::openOnPayloadSocket()
     onPayloadListenSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (onPayloadListenSocket == INVALID_SOCKET)
         return ERR_CODE_SOCKET_CREATE;
-    struct sockaddr_un sunAddr { AF_UNIX,'\0'};
+    struct sockaddr_un sunAddr { AF_UNIX, '\0'};
 
     // Allow socket descriptor to be reusable
     int on = 1;

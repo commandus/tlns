@@ -582,9 +582,15 @@ void MessageTaskDispatcher::sendDownlinkMessages()
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
         } else {
-            std::cerr << "no gateway available" << std::endl;
+            std::cerr << "no gateway available, send over all known gateways" << std::endl;
+            std::vector<GatewayIdentity> gwLs;
+            identityClient->svcGateway->list(gwLs, 0, 10);
+            for (auto &g : gwLs) {
+                std::cout << "Send downlink to device " << DEVADDR2string(a)
+                    << " over gateway " << gatewayId2str(g.gatewayId)
+                    << ' ' << sockaddr2string(&g.sockaddr) << std::endl;
+            }
         }
-
         it = queue.downlinkMessages.erase(it);
     }
 }

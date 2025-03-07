@@ -140,6 +140,8 @@ void MessageQueue::putDownlink(
         // update or skip
     } else {
         MessageQueueItem qi(this, time, parser);
+        // copy radio packet
+        msg.get(&qi.radioPacket.mhdr, SIZE_DOWNLINK_STORAGE);
         auto i = downlinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
     }
     time2ResponseAddr.push(msg.msg.getAddr(), time);

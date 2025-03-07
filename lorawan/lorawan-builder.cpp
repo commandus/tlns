@@ -59,7 +59,9 @@ DownlinkMessage::DownlinkMessage(
     : MessageBuilder(taskDescriptor)
 {
     // set direction
-    msg.mhdr.f.mtype = MTYPE_CONFIRMED_DATA_DOWN;
+    msg.mhdr.f.mtype = MTYPE_UNCONFIRMED_DATA_DOWN;
+    // set address
+    msg.data.downlink.devaddr = taskDescriptor.deviceId.devaddr;
     // MAC options
     msg.data.downlink.f.foptslen = foptsSize;
     // payload

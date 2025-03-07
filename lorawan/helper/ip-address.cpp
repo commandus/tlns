@@ -4,6 +4,7 @@
 #include <sstream>
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
+#include <sys/un.h>
 #include <arpa/inet.h>
 #endif
 
@@ -33,7 +34,7 @@ std::string sockaddr2string(
             port = 0;
             break;
 #else
-            return (struct sockaddr_un *) value)->sun_path;
+            return ((struct sockaddr_un *) value)->sun_path;
 #endif
         default:
             return "";

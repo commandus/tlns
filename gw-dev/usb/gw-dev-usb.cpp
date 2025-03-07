@@ -12,6 +12,7 @@
 #else
 #include <execinfo.h>
 #include <algorithm>
+#include <sys/un.h>
 
 #define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/control.socket"
 #endif
@@ -451,7 +452,11 @@ static void run()
                 getsockname(taskSocket->sock, &addr, &sz);
                 GatewayIdentity gwId(id, addr);
 #else
-                struct sockaddr_un addr {AF_UNIX, ((TaskUsbGatewaySocket *)taskSocket)->socketNameOrAddress.c_str()};
+                struct sockaddr_un addr { AF_UNIX };
+                auto len = ((TaskUsbGatewaySocket *)taskSocket)->socketNameOrAddress.size();
+                memmove(addr.sun_path, ((TaskUsbGatewaySocket *)taskSocket)->socketNameOrAddress.c_str(), len);
+                addr.sun_path[len] = 0;
+                GatewayIdentity gwId(id, (struct sockaddr &) addr);
 #endif
                 dispatcher->identityClient->svcGateway->put(gwId);
                 std::cout << MSG_GATEWAY << gatewayId2str(id) << std::endl;

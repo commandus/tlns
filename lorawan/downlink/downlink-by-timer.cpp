@@ -1,4 +1,5 @@
 #include <thread>
+#include <unistd.h>
 #include "lorawan/downlink/downlink-by-timer.h"
 #include "lorawan/helper/passphrase.h"
 

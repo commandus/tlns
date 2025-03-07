@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 /**
  * LoRaWAN node device simulator

@@ -1,13 +1,14 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <unistd.h>
 
 /**
  * LoRaWAN node device simulator
  */
 #ifdef _MSC_VER
 #include <WinSock2.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "argtable3/argtable3.h"

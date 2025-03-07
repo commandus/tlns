@@ -1,7 +1,10 @@
 #include <thread>
-#include <unistd.h>
 #include "lorawan/downlink/downlink-by-timer.h"
 #include "lorawan/helper/passphrase.h"
+
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 DownlinkByTimer::DownlinkByTimer(
     MessageTaskDispatcher *dispatcher,

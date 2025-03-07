@@ -586,9 +586,12 @@ void MessageTaskDispatcher::sendDownlinkMessages()
             std::vector<GatewayIdentity> gwLs;
             identityClient->svcGateway->list(gwLs, 0, 10);
             for (auto &g : gwLs) {
+
                 std::cout << "Send downlink to device " << DEVADDR2string(a)
                     << " over gateway " << gatewayId2str(g.gatewayId)
-                    << ' ' << sockaddr2string(&g.sockaddr) << std::endl;
+                    << ' ' << sockaddr2string(&g.sockaddr)
+                    << ' = ' << it->second.toJsonString()
+                    << std::endl;
             }
         }
         it = queue.downlinkMessages.erase(it);
@@ -687,6 +690,7 @@ int MessageTaskDispatcher::sendDownlink(
         int r = identityClient->svcIdentity->get(did, addr);
         if (r)
             return r;   // device not found, exit
+        td.deviceId.devaddr = addr;
         td.deviceId = did;
 
         // determine best gateway

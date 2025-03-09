@@ -114,6 +114,16 @@ public:
 
     std::string toDescriptionTableString() const;
     void toHeader(std::ostream &strm, int tabs) const;
+
+    void get(
+        size_t mwssageSize,
+        uint32_t &freqHz,
+        int &pwr,
+        BANDWIDTH &bandwidth,
+        SPREADING_FACTOR &spreadingFactor,
+        CODING_RATE &codingRate
+    ) const;
+
 };
 
 class RegionBands : public StringifyIntf {

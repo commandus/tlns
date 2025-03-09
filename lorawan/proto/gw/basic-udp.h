@@ -60,12 +60,12 @@ int parseTxAck(
  */
 class GatewayBasicUdpProtocol : public ProtoGwParser {
 protected:
-    static bool makeMessage2GatewayStream(
-        std::ostream &retStrm,
+    static bool makePullStream(
+        std::ostream &ss,
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
-        const RegionalParameterChannelPlan *aRegionalPlan
+        const RegionalParameterChannelPlan *regionalPlan
     );
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
@@ -81,6 +81,14 @@ public:
         TASK_TIME receivedTime
     ) override;
 
+    /**
+     * Create ACK packet
+     * @param retBuf buffer
+     * @param retSize buffer size
+     * @param packetForwarderPacket received packet
+     * @param size received packet size
+     * @return size of ACK packet. 0- no ACK packet, <0 error code e.g. buffer size is too small
+     */
     ssize_t ack(
         char *retBuf,
         size_t retSize,
@@ -88,7 +96,7 @@ public:
         size_t size
     ) override;
 
-    ssize_t makeMessage2Gateway(
+    ssize_t makePull(
         char *retBuf,
         size_t retSize,
         MessageBuilder &msgBuilder,

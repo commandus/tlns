@@ -50,8 +50,19 @@ public:
         size_t size
     ) = 0;
 
-    virtual ssize_t makeMessage2Gateway(
-        char *retBuf, size_t retSize,
+    /**
+     * Make PULL data
+     * @param retBuf target buffer
+     * @param retSize buffer size
+     * @param msgBuilder message builder
+     * @param token random number
+     * @param rxMetadata last received metadata if exists
+     * @param regionalPlan regional settings
+     * @return
+     */
+    virtual ssize_t makePull(
+        char *retBuf,
+        size_t retSize,
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,

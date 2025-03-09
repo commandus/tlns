@@ -4,7 +4,7 @@ Network server communicate with end-device over gateway.
 
 Dispatcher receive message from the gateway and try to decode it using one of known protocols such
 LNS (Basic communication protocol between Lora gateway and server) by the Semtech (Cycleo)
-(see [lorawan/proto/gw/basic-usp](lorawan/proto/gw/basic-usp)).
+(see [https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT](Basic communication protocol between Lora gateway and server)).
 
 Anyhow gateway can use other protocol.
 
@@ -25,7 +25,7 @@ Create inherited class override ProtoGwParser's methods:
 - tag()
 - parse()
 - ack()
-- makeMessage2Gateway()
+- makePull()
 
 and then create an object of new class
 

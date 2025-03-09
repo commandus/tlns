@@ -489,6 +489,14 @@ GatewayBasicUdpProtocol::GatewayBasicUdpProtocol(
 
 }
 
+/**
+ * Create ACK packet
+ * @param retBuf buffer
+ * @param retSize buffer size
+ * @param packetForwarderPacket received packet
+ * @param size received packet size
+ * @return size of ACK packet. 0- no ACK packet, <0 error code e.g. buffer size is too small
+ */
 ssize_t GatewayBasicUdpProtocol::ack(
     char *retBuf,
     size_t retSize,
@@ -505,43 +513,72 @@ ssize_t GatewayBasicUdpProtocol::ack(
     return SIZE_SEMTECH_ACK;
 }
 
-bool GatewayBasicUdpProtocol::makeMessage2GatewayStream(
+bool GatewayBasicUdpProtocol::makePullStream(
     std::ostream &ss,
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
-    const RegionalParameterChannelPlan *aRegionalPlan
+    const RegionalParameterChannelPlan *regionalPlan
 )
 {
-    if (!rxMetadata)
-        return false;
     SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
     ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
-    // tmst
-    if (rxMetadata->tmst) {
-        ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << tmstAddMS(rxMetadata->tmst, 1000);
-    } else {
-        ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
-    }
     std::string radioPacketBase64 = msgBuilder.base64();
-    ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
-       // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
-       << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":" << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
-       << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << gwPower(rxMetadata, aRegionalPlan)									// TX output power in dBm (unsigned integer, dBm precision)
-       << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\"" << MODULATION2String(rxMetadata->modu)	// Modulation identifier "LORA" or "FSK"
-       << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\"" << DATA_RATE2string(rxMetadata->bandwidth, rxMetadata->spreadingFactor)
-       << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
-       << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
-       << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
-       << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
-    if (!radioPacketBase64.empty())
-       ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
+
+    if (rxMetadata) {
+        // tmst
+        if (rxMetadata->tmst) {
+            ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << tmstAddMS(rxMetadata->tmst, 1000);
+        } else {
+            ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
+        }
+        ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
+           // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
+           << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":"
+           << 0 // Concentrator "RF chain" used for TX (unsigned integer)
+           << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << gwPower(rxMetadata, regionalPlan) // TX output power in dBm (unsigned integer, dBm precision)
+           << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\""
+           << MODULATION2String(rxMetadata->modu)    // Modulation identifier "LORA" or "FSK"
+           << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\""
+           << DATA_RATE2string(rxMetadata->bandwidth, rxMetadata->spreadingFactor)
+           << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
+           << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
+           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
+           << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
+        if (!radioPacketBase64.empty())
+            ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
+    } else {
+        uint32_t freqHz;
+        int pwr;
+        BANDWIDTH bandwidth;
+        SPREADING_FACTOR spreadingFactor;
+        CODING_RATE codingRate;
+        regionalPlan->get(msgBuilder.size(), freqHz, pwr, bandwidth, spreadingFactor, codingRate);
+
+        ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
+        ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(freqHz)       // "868.900"
+           // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
+           << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":"
+           << 0                                      // Concentrator "RF chain" used for TX (unsigned integer)
+           << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << pwr // TX output power in dBm (unsigned integer, dBm precision)
+           << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\""
+           << MODULATION2String(MODULATION_LORA)    // Modulation identifier "LORA" or "FSK"
+           << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\""
+           << DATA_RATE2string(bandwidth, spreadingFactor)
+           << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(codingRate)
+           << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
+           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
+           << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
+        if (!radioPacketBase64.empty())
+            ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
+
+    }
     ss << "\"}}";
     return true;
 }
 
-ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
+ssize_t GatewayBasicUdpProtocol::makePull(
     char *retBuf,
     size_t retSize,
     MessageBuilder &msgBuilder,
@@ -551,7 +588,7 @@ ssize_t GatewayBasicUdpProtocol::makeMessage2Gateway(
 )
 {
     std::stringstream ss;
-    if (!makeMessage2GatewayStream(ss, msgBuilder, token, rxMetadata, regionalPlan))
+    if (!makePullStream(ss, msgBuilder, token, rxMetadata, regionalPlan))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

@@ -15,7 +15,7 @@ std::string sockaddr2string(
     const struct sockaddr *value
 ) {
     char buf[INET6_ADDRSTRLEN];
-    int port;
+    uint16_t port;
     switch (value->sa_family) {
         case AF_INET:
             if (inet_ntop(AF_INET, &((struct sockaddr_in *) value)->sin_addr, buf, sizeof(buf)) == nullptr)

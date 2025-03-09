@@ -375,7 +375,7 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
     return true;
 }
 
-ssize_t GatewayJsonWiredProtocol::makeMessage2Gateway(
+ssize_t GatewayJsonWiredProtocol::makePull(
     char *retBuf,
     size_t retSize,
     MessageBuilder &msgBuilder,

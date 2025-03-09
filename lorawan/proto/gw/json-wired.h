@@ -50,7 +50,7 @@ public:
         size_t size
     ) override;
 
-    ssize_t makeMessage2Gateway(
+    ssize_t makePull(
         char *retBuf,
         size_t retSize,
         MessageBuilder &msgBuilder,

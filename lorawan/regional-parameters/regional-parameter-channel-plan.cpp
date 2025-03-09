@@ -574,6 +574,36 @@ void RegionalParameterChannelPlan::toHeader(
     strm << prefix << "}";
 }
 
+void RegionalParameterChannelPlan::get(
+    size_t messageSize,
+    uint32_t &freqHz,
+    int &pwr,
+    BANDWIDTH &bandwidth,
+    SPREADING_FACTOR &spreadingFactor,
+    CODING_RATE &codingRate
+) const
+{
+    freqHz = value.pingSlotFrequency;
+    for (auto &d: value.downlinkChannels) {
+        if (d.value.enabled) {
+            freqHz = d.value.frequency;
+            break;
+        }
+    }
+
+    pwr = value.defaultDownlinkTXPower;
+    int idx = 7;
+    for (int i = 0; i < 8; i++) {
+        if (messageSize <= value.maxPayloadSizePerDataRate[i].value.m) {
+            idx = i;
+            break;
+        }
+    }
+    bandwidth = value.dataRates[idx].value.bandwidth;
+    spreadingFactor = value.dataRates[idx].value.spreadingFactor;
+    codingRate = CRLORA_4_6;
+}
+
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const
 {
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(bands.begin()); it != bands.end(); it++) {

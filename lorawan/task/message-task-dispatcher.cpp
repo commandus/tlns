@@ -519,8 +519,8 @@ void MessageTaskDispatcher::sendQueue(
                 }
                 char sb[512];
                 if (gwMetadata.parser) {
-                    auto sz = gwMetadata.parser->makeMessage2Gateway(sb, sizeof(sb), confirmationMessage,
-                        token, &gwMetadata.rx, regionalPlan);
+                    auto sz = gwMetadata.parser->makePull(sb, sizeof(sb), confirmationMessage,
+                                                          token, &gwMetadata.rx, regionalPlan);
                     std::cout << "Send " << std::string(sb, sz)
                               << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
                               << " over socket " << gwMetadata.taskSocket->toString()
@@ -578,7 +578,7 @@ void MessageTaskDispatcher::sendDownlinkMessages()
         if (gw) {
             std::cout << "send downlink to device " << DEVADDR2string(a)
                 << " over gateway " << gatewayId2str(gw)
-                << " " << sockaddr2string(&gwm.addr)
+                << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
         } else {
@@ -586,12 +586,12 @@ void MessageTaskDispatcher::sendDownlinkMessages()
             std::vector<GatewayIdentity> gwLs;
             identityClient->svcGateway->list(gwLs, 0, 10);
             for (auto &g : gwLs) {
-
                 std::cout << "Send downlink to device " << DEVADDR2string(a)
                     << " over gateway " << gatewayId2str(g.gatewayId)
                     << ' ' << sockaddr2string(&g.sockaddr)
-                    << ' = ' << it->second.toJsonString()
+                    << " = " << it->second.toJsonString()
                     << std::endl;
+                // sendto(g.sockaddr, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
             }
         }
         it = queue.downlinkMessages.erase(it);

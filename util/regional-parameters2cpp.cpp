@@ -34,6 +34,7 @@ class RegionalParameters2CppConfiguration {
 public:
     std::vector<std::string> fileNames;
     int verbosity = 0;			// verbosity level
+    bool cpp20 = false;
 };
 
 /**
@@ -49,12 +50,13 @@ int parseCmd(
 {
     // device path
     struct arg_str *a_file_names = arg_strn(nullptr, nullptr, _("<file>"), 1, 100, _("Regional parameters JSON file name"));
+    struct arg_lit *a_cpp20 = arg_lit0("2", "cpp-20", _("C++20 initializer"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 3, _("Set verbosity level"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-            a_file_names, a_verbosity, a_help, a_end
+            a_file_names, a_cpp20, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -65,6 +67,7 @@ int parseCmd(
     // Parse the command line as defined by argtable[]
     int nerrors = arg_parse(argc, argv, argtable);
 
+    config->cpp20 = a_cpp20->count > 0;
     config->verbosity = a_verbosity->count;
     for (size_t i = 0; i < a_file_names->count; i++) {
         config->fileNames.emplace_back(a_file_names->sval[i]);
@@ -156,7 +159,7 @@ int main(int argc, char **argv)
         }
 
         addFilePrefixHeader(std::cout, *it);
-        rpfj.toHeader(std::cout, isFirst);
+        rpfj.toHeader(std::cout, config.cpp20);
         isFirst = false;
     }
     addSuffixHeader(std::cout);

@@ -549,6 +549,8 @@ bool GatewayBasicUdpProtocol::makePullStream(
         if (!radioPacketBase64.empty())
             ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
     } else {
+        if (!regionalPlan)
+            return false;
         uint32_t freqHz;
         int pwr;
         BANDWIDTH bandwidth;

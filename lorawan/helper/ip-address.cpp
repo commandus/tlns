@@ -107,6 +107,26 @@ bool string2sockaddr(
     return r;
 }
 
+int addressLength(
+    struct sockaddr *sockaddr
+)
+{
+    if (!sockaddr)
+        return 0;
+    switch (sockaddr->sa_family) {
+        case AF_INET:
+            return sizeof(struct sockaddr_in);
+        case AF_INET6:
+            return sizeof(struct sockaddr_in6);
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+        case AF_UNIX:
+            return sizeof(struct sockaddr_un);
+#endif
+        default:
+            return sizeof(sockaddr);
+    }
+}
+
 bool sameSocketAddress(
     const struct sockaddr *a,
     const struct sockaddr *b

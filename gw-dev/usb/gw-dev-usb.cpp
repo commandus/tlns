@@ -41,13 +41,14 @@
 #include "lorawan/bridge/stdout-bridge.h"
 #include "lorawan/storage/service/device-best-gateway-mem.h"
 #include "lorawan/downlink/downlink-by-timer.h"
+#include "gen/regional-parameters-3.h"
 
 // i18n
 // #include <libintl.h>
 // #define _(String) gettext (String)
 #define _(String) (String)
 
-size_t findRegionIndex(
+size_t findGatewayRegionIndex(
     const std::string &namePrefix
 )
 {
@@ -74,6 +75,7 @@ public:
     std::vector<std::string> bridgePluginFiles;
 
     size_t regionIdx;
+    const RegionalParameterChannelPlan *regionChannelPlan;
     bool enableSend;
     bool enableBeacon;
     bool daemonize;
@@ -81,8 +83,8 @@ public:
     std::string pidfile;
     std::string controlSocketFileNameOrAddressAndPort;
     LocalGatewayConfiguration()
-        : regionIdx(0), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0) {
-
+        : regionIdx(0), regionChannelPlan(nullptr), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0)
+    {
     }
 };
 
@@ -213,10 +215,13 @@ int parseCmd(
     for (int i = 0; i < a_bridge_plugin->count; i++)
         config->bridgePluginFiles.emplace_back(a_bridge_plugin->sval[i]);
 
-    if (a_region_name->count)
-        config->regionIdx = findRegionIndex(*a_region_name->sval);
-    else
+    if (a_region_name->count) {
+        config->regionIdx = findGatewayRegionIndex(*a_region_name->sval);
+        config->regionChannelPlan = regionalParameterChannelPlanMem.get(*a_region_name->sval);
+    } else {
         config->regionIdx = 0;
+        config->regionChannelPlan = regionalParameterChannelPlanMem.get(0);
+    }
 
     config->enableSend = (a_enable_send->count > 0);
     config->enableBeacon = (a_enable_beacon->count > 0);
@@ -467,6 +472,8 @@ static void run()
     DeviceBestGatewayServiceMem m(0, nullptr);
     DeviceBestGatewayDirectClient deviceBestGatewayDirectClient(&m);
     dispatcher.setDeviceBestGatewayClient(&deviceBestGatewayDirectClient);
+
+    dispatcher.regionalPlan = localConfig.regionChannelPlan;
 
     for (int i = 0; i < localConfig.devicePaths.size(); i++) {
         GatewaySettings *settings = getGatewayConfig(&localConfig, i);

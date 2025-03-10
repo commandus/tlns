@@ -32,7 +32,8 @@ void DownlinkByTimer::run()
             uint8_t fPort = 2;
             uint8_t payloadSize = (uint8_t) s.size();
             uint8_t fOptsSize = 0;
-            dispatcher->sendDownlink(timeNow, devAddr, payload, fOpts, fPort, payloadSize, fOptsSize);
+            dispatcher->sendDownlink(timeNow, devAddr, payload, fOpts, fPort, payloadSize, fOptsSize,
+                                     dispatcher->parsers.empty() ? nullptr : dispatcher->parsers[0]);
             index++;
         }
 #ifdef _MSC_VER

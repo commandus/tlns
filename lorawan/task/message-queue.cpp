@@ -132,14 +132,14 @@ bool MessageQueue::putUplink(
 void MessageQueue::putDownlink(
     const TASK_TIME& time,
     DownlinkMessage &msg,
-    ProtoGwParser *parser
+    ProtoGwParser *proto
 )
 {
     auto f = downlinkMessages.find(msg.taskDescriptor.deviceId.devaddr);
     if (f != downlinkMessages.end()) {
         // update or skip
     } else {
-        MessageQueueItem qi(this, time, parser);
+        MessageQueueItem qi(this, time, proto);
         // copy radio packet
         msg.get(&qi.radioPacket.mhdr, SIZE_DOWNLINK_STORAGE);
         qi.radioPacket.payloadSize = msg.payloadSize;

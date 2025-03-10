@@ -9,6 +9,16 @@ MessageBuilder::MessageBuilder(
 
 }
 
+MessageBuilder::MessageBuilder(
+    const TaskDescriptor &aTaskDescriptor,
+    const LORAWAN_MESSAGE_STORAGE &aMsg
+)
+    : msg(aMsg), taskDescriptor(aTaskDescriptor)
+{
+
+}
+
+
 size_t MessageBuilder::get(
     void *buffer,
     size_t size

@@ -270,7 +270,8 @@ int MessageTaskDispatcher::runUplink()
         TASK_TIME receivedTime = std::chrono::system_clock::now();
 
         if (rc == 0) {   // select() timed out.
-            sendDownlinkMessages();
+            if (!parsers.empty())
+                sendDownlinkMessages(parsers[0]);
             cleanupOldMessages(receivedTime);
             continue;
         }
@@ -569,18 +570,29 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     queue.time2ResponseAddr.push(addr, receivedTime);
 }
 
-void MessageTaskDispatcher::sendDownlinkMessages()
+void MessageTaskDispatcher::sendDownlinkMessages(
+    ProtoGwParser *proto
+)
 {
     for (auto it = queue.downlinkMessages.begin(); it != queue.downlinkMessages.end();) {
         const DEVADDR &a = it->first;
         GatewayMetadata gwm;
         uint64_t gw = it->second.getBestGatewayAddress(gwm);
+
+        char buf[4096];
+        uint16_t token = 1;
+        SEMTECH_PROTOCOL_METADATA_RX *rxm = nullptr;
+
         if (gw) {
             std::cout << "send downlink to device " << DEVADDR2string(a)
                 << " over gateway " << gatewayId2str(gw)
                 << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
+            MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
+            ssize_t sz = proto->makePull(buf, sizeof(buf), msgBuilder, token, nullptr, regionalPlan);
+            if (sz > 0)
+                sendto(gwm.taskSocket->sock, (const char *) &buf, (int) sz, 0, &gwm.addr, addressLength(&gwm.addr));
         } else {
             std::cerr << "no gateway available, send over all known gateways" << std::endl;
             std::vector<GatewayIdentity> gwLs;
@@ -591,7 +603,11 @@ void MessageTaskDispatcher::sendDownlinkMessages()
                     << ' ' << sockaddr2string(&g.sockaddr)
                     << " = " << it->second.toJsonString()
                     << std::endl;
-                // sendto(g.sockaddr, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
+
+                MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
+                ssize_t sz = proto->makePull(buf, sizeof(buf), msgBuilder, token, nullptr, regionalPlan);
+                if (sz > 0)
+                    sendto(controlSocket->sock, (const char *) &buf, (int) sz, 0, &g.sockaddr, addressLength(&g.sockaddr));
             }
         }
         it = queue.downlinkMessages.erase(it);

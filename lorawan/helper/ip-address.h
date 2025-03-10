@@ -54,6 +54,10 @@ bool string2sockaddr(
     uint16_t port
 );
 
+int addressLength(
+    struct sockaddr *addr
+);
+
 /**
  * Return true if socket address A is same as B
  * @param a socket address A

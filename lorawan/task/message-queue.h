@@ -57,7 +57,7 @@ public:
     void putDownlink(
         const TASK_TIME& time,
         DownlinkMessage &msg,
-        ProtoGwParser *parser
+        ProtoGwParser *proto
     );
     void rmUplink(
         const DEVADDR &addr

@@ -41,6 +41,7 @@ std::string GatewayJsonConfig::toString() const
 }
 
 GatewaySX1261Config::GatewaySX1261Config()
+    : value{}
 {
     reset();
 }
@@ -92,10 +93,10 @@ int GatewaySX1261Config::parse(nlohmann::json &jsonValue)
     auto jSpectralScan = jsonValue.find("spectral_scan");
     if (jSpectralScan != jsonValue.end()) {
         if (jSpectralScan->is_object()) {
-            auto jEnable = jSpectralScan->find("enable");
-            if (jEnable != jSpectralScan->end()) {
-                if (jEnable->is_boolean()) {
-                    value.spectralScan.enable = *jEnable;
+            auto jSpectralScanEnable = jSpectralScan->find("enable");
+            if (jSpectralScanEnable != jSpectralScan->end()) {
+                if (jSpectralScanEnable->is_boolean()) {
+                    value.spectralScan.enable = *jSpectralScanEnable;
                 }
                 if (value.spectralScan.enable) {
                     value.sx1261.enable = true;
@@ -151,7 +152,7 @@ int GatewaySX1261Config::parse(nlohmann::json &jsonValue)
                 auto jChannels = jLbt->find("channels");
                 if (jChannels != jLbt->end()) {
                     if (jChannels->is_array()) {
-                        value.lbt.nb_channel = jChannels->size();
+                        value.lbt.nb_channel = (uint8_t) jChannels->size();
                         if (value.lbt.nb_channel > LGW_LBT_CHANNEL_NB_MAX)
                             value.lbt.nb_channel = LGW_LBT_CHANNEL_NB_MAX;
                         for (int i = 0; i < value.lbt.nb_channel; i++) {
@@ -289,7 +290,7 @@ void GatewaySX1261Config::toHeader(
         "\t\t\t\t" << (int) value.sx1261.lbt_conf.nb_channel << ", // nb_channel\n"
         "\t\t\t\t{ // channels\n";
         bool isFirst = true;
-        for (int nbc = 0; nbc < value.sx1261.lbt_conf.nb_channel; nbc) {
+        for (int nbc = 0; nbc < value.sx1261.lbt_conf.nb_channel; nbc++) {
             if (isFirst)
                 isFirst = false;
             else
@@ -432,7 +433,7 @@ bool GatewaySX130xConfig::operator==(
 std::string GatewaySX130xConfig::getUsbPath()
 {
     if (value.boardConf.com_path[63] == '\0')
-        return std::string(value.boardConf.com_path);
+        return value.boardConf.com_path;
     else
         return std::string(value.boardConf.com_path, 64);
 }
@@ -538,7 +539,7 @@ int GatewaySX130xConfig::parse(nlohmann::json &jsonValue) {
     std::string rn = "radio_0";
     for (int radioIndex = 0; radioIndex < LGW_RF_CHAIN_NB; radioIndex++) {
         std::stringstream ssRadioName;
-        rn[6] = '0' + radioIndex;
+        rn[6] = '0' + (char) radioIndex;
         auto jRadio = jsonValue.find(rn);
         if (jRadio != jsonValue.end()) {
             if (jRadio->is_object()) {\
@@ -744,7 +745,7 @@ int GatewaySX130xConfig::parse(nlohmann::json &jsonValue) {
     std::string cmsf = "chan_multiSF_0";
     for (int ch = 0; ch < LGW_MULTI_NB; ch++) {
         std::stringstream ssChannelName;
-        cmsf[13] = '0' + ch;
+        cmsf[13] = '0' + (char) ch;
         auto jChannelSF = jsonValue.find(cmsf);
         if (jChannelSF!= jsonValue.end()) {
             if (jChannelSF->is_object()) {
@@ -977,16 +978,16 @@ void GatewaySX130xConfig::toHeader(
             "\t\t\t.rfConfs = {";
 
         for (int radioIndex = 0; radioIndex < LGW_RF_CHAIN_NB; radioIndex++) {
-            retVal << "\n\t\t\t\t// Radio " << radioIndex << "\n\t\t\t\t{\n"
+            retVal << std::fixed << std::setprecision(3) << "\n\t\t\t\t// Radio " << radioIndex << "\n\t\t\t\t{\n"
                 "\t\t\t\t\t.enable = " << (value.rfConfs[radioIndex].enable ? "true" : "false") << ",\n"
                 "\t\t\t\t\t.freq_hz = " << value.rfConfs[radioIndex].freq_hz << ",\n"
-                "\t\t\t\t\t.rssi_offset = " << value.rfConfs[radioIndex].rssi_offset << ",\n"
+                "\t\t\t\t\t.rssi_offset = " << value.rfConfs[radioIndex].rssi_offset << "f,\n"
                 "\t\t\t\t\t.rssi_tcomp = {\n"
-                "\t\t\t\t\t\t.coeff_a = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_a << ",\n"
-                "\t\t\t\t\t\t.coeff_b = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_b << ",\n"
-                "\t\t\t\t\t\t.coeff_c = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_c << ",\n"
-                "\t\t\t\t\t\t.coeff_d = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_d << ",\n"
-                "\t\t\t\t\t\t.coeff_e = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_e << "\n"
+                "\t\t\t\t\t\t.coeff_a = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_a << "f,\n"
+                "\t\t\t\t\t\t.coeff_b = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_b << "f,\n"
+                "\t\t\t\t\t\t.coeff_c = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_c << "f,\n"
+                "\t\t\t\t\t\t.coeff_d = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_d << "f,\n"
+                "\t\t\t\t\t\t.coeff_e = " << value.rfConfs[radioIndex].rssi_tcomp.coeff_e << "f\n"
                 "\t\t\t\t\t},\n"
                 "\t\t\t\t\t.type = (lgw_radio_type_t) " << (int) value.rfConfs[radioIndex].type << ",\n"
                 "\t\t\t\t\t.tx_enable = " << (value.rfConfs[radioIndex].tx_enable ? "true" : "false") << ",\n"
@@ -1090,16 +1091,16 @@ void GatewaySX130xConfig::toHeader(
             "\t\t},\n"
             "\t\t{ // rfConfs";
             for (int radioIndex = 0; radioIndex < LGW_RF_CHAIN_NB; radioIndex++) {
-                retVal << "\n\t\t\t// Radio " << radioIndex << "\n\t\t\t{\n"
+                retVal << std::fixed << std::setprecision(3) << "\n\t\t\t// Radio " << radioIndex << "\n\t\t\t{\n"
                 "\t\t\t\t" << (value.rfConfs[radioIndex].enable ? "true" : "false") << ", // enable\n"
                 "\t\t\t\t" << value.rfConfs[radioIndex].freq_hz << ", // freq_hz\n"
-                "\t\t\t\t" << value.rfConfs[radioIndex].rssi_offset << ", // rssi_offset\n"
+                "\t\t\t\t" << value.rfConfs[radioIndex].rssi_offset << "f, // rssi_offset\n"
                 "\t\t\t\t{ // rssi_tcomp\n"
-                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_a << ", // coeff_a\n"
-                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_b << ", // coeff_b\n"
-                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_c << ", // coeff_c\n"
-                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_d << ", // coeff_d\n"
-                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_e << " // coeff_e\n"
+                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_a << "f, // coeff_a\n"
+                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_b << "f, // coeff_b\n"
+                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_c << "f, // coeff_c\n"
+                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_d << "f, // coeff_d\n"
+                "\t\t\t\t\t" << value.rfConfs[radioIndex].rssi_tcomp.coeff_e << "f // coeff_e\n"
                 "\t\t\t\t},\n"
                 "\t\t\t\t(lgw_radio_type_t) " << (int) value.rfConfs[radioIndex].type << ", // type\n"
                 "\t\t\t\t" << (value.rfConfs[radioIndex].tx_enable ? "true" : "false") << ", // tx_enable\n"
@@ -1238,7 +1239,7 @@ void GatewaySX130xConfig::toJSON(
             jRadioTxGainLuts.push_back(jRadioTxGainLut);
         }
         jRadio["tx_gain_lut"] = jRadioTxGainLuts;
-        ridx[6] = '0' + radioIndex;
+        ridx[6] = '0' + (char) radioIndex;
         jsonValue[ridx] = jRadio;
     }
 
@@ -1257,7 +1258,7 @@ void GatewaySX130xConfig::toJSON(
         jChannelSF["enable"] = value.ifConfs[ch].enable;
         jChannelSF["radio"] = value.ifConfs[ch].rf_chain;
         jChannelSF["if"] = value.ifConfs[ch].freq_hz;
-        cmsfn[13] = ch + '0';
+        cmsfn[13] = (char) ch + '0';
         jsonValue[cmsfn] = jChannelSF;
     }
     jsonValue["chan_multiSF_All"] = jChanMultiSFAll;
@@ -1350,7 +1351,7 @@ int GatewayGatewayConfig::parse(nlohmann::json &jsonValue)
     if (jGatewayId != jsonValue.end()) {
         if (jGatewayId->is_string()) {
             std::string s = *jGatewayId;
-            value.gatewayId = std::stoull(s.c_str(), nullptr, 16);
+            value.gatewayId = std::stoull(s, nullptr, 16);
         }
     }
     auto jServerAddress = jsonValue.find("server_address");
@@ -1676,7 +1677,7 @@ int GatewayDebugConfig::parse(nlohmann::json &jsonValue)
                     if (jrpId != jrp.end()) {
                         if (jrpId->is_string()) {
                             std::string s = *jrpId;
-                            value.ref_payload[i].id = std::stoull(s.c_str(), nullptr, 0);
+                            value.ref_payload[i].id = std::stoull(s, nullptr, 0);
                         }
                     }
                 }
@@ -1814,6 +1815,10 @@ void GatewayConfigFileJson::toHeader(
     gatewayConf.toHeader(retVal, name + ".gateway", cpp20);
     retVal << ",\n";
     std::string niceName(name);
+    // remove first '_' between region letters and low frequency
+    auto f = niceName.find('_');
+    if (f != std::string::npos)
+        niceName.erase(f, 1);
     std::replace(niceName.begin(), niceName.end(), '_', '-');
     std::transform(niceName.begin(), niceName.end(), niceName.begin(), [](char x) {
         if (::isalpha(x))

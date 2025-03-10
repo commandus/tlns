@@ -113,7 +113,7 @@ public:
     void setRx1DataRateOffsets(int dataRateIndex, int count, ...);
 
     std::string toDescriptionTableString() const;
-    void toHeader(std::ostream &strm, int tabs) const;
+    void toHeader(std::ostream &strm, int tabs, bool cpp20) const;
 
     void get(
         size_t mwssageSize,

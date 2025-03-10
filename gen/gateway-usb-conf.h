@@ -59,13 +59,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				923600000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -75,13 +75,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				924400000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -361,8 +361,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -390,7 +390,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"AS-915-928" // name
+	"AS915-928" // name
 },
 {
 	// as_917_920.sx1261
@@ -440,13 +440,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				917700000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -456,13 +456,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				918500000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -742,8 +742,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -771,7 +771,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"AS-917-920" // name
+	"AS917-920" // name
 },
 {
 	// as_920_923.sx1261
@@ -821,13 +821,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				921800000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -837,13 +837,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				922600000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -1123,8 +1123,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -1152,7 +1152,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"AS-920-923" // name
+	"AS920-923" // name
 },
 {
 	// au_915_928.sx1261
@@ -1202,13 +1202,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				917200000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -1218,13 +1218,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				917900000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -1504,8 +1504,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -1533,7 +1533,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"au1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"AU-915-928" // name
+	"AU915-928" // name
 },
 {
 	// cn_470_510.sx1261
@@ -1583,13 +1583,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				486600000, // freq_hz
-				-207, // rssi_offset
+				-207.000f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -1599,13 +1599,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				487400000, // freq_hz
-				-207, // rssi_offset
+				-207.000f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -1885,8 +1885,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -1914,7 +1914,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"au1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"CN-470-510" // name
+	"CN470-510" // name
 },
 {
 	// eu_433.sx1261
@@ -1964,13 +1964,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				434375000, // freq_hz
-				-207, // rssi_offset
+				-207.000f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -1980,13 +1980,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				433575000, // freq_hz
-				-207, // rssi_offset
+				-207.000f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -2266,8 +2266,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -2295,7 +2295,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"EU-433" // name
+	"EU433" // name
 },
 {
 	// eu_863_870.sx1261
@@ -2345,13 +2345,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				867500000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -2361,13 +2361,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				868500000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -2647,8 +2647,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -2676,7 +2676,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"EU-863-870" // name
+	"EU863-870" // name
 },
 {
 	// in_865_867.sx1261
@@ -2726,13 +2726,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				865200000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -2742,13 +2742,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				866385000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -3028,8 +3028,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -3057,7 +3057,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"IN-865-867" // name
+	"IN865-867" // name
 },
 {
 	// kr_920_923.sx1261
@@ -3107,13 +3107,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				922400000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -3123,13 +3123,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				923000000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -3409,8 +3409,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -3438,7 +3438,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"nam1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"KR-920-923" // name
+	"KR920-923" // name
 },
 {
 	// ru_864_870.sx1261
@@ -3488,13 +3488,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				864500000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -3504,13 +3504,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				869000000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -3790,8 +3790,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -3819,7 +3819,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"eu1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"RU-864-870" // name
+	"RU864-870" // name
 },
 {
 	// us_902_928.sx1261
@@ -3869,13 +3869,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				904300000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				true, // tx_enable
@@ -3885,13 +3885,13 @@ GatewaySettings lorawanGatewaySettings[] = {
 			{
 				true, // enable
 				905000000, // freq_hz
-				-215.4, // rssi_offset
+				-215.400f, // rssi_offset
 				{ // rssi_tcomp
-					0, // coeff_a
-					0, // coeff_b
-					20.41, // coeff_c
-					2162.56, // coeff_d
-					0 // coeff_e
+					0.000f, // coeff_a
+					0.000f, // coeff_b
+					20.410f, // coeff_c
+					2162.560f, // coeff_d
+					0.000f // coeff_e
 				},
 				(lgw_radio_type_t) 5, // type
 				false, // tx_enable
@@ -4171,8 +4171,8 @@ GatewaySettings lorawanGatewaySettings[] = {
 		false, // forwardCRCDisabled
 		true, // gpsEnabled
 		{ // refGeoCoordinates
-			0, // lat
-			0, // lon
+			0.000, // lat
+			0.000, // lon
 			0 // alt
 		},
 		false, // fakeGPS
@@ -4200,5 +4200,5 @@ GatewaySettings lorawanGatewaySettings[] = {
 	},
 	"nam1.cloud.thethings.network", // serverAddr
 	"/dev/ttyAMA0", // gpsTtyPath
-	"US-902-928" // name
+	"US902-928" // name
 }};

@@ -186,7 +186,7 @@ public:
         const sockaddr &addr,
         GwPushData &pushData,
         const TASK_TIME &receivedTime,
-        ProtoGwParser *pParser
+        ProtoGwParser *aParser
     );
 
     void addParser(
@@ -212,7 +212,9 @@ public:
         TASK_TIME receivedTime
     );
 
-    void sendDownlinkMessages();
+    void sendDownlinkMessages(
+        ProtoGwParser *proto
+    );
 
     void cleanupOldMessages(
         TASK_TIME now
@@ -288,7 +290,7 @@ public:
         uint8_t fPort,
         uint8_t payloadSize,
         uint8_t fOptsSize,
-        ProtoGwParser *proto = nullptr
+        ProtoGwParser *proto
     );
 
     void initBridges();

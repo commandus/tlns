@@ -405,173 +405,345 @@ maxUplinkEIRP
  */
 void RegionalParameterChannelPlan::toHeader(
     std::ostream &strm,
-    int tabs
+    int tabs,
+    bool cpp20
 ) const {
     std::string prefix = std::string(tabs, '\t');
     strm << prefix << "{\n";
     prefix += '\t';
-    strm << prefix << ".id = " << (int) value.id << ",\n"
-        << prefix << ".name = \"" << value.name << "\",\n"
-        << prefix << ".cn = \"" << value.cn << "\",\n"
-        << prefix << ".maxUplinkEIRP = " << value.maxUplinkEIRP << ",\n"
-        << prefix << ".defaultDownlinkTXPower = " << value.defaultDownlinkTXPower << ",\n"
-        << prefix << ".pingSlotFrequency = " << value.pingSlotFrequency << ",\n"
-        << prefix << ".implementsTXParamSetup = " << (value.implementsTXParamSetup ? STR_TRUE_FALSE) << ",\n"
-        << prefix << ".defaultRegion = " << (value.defaultRegion ? STR_TRUE_FALSE) << ",\n"
-        << prefix << ".supportsExtraChannels = " << (value.supportsExtraChannels ? STR_TRUE_FALSE) << ",\n"
-        << prefix << ".bandDefaults = BandDefaults({\n";
-    prefix += '\t';
-    strm << prefix << ".RX2Frequency = " << value.bandDefaults.value.RX2Frequency << ",\n"
-         << prefix << ".RX2DataRate = " << value.bandDefaults.value.RX2DataRate << ",\n"
-         << prefix << ".ReceiveDelay1 = " << value.bandDefaults.value.ReceiveDelay1 << ",\n"
-         << prefix << ".JoinAcceptDelay1 = " << value.bandDefaults.value.JoinAcceptDelay1 << ",\n"
-         << prefix << ".JoinAcceptDelay2 = " << value.bandDefaults.value.JoinAcceptDelay2 << "\n";
-    prefix.erase(prefix.size() - 1);
-    strm << prefix << "}),\n";
-
-    strm << prefix << ".dataRates = {";
-    prefix += '\t';
-    bool f = true;
-    for (int i = 0; i < DATA_RATE_SIZE; i++) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "DataRate({\n";
+    if (cpp20) {
+        strm << prefix << ".id = " << (int) value.id << ",\n"
+             << prefix << ".name = \"" << value.name << "\",\n"
+             << prefix << ".cn = \"" << value.cn << "\",\n"
+             << prefix << ".maxUplinkEIRP = " << value.maxUplinkEIRP << "f,\n"
+             << prefix << ".defaultDownlinkTXPower = " << value.defaultDownlinkTXPower << ",\n"
+             << prefix << ".pingSlotFrequency = " << value.pingSlotFrequency << ",\n"
+             << prefix << ".implementsTXParamSetup = " << (value.implementsTXParamSetup ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".defaultRegion = " << (value.defaultRegion ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".supportsExtraChannels = " << (value.supportsExtraChannels ? STR_TRUE_FALSE) << ",\n"
+             << prefix << ".bandDefaults = BandDefaults({\n";
         prefix += '\t';
-        strm << prefix << ".uplink = " << (value.dataRates[i].value.uplink ? STR_TRUE_FALSE) << ",\n"
-            << prefix << ".downlink = " << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ",\n"
-            << prefix << ".modulation = (MODULATION) " << (int) value.dataRates[i].value.modulation << ",\n"
-            << prefix << ".bandwidth = (BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ",\n"
-            << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor << ",\n"
-            << prefix << ".bps = " << value.dataRates[i].value.bps << "\n";
+        strm << prefix << ".RX2Frequency = " << value.bandDefaults.value.RX2Frequency << ",\n"
+             << prefix << ".RX2DataRate = " << value.bandDefaults.value.RX2DataRate << ",\n"
+             << prefix << ".ReceiveDelay1 = " << value.bandDefaults.value.ReceiveDelay1 << ",\n"
+             << prefix << ".JoinAcceptDelay1 = " << value.bandDefaults.value.JoinAcceptDelay1 << ",\n"
+             << prefix << ".JoinAcceptDelay2 = " << value.bandDefaults.value.JoinAcceptDelay2 << "\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "})";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << "\n" << prefix << "},\n";
+        strm << prefix << "}),\n";
 
-    strm << prefix << ".maxPayloadSizePerDataRate = {";
-    prefix += '\t';
-    f = true;
-    for (int i = 0; i < DATA_RATE_SIZE; i++) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "MaxPayloadSize({\n";
+        strm << prefix << ".dataRates = {";
         prefix += '\t';
-        strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRate[i].value.m << ",\n"
-             << prefix << ".n = " << (int) value.maxPayloadSizePerDataRate[i].value.n << "\n";
+        bool f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "DataRate({\n";
+            prefix += '\t';
+            strm << prefix << ".uplink = " << (value.dataRates[i].value.uplink ? STR_TRUE_FALSE) << ",\n"
+                 << prefix << ".downlink = " << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ",\n"
+                 << prefix << ".modulation = (MODULATION) " << (int) value.dataRates[i].value.modulation << ",\n"
+                 << prefix << ".bandwidth = (BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ",\n"
+                 << prefix << ".spreadingFactor = (SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor
+                 << ",\n"
+                 << prefix << ".bps = " << value.dataRates[i].value.bps << "\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "})";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "},\n";
+        strm << "\n" << prefix << "},\n";
 
-    strm << prefix << ".maxPayloadSizePerDataRateRepeater = {";
-    prefix += '\t';
-    f = true;
-    for (int i = 0; i < DATA_RATE_SIZE; i++) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "MaxPayloadSize({\n";
+        strm << prefix << ".maxPayloadSizePerDataRate = {";
         prefix += '\t';
-        strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.m << ",\n"
-             << prefix << ".n = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.n << "\n";
+        f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "MaxPayloadSize({\n";
+            prefix += '\t';
+            strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRate[i].value.m << ",\n"
+                 << prefix << ".n = " << (int) value.maxPayloadSizePerDataRate[i].value.n << "\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "})";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "},\n";
+        strm << '\n' << prefix << "},\n";
 
-    strm << prefix << ".rx1DataRateOffsets = {";
-    prefix += '\t';
-    f = true;
-    for (const auto & rx1DataRateOffset : value.rx1DataRateOffsets) {
-        if (f) {
-            f = false;
-        } else
-            strm << ", ";
+        strm << prefix << ".maxPayloadSizePerDataRateRepeater = {";
+        prefix += '\t';
+        f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "MaxPayloadSize({\n";
+            prefix += '\t';
+            strm << prefix << ".m = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.m << ",\n"
+                 << prefix << ".n = " << (int) value.maxPayloadSizePerDataRateRepeater[i].value.n << "\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "},\n";
 
-        strm << "{";
-
-        bool f1 = true;
-        for (auto & rxDROffset: rx1DataRateOffset) {
-            if (f1) {
-                f1 = false;
+        strm << prefix << ".rx1DataRateOffsets = {";
+        prefix += '\t';
+        f = true;
+        for (const auto &rx1DataRateOffset: value.rx1DataRateOffsets) {
+            if (f) {
+                f = false;
             } else
                 strm << ", ";
-            strm << (int) rxDROffset;
-        }
-        strm << "}";
-    };
-    strm << "},\n";
-    prefix.erase(prefix.size() - 1);
 
-    strm << prefix << ".txPowerOffsets = {";
-    prefix += '\t';
-    f = true;
-    for (auto &txPO: value.txPowerOffsets) {
-        if (f) {
-            f = false;
-        } else
-            strm << ", ";
-        strm << (int) txPO;
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << "},\n";
+            strm << "{";
 
-    strm << prefix << ".uplinkChannels = {";
-    prefix += '\t';
-    f = true;
-    for (auto &uplink: value.uplinkChannels) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "Channel({\n";
-        prefix += '\t';
-        strm << prefix << ".frequency = " << uplink.value.frequency << ",\n"
-            << prefix << ".minDR = " << uplink.value.minDR << ",\n"
-            << prefix << ".maxDR = " << uplink.value.maxDR << ",\n"
-            << prefix << ".enabled = " << (uplink.value.enabled ? STR_TRUE_FALSE) << ",\n"
-            << prefix << ".custom = " << (uplink.value.custom ? STR_TRUE_FALSE) << "\n";
+            bool f1 = true;
+            for (auto &rxDROffset: rx1DataRateOffset) {
+                if (f1) {
+                    f1 = false;
+                } else
+                    strm << ", ";
+                strm << (int) rxDROffset;
+            }
+            strm << "}";
+        };
+        strm << "},\n";
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "})";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "},\n";
 
-    strm << prefix << ".downlinkChannels = {";
-    prefix += '\t';
-    f = true;
-    for (auto &downlink: value.downlinkChannels) {
-        if (f) {
-            f = false;
-            strm << "\n";
-        } else
-            strm << ",\n";
-        strm << prefix << "Channel({\n";
+        strm << prefix << ".txPowerOffsets = {";
         prefix += '\t';
-        strm << prefix << ".frequency = " << downlink.value.frequency << ",\n"
-             << prefix << ".minDR = " << downlink.value.minDR << ",\n"
-             << prefix << ".maxDR = " << downlink.value.maxDR << ",\n"
-             << prefix << ".enabled = " << (downlink.value.enabled ? STR_TRUE_FALSE) << ",\n"
-             << prefix << ".custom = " << (downlink.value.custom ? STR_TRUE_FALSE) << "\n";
+        f = true;
+        for (auto &txPO: value.txPowerOffsets) {
+            if (f) {
+                f = false;
+            } else
+                strm << ", ";
+            strm << (int) txPO;
+        };
         prefix.erase(prefix.size() - 1);
-        strm << prefix << "})";
-    };
-    prefix.erase(prefix.size() - 1);
-    strm << '\n' << prefix << "}\n";
-    prefix.erase(prefix.size() - 1);
-    strm << prefix << "}";
+        strm << "},\n";
+
+        strm << prefix << ".uplinkChannels = {";
+        prefix += '\t';
+        f = true;
+        for (auto &uplink: value.uplinkChannels) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "Channel({\n";
+            prefix += '\t';
+            strm << prefix << ".frequency = " << uplink.value.frequency << ",\n"
+                 << prefix << ".minDR = " << uplink.value.minDR << ",\n"
+                 << prefix << ".maxDR = " << uplink.value.maxDR << ",\n"
+                 << prefix << ".enabled = " << (uplink.value.enabled ? STR_TRUE_FALSE) << ",\n"
+                 << prefix << ".custom = " << (uplink.value.custom ? STR_TRUE_FALSE) << "\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "},\n";
+
+        strm << prefix << ".downlinkChannels = {";
+        prefix += '\t';
+        f = true;
+        for (auto &downlink: value.downlinkChannels) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "Channel({\n";
+            prefix += '\t';
+            strm << prefix << ".frequency = " << downlink.value.frequency << ",\n"
+                 << prefix << ".minDR = " << downlink.value.minDR << ",\n"
+                 << prefix << ".maxDR = " << downlink.value.maxDR << ",\n"
+                 << prefix << ".enabled = " << (downlink.value.enabled ? STR_TRUE_FALSE) << ",\n"
+                 << prefix << ".custom = " << (downlink.value.custom ? STR_TRUE_FALSE) << "\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "}\n";
+        prefix.erase(prefix.size() - 1);
+        strm << prefix << "}";
+    } else {
+        // C++11
+        strm << prefix << (int) value.id << ", // id\n"
+             << prefix << "\"" << value.name << "\", // name\n"
+             << prefix << "\"" << value.cn << "\", // cn \n"
+             << prefix << value.maxUplinkEIRP << "f, // maxUplinkEIRP\n"
+             << prefix << value.defaultDownlinkTXPower << ", // defaultDownlinkTXPower\n"
+             << prefix << value.pingSlotFrequency << ", // pingSlotFrequency\n"
+             << prefix << (value.implementsTXParamSetup ? STR_TRUE_FALSE) << ", // implementsTXParamSetup\n"
+             << prefix << (value.defaultRegion ? STR_TRUE_FALSE) << ", // defaultRegion\n"
+             << prefix << (value.supportsExtraChannels ? STR_TRUE_FALSE) << ", // supportsExtraChannels\n"
+             << prefix << "BandDefaults({ // bandDefaults\n";
+        prefix += '\t';
+        strm << prefix << value.bandDefaults.value.RX2Frequency << ", // RX2Frequency\n"
+             << prefix << value.bandDefaults.value.RX2DataRate << ", // RX2DataRate\n"
+             << prefix << value.bandDefaults.value.ReceiveDelay1 << ", // ReceiveDelay1\n"
+             << prefix << value.bandDefaults.value.JoinAcceptDelay1 << ", // JoinAcceptDelay1\n"
+             << prefix << value.bandDefaults.value.JoinAcceptDelay2 << " // JoinAcceptDelay2\n";
+        prefix.erase(prefix.size() - 1);
+        strm << prefix << "}),\n";
+
+        strm << prefix << "{ // dataRates";
+        prefix += '\t';
+        bool f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "DataRate({\n";
+            prefix += '\t';
+            strm << prefix << (value.dataRates[i].value.uplink ? STR_TRUE_FALSE) << ", // uplink\n"
+                 << prefix << (value.dataRates[i].value.downlink ? STR_TRUE_FALSE) << ", // downlink\n"
+                 << prefix << "(MODULATION) " << (int) value.dataRates[i].value.modulation << ", // modulation\n"
+                 << prefix << "(BANDWIDTH) " << (int) value.dataRates[i].value.bandwidth << ", // bandwidth\n"
+                 << prefix << "(SPREADING_FACTOR) " << (int) value.dataRates[i].value.spreadingFactor
+                 << ", // spreadingFactor\n"
+                 << prefix << value.dataRates[i].value.bps << " // bps\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << "\n" << prefix << "},\n";
+
+        strm << prefix << "{ // maxPayloadSizePerDataRate";
+        prefix += '\t';
+        f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "MaxPayloadSize({\n";
+            prefix += '\t';
+            strm << prefix << (int) value.maxPayloadSizePerDataRate[i].value.m << ", // m\n"
+                 << prefix << (int) value.maxPayloadSizePerDataRate[i].value.n << " // n\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "},\n";
+
+        strm << prefix << "{ // maxPayloadSizePerDataRateRepeater";
+        prefix += '\t';
+        f = true;
+        for (int i = 0; i < DATA_RATE_SIZE; i++) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "MaxPayloadSize({\n";
+            prefix += '\t';
+            strm << prefix << (int) value.maxPayloadSizePerDataRateRepeater[i].value.m << ", // m\n"
+                 << prefix << (int) value.maxPayloadSizePerDataRateRepeater[i].value.n << " // n\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "},\n";
+
+        strm << prefix << "// rx1DataRateOffsets\n"
+            << prefix << "{";
+        prefix += '\t';
+        f = true;
+        for (const auto &rx1DataRateOffset: value.rx1DataRateOffsets) {
+            if (f) {
+                f = false;
+            } else
+                strm << ", ";
+
+            strm << "{";
+
+            bool f1 = true;
+            for (auto &rxDROffset: rx1DataRateOffset) {
+                if (f1) {
+                    f1 = false;
+                } else
+                    strm << ", ";
+                strm << (int) rxDROffset;
+            }
+            strm << "}";
+        };
+        strm << "},\n";
+        prefix.erase(prefix.size() - 1);
+
+        strm << prefix << "// txPowerOffsets\n";
+        strm << prefix << "{";
+        prefix += '\t';
+        f = true;
+        for (auto &txPO: value.txPowerOffsets) {
+            if (f) {
+                f = false;
+            } else
+                strm << ", ";
+            strm << (int) txPO;
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << "},\n";
+
+        strm << prefix << "// uplinkChannels\n";
+        strm << prefix << "{";
+        prefix += '\t';
+        f = true;
+        for (auto &uplink: value.uplinkChannels) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "Channel({\n";
+            prefix += '\t';
+            strm << prefix << uplink.value.frequency << ", // frequency\n"
+                 << prefix << uplink.value.minDR << ", // minDR\n"
+                 << prefix << uplink.value.maxDR << ", // maxDR\n"
+                 << prefix << (uplink.value.enabled ? STR_TRUE_FALSE) << ", // enabled\n"
+                 << prefix << (uplink.value.custom ? STR_TRUE_FALSE) << " // custom\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "},\n";
+
+        strm << prefix << "{ // downlinkChannels";
+        prefix += '\t';
+        f = true;
+        for (auto &downlink: value.downlinkChannels) {
+            if (f) {
+                f = false;
+                strm << "\n";
+            } else
+                strm << ",\n";
+            strm << prefix << "Channel({\n";
+            prefix += '\t';
+            strm << prefix << downlink.value.frequency << ", // frequency\n"
+                 << prefix << downlink.value.minDR << ", // minDR\n"
+                 << prefix << downlink.value.maxDR << ", // maxDR\n"
+                 << prefix << (downlink.value.enabled ? STR_TRUE_FALSE) << ", // enabled\n"
+                 << prefix << (downlink.value.custom ? STR_TRUE_FALSE) << " // custom\n";
+            prefix.erase(prefix.size() - 1);
+            strm << prefix << "})";
+        };
+        prefix.erase(prefix.size() - 1);
+        strm << '\n' << prefix << "}\n";
+        prefix.erase(prefix.size() - 1);
+        strm << prefix << "}";
+    }
 }
 
 void RegionalParameterChannelPlan::get(

@@ -18,7 +18,7 @@ RegionalParameterChannelPlanMem regionalParameterChannelPlanMem({
 			1, // id
 			"EU863-870", // name
 			"EU868", // cn 
-			16f, // maxUplinkEIRP
+			16.00f, // maxUplinkEIRP
 			14, // defaultDownlinkTXPower
 			869525000, // pingSlotFrequency
 			false, // implementsTXParamSetup
@@ -207,7 +207,7 @@ RegionalParameterChannelPlanMem regionalParameterChannelPlanMem({
 			12, // id
 			"RU864-870", // name
 			"RU864", // cn 
-			16f, // maxUplinkEIRP
+			16.00f, // maxUplinkEIRP
 			14, // defaultDownlinkTXPower
 			868900000, // pingSlotFrequency
 			false, // implementsTXParamSetup

@@ -1,7 +1,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <regex>
 
 #include "nlohmann/json.hpp"
 
@@ -537,7 +536,7 @@ public :
     }
 
     bool number_unsigned(number_unsigned_t val) override {
-        return Integer(val);
+        return Integer((number_integer_t) val);
     }
 
     bool number_float (number_float_t d, const string_t& s) override {
@@ -580,11 +579,10 @@ public :
     }
 
     bool string(string_t& str) override {
-        const std::string s(str);
         switch(keyIndex) {
             case JK_REGIONALPARAMETERSVERSION:
                 if (state == JRB_ROOT) {
-                    value->storage.regionalParametersVersion = string2REGIONAL_PARAMETERS_VERSION(s);
+                    value->storage.regionalParametersVersion = string2REGIONAL_PARAMETERS_VERSION(str);
                     return true;
                 }
                 applyErrorDescription("String JK_REGIONALPARAMETERSVERSION");
@@ -595,7 +593,7 @@ public :
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
                         return false;
                     }
-                    value->storage.bands.back().value.name = s;
+                    value->storage.bands.back().value.name = str;
                     return true;
                 }
                 applyErrorDescription("String JK_NAME");
@@ -606,7 +604,7 @@ public :
                         applyErrorDescription(ERR_REGION_BAND_EMPTY);
                         return false;
                     }
-                    value->storage.bands.back().value.cn = s;
+                    value->storage.bands.back().value.cn = str;
                     return true;
                 }
                 applyErrorDescription("String JK_CN");
@@ -621,7 +619,7 @@ public :
                         applyErrorDescription("dataRates array size bigger than 8 elements");
                         return false;
                     }
-                    value->storage.bands.back().value.dataRates[dataRateCount - 1].value.modulation = string2MODULATION(s.c_str());
+                    value->storage.bands.back().value.dataRates[dataRateCount - 1].value.modulation = string2MODULATION(str.c_str());
                     return true;
                 }
                 applyErrorDescription("Unexpected boolean");
@@ -883,17 +881,16 @@ int RegionalParameterChannelPlanFileJson::loadFile(
     // parse JSON
     RegionBandsJsonHandler handler(this);
     std::string j = file2string(fileName.c_str());
-    nlohmann::json::sax_parse(j, &handler, nlohmann::json::input_format_t::json, false, true);
-    return 0;
+    auto r = nlohmann::json::sax_parse(j, &handler, nlohmann::json::input_format_t::json, false, true);
+    return r ? 0 : ERR_CODE_INVALID_JSON;
 }
 
 int RegionalParameterChannelPlanFileJson::load()
 {
 	clear();
     int r = loadFile(path);
-    if (!r) {
+    if (r == 0)
         r = buildIndex();
-    }
     return r;
 }
 

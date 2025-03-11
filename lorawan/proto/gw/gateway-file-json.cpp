@@ -1807,7 +1807,7 @@ void GatewayConfigFileJson::toHeader(
     bool cpp20
 ) const
 {
-    retVal << "{\n";
+    retVal << "\t{\n";
     sx130xConf.sx1261Config.toHeader(retVal, name + ".sx1261", cpp20);
     retVal << ",\n";
     sx130xConf.toHeader(retVal, name + ".sx130x", cpp20);

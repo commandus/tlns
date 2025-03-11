@@ -403,6 +403,7 @@ bool IdentityTableEditor::rmRow(int index)
     bool r = table->rmRow(cellValue[index]);
     if (r)
         cellValue.erase(cellValue.begin() + index);
+    return r;
 }
 
 std::string IdentityTableEditor::strHeader() const {

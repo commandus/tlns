@@ -46,7 +46,7 @@ std::string TaskSocket::toString() const
         case SA_NONE:
             ss << "socket do not require accept ";
             break;
-        case SA_REQUIRE:
+        case SA_ACCEPT_REQUIRE:
             ss << "socket require accept ";
             break;
         case SA_ACCEPTED:
@@ -74,7 +74,7 @@ std::string TaskSocket::toJsonString() const
         case SA_NONE:
             ss << "none";
             break;
-        case SA_REQUIRE:
+        case SA_ACCEPT_REQUIRE:
             ss << "require";
             break;
         case SA_ACCEPTED:

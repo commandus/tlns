@@ -15,6 +15,17 @@ public:
 };
 
 /**
+ * Gateway pull data is message downstream from the server to the end-device
+ */
+class GwPullData {
+public:
+    LORAWAN_MESSAGE_STORAGE txData;             ///< message to be send to the end-device
+    SEMTECH_PROTOCOL_METADATA_TX txMetadata;    ///< message metadata including frequency, RSSI etc.
+    bool needConfirmation() const;
+    bool isMetadataValid() const;
+};
+
+/**
  * Gateway message downstream from the server to the device
  */
 class GwPullResp {

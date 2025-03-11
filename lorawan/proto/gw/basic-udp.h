@@ -11,10 +11,10 @@
 
 /**
  * Parse upstream PUSH message {"rxpk": {}}
- * @param retVal returned received message form the device
+ * @param retVal return received message from the device
  * @param json JSON to parse
  * @param size size of JSON char array
- * @param gwId gateway identifier
+ * @param gwId return gateway identifier
  * @param receivedTime time of receive
  * @return 0- success
  */
@@ -24,6 +24,19 @@ int parsePushData(
     size_t size,
     const DEVEUI &gwId,
     TASK_TIME receivedTime
+);
+
+/**
+ * Parse downstream PULL message {"txpk": {}}
+ * @param retVal return message to the device
+ * @param json JSON to parse
+ * @param size size of JSON char array
+ * @return 0- success
+ */
+int parsePullData(
+    GwPullData *retVal,
+    const char *json,
+    size_t size
 );
 
 /**

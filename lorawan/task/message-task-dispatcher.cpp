@@ -285,7 +285,7 @@ int MessageTaskDispatcher::runUplink()
                 continue;
             ssize_t sz;
             switch (s->socketAccept) {
-                case SA_REQUIRE: {
+                case SA_ACCEPT_REQUIRE: {
                     // TCP, UNIX sockets require create accept socket and create a new paired socket
                     SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
                     if (cfd > 0)
@@ -313,8 +313,8 @@ int MessageTaskDispatcher::runUplink()
             }
             if (sz < 0) {
                 std::cerr << ERR_MESSAGE  << errno << ": " << strerror(errno)
-                          << " socket " << s->sock
-                          << std::endl;
+                      << " socket " << s->sock
+                      << std::endl;
                 if (s->socketAccept == SA_ACCEPTED) {
                     // close client connection
                     removedSockets.push_back(s); // do not modify vector using iterator, do it after
@@ -323,8 +323,7 @@ int MessageTaskDispatcher::runUplink()
             }
             if (sz > 0) {
                 switch (sz) {
-                    case 1:
-                    {
+                    case 1: {
                         char *a = (char *) buffer;
                         switch (*a) {
                             case 'q':
@@ -359,6 +358,9 @@ int MessageTaskDispatcher::runUplink()
                                     switch (pr.tag) {
                                         case SEMTECH_GW_PUSH_DATA:
                                             pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
+                                            break;
+                                        case SEMTECH_GW_PULL_DATA:
+                                            std::cerr << "SEND TO END-DEVICE TODO" << std::endl;
                                             break;
                                         case SEMTECH_GW_PULL_RESP:
                                             if (onPullResp)

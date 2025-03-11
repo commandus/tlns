@@ -13,8 +13,11 @@ class ParseResult {
 public:
     uint8_t tag;
     uint16_t token;
-    GwPushData gwPushData;
-    GwPullResp gwPullResp;
+    union {
+        GwPushData gwPushData;
+        GwPullData gwPullData;
+        GwPullResp gwPullResp;
+    };
     ERR_CODE_TX code;           ///< code
     // pointer to the parser used for
     ProtoGwParser *parser;

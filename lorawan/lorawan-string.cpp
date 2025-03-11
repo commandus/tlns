@@ -1073,7 +1073,7 @@ ERR_CODE_TX string2ERR_CODE_TX(
  * Parse data rate identifier e.g."SF7BW125" into bandwidth & spreading factor variables
  * @param bandwidth return bandwidth index
  * @param value LoRa datarate identifier e.g. "SF7BW125"
- * @returns preading factor
+ * @returns spreading factor
  */
 SPREADING_FACTOR string2datr(
     BANDWIDTH &bandwidth,

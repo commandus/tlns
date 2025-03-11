@@ -403,7 +403,7 @@ void LoraGatewayListener::spectralScanRunner()
     log(LOG_DEBUG, CODE_OK, MSG_SPECTRAL_SCAN_STARTED);
 
     uint32_t freqHz = config->sx1261.spectralScan.freq_hz_start;
-    uint32_t freqHzStop = config->sx1261.spectralScan.freq_hz_start + config->sx1261.spectralScan.nb_chan * 200E3;
+    uint32_t freqHzStop = config->sx1261.spectralScan.freq_hz_start + (uint32_t) (config->sx1261.spectralScan.nb_chan * 200E3);
     int16_t levels[LGW_SPECTRAL_SCAN_RESULT_SIZE];
     uint16_t results[LGW_SPECTRAL_SCAN_RESULT_SIZE];
     struct timeval startTime;
@@ -564,7 +564,7 @@ void LoraGatewayListener::gpsRunner()
                 if (nmea_end_ptr) {
                     // found end marker
                     frame_size = nmea_end_ptr - &serial_buff[rd_idx] + 1;
-                    latest_msg = lgw_parse_nmea(&serial_buff[rd_idx], frame_size);
+                    latest_msg = lgw_parse_nmea(&serial_buff[rd_idx], (int) frame_size);
 
                     if (latest_msg == INVALID || latest_msg == UNKNOWN) {
                         // checksum failed
@@ -785,7 +785,7 @@ void LoraGatewayListener::upstreamRunner()
                 r = lgw_cnt2gps(local_ref, p->count_us, &pkt_gps_time);
                 if (r == LGW_GPS_SUCCESS) {
                     // uint64_t pkt_gps_time_ms = pkt_gps_time.tv_sec * 1E3 + pkt_gps_time.tv_nsec / 1E6;
-                    metadata.tmst = pkt_gps_time.tv_sec;
+                    metadata.tmst = (uint32_t) pkt_gps_time.tv_sec;
                 }
             } else {
                 metadata.t = time(nullptr);
@@ -1239,7 +1239,7 @@ void LoraGatewayListener::downstreamBeaconRunner() {
             log(LOG_ERR, ERR_CODE_LORA_GATEWAY_UNKNOWN_DATARATE, ERR_LORA_GATEWAY_UNKNOWN_DATARATE);
             stop(0);
     }
-    beacon_pkt.size = beacon_RFU1_size + 4 + 2 + 7 + beacon_RFU2_size + 2;
+    beacon_pkt.size = (uint16_t) (beacon_RFU1_size + 4 + 2 + 7 + beacon_RFU2_size + 2);
     beacon_pkt.coderate = CR_LORA_4_5;
     beacon_pkt.invert_pol = false;
     beacon_pkt.preamble = 10;
@@ -1340,7 +1340,7 @@ void LoraGatewayListener::downstreamBeaconRunner() {
                 beacon_pkt.freq_hz = config->gateway.beaconFreqHz + (beacon_chan * config->gateway.beaconFreqStep);
 
                 // load time in beacon payload
-                beacon_pyld_idx = beacon_RFU1_size;
+                beacon_pyld_idx = (uint8_t) beacon_RFU1_size;
                 beacon_pkt.payload[beacon_pyld_idx++] = 0xff &  next_beacon_gps_time.tv_sec;
                 beacon_pkt.payload[beacon_pyld_idx++] = 0xff & (next_beacon_gps_time.tv_sec >>  8);
                 beacon_pkt.payload[beacon_pyld_idx++] = 0xff & (next_beacon_gps_time.tv_sec >> 16);

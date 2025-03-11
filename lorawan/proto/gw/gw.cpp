@@ -10,6 +10,16 @@ bool GwPushData::isMetadataValid() const
     return rxMetadata.modu == MODULATION_LORA || rxMetadata.modu == MODULATION_FSK;
 }
 
+bool GwPullData::needConfirmation() const
+{
+    return txData.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN;
+}
+
+bool GwPullData::isMetadataValid() const
+{
+    return txMetadata.modulation == MODULATION_LORA || txMetadata.modulation == MODULATION_FSK;
+}
+
 bool GwPullResp::needConfirmation() const
 {
     return txData.mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN;

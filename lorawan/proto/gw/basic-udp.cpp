@@ -213,7 +213,7 @@ public:
  * 	Section 6
  */
 static const char* SAX_METADATA_TX_NAMES [16] = {
-    "txpk",	// 0 array name
+    "txpk",	// 0 root object name
     "imme", // 1 bool            Send packet immediately (will ignore tmst & time)
     "tmst", // 2 unsigned        Send packet on a certain timestamp value (will ignore time)
     "tmms", // 3 unsigned        Send packet at a certain GPS time (GPS synchronization required)
@@ -243,6 +243,152 @@ static inline int getMetadataTxNameIndex(
     }
     return r;
 }
+
+class SaxPullData : public nlohmann::json::json_sax_t {
+private:
+    int nameIndex;
+    int startItem;  // object enter/exit counter
+    GwPullData *item;
+public:
+    int parseError;
+
+    explicit SaxPullData(
+        GwPullData *retVal
+    )
+        : nameIndex(0), startItem(0), item(retVal), parseError(CODE_OK)
+    {
+    }
+
+    bool null() override {
+        return true;
+    }
+
+    bool boolean(bool val) override {
+        switch (nameIndex) {
+            case 1: // imme Send packet immediately (will ignore tmst & time)
+                item->txMetadata.tx_mode = val ? 0 : 1;
+                break;
+            case 11: // ipol Lora modulation polarization inversion
+                item->txMetadata.invert_pol = val;
+                break;
+            case 15: // ncrc If true, disable the CRC of the physical layer (optional)
+                item->txMetadata.no_crc = val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool number_integer(number_integer_t val) override {
+        return number_unsigned(val);
+    }
+
+    bool number_unsigned(number_unsigned_t val) override {
+        switch (nameIndex) {
+            case 2: // tmst Send packet on a certain timestamp value (will ignore time)
+                item->txMetadata.count_us = (uint32_t) val;
+                item->txMetadata.tx_mode = 1;
+                break;
+            case 3: // tmms Send packet at a certain GPS time (GPS synchronization required)
+                item->txMetadata.tx_mode = 2;
+                break;
+            case 4: // freq TX central frequency in MHz (Hz precision)
+                item->txMetadata.freq_hz = (uint32_t) val;
+                break;
+            case 5: // rfch Concentrator "RF chain" used for TX
+                item->txMetadata.rf_chain = (uint8_t) val;
+                break;
+            case 6: // powe TX output power in dBm (dBm precision)
+                item->txMetadata.rf_power = (uint8_t) val;
+                break;
+            case 8: // datr  LoRa data rate identifier e.g. SF12BW500 or MODULATION_FSK data rate in bits per second
+                item->txMetadata.datarate = (uint32_t) val;    // FSK baud rate
+                break;
+            case 10: // fdev MODULATION_FSK frequency deviation in Hz
+                item->txMetadata.f_dev = (uint8_t) val;
+                break;
+            case 12: // prea RF preamble size
+                item->txMetadata.preamble = (uint16_t) val;
+                break;
+            case 13: // RF packet payload size in bytes
+                item->txMetadata.size = (uint16_t) val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool number_float(number_float_t val, const string_t &s) override {
+        switch (nameIndex) {
+            case 4: // freq TX central frequency in MHz (Hz precision)
+                item->txMetadata.freq_hz = (uint32_t) val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool string(string_t &val) override {
+        switch (nameIndex) {
+            case 7: // modu Modulation identifier "LORA" or "FSK"
+                item->txMetadata.modulation = string2MODULATION(val.c_str());
+                break;
+            case 8: // datr LoRa data rate identifier e.g. SF12BW500 or MODULATION_FSK data rate in bits per second
+            {
+                BANDWIDTH bandwidth;
+                SPREADING_FACTOR sf = string2datr(bandwidth, val);
+                item->txMetadata.bandwidth = bandwidth;
+                item->txMetadata.datarate = sf;
+            }
+                break;
+            case 9: // codr LoRa ECC coding rate identifier
+                item->txMetadata.coderate = string2codingRate(val);
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool start_object(std::size_t elements) override {
+        startItem++;
+        return true;
+    }
+
+    bool end_object() override {
+        if (startItem == 2) {// time to add next packet
+            // ret
+        }
+        startItem--;
+        return true;
+    }
+
+    bool start_array(std::size_t elements) override {
+        return true;
+    }
+
+    bool end_array() override {
+        return true;
+    }
+
+    bool key(string_t &val) override {
+        nameIndex = getMetadataTxNameIndex(val.c_str());
+        return true;
+    }
+
+    bool binary(nlohmann::json::binary_t &val) override {
+        return true;
+    }
+
+    bool parse_error(std::size_t position, const std::string &last_token, const nlohmann::json::exception &ex) override {
+        parseError = - ex.id;
+        std::cerr << ex.what() << std::endl;
+        return false;
+    }
+};
 
 class SaxPullResp : public nlohmann::json::json_sax_t {
 private:
@@ -418,6 +564,14 @@ int GatewayBasicUdpProtocol::parse(
                 size - SIZE_SEMTECH_PREFIX_GW, pGw->mac, receivedTime); // +12 bytes
         }
             break;
+        case SEMTECH_GW_PULL_DATA:
+        {
+            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            ntoh_SEMTECH_PREFIX_GW(*pGw);
+            r = parsePullData(&retVal.gwPullData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX,
+                size - SIZE_SEMTECH_PREFIX);
+        }
+            break;
         case SEMTECH_GW_PULL_RESP:  // 4
         {
             auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
@@ -444,6 +598,16 @@ int parsePushData(
     TASK_TIME receivedTime
 ) {
     SaxPushData consumer(retVal, gwId, receivedTime);
+    nlohmann::json::sax_parse(json, json + size, &consumer);
+    return consumer.parseError;
+}
+
+int parsePullData(
+    GwPullData *retVal,
+    const char *json,
+    size_t size
+) {
+    SaxPullData consumer(retVal);
     nlohmann::json::sax_parse(json, json + size, &consumer);
     return consumer.parseError;
 }

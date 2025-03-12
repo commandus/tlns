@@ -18,7 +18,7 @@ DownlinkByTimer::DownlinkByTimer(
 
 void DownlinkByTimer::run()
 {
-    while (state != DLRS_STOP) {
+    while (state != TASK_STOP) {
         if (index >= identities.size())
             index = 0;
         else {

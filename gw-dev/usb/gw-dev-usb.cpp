@@ -278,11 +278,10 @@ static void printTrace() {
 
 static void run();
 
+#ifndef _MSC_VER
 void signalHandler(int signal)
 {
-    // lastSysSignal = signal;
-    switch (signal)
-    {
+    switch (signal) {
         case SIGINT:
             std::cerr << MSG_INTERRUPTED << std::endl;
             stop();
@@ -296,7 +295,7 @@ void signalHandler(int signal)
             std::cerr << ERR_ABRT << std::endl;
             printTrace();
             exit(ERR_CODE_ABRT);
-#ifndef _MSC_VER
+
         case SIGHUP:
             std::cerr << ERR_HANGUP_DETECTED << std::endl;
             break;
@@ -304,7 +303,6 @@ void signalHandler(int signal)
             std::cerr << MSG_SIG_FLUSH_FILES << std::endl;
             // flushFiles();
             break;
-#endif
         case 42:	// restart
             std::cerr << MSG_RESTART_REQUEST << std::endl;
             stop();
@@ -315,10 +313,20 @@ void signalHandler(int signal)
             break;
     }
 }
+#else
+BOOL WINAPI winSignalHandler(DWORD signal) {
+    std::cerr << "Interrupted.." << std::endl;
+    stop();
+    done();
+    return true;
+}
+#endif
 
 void setSignalHandler()
 {
-#ifndef _MSC_VER
+#ifdef _MSC_VER
+    SetConsoleCtrlHandler(winSignalHandler,  true);
+#else
     struct sigaction action {};
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = &signalHandler;

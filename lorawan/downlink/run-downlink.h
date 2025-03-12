@@ -2,14 +2,8 @@
 #define TLNS_RUN_DOWNLINK_H
 
 #include <mutex>
+#include "lorawan/task/task-state.h"
 #include "lorawan/task/message-task-dispatcher.h"
-
-enum DOWNLINK_RUNNER_STATE {
-    DLRS_STOPPED,
-    DLRS_START,
-    DLRS_RUN,
-    DLRS_STOP
-};
 
 class RunDownlink {
 private:
@@ -18,7 +12,7 @@ private:
     void runner();
 public:
     MessageTaskDispatcher *dispatcher;
-    DOWNLINK_RUNNER_STATE state;
+    TASK_STATE state;
 
     RunDownlink(MessageTaskDispatcher *dispatcher);
     ~RunDownlink();

@@ -206,6 +206,7 @@ static void stop() {
 	}
 }
 
+#ifndef _MSC_VER
 void signalHandler(int signal)
 {
 	if (signal == SIGINT) {
@@ -213,10 +214,19 @@ void signalHandler(int signal)
         done();
 	}
 }
+#else
+BOOL WINAPI winSignalHandler(DWORD signal) {
+    std::cerr << "Interrupted.." << std::endl;
+    stop();
+    done();
+    return true;
+}
+#endif
 
 void setSignalHandler()
 {
-#if defined(_MSC_VER) || defined(__MINGW32__)
+#ifdef _MSC_VER
+    SetConsoleCtrlHandler(winSignalHandler,  true);
 #else
 	struct sigaction action = {};
 	action.sa_handler = &signalHandler;

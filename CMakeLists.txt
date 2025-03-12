@@ -317,15 +317,16 @@ else()
 		set(LIBLORAGW_INC third-party/libloragw-win)
 	else ()
 		set(LIBLORAGW_INC third-party/libloragw third-party/libloragw/inc)
-		add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
-			third-party/libloragw/subst-call-c.cpp third-party/libloragw/libloragw-helper.cpp
-		)
-		target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
-		target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
-		target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
-				${VCPKG_INC} ${Intl_INCLUDE_DIRS})
-
 	endif ()
+
+	# third-party/libloragw/subst-call-c.cpp
+	add_executable(tlns-check ${CLI_MAIN_CHECK_SRC}
+		third-party/libloragw/libloragw-helper.cpp
+	)
+	target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
+	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
+	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
+			${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	#
 	# Semtech's gateway JSON config file to c++ source convert utility

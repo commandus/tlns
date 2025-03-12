@@ -10,6 +10,7 @@
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/proto/gw/parse-result.h"
+#include "lorawan/task/task-state.h"
 #include "lorawan/task/task-timer-socket.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 #include "lorawan/storage/client/direct-client.h"
@@ -93,6 +94,10 @@ class ProtoGwParser;
 class MessageTaskDispatcher {
 private:
     std::mutex queueMutex;
+    // running state
+    std::mutex mutexState;
+    std::condition_variable cvState;
+    // reserved socket to send packet to maim select() loop
     TaskSocket *controlSocket;
     TaskTimerSocket *timerSocket;
     /**
@@ -119,9 +124,9 @@ protected:
     void clearSockets();
 public:
     DeviceBestGatewayDirectClient *deviceBestGatewayClient;
-    MessageQueue queue;     ///< message queue
+    MessageQueue queue;                 ///< message queue
     std::vector<TaskSocket*> sockets;   ///< task socket array
-    bool runningUplink;    ///< true- uplink loop thread is running
+    TASK_STATE state;                   ///< indicate uplink loop thread is running or stopped
 
     OnReceiveRawData onReceiveRawData;
     OnPushMessageQueueItem onPushData;

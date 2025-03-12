@@ -2,7 +2,7 @@
 #include "lorawan/downlink/run-downlink.h"
 
 RunDownlink::RunDownlink(MessageTaskDispatcher *aDispatcher)
-    : dispatcher(aDispatcher), state(DLRS_STOPPED)
+    : dispatcher(aDispatcher), state(TASK_STOPPED)
 {
 
 }
@@ -14,28 +14,28 @@ RunDownlink::~RunDownlink()
 
 void RunDownlink::runner()
 {
-    state = DLRS_RUN;
+    state = TASK_RUN;
     run();
-    // here state == DLRS_STOP, set to DLRS_STOPPED
+    // here state == TASK_STOP, set to TASK_STOPPED
     std::unique_lock<std::mutex> lck(mutexState);
-    state = DLRS_STOPPED;
+    state = TASK_STOPPED;
     cvState.notify_all();
 }
 
 void RunDownlink::start()
 {
-    if (state != DLRS_STOPPED)
+    if (state != TASK_STOPPED)
         return;
-    state = DLRS_START;
+    state = TASK_START;
     std::thread t(&RunDownlink::runner, this);
     t.detach();
 }
 
 void RunDownlink::stop()
 {
-    state = DLRS_STOP;
+    state = TASK_STOP;
     // wait until thread finished
     std::unique_lock<std::mutex> lock(mutexState);
-    while(state != DLRS_STOPPED)
+    while(state != TASK_STOPPED)
         cvState.wait(lock);
 }

@@ -39,7 +39,7 @@ typedef in_addr in_addr_t;
 
 MessageTaskDispatcher::MessageTaskDispatcher()
     : controlSocket(nullptr), timerSocket(new TaskTimerSocket), taskResponse(nullptr), threadUplink(nullptr),
-    deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), runningUplink(false),
+    deviceBestGatewayClient(nullptr), regionalPlan(nullptr), identityClient(nullptr), state(TASK_STOPPED),
     onReceiveRawData(nullptr), onPushData(nullptr), onPullResp(nullptr), onTxPkAck(nullptr), onDestroy(nullptr),
     onError(nullptr), onStart(nullptr), onStop(nullptr), onGatewayPing(nullptr)
 {
@@ -53,7 +53,7 @@ MessageTaskDispatcher::MessageTaskDispatcher(
     : controlSocket(value.controlSocket), timerSocket(value.timerSocket), taskResponse(value.taskResponse),
     deviceBestGatewayClient(value.deviceBestGatewayClient), threadUplink(value.threadUplink), parsers(value.parsers),
     regionalPlan(value.regionalPlan), identityClient(value.identityClient), queue(value.queue),
-    runningUplink(value.runningUplink), onReceiveRawData(value.onReceiveRawData),
+    state(value.state), onReceiveRawData(value.onReceiveRawData),
     onPushData(value.onPushData), onPullResp(value.onPullResp), onTxPkAck(value.onTxPkAck),
     onDestroy(value.onDestroy), onError(value.onError), onStart(value.onStart), onStop(value.onStop),
     onGatewayPing(value.onGatewayPing)
@@ -121,30 +121,29 @@ void MessageTaskDispatcher::send2uplink(
  */
 void MessageTaskDispatcher::startUplink()
 {
-    if (!runningUplink) {
-        runningUplink = true; // force runningUplink because thread start with delay
-        threadUplink = new std::thread(std::bind(&MessageTaskDispatcher::runUplink, this));
-        threadUplink->detach();
-    }
+    if (state == TASK_RUN)
+        return;
+    state = TASK_START;
+    threadUplink = new std::thread(std::bind(&MessageTaskDispatcher::runUplink, this));
+    threadUplink->detach();
 }
 
 void MessageTaskDispatcher::stopUplink()
 {
-    if (!runningUplink)
-        return;
-    // wake-up select()
-    char q = 'q';
-    send2uplink(&q, 1);
+    // stop
+    if (state != TASK_STOPPED) {
+        state = TASK_STOP;
+        // wake up select over control socket, otherwise select wait timeout
+        send2uplink('q');
 
-    // wait until thread finish
-    std::mutex m;
-    std::unique_lock<std::mutex> lock(m);
+        // wait until thread finish
+        std::unique_lock<std::mutex> lock(mutexState);
+        while (state != TASK_STOPPED)
+            cvState.wait(lock);
+    }
+
+    // free up resources
     if (threadUplink) {
-        while (runningUplink) {
-            // try wake-up select() if UDP packet is missed
-            send2uplink(&q, 1);
-        }
-        // free up resources
         delete threadUplink;
         threadUplink = nullptr;
     }
@@ -229,16 +228,18 @@ SOCKET MessageTaskDispatcher::getMaxDescriptor1(
  */
 int MessageTaskDispatcher::runUplink()
 {
-    runningUplink = true;
+
     if (sockets.empty()) {
-        runningUplink = false;
+        state = TASK_STOPPED;
         return ERR_CODE_PARAM_INVALID;
     }
     if (!openSockets()) {
         closeSockets();
-        runningUplink = false;
+        state = TASK_STOPPED;
         return ERR_CODE_SOCKET_CREATE;
     }
+
+    state = TASK_RUN;
 
     initBridges();
 
@@ -255,7 +256,7 @@ int MessageTaskDispatcher::runUplink()
     ParseResult pr;
     struct sockaddr srcAddr {};
     socklen_t srcAddrLen = sizeof(srcAddr);
-    while (runningUplink) {
+    while (state == TASK_RUN) {
         fd_set workingSocketSet;
         // Copy the master fd_set over to the working fd_set
         memcpy(&workingSocketSet, &masterReadSocketSet, sizeof(masterReadSocketSet));
@@ -323,16 +324,8 @@ int MessageTaskDispatcher::runUplink()
             }
             if (sz > 0) {
                 switch (sz) {
-                    case 1: {
-                        char *a = (char *) buffer;
-                        switch (*a) {
-                            case 'q':
-                                runningUplink = false;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                case 1: case 2: case 3:
+                        // reserved
                         break;
                     case SIZE_DEVADDR:      // something happens on device (by address)
                     {
@@ -351,33 +344,33 @@ int MessageTaskDispatcher::runUplink()
                             if (!onReceiveRawData(this, buffer, sz, receivedTime))  // filter raw messages
                                 continue;
                         for (auto parser: parsers) {
-                            int r = parser->parse(pr, buffer, sz, receivedTime);
-                            if (r == CODE_OK) {
-                                r = validateGatewayAddress(pr, s, srcAddr);
-                                if (r == CODE_OK) {
-                                    switch (pr.tag) {
-                                        case SEMTECH_GW_PUSH_DATA:
-                                            pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
-                                            break;
-                                        case SEMTECH_GW_PULL_DATA:
-                                            std::cerr << "SEND TO END-DEVICE TODO" << std::endl;
-                                            break;
-                                        case SEMTECH_GW_PULL_RESP:
-                                            if (onPullResp)
-                                                onPullResp(this, pr.gwPullResp);
-                                            break;
-                                        case SEMTECH_GW_TX_ACK:
-                                            onTxPkAck(this, pr.code);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                                // send ACK ASAP
-                                if (sendACK(s, srcAddr, srcAddrLen, buffer, sz, parser) > 0) {
-                                    // inform
-                                }
-                                break;  // otherwise try next parser
+                            if (parser->parse(pr, buffer, sz, receivedTime) != CODE_OK)
+                                continue;
+                            // check this gateway is out of service
+                            if (validateGatewayAddress(pr, s, srcAddr) != CODE_OK)
+                                continue;
+                            switch (pr.tag) {
+                                case SEMTECH_GW_PUSH_DATA:
+                                    // send to app service
+                                    pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
+                                    break;
+                                case SEMTECH_GW_PULL_DATA:
+                                    // send to end-device
+                                    std::cerr << "SEND TO END-DEVICE TODO" << std::endl;
+                                    break;
+                                case SEMTECH_GW_PULL_RESP:
+                                    if (onPullResp)
+                                        onPullResp(this, pr.gwPullResp);
+                                    break;
+                                case SEMTECH_GW_TX_ACK:
+                                    onTxPkAck(this, pr.code);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            // send ACK ASAP
+                            if (sendACK(s, srcAddr, srcAddrLen, buffer, sz, parser) > 0) {
+                                // inform
                             }
                         }
                     }
@@ -416,9 +409,11 @@ int MessageTaskDispatcher::runUplink()
         onStop(this);
     }
 
-    runningUplink = false;
-    return CODE_OK;
+    std::unique_lock<std::mutex> lck(mutexState);
+    state = TASK_STOPPED;
+    cvState.notify_all();
 
+    return CODE_OK;
 }
 
 ssize_t MessageTaskDispatcher::sendACK(

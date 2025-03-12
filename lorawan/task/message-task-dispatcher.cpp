@@ -356,7 +356,7 @@ int MessageTaskDispatcher::runUplink()
                                     break;
                                 case SEMTECH_GW_PULL_DATA:
                                     // send to end-device
-                                    std::cerr << "SEND TO END-DEVICE TODO" << std::endl;
+                                    std::cerr << "SEND TO END-DEVICE gateway " << gatewayId2str(pr.gwId.u) << std::endl;
                                     break;
                                 case SEMTECH_GW_PULL_RESP:
                                     if (onPullResp)

@@ -15,7 +15,7 @@
 TaskUnixSocket::TaskUnixSocket(
     const char *socketFileName
 )
-    : TaskSocket(SA_REQUIRE), socketPath(socketFileName)
+    : TaskSocket(SA_ACCEPT_REQUIRE), socketPath(socketFileName)
 {
     unlink(socketPath);
 }

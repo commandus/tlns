@@ -7,7 +7,7 @@
 #include <sys/syslog.h>
 #include <sys/ioctl.h>
 #define INVALID_SOCKET  (-1)
-#define TASK_SOCKET_ACCEPT SA_REQUIRE
+#define TASK_SOCKET_ACCEPT SA_ACCEPT_REQUIRE
 #endif
 
 #include "lorawan/lorawan-msg.h"

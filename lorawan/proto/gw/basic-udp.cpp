@@ -560,6 +560,7 @@ int GatewayBasicUdpProtocol::parse(
         {
             auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
+            retVal.gwId = pGw->mac;
             r = parsePushData(&retVal.gwPushData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
                 size - SIZE_SEMTECH_PREFIX_GW, pGw->mac, receivedTime); // +12 bytes
         }
@@ -568,21 +569,27 @@ int GatewayBasicUdpProtocol::parse(
         {
             auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
             ntoh_SEMTECH_PREFIX_GW(*pGw);
-            r = parsePullData(&retVal.gwPullData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX,
-                size - SIZE_SEMTECH_PREFIX);
+            retVal.gwId = pGw->mac;
+            r = parsePullData(&retVal.gwPullData, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
+                size - SIZE_SEMTECH_PREFIX_GW);
         }
             break;
         case SEMTECH_GW_PULL_RESP:  // 4
         {
-            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
-            ntoh_SEMTECH_PREFIX_GW(*pGw);
+            retVal.gwId.u = 0;    // not provided
             r = parsePullResp(&retVal.gwPullResp, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX, size - SIZE_SEMTECH_PREFIX,
-                pGw->mac); // +4 bytes
+                retVal.gwId); // +4 bytes
 
         }
             break;
         case SEMTECH_GW_TX_ACK:     // 5 gateway inform network server about does PULL_RESP data transmission was successful or not
-            r = parseTxAck(&retVal.code, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW, SIZE_SEMTECH_PREFIX_GW); // +12 bytes
+        {
+            auto *pGw = (SEMTECH_PREFIX_GW *) packetForwarderPacket;
+            ntoh_SEMTECH_PREFIX_GW(*pGw);
+            retVal.gwId = pGw->mac;
+            r = parseTxAck(&retVal.code, (char *) packetForwarderPacket + SIZE_SEMTECH_PREFIX_GW,
+                           SIZE_SEMTECH_PREFIX_GW); // +12 bytes
+        }
             break;
         default:
             r = ERR_CODE_INVALID_PACKET;
@@ -679,13 +686,14 @@ ssize_t GatewayBasicUdpProtocol::ack(
 
 bool GatewayBasicUdpProtocol::makePullStream(
     std::ostream &ss,
+    const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
     const RegionalParameterChannelPlan *regionalPlan
 )
 {
-    SEMTECH_PREFIX pullPrefix { 2, token, SEMTECH_GW_PULL_DATA };
+    SEMTECH_PREFIX_GW pullPrefix { 2, token, SEMTECH_GW_PULL_DATA, gwId };
     ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
     std::string radioPacketBase64 = msgBuilder.base64();
@@ -747,6 +755,7 @@ bool GatewayBasicUdpProtocol::makePullStream(
 ssize_t GatewayBasicUdpProtocol::makePull(
     char *retBuf,
     size_t retSize,
+    const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
@@ -754,7 +763,7 @@ ssize_t GatewayBasicUdpProtocol::makePull(
 )
 {
     std::stringstream ss;
-    if (!makePullStream(ss, msgBuilder, token, rxMetadata, regionalPlan))
+    if (!makePullStream(ss, gwId, msgBuilder, token, rxMetadata, regionalPlan))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

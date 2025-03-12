@@ -517,8 +517,9 @@ void MessageTaskDispatcher::sendQueue(
                 }
                 char sb[512];
                 if (gwMetadata.parser) {
-                    auto sz = gwMetadata.parser->makePull(sb, sizeof(sb), confirmationMessage,
-                                                          token, &gwMetadata.rx, regionalPlan);
+                    auto sz = gwMetadata.parser->makePull(sb, sizeof(sb),
+                        DEVEUI(m->second.task.gatewayId.gatewayId), confirmationMessage,
+                        token, &gwMetadata.rx, regionalPlan);
                     std::cout << "Send " << std::string(sb, sz)
                               << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
                               << " over socket " << gwMetadata.taskSocket->toString()
@@ -587,7 +588,7 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
             MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
-            ssize_t sz = proto->makePull(buf, sizeof(buf), msgBuilder, token, nullptr, regionalPlan);
+            ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
             if (sz > 0)
                 sendto(gwm.taskSocket->sock, (const char *) &buf, (int) sz, 0, &gwm.addr, addressLength(&gwm.addr));
         } else {
@@ -602,7 +603,8 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                     << std::endl;
 
                 MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
-                ssize_t sz = proto->makePull(buf, sizeof(buf), msgBuilder, token, nullptr, regionalPlan);
+                ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(g.gatewayId), msgBuilder,
+                    token, nullptr, regionalPlan);
                 if (sz > 0)
                     sendto(controlSocket->sock, (const char *) &buf, (int) sz, 0, &g.sockaddr, addressLength(&g.sockaddr));
             }

@@ -18,6 +18,7 @@ public:
         GwPullData gwPullData;
         GwPullResp gwPullResp;
     };
+    DEVEUI gwId;                ///< gateway MAC address
     ERR_CODE_TX code;           ///< code
     // pointer to the parser used for
     ProtoGwParser *parser;

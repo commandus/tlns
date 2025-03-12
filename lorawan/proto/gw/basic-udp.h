@@ -75,6 +75,7 @@ class GatewayBasicUdpProtocol : public ProtoGwParser {
 protected:
     static bool makePullStream(
         std::ostream &ss,
+        const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
@@ -112,6 +113,7 @@ public:
     ssize_t makePull(
         char *retBuf,
         size_t retSize,
+        const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,

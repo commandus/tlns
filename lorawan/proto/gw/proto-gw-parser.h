@@ -63,6 +63,7 @@ public:
     virtual ssize_t makePull(
         char *retBuf,
         size_t retSize,
+        const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,

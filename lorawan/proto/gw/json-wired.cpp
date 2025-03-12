@@ -356,6 +356,7 @@ void makeMessage(
 
 bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
     std::ostream &ss,
+    const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
@@ -378,6 +379,7 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
 ssize_t GatewayJsonWiredProtocol::makePull(
     char *retBuf,
     size_t retSize,
+    const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
@@ -385,7 +387,7 @@ ssize_t GatewayJsonWiredProtocol::makePull(
 )
 {
     std::stringstream ss;
-    if (!makeMessage2GatewayStream(ss, msgBuilder, token, rxMetadata, regionalPlan))
+    if (!makeMessage2GatewayStream(ss, gwId, msgBuilder, token, rxMetadata, regionalPlan))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

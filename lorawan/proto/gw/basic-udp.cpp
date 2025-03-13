@@ -694,7 +694,7 @@ bool GatewayBasicUdpProtocol::makePullStream(
 )
 {
     SEMTECH_PREFIX_GW pullPrefix { 2, token, SEMTECH_GW_PULL_DATA, gwId };
-    ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX))
+    ss << std::string((const char *) &pullPrefix, sizeof(SEMTECH_PREFIX_GW))
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
     std::string radioPacketBase64 = msgBuilder.base64();
 

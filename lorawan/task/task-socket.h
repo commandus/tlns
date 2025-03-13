@@ -43,6 +43,7 @@ public:
     SOCKET sock;
     ENUM_SOCKET_ACCEPT socketAccept;        ///< Does socket require accept()?
     int lastError;                          ///< last error code. 0- success
+    bool customWrite;                       ///< if true, dispatcher must call customWriteSocket() instead of write to socket
     TaskSocket();
     TaskSocket(
         ENUM_SOCKET_ACCEPT accept
@@ -61,6 +62,15 @@ public:
      * @return socket number, -1 if fails
      */
     virtual void closeSocket() = 0;
+    /**
+     *
+     * @param data
+     * @param size
+     */
+    virtual void customWriteSocket(
+        const void* data,
+        size_t size
+    );
     virtual ~TaskSocket();
     std::string toString() const;
     std::string toJsonString() const;

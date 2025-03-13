@@ -300,6 +300,13 @@ public:
 
     void initBridges();
     void doneBridges();
+
+    int sendParsedMessageDownlink(
+        TaskSocket *socketFrom,
+        const ParseResult &parsedMsg,
+        const char *buffer,
+        size_t bufferSize
+    );
 };
 
 #endif

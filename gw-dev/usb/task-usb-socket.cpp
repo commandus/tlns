@@ -57,6 +57,9 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
 )
     : TaskSocket(TASK_SOCKET_ACCEPT), dispatcher(aDispatcher), socketNameOrAddress(socketFileNameOrAddress)
 {
+    // enable direct write to
+    customWrite = true;
+
     listener.socket = this;
     if (!aLog)
         verbosity = 0;
@@ -183,4 +186,12 @@ void TaskUsbGatewaySocket::closeSocket()
 TaskUsbGatewaySocket::~TaskUsbGatewaySocket()
 {
     closeSocket();
+}
+
+void TaskUsbGatewaySocket::customWriteSocket(
+    const void* data,
+    size_t size
+)
+{
+
 }

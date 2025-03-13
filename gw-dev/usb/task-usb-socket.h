@@ -28,6 +28,10 @@ public:
     );
     SOCKET openSocket() override;
     void closeSocket() override;
+    void customWriteSocket(
+        const void* data,
+        size_t size
+    ) override;
     ~TaskUsbGatewaySocket() override;
 };
 

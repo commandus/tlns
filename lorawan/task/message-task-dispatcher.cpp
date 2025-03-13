@@ -355,8 +355,17 @@ int MessageTaskDispatcher::runUplink()
                                     pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
                                     break;
                                 case SEMTECH_GW_PULL_DATA:
-                                    // send to end-device
-                                    std::cerr << "SEND TO END-DEVICE gateway " << gatewayId2str(pr.gwId.u) << std::endl;
+                                    // send a message to the end device via the specified gateway as is
+                                    std::cout << "SEND TO END-DEVICE gateway "
+                                        << gatewayId2str(pr.gwId.u)
+                                        << " socket " << s->sock << " (" << s->toString() << ")"
+                                        << std::endl;
+                                    {
+                                        int r = sendParsedMessageDownlink(s, pr, buffer, sz);
+                                        if (r)
+                                            std::cerr << "Error send a message to the end device " << r
+                                                << " via gateway " << gatewayId2str(pr.gwId.u) << std::endl;
+                                    }
                                     break;
                                 case SEMTECH_GW_PULL_RESP:
                                     if (onPullResp)
@@ -755,4 +764,28 @@ void MessageTaskDispatcher::doneBridges()
     for (auto b: appBridges) {
         b->done();
     }
+}
+
+int MessageTaskDispatcher::sendParsedMessageDownlink(
+    TaskSocket *socketFrom,
+    const ParseResult &parsedMsg,
+    const char *buffer,
+    size_t bufferSize
+) {
+    GatewayIdentity gw(parsedMsg.gwId.u);
+    int r = identityClient->svcGateway->get(gw, gw);
+    if (r)
+        return r;
+    // customWrite, customWriteSocket()
+    if (true) {
+        std::cout << "Send downlink to gateway direct " << sockaddr2string(&gw.sockaddr) << std::endl;
+    } else {
+        r = sendto(socketFrom->sock, buffer, (int) bufferSize, 0,
+                   &gw.sockaddr, (int) addressLength(&gw.sockaddr));
+        std::cout << "Send downlink to gateway address " << sockaddr2string(&gw.sockaddr) << std::endl;
+    }
+
+    if (r > 0)
+        return 0;
+    return r;
 }

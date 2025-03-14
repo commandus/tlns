@@ -101,3 +101,18 @@ std::string TaskSocket::toJsonString() const
     ss << "\", \"socket\": " << sock << "}";
     return ss.str();
 }
+
+TaskSocketPreNAcceptedSocket::TaskSocketPreNAcceptedSocket()
+    : taskSocket(nullptr), acceptedSocket(INVALID_SOCKET)
+{
+
+}
+
+TaskSocketPreNAcceptedSocket::TaskSocketPreNAcceptedSocket(
+    TaskSocket *aTaskSocket,
+    SOCKET aAcceptedSocket
+)
+    : taskSocket(aTaskSocket), acceptedSocket(aAcceptedSocket)
+{
+
+}

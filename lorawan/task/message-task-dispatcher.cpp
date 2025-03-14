@@ -277,7 +277,7 @@ int MessageTaskDispatcher::runUplink()
             continue;
         }
 
-        std::vector<SOCKET> acceptedSockets;
+        std::vector<TaskSocketPreNAcceptedSocket> acceptedSockets;
         std::vector<TaskSocket*> removedSockets;
 
         // read socket(s)
@@ -289,8 +289,9 @@ int MessageTaskDispatcher::runUplink()
                 case SA_ACCEPT_REQUIRE: {
                     // TCP, UNIX sockets require create accept socket and create a new paired socket
                     SOCKET cfd = accept(s->sock, (struct sockaddr *) &srcAddr, &srcAddrLen);
-                    if (cfd > 0)
-                        acceptedSockets.push_back(cfd); // do not modify vector using iterator, do it after
+                    if (cfd > 0) {
+                        acceptedSockets.push_back({s, cfd}); // do not modify vector using iterator, do it after
+                    }
                     continue;
                 }
                 case SA_TIMER:

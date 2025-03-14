@@ -76,4 +76,19 @@ public:
     std::string toJsonString() const;
 };
 
+/**
+ * When socket has been accepted TaskSocketPreNAcceptedSocket class keeps accepted socket with "originator" TaskSocket
+ * together
+ */
+class TaskSocketPreNAcceptedSocket {
+public:
+    TaskSocket *taskSocket;
+    SOCKET acceptedSocket;
+    TaskSocketPreNAcceptedSocket();
+    TaskSocketPreNAcceptedSocket(
+        TaskSocket *taskSocket,
+        SOCKET acceptedSocket
+    );
+};
+
 #endif

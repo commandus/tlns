@@ -16,10 +16,11 @@
  */
 class TaskAcceptedSocket : public TaskSocket {
 public:
+    TaskSocket *originator;
     /**
      * @param socket accepted socket
      */
-    TaskAcceptedSocket(SOCKET socket);
+    TaskAcceptedSocket(TaskSocketPreNAcceptedSocket &taskSocketPreNAcceptedSocket);
     /**
     * socket is already open and accepted, so it just return accepted socket
     * @return socket itself
@@ -27,6 +28,11 @@ public:
     SOCKET openSocket() override;
     void closeSocket() override;
     virtual ~TaskAcceptedSocket();
+    void customWriteSocket(
+        const void* data,
+        size_t size
+    ) override;
+
 };
 
 #endif

@@ -9,11 +9,17 @@
 #endif
 
 TaskAcceptedSocket::TaskAcceptedSocket(
-    SOCKET socket
+    TaskSocketPreNAcceptedSocket &taskSocketPreNAcceptedSocket
 )
-    : TaskSocket(socket, SA_ACCEPTED)
+    : TaskSocket(taskSocketPreNAcceptedSocket.acceptedSocket, SA_ACCEPTED)
 {
-
+    if (taskSocketPreNAcceptedSocket.taskSocket) {
+        // copy custom write from the originator
+        customWrite = taskSocketPreNAcceptedSocket.taskSocket->customWrite;
+        originator = taskSocketPreNAcceptedSocket.taskSocket;
+    } else {
+        originator = nullptr;
+    }
 }
 
 TaskAcceptedSocket::~TaskAcceptedSocket()
@@ -31,4 +37,12 @@ void TaskAcceptedSocket::closeSocket()
     if (sock >= 0)
         close(sock);
     sock = -1;
+}
+
+void TaskAcceptedSocket::customWriteSocket(
+    const void* data,
+    size_t size
+) {
+    if (originator)
+        originator->customWriteSocket(data, size);
 }

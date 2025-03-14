@@ -776,9 +776,18 @@ int MessageTaskDispatcher::sendParsedMessageDownlink(
     GatewayIdentity gw(parsedMsg.gwId.u);
     int r = identityClient->svcGateway->get(gw, gw);
     if (r)
-        return r;
+        return r;   // no gateway address found
+
     // customWrite, customWriteSocket()
-    if (true) {
+    auto gws = gatewaySocket.find(parsedMsg.gwId.u);
+    if (gws == gatewaySocket.end())
+        return ERR_CODE_GATEWAY_NOT_FOUND;  // gateway does not send ping message so we haven't gateway's address yet
+    TaskSocket* socketTo = gws->second.taskSocket;
+    if (!socketTo)
+        return ERR_CODE_GATEWAY_NOT_FOUND;  // never happens
+
+    if (socketTo->customWrite) {
+        socketTo->customWriteSocket(buffer, bufferSize);
         std::cout << "Send downlink to gateway direct " << sockaddr2string(&gw.sockaddr) << std::endl;
     } else {
         r = sendto(socketFrom->sock, buffer, (int) bufferSize, 0,
@@ -789,4 +798,18 @@ int MessageTaskDispatcher::sendParsedMessageDownlink(
     if (r > 0)
         return 0;
     return r;
+}
+
+void MessageTaskDispatcher::gatewayPing(
+    uint64_t gwId,
+    TaskSocket *taskSocket
+) {
+    // - check is gateway allowed
+    // ...
+
+    // update gateway socket and time
+    gatewaySocket[gwId] = { taskSocket };
+    // inform subscriber
+    if (onGatewayPing)
+        onGatewayPing(this, gwId, taskSocket);
 }

@@ -1647,10 +1647,8 @@ int LoraGatewayListener::start()
     if (lastLgwCode)
         return ERR_CODE_LORA_GATEWAY_GET_EUI;
 
-    if (dispatcher) {
-        if (dispatcher->onGatewayPing)
-            dispatcher->onGatewayPing(dispatcher, eui, socket);
-    }
+    if (dispatcher)
+        dispatcher->gatewayPing(eui, socket);
 
     if (!upstreamThreadRunning) {
         // set indicator on in the main thread (thread may run after isStopped() call)

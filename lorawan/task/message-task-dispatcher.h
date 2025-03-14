@@ -141,6 +141,7 @@ public:
     std::vector<ProtoGwParser*> parsers;
     const RegionalParameterChannelPlan *regionalPlan;
     DirectClient *identityClient;
+    std::map<uint64_t, GatewayPingTimeNSocket> gatewaySocket;
 
     int runUplink();
 
@@ -306,6 +307,11 @@ public:
         const ParseResult &parsedMsg,
         const char *buffer,
         size_t bufferSize
+    );
+
+    void gatewayPing(
+        uint64_t gwId,
+        TaskSocket *taskSocket
     );
 };
 

@@ -2,6 +2,7 @@
 #define TASK_SOCKET_H_ 1
 
 #include <cinttypes>
+#include "lorawan/task/task-platform.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
@@ -90,5 +91,16 @@ public:
         SOCKET acceptedSocket
     );
 };
+
+class GatewayPingTimeNSocket {
+public:
+    TaskSocket *taskSocket;
+    TASK_TIME tim;
+    GatewayPingTimeNSocket();
+    GatewayPingTimeNSocket(
+        TaskSocket *taskSocket
+    );
+};
+
 
 #endif

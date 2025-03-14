@@ -8,6 +8,7 @@
 #endif
 
 #include <sstream>
+#include <chrono>
 
 #include "task-socket.h"
 #include "lorawan/lorawan-error.h"
@@ -113,6 +114,20 @@ TaskSocketPreNAcceptedSocket::TaskSocketPreNAcceptedSocket(
     SOCKET aAcceptedSocket
 )
     : taskSocket(aTaskSocket), acceptedSocket(aAcceptedSocket)
+{
+
+}
+
+GatewayPingTimeNSocket::GatewayPingTimeNSocket()
+    : taskSocket(nullptr), tim(std::chrono::system_clock::now())
+{
+
+}
+
+GatewayPingTimeNSocket::GatewayPingTimeNSocket(
+    TaskSocket *aTaskSocket
+)
+    : taskSocket(aTaskSocket), tim(std::chrono::system_clock::now())
 {
 
 }

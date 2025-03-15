@@ -1,3 +1,4 @@
+#include <iostream>
 #include "task-usb-socket.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -193,5 +194,5 @@ void TaskUsbGatewaySocket::customWriteSocket(
     size_t size
 )
 {
-
+    std::cerr << "TaskUsbGatewaySocket::customWriteSocket " << hexString(data, size) << std::endl;
 }

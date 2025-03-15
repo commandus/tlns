@@ -361,8 +361,8 @@ int MessageTaskDispatcher::runUplink()
                                         << gatewayId2str(pr.gwId.u)
                                         << " socket " << s->sock << " (" << s->toString() << ")"
                                         << std::endl;
-                                    {
-                                        int r = sendParsedMessageDownlink(s, pr, buffer, sz);
+                                    if (sz > 0) {
+                                        int r = sendDownlink(pr.gwId.u, buffer, sz);
                                         if (r)
                                             std::cerr << "Error send a message to the end device " << r
                                                 << " via gateway " << gatewayId2str(pr.gwId.u) << std::endl;
@@ -379,7 +379,7 @@ int MessageTaskDispatcher::runUplink()
                                     break;
                             }
                             // send ACK ASAP
-                            if (sendACK(s, srcAddr, srcAddrLen, buffer, sz, parser) > 0) {
+                            if (sz > 0 && sendACK(s, srcAddr, srcAddrLen, buffer, sz, parser) > 0) {
                                 // inform
                             }
                         }
@@ -591,18 +591,18 @@ void MessageTaskDispatcher::sendDownlinkMessages(
         uint16_t token = 1;
         SEMTECH_PROTOCOL_METADATA_RX *rxm = nullptr;
 
+        MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
+
         if (gw) {
             std::cout << "send downlink to device " << DEVADDR2string(a)
-                << " over gateway " << gatewayId2str(gw)
+                << " over best known gateway " << gatewayId2str(gw)
                 << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
-            MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
             ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
-            if (sz > 0)
-                sendto(gwm.taskSocket->sock, (const char *) &buf, (int) sz, 0, &gwm.addr, addressLength(&gwm.addr));
+            sendDownlink(gw, buf, sz);
         } else {
-            std::cerr << "no gateway available, send over all known gateways" << std::endl;
+            std::cerr << "best gateway unknown, sending via all known gateways" << std::endl;
             std::vector<GatewayIdentity> gwLs;
             identityClient->svcGateway->list(gwLs, 0, 10);
             for (auto &g : gwLs) {
@@ -611,12 +611,10 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                     << ' ' << sockaddr2string(&g.sockaddr)
                     << " = " << it->second.toJsonString()
                     << std::endl;
-
-                MessageBuilder msgBuilder(it->second.task, it->second.radioPacket);
                 ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(g.gatewayId), msgBuilder,
-                    token, nullptr, regionalPlan);
+                                             token, nullptr, regionalPlan);
                 if (sz > 0)
-                    sendto(controlSocket->sock, (const char *) &buf, (int) sz, 0, &g.sockaddr, addressLength(&g.sockaddr));
+                    sendDownlink(g.gatewayId, buf, sz);
             }
         }
         it = queue.downlinkMessages.erase(it);
@@ -677,7 +675,7 @@ size_t MessageTaskDispatcher::bridgeCount() const
     return appBridges.size();
 }
 
-int MessageTaskDispatcher::sendDownlink(
+int MessageTaskDispatcher::enqueueDownlink(
     const TASK_TIME &tim,
     const DEVADDR &addr,
     void *payload,
@@ -767,36 +765,39 @@ void MessageTaskDispatcher::doneBridges()
     }
 }
 
-int MessageTaskDispatcher::sendParsedMessageDownlink(
-    TaskSocket *socketFrom,
-    const ParseResult &parsedMsg,
+int MessageTaskDispatcher::sendDownlink(
+    uint64_t gwId,
     const char *buffer,
     size_t bufferSize
 ) {
-    GatewayIdentity gw(parsedMsg.gwId.u);
+    if (bufferSize == 0 || !buffer)
+        return ERR_CODE_PARAM_INVALID;
+    // get gateway socket
+    auto gws = gatewaySocket.find(gwId);
+    if (gws == gatewaySocket.end())
+        return ERR_CODE_GATEWAY_NOT_FOUND;  // gateway does not send ping message so we haven't gateway's address yet
+    TaskSocket* socketGw = gws->second.taskSocket;
+    if (!socketGw)
+        return ERR_CODE_GATEWAY_NOT_FOUND;  // never happens
+
+    // get gateway address
+    GatewayIdentity gw(gwId);
     int r = identityClient->svcGateway->get(gw, gw);
     if (r)
         return r;   // no gateway address found
 
-    // customWrite, customWriteSocket()
-    auto gws = gatewaySocket.find(parsedMsg.gwId.u);
-    if (gws == gatewaySocket.end())
-        return ERR_CODE_GATEWAY_NOT_FOUND;  // gateway does not send ping message so we haven't gateway's address yet
-    TaskSocket* socketTo = gws->second.taskSocket;
-    if (!socketTo)
-        return ERR_CODE_GATEWAY_NOT_FOUND;  // never happens
-
-    if (socketTo->customWrite) {
-        socketTo->customWriteSocket(buffer, bufferSize);
+    // Does gateway socket use customWriteSocket() method to write downlink message?
+    if (socketGw->customWrite) {
+        socketGw->customWriteSocket(buffer, bufferSize);
         std::cout << "Send downlink to gateway direct " << sockaddr2string(&gw.sockaddr) << std::endl;
     } else {
-        r = sendto(socketFrom->sock, buffer, (int) bufferSize, 0,
+        r = sendto(socketGw->sock, buffer, (int) bufferSize, 0,
                    &gw.sockaddr, (int) addressLength(&gw.sockaddr));
         std::cout << "Send downlink to gateway address " << sockaddr2string(&gw.sockaddr) << std::endl;
     }
 
     if (r > 0)
-        return 0;
+        return 0;   // 0- success, <0- error code
     return r;
 }
 

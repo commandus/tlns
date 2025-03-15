@@ -288,7 +288,7 @@ public:
      * @param proto protocol to serialize packet (unused)
      * @return 0- success
      */
-    int sendDownlink(
+    int enqueueDownlink(
         const TASK_TIME &tim,
         const DEVADDR &addr,
         void *payload,
@@ -302,9 +302,8 @@ public:
     void initBridges();
     void doneBridges();
 
-    int sendParsedMessageDownlink(
-        TaskSocket *socketFrom,
-        const ParseResult &parsedMsg,
+    int sendDownlink(
+        uint64_t gwId,
         const char *buffer,
         size_t bufferSize
     );

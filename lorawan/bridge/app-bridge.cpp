@@ -30,8 +30,9 @@ int AppBridge::send2addr(
         return ERR_CODE_WRONG_PARAM;
     if (proto >= ((MessageTaskDispatcher *)dispatcher)->parsers.size())
         return ERR_CODE_WRONG_PARAM;
-    return ((MessageTaskDispatcher *)dispatcher)->sendDownlink(tim, addr, payload, fopts, fPort,
-        payloadSize, foptsSize, ((MessageTaskDispatcher *)dispatcher)->parsers[proto]);
+    return ((MessageTaskDispatcher *) dispatcher)->enqueueDownlink(tim, addr, payload, fopts, fPort,
+                                                                   payloadSize, foptsSize,
+                                                                   ((MessageTaskDispatcher *) dispatcher)->parsers[proto]);
 }
 
 // wrappers

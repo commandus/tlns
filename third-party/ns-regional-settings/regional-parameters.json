@@ -359,6 +359,879 @@
 			"txPowerOffsets": [0, -2, -4, -6, -8, -10, -12, -14]
 		},
 		{
+			"id": 4,
+			"name": "EU443",
+			"cn": "EU433",
+			"implementsTXParamSetup": false,
+			"maxUplinkEIRP": 12.15,
+			"defaultDownlinkTXPower": 10,
+			"pingSlotFrequency": 434665000,
+	
+			"supportsExtraChannels": true,
+			"bandDefaults": {
+				"RX2Frequency": 434665000,
+				"RX2DataRate": 0,
+				"ReceiveDelay1": 1,
+				"ReceiveDelay2": 2,
+				"JoinAcceptDelay1": 5,
+				"JoinAcceptDelay2": 6
+			},
+			"dataRates": [{
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 12,
+				"bps": 250
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 11,
+				"bps": 440
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 10,
+				"bps": 980
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 9,
+				"bps": 1760
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 8,
+				"bps": 3125
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 7,
+				"bps": 5470
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 250,
+				"spreadingFactor": 7,
+				"bps": 11000
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "FSK",
+				"bandwidth": 0,
+				"spreadingFactor": 0,
+				"bps": 50000
+			}],			
+			"uplinkChannels": [{
+				"frequency": 433175000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 433375000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 433575000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}],
+			"downlinkChannels": [{
+				"frequency": 433175000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 433375000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 433575000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}],
+			"maxPayloadSizePerDataRate": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}],
+			"maxPayloadSizePerDataRateRepeater": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}],
+			"rx1DataRateOffsets": [
+				[0, 0, 0, 0, 0, 0],
+				[1, 0, 0, 0, 0, 0],
+				[2, 1, 0, 0, 0, 0],
+				[3, 2, 1, 0, 0, 0],
+				[4, 3, 2, 1, 0, 0],
+				[5, 4, 3, 2, 1, 0],
+				[6, 5, 5, 4, 3, 2],
+				[7, 6, 5, 4, 3, 2]
+			],
+			"txPowerOffsets": [0, -2, -4, -6, -8, -10]
+		},
+		{
+			"id": 5,
+			"name": "AU915-928",
+			"cn": "AU915",
+			"defaultRegion": true,
+			"implementsTXParamSetup": false,
+			"maxUplinkEIRP": 30,
+			"defaultDownlinkTXPower": 30,
+			"pingSlotFrequency": 923300000,
+			"supportsExtraChannels": true,
+			"bandDefaults": {
+				"RX2Frequency": 923300000,
+				"RX2DataRate": 0,
+				"ReceiveDelay1": 1,
+				"ReceiveDelay2": 2,
+				"JoinAcceptDelay1": 5,
+				"JoinAcceptDelay2": 6
+			},
+			"dataRates": [{
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 12,
+				"bps": 250
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 11,
+				"bps": 440
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 10,
+				"bps": 980
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 9,
+				"bps": 1760
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 8,
+				"bps": 3125
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 125,
+				"spreadingFactor": 7,
+				"bps": 5470
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 8,
+				"bps": 12500
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "FSK",
+				"bandwidth": 0,
+				"spreadingFactor": 0,
+				"bps": 162
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 12,
+				"bps": 980
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 11,
+				"bps": 1760
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 10,
+				"bps": 3900
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 9,
+				"bps": 7000
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 8,
+				"bps": 12500
+			}, {
+				"uplink": true,
+				"downlink": true,
+				"modulation": "LORA",
+				"bandwidth": 500,
+				"spreadingFactor": 7,
+				"bps": 21900
+			}],			
+			"uplinkChannels": [{
+				"frequency": 915200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 915400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 915600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 915800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 916000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 916200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 916400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 916600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 916800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 918000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 918200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 918400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 918600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 918800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 921000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 921200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 921400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 921600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 921800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 924000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 924200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 924400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 924600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 924800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 926000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 926200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 926400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 926600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 926800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927000000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927200000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927400000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927600000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927800000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 915900000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 917500000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 919100000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 920700000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 922300000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 923900000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 925500000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			},{
+				"frequency": 927100000,
+				"minDR": 6,
+				"maxDR": 7,
+				"enabled": true,
+				"custom": false
+			}
+		],
+			"downlinkChannels": [{
+				"frequency": 923300000,
+				"minDR": 8,
+				"maxDR": 13,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 923900000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 924500000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 925100000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 925700000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 926300000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 926900000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 927500000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}],
+			"maxPayloadSizePerDataRate": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 58,
+				"n": 50
+			}, {
+				"m": 61,
+				"n": 53
+			}, {
+				"m": 137,
+				"n": 129
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}, {
+				"m": 250,
+				"n": 242
+			}],
+			"maxPayloadSizePerDataRateRepeater": [{
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 59,
+				"n": 51
+			}, {
+				"m": 123,
+				"n": 115
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 58,
+				"n": 50
+			}, {
+				"m": 61,
+				"n": 53
+			}, {
+				"m": 137,
+				"n": 129
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}, {
+				"m": 230,
+				"n": 222
+			}],
+			"rx1DataRateOffsets": [
+				[8, 8, 8, 8, 8, 8],
+				[9, 8, 8, 8, 8, 8],
+				[10, 9, 8, 8, 8, 8],
+				[11, 10, 9, 8, 8, 8],
+				[12, 11, 10, 9, 8, 8],
+				[13, 12, 11, 10, 9, 8],
+				[13, 13, 12, 11, 10, 9],
+				[9, 8, 8, 8, 8, 8]
+			],
+			"txPowerOffsets": [0, -2, -4, -6, -8, -10, -12, -14, -16, -18, -20, -22, -24, -26, -28]
+		},
+		{
 		"id": 12,
 		"name": "RU864-870",
 		"cn": "RU864",
@@ -520,182 +1393,7 @@
 			[7, 6, 5, 4, 3, 2]
 		],
 		"txPowerOffsets": [0, -2, -4, -6, -8, -10, -12, -14]
-	},
-	{
-		"id": 4,
-		"name": "EU443",
-		"cn": "EU433",
-		"implementsTXParamSetup": false,
-		"maxUplinkEIRP": 12.15,
-		"defaultDownlinkTXPower": 10,
-		"pingSlotFrequency": 434665000,
-
-		"supportsExtraChannels": true,
-		"bandDefaults": {
-			"RX2Frequency": 434665000,
-			"RX2DataRate": 0,
-			"ReceiveDelay1": 1,
-			"ReceiveDelay2": 2,
-			"JoinAcceptDelay1": 5,
-			"JoinAcceptDelay2": 6
-		},
-		"dataRates": [{
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 12,
-			"bps": 250
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 11,
-			"bps": 440
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 10,
-			"bps": 980
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 9,
-			"bps": 1760
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 8,
-			"bps": 3125
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 125,
-			"spreadingFactor": 7,
-			"bps": 5470
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "LORA",
-			"bandwidth": 250,
-			"spreadingFactor": 7,
-			"bps": 11000
-		}, {
-			"uplink": true,
-			"downlink": true,
-			"modulation": "FSK",
-			"bandwidth": 0,
-			"spreadingFactor": 0,
-			"bps": 50000
-		}],			
-		"uplinkChannels": [{
-			"frequency": 433175000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}, {
-			"frequency": 433375000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}, {
-			"frequency": 433575000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}],
-		"downlinkChannels": [{
-			"frequency": 433175000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}, {
-			"frequency": 433375000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}, {
-			"frequency": 433575000,
-			"minDR": 0,
-			"maxDR": 5,
-			"enabled": true,
-			"custom": false
-		}],
-		"maxPayloadSizePerDataRate": [{
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 123,
-			"n": 115
-		}, {
-			"m": 250,
-			"n": 242
-		}, {
-			"m": 250,
-			"n": 242
-		}, {
-			"m": 250,
-			"n": 242
-		}, {
-			"m": 250,
-			"n": 242
-		}],
-		"maxPayloadSizePerDataRateRepeater": [{
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 59,
-			"n": 51
-		}, {
-			"m": 123,
-			"n": 115
-		}, {
-			"m": 230,
-			"n": 222
-		}, {
-			"m": 230,
-			"n": 222
-		}, {
-			"m": 230,
-			"n": 222
-		}, {
-			"m": 230,
-			"n": 222
-		}],
-		"rx1DataRateOffsets": [
-			[0, 0, 0, 0, 0, 0],
-			[1, 0, 0, 0, 0, 0],
-			[2, 1, 0, 0, 0, 0],
-			[3, 2, 1, 0, 0, 0],
-			[4, 3, 2, 1, 0, 0],
-			[5, 4, 3, 2, 1, 0],
-			[6, 5, 5, 4, 3, 2],
-			[7, 6, 5, 4, 3, 2]
-		],
-		"txPowerOffsets": [0, -2, -4, -6, -8, -10]
-	}
+		}
 	]
 }
 

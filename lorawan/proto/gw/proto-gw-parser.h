@@ -6,6 +6,7 @@
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/lorawan-builder.h"
 #include "lorawan/proto/gw/parse-result.h"
+#include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 
 /**
   * MessageTaskDispatcher call ProtoGwParser::parse() method

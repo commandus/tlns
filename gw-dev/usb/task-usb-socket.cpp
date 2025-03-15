@@ -191,8 +191,32 @@ TaskUsbGatewaySocket::~TaskUsbGatewaySocket()
 
 void TaskUsbGatewaySocket::customWriteSocket(
     const void* data,
-    size_t size
+    size_t size,
+    ProtoGwParser *proto
 )
 {
     std::cerr << "TaskUsbGatewaySocket::customWriteSocket " << hexString(data, size) << std::endl;
+    ParseResult pr;
+    TASK_TIME receivedTime = std::chrono::system_clock::now();
+    proto->parse(pr, (const char *) data, size, receivedTime);
+
+    TxPacket tx;
+    tx.pkt.freq_hz = 0;        // uint32_t center frequency of TX
+    tx.pkt.tx_mode = 0;        // uint8_t select on what event/time the TX is triggered
+    tx.pkt.count_us = 0;       // uint32_t timestamp or delay in microseconds for TX trigger
+    tx.pkt.rf_chain = 0;       // uint8_t through which RF chain will the packet be sent
+    tx.pkt.rf_power = 0;       // int8_t TX power, in dBm
+    tx.pkt.modulation = 0;     // uint8_t modulation to use for the packet
+    tx.pkt.freq_offset = 0;    // int8_t frequency offset from Radio Tx frequency (CW mode)
+    tx.pkt.bandwidth = 0;      // uint8_t modulation bandwidth (LoRa only)
+    tx.pkt.datarate = 0;       // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+    tx.pkt.coderate = 0;       // uint8_t error-correcting code of the packet (LoRa only)
+    tx.pkt.invert_pol = false;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+    tx.pkt.f_dev = 0;          // uint8_t frequency deviation, in kHz (FSK only)
+    tx.pkt.preamble = 0;       // uint16_t set the preamble length, 0 for default
+    tx.pkt.no_crc = false;         // bool if true, do not send a CRC in the packet
+    tx.pkt.no_header = false;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+    tx.pkt.size = 0;           // uint16_t payload size in bytes
+    // tx.pkt.payload[256];   // uint8_t buffer containing the payload
+    listener.enqueueTxPacket(tx);
 }

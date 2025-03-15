@@ -30,7 +30,8 @@ public:
     void closeSocket() override;
     void customWriteSocket(
         const void* data,
-        size_t size
+        size_t size,
+        ProtoGwParser *proto
     ) override;
     ~TaskUsbGatewaySocket() override;
 };

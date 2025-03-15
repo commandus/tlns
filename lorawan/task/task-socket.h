@@ -11,6 +11,8 @@
 
 #include "lorawan/storage/gateway-identity.h"
 
+class ProtoGwParser;
+
 enum ENUM_SOCKET_ACCEPT {
     SA_NONE,        ///< socket do not require accept()
     SA_ACCEPT_REQUIRE,     ///< socket require accept()
@@ -64,13 +66,15 @@ public:
      */
     virtual void closeSocket() = 0;
     /**
-     *
-     * @param data
-     * @param size
+     * Send downlink message to the end-device if customWrite == true
+     * @param data message buffer
+     * @param size buffer size
+     * @param proto gateway protocol
      */
     virtual void customWriteSocket(
         const void* data,
-        size_t size
+        size_t size,
+        ProtoGwParser *proto
     );
     virtual ~TaskSocket();
     std::string toString() const;
@@ -101,6 +105,5 @@ public:
         TaskSocket *taskSocket
     );
 };
-
 
 #endif

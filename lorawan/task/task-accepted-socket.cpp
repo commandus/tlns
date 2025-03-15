@@ -41,8 +41,9 @@ void TaskAcceptedSocket::closeSocket()
 
 void TaskAcceptedSocket::customWriteSocket(
     const void* data,
-    size_t size
+    size_t size,
+    ProtoGwParser *proto
 ) {
     if (originator)
-        originator->customWriteSocket(data, size);
+        originator->customWriteSocket(data, size, proto);
 }

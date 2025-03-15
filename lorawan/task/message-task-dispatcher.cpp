@@ -362,7 +362,7 @@ int MessageTaskDispatcher::runUplink()
                                         << " socket " << s->sock << " (" << s->toString() << ")"
                                         << std::endl;
                                     if (sz > 0) {
-                                        int r = sendDownlink(pr.gwId.u, buffer, sz);
+                                        int r = sendDownlink(pr.gwId.u, buffer, sz, parser);
                                         if (r)
                                             std::cerr << "Error send a message to the end device " << r
                                                 << " via gateway " << gatewayId2str(pr.gwId.u) << std::endl;
@@ -600,7 +600,7 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                 << std::endl;
             // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
             ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
-            sendDownlink(gw, buf, sz);
+            sendDownlink(gw, buf, sz, proto);
         } else {
             std::cerr << "best gateway unknown, sending via all known gateways" << std::endl;
             std::vector<GatewayIdentity> gwLs;
@@ -614,7 +614,7 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                 ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(g.gatewayId), msgBuilder,
                                              token, nullptr, regionalPlan);
                 if (sz > 0)
-                    sendDownlink(g.gatewayId, buf, sz);
+                    sendDownlink(g.gatewayId, buf, sz, proto);
             }
         }
         it = queue.downlinkMessages.erase(it);
@@ -768,7 +768,8 @@ void MessageTaskDispatcher::doneBridges()
 int MessageTaskDispatcher::sendDownlink(
     uint64_t gwId,
     const char *buffer,
-    size_t bufferSize
+    size_t bufferSize,
+    ProtoGwParser *proto
 ) {
     if (bufferSize == 0 || !buffer)
         return ERR_CODE_PARAM_INVALID;
@@ -788,7 +789,7 @@ int MessageTaskDispatcher::sendDownlink(
 
     // Does gateway socket use customWriteSocket() method to write downlink message?
     if (socketGw->customWrite) {
-        socketGw->customWriteSocket(buffer, bufferSize);
+        socketGw->customWriteSocket(buffer, bufferSize, proto);
         std::cout << "Send downlink to gateway direct " << sockaddr2string(&gw.sockaddr) << std::endl;
     } else {
         r = sendto(socketGw->sock, buffer, (int) bufferSize, 0,

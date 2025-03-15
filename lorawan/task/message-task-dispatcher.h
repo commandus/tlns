@@ -10,6 +10,7 @@
 #include "lorawan/helper/ip-address.h"
 #include "lorawan/proto/gw/gw.h"
 #include "lorawan/proto/gw/parse-result.h"
+#include "lorawan/proto/gw/proto-gw-parser.h"
 #include "lorawan/task/task-state.h"
 #include "lorawan/task/task-timer-socket.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
@@ -85,8 +86,6 @@ typedef int(*TaskProc)(
     const char *buffer,
     size_t size
 );
-
-class ProtoGwParser;
 
 /**
  * MessageTaskDispatcher receive messages from the one or more TaskSocket
@@ -305,7 +304,8 @@ public:
     int sendDownlink(
         uint64_t gwId,
         const char *buffer,
-        size_t bufferSize
+        size_t bufferSize,
+        ProtoGwParser *proto
     );
 
     void gatewayPing(

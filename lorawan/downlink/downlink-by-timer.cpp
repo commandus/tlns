@@ -33,7 +33,7 @@ void DownlinkByTimer::run()
             uint8_t payloadSize = (uint8_t) s.size();
             uint8_t fOptsSize = 0;
             dispatcher->enqueueDownlink(timeNow, devAddr, payload, fOpts, fPort, payloadSize, fOptsSize,
-                                        dispatcher->parsers.empty() ? nullptr : dispatcher->parsers[0]);
+                dispatcher->parsers.empty() ? nullptr : dispatcher->parsers[0]);
             index++;
         }
 #ifdef _MSC_VER

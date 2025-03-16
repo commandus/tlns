@@ -3,6 +3,7 @@
 
 #include <cinttypes>
 #include "lorawan/task/task-platform.h"
+#include "lorawan/storage/network-identity.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #else
@@ -67,11 +68,13 @@ public:
     virtual void closeSocket() = 0;
     /**
      * Send downlink message to the end-device if customWrite == true
+     * @param networkIdentity device identity
      * @param data message buffer
      * @param size buffer size
      * @param proto gateway protocol
      */
     virtual void customWriteSocket(
+        const NetworkIdentity *networkIdentity,
         const void* data,
         size_t size,
         ProtoGwParser *proto

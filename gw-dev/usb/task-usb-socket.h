@@ -29,6 +29,7 @@ public:
     SOCKET openSocket() override;
     void closeSocket() override;
     void customWriteSocket(
+        const NetworkIdentity *networkIdentity,
         const void* data,
         size_t size,
         ProtoGwParser *proto

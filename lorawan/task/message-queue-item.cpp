@@ -38,11 +38,13 @@ MessageQueueItem::MessageQueueItem(
 MessageQueueItem::MessageQueueItem(
     MessageQueue *ownerQueue,
     const TASK_TIME& time,
+    uint64_t gatewayId,
     ProtoGwParser *aParser
 )
     : queue(ownerQueue), tim(time)
 {
-
+    this->task.gatewayId.gatewayId = gatewayId;
+    metadata[gatewayId].parser = aParser;
 }
 
 MessageQueueItem::MessageQueueItem(

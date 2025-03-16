@@ -74,7 +74,7 @@ void MessageQueue::putUplink(
             // update metadata
             f->second.metadata[gwId] = { metadata, taskSocket, addr };
         } else {
-            MessageQueueItem qi(this, time, parser);
+            MessageQueueItem qi(this, time, gwId, parser);
             qi.metadata[gwId] = { metadata, taskSocket, addr };
             auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*loraAddr, qi));
         }
@@ -100,7 +100,7 @@ bool MessageQueue::putUplink(
     ProtoGwParser *parser
 )
 {
-    MessageQueueItem qi(this, time, parser);
+    MessageQueueItem qi(this, time, pushData.rxMetadata.gatewayId, parser);
     qi.task.stage = TASK_STAGE_GATEWAY_REQUEST;
     const DEVADDR *addr = pushData.rxData.getAddr();
     if (!addr)
@@ -131,7 +131,9 @@ bool MessageQueue::putUplink(
 
 void MessageQueue::putDownlink(
     const TASK_TIME& time,
-    DownlinkMessage &msg,
+    DownlinkMessageBuilder &msg,
+    const NetworkIdentity &networkIdentity,
+    uint64_t gatewayId,
     ProtoGwParser *proto
 )
 {
@@ -139,7 +141,8 @@ void MessageQueue::putDownlink(
     if (f != downlinkMessages.end()) {
         // update or skip
     } else {
-        MessageQueueItem qi(this, time, proto);
+        MessageQueueItem qi(this, time, gatewayId, proto);
+        qi.task.deviceId = networkIdentity;
         // copy radio packet
         msg.get(&qi.radioPacket.mhdr, SIZE_DOWNLINK_STORAGE);
         qi.radioPacket.payloadSize = msg.payloadSize;

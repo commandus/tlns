@@ -29,6 +29,7 @@ public:
     void closeSocket() override;
     virtual ~TaskAcceptedSocket();
     void customWriteSocket(
+        const NetworkIdentity *networkIdentity,
         const void* data,
         size_t size,
         ProtoGwParser *proto

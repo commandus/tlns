@@ -37,6 +37,7 @@ TaskSocket::TaskSocket(
 }
 
 void TaskSocket::customWriteSocket(
+    const NetworkIdentity *networkIdentity,
     const void* data,
     size_t size,
     ProtoGwParser *proto

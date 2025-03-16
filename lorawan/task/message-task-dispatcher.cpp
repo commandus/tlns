@@ -272,7 +272,7 @@ int MessageTaskDispatcher::runUplink()
 
         if (rc == 0) {   // select() timed out.
             if (!parsers.empty())
-                sendDownlinkMessages(parsers[0]);
+                sendQueuedDownlinkMessages(parsers[0]);
             cleanupOldMessages(receivedTime);
             continue;
         }
@@ -362,7 +362,7 @@ int MessageTaskDispatcher::runUplink()
                                         << " socket " << s->sock << " (" << s->toString() << ")"
                                         << std::endl;
                                     if (sz > 0) {
-                                        int r = sendDownlink(pr.gwId.u, buffer, sz, parser);
+                                        int r = sendDownlink(pr.gwId.u, nullptr, buffer, sz, parser);
                                         if (r)
                                             std::cerr << "Error send a message to the end device " << r
                                                 << " via gateway " << gatewayId2str(pr.gwId.u) << std::endl;
@@ -578,14 +578,20 @@ void MessageTaskDispatcher::prepareSendConfirmation(
     queue.time2ResponseAddr.push(addr, receivedTime);
 }
 
-void MessageTaskDispatcher::sendDownlinkMessages(
+void MessageTaskDispatcher::sendQueuedDownlinkMessages(
     ProtoGwParser *proto
 )
 {
     for (auto it = queue.downlinkMessages.begin(); it != queue.downlinkMessages.end();) {
         const DEVADDR &a = it->first;
+
         GatewayMetadata gwm;
-        uint64_t gw = it->second.getBestGatewayAddress(gwm);
+
+        uint64_t gw = it->second.task.gatewayId.gatewayId;
+        if (gw == 0)
+            gw = it->second.getBestGatewayAddress(gwm);
+
+        NetworkIdentity &dId = it->second.task.deviceId;
 
         char buf[4096];
         uint16_t token = 1;
@@ -598,9 +604,8 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                 << " over best known gateway " << gatewayId2str(gw)
                 << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
-            // sendto(taskSocket->sock, (const char *) &ack, (int) sz, 0, &destAddr, (int) destAddrLen);
             ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
-            sendDownlink(gw, buf, sz, proto);
+            sendDownlink(gw, &dId, buf, sz, proto);
         } else {
             std::cerr << "best gateway unknown, sending via all known gateways" << std::endl;
             std::vector<GatewayIdentity> gwLs;
@@ -614,7 +619,7 @@ void MessageTaskDispatcher::sendDownlinkMessages(
                 ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(g.gatewayId), msgBuilder,
                                              token, nullptr, regionalPlan);
                 if (sz > 0)
-                    sendDownlink(g.gatewayId, buf, sz, proto);
+                    sendDownlink(g.gatewayId, &dId, buf, sz, proto);
             }
         }
         it = queue.downlinkMessages.erase(it);
@@ -736,8 +741,8 @@ int MessageTaskDispatcher::enqueueDownlink(
             td.gatewayId = gwId;
     }
     // build downlink message
-    DownlinkMessage m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
-    queue.putDownlink(tim, m, proto);
+    DownlinkMessageBuilder m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
+    queue.putDownlink(tim, m, td.deviceId, td.gatewayId.gatewayId, proto);
 
     std::cout << "downlink message queued" << std::endl;
 
@@ -767,6 +772,7 @@ void MessageTaskDispatcher::doneBridges()
 
 int MessageTaskDispatcher::sendDownlink(
     uint64_t gwId,
+    const NetworkIdentity *networkIdentity,
     const char *buffer,
     size_t bufferSize,
     ProtoGwParser *proto
@@ -789,7 +795,7 @@ int MessageTaskDispatcher::sendDownlink(
 
     // Does gateway socket use customWriteSocket() method to write downlink message?
     if (socketGw->customWrite) {
-        socketGw->customWriteSocket(buffer, bufferSize, proto);
+        socketGw->customWriteSocket(networkIdentity, buffer, bufferSize, proto);
         std::cout << "Send downlink to gateway direct " << sockaddr2string(&gw.sockaddr) << std::endl;
     } else {
         r = sendto(socketGw->sock, buffer, (int) bufferSize, 0,

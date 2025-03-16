@@ -217,7 +217,7 @@ public:
         TASK_TIME receivedTime
     );
 
-    void sendDownlinkMessages(
+    void sendQueuedDownlinkMessages(
         ProtoGwParser *proto
     );
 
@@ -303,6 +303,7 @@ public:
 
     int sendDownlink(
         uint64_t gwId,
+        const NetworkIdentity *networkIdentity,
         const char *buffer,
         size_t bufferSize,
         ProtoGwParser *proto

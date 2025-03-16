@@ -56,7 +56,9 @@ public:
     );
     void putDownlink(
         const TASK_TIME& time,
-        DownlinkMessage &msg,
+        DownlinkMessageBuilder &msg,
+        const NetworkIdentity &networkIdentity,
+        uint64_t gatewayId,
         ProtoGwParser *proto
     );
     void rmUplink(

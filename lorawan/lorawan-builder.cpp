@@ -58,7 +58,7 @@ ConfirmationMessage::ConfirmationMessage(
 
 // DownlinkMessage (from the server to the end-device)
 
-DownlinkMessage::DownlinkMessage(
+DownlinkMessageBuilder::DownlinkMessageBuilder(
     const TaskDescriptor &taskDescriptor,    // contain NetworkIdentity and best gateway address
     uint8_t fport,
     const void *payload, // up to 255 bytes, can be NULL

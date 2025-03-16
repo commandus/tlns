@@ -29,7 +29,7 @@ public:
 /**
  * 3.2. Downlink message is sent by the network server to only one end-device and is relayed by a single gateway.
  */
-class DownlinkMessage : public MessageBuilder {
+class DownlinkMessageBuilder : public MessageBuilder {
 public:
     uint8_t payloadSize;
     /**
@@ -40,7 +40,7 @@ public:
      * @param fopts optional, up to 15 bytes, can be NULL
      * @param foptsSize
      */
-    explicit DownlinkMessage(
+    explicit DownlinkMessageBuilder(
         const TaskDescriptor &taskDescriptor,    // contain time to send, NetworkIdentity and best gateway address
         uint8_t fport,
         const void *payload, // up to 255 bytes, can be NULL

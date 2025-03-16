@@ -40,10 +40,11 @@ void TaskAcceptedSocket::closeSocket()
 }
 
 void TaskAcceptedSocket::customWriteSocket(
+    const NetworkIdentity *networkIdentity,
     const void* data,
     size_t size,
     ProtoGwParser *proto
 ) {
     if (originator)
-        originator->customWriteSocket(data, size, proto);
+        originator->customWriteSocket(networkIdentity, data, size, proto);
 }

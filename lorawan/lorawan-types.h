@@ -339,7 +339,7 @@ typedef PACK( struct {
     int8_t      rf_power;       ///> TX power, in dBm
     uint8_t     modulation;     ///> modulation to use for the packet
     uint8_t     bandwidth;      ///> modulation bandwidth (LoRa only)
-    uint32_t    datarate;       ///> TX datarate (baudrate for MODULATION_FSK, SF for LoRa)
+    uint32_t    datarate;       ///> TX data rate (baud rate for MODULATION_FSK, SF for LoRa)
     uint8_t     coderate;       ///> error-correcting code of the packet (LoRa only)
     bool        invert_pol;     ///> invert signal polarity, for orthogonal downlinks (LoRa only)
     uint8_t     f_dev;          ///> frequency deviation, in kHz (MODULATION_FSK only)

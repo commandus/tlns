@@ -30,7 +30,7 @@ public:
 
     MessageQueueItem();
     MessageQueueItem(MessageQueue *owner, const TASK_TIME& time);
-    MessageQueueItem(MessageQueue *owner, const TASK_TIME& time, ProtoGwParser *parser);
+    MessageQueueItem(MessageQueue *owner, const TASK_TIME& time, uint64_t gatewayId, ProtoGwParser *proto);
     MessageQueueItem(const MessageQueueItem& value);
 
     void setQueue(MessageQueue *value);

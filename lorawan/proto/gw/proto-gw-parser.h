@@ -57,7 +57,7 @@ public:
      * @param retSize buffer size
      * @param msgBuilder message builder
      * @param token random number
-     * @param rxMetadata last received metadata if exists
+     * @param txMetadata TX metadata
      * @param regionalPlan regional settings
      * @return
      */
@@ -67,7 +67,7 @@ public:
         const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
-        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
         const RegionalParameterChannelPlan *regionalPlan
     ) = 0;
 

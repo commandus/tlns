@@ -752,7 +752,11 @@ void RegionalParameterChannelPlan::get(
     int &pwr,
     BANDWIDTH &bandwidth,
     SPREADING_FACTOR &spreadingFactor,
-    CODING_RATE &codingRate
+    CODING_RATE &codingRate,
+    uint8_t &fdev,
+    bool &invert_pol,
+    uint16_t &preamble_size,
+    bool &no_crc
 ) const
 {
     freqHz = value.pingSlotFrequency;
@@ -774,6 +778,10 @@ void RegionalParameterChannelPlan::get(
     bandwidth = value.dataRates[idx].value.bandwidth;
     spreadingFactor = value.dataRates[idx].value.spreadingFactor;
     codingRate = CRLORA_4_6;
+    fdev = 0;
+    invert_pol = false;
+    preamble_size = 0;
+    no_crc = false;
 }
 
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const

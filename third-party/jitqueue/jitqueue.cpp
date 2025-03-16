@@ -86,9 +86,7 @@ C_CALL void jit_sort_queue(struct jit_queue_s *queue) {
         return;
     MSG_DEBUG(DEBUG_JIT, "sorting queue in ascending order packet timestamp - queue size:%u\n", queue->num_pkt);
     std::sort(queue->nodes, queue->nodes + queue->num_pkt, [=] (const struct jit_node_s &a, const struct jit_node_s &b) {
-        int p_count = a.pkt.count_us;
-        int q_count = b.pkt.count_us;
-        return p_count - q_count;
+        return a.pkt.count_us < b.pkt.count_us;
     });
     MSG_DEBUG(DEBUG_JIT, "sorting queue done\n");
 }

@@ -359,16 +359,16 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
     const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
-    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
     const RegionalParameterChannelPlan *aRegionalPlan
 )
 {
-    if (!rxMetadata)
+    if (!txMetadata)
         return false;
-    makeMessage(ss, token, rxMetadata->gatewayId, msgBuilder.msg.getAddr(), msgBuilder.msg.foptsString(), msgBuilder.msg.payloadString());
+    makeMessage(ss, token, gwId.u, msgBuilder.msg.getAddr(), msgBuilder.msg.foptsString(), msgBuilder.msg.payloadString());
     ss << "{\"tag\": " << (int) SEMTECH_GW_PUSH_DATA
         << ", \"token\": " << token
-        << ", \"gateway\": \"" << gatewayId2str(rxMetadata->gatewayId)
+        << ", \"gateway\": \"" << gatewayId2str(gwId.u)
         << "\", \"devaddr\": \"" << msgBuilder.msg.getAddr()->toString()
         << "\", \"fopts\": \"" << hexString(msgBuilder.msg.foptsString())
         << "\", \"payload\": \"" << hexString(msgBuilder.msg.payloadString())
@@ -382,12 +382,12 @@ ssize_t GatewayJsonWiredProtocol::makePull(
     const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
-    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
     const RegionalParameterChannelPlan *regionalPlan
 )
 {
     std::stringstream ss;
-    if (!makeMessage2GatewayStream(ss, gwId, msgBuilder, token, rxMetadata, regionalPlan))
+    if (!makeMessage2GatewayStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

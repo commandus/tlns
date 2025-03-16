@@ -13,7 +13,10 @@ class ProtoGwParser;
 
 class GatewayMetadata {
 public:
-    SEMTECH_PROTOCOL_METADATA_RX rx;
+    union {
+        SEMTECH_PROTOCOL_METADATA_RX rx;
+        SEMTECH_PROTOCOL_METADATA_TX tx;
+    };
     const TaskSocket *taskSocket;
     struct sockaddr addr;                         ///< uplink: gateway network address (if any) where packet was sent from
     ProtoGwParser *parser;                        ///< uplink: pointer to parser has been used (can be NULL)

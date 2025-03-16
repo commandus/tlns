@@ -121,7 +121,11 @@ public:
         int &pwr,
         BANDWIDTH &bandwidth,
         SPREADING_FACTOR &spreadingFactor,
-        CODING_RATE &codingRate
+        CODING_RATE &codingRate,
+        uint8_t &fdev,
+        bool &invert_pol,
+        uint16_t &preamble_size,
+        bool &no_crc
     ) const;
 
 };

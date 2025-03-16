@@ -529,7 +529,7 @@ void MessageTaskDispatcher::sendQueue(
                 if (gwMetadata.parser) {
                     auto sz = gwMetadata.parser->makePull(sb, sizeof(sb),
                         DEVEUI(m->second.task.gatewayId.gatewayId), confirmationMessage,
-                        token, &gwMetadata.rx, regionalPlan);
+                        token, &gwMetadata.tx, regionalPlan);
                     std::cout << "Send " << std::string(sb, sz)
                               << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
                               << " over socket " << gwMetadata.taskSocket->toString()

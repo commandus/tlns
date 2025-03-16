@@ -197,6 +197,7 @@ void TaskUsbGatewaySocket::customWriteSocket(
 )
 {
     std::cerr << "TaskUsbGatewaySocket::customWriteSocket " << hexString(data, size) << std::endl;
+    std::cerr << "TaskUsbGatewaySocket::customWriteSocket " << std::string((const char *) data + 12, size - 12) << std::endl;
     ParseResult pr;
     TASK_TIME receivedTime = std::chrono::system_clock::now();
     proto->parse(pr, (const char *) data, size, receivedTime);
@@ -218,7 +219,12 @@ void TaskUsbGatewaySocket::customWriteSocket(
     tx.pkt.no_crc = pr.gwPullData.txMetadata.no_crc;            // bool if true, do not send a CRC in the packet
     tx.pkt.no_header = pr.gwPullData.txMetadata.no_header;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
     tx.pkt.size = pr.gwPullData.txMetadata.size;                // uint16_t payload size in bytes
-    std::cerr << "RAK2287 enqueueTxPacket " << (int) tx.pkt.size << " = " << (int) pr.gwPullData.txData.payloadSize << std::endl;
+    std::cerr << "RAK2287 enqueueTxPacket "
+        << (int) tx.pkt.size << " = " << (int) pr.gwPullData.txData.payloadSize
+        << "\nmetadata: " << SEMTECH_PROTOCOL_METADATA_TX2string(pr.gwPullData.txMetadata)
+        << "\nbandwidth: " << (int) tx.pkt.bandwidth
+        << "\ntxData: " << pr.gwPullData.txData.toString()
+        << std::endl;
     pr.gwPullData.txData.toArray(tx.pkt.payload, sizeof(tx.pkt.payload), networkIdentity);      // uint8_t buffer containing the payload
     listener.enqueueTxPacket(tx);
 }

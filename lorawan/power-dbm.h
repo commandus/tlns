@@ -15,4 +15,9 @@ int gwPower(
     const RegionalParameterChannelPlan *regionalPlan
 );
 
+int gwPowerTx(
+    const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
+    const RegionalParameterChannelPlan *pPlan
+);
+
 #endif

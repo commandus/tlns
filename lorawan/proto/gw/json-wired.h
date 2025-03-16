@@ -27,7 +27,7 @@ protected:
         const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
-        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
         const RegionalParameterChannelPlan *aRegionalPlan
     );
 public:
@@ -57,7 +57,7 @@ public:
         const DEVEUI &gwId,
         MessageBuilder &msgBuilder,
         uint16_t token,
-        const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+        const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
         const RegionalParameterChannelPlan *pPlan
     ) override;
 

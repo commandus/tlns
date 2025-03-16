@@ -295,7 +295,7 @@ public:
                 item->txMetadata.tx_mode = 2;
                 break;
             case 4: // freq TX central frequency in MHz (Hz precision)
-                item->txMetadata.freq_hz = (uint32_t) val;
+                item->txMetadata.freq_hz = (uint32_t) val * 1000000;
                 break;
             case 5: // rfch Concentrator "RF chain" used for TX
                 item->txMetadata.rf_chain = (uint8_t) val;
@@ -325,7 +325,7 @@ public:
     bool number_float(number_float_t val, const string_t &s) override {
         switch (nameIndex) {
             case 4: // freq TX central frequency in MHz (Hz precision)
-                item->txMetadata.freq_hz = (uint32_t) val;
+                item->txMetadata.freq_hz = (uint32_t) (val * 1000000);
                 break;
             default:
                 break;
@@ -352,7 +352,7 @@ public:
             case 14: // payload
             {
                 std::string s = base64_decode(val, true);
-                item->txData.payloadSize = s.size();
+                item->txData.payloadSize = (int) s.size();
                 item->txData.setPayload(s.c_str(), s.size());
             }
                 break;
@@ -698,7 +698,7 @@ bool GatewayBasicUdpProtocol::makePullStream(
     const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
-    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
     const RegionalParameterChannelPlan *regionalPlan
 )
 {
@@ -707,25 +707,27 @@ bool GatewayBasicUdpProtocol::makePullStream(
        << "{\"" << SAX_METADATA_TX_NAMES[0] << "\":{"; // txpk
     std::string radioPacketBase64 = msgBuilder.base64();
 
-    if (rxMetadata) {
+    if (txMetadata) {
         // tmst
-        if (rxMetadata->tmst) {
-            ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << tmstAddMS(rxMetadata->tmst, 1000);
+        if (txMetadata->count_us) {
+            ss << "\"" << SAX_METADATA_TX_NAMES[2] << "\":" << tmstAddMS(txMetadata->count_us, 1000);
         } else {
             ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
         }
-        ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(rxMetadata->freq)       // "868.900"
+        ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(txMetadata->freq_hz)
            // "rfch": 0. @see https://github.com/brocaar/chirpstack-network-server/issues/19
            << ",\"" << SAX_METADATA_TX_NAMES[5] << "\":"
            << 0 // Concentrator "RF chain" used for TX (unsigned integer)
-           << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << gwPower(rxMetadata, regionalPlan) // TX output power in dBm (unsigned integer, dBm precision)
+           << ",\"" << SAX_METADATA_TX_NAMES[6] << "\":" << gwPowerTx(txMetadata, regionalPlan) // TX output power in dBm (unsigned integer, dBm precision)
            << ",\"" << SAX_METADATA_TX_NAMES[7] << "\":\""
-           << MODULATION2String(rxMetadata->modu)    // Modulation identifier "LORA" or "FSK"
+           << MODULATION2String((MODULATION) txMetadata->modulation)    // Modulation identifier "LORA" or "FSK"
            << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\""
-           << DATA_RATE2string(rxMetadata->bandwidth, rxMetadata->spreadingFactor)
-           << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(rxMetadata->codingRate)
-           << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
-           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
+           << DATA_RATE2string((BANDWIDTH) txMetadata->bandwidth, (SPREADING_FACTOR) txMetadata->datarate)
+           << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string((CODING_RATE) txMetadata->coderate)
+           << "\",\"" << SAX_METADATA_TX_NAMES[10] << "\": " << (int) txMetadata->f_dev // FSK frequency deviation (unsigned integer, in Hz)
+           << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\": " << (txMetadata->invert_pol ? "true" : "false") // Lora modulation polarization inversion
+           << ",\"" << SAX_METADATA_TX_NAMES[12] << "\": " << txMetadata->preamble // RF preamble size (unsigned integer)
+           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\": " << (txMetadata->no_crc ? "true" : "false") // Check CRC
            << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
         if (!radioPacketBase64.empty())
             ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
@@ -737,7 +739,11 @@ bool GatewayBasicUdpProtocol::makePullStream(
         BANDWIDTH bandwidth;
         SPREADING_FACTOR spreadingFactor;
         CODING_RATE codingRate;
-        regionalPlan->get(msgBuilder.size(), freqHz, pwr, bandwidth, spreadingFactor, codingRate);
+        uint8_t fdev;
+        bool invert_pol, no_crc;
+        uint16_t preamble_size;
+        regionalPlan->get(msgBuilder.size(), freqHz, pwr, bandwidth, spreadingFactor,
+                          codingRate, fdev, invert_pol, preamble_size, no_crc);
 
         ss << "\"" << SAX_METADATA_TX_NAMES[1] << "\":true";    // send immediately
         ss << ",\"" << SAX_METADATA_TX_NAMES[4] << "\":" << freq2string(freqHz)       // "868.900"
@@ -750,12 +756,13 @@ bool GatewayBasicUdpProtocol::makePullStream(
            << "\",\"" << SAX_METADATA_TX_NAMES[8] << "\":\""
            << DATA_RATE2string(bandwidth, spreadingFactor)
            << "\",\"" << SAX_METADATA_TX_NAMES[9] << "\":\"" << codingRate2string(codingRate)
-           << "\",\"" << SAX_METADATA_TX_NAMES[11] << "\":true" // Lora modulation polarization inversion
-           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\":false"  // Check CRC
+           << "\",\"" << SAX_METADATA_TX_NAMES[10] << "\": " << (int) fdev // FSK frequency deviation (unsigned integer, in Hz)
+           << ",\"" << SAX_METADATA_TX_NAMES[11] << "\": " << (invert_pol ? "true" : "false") // Lora modulation polarization inversion
+           << ",\"" << SAX_METADATA_TX_NAMES[12] << "\": " << preamble_size // RF preamble size (unsigned integer)
+           << ",\"" << SAX_METADATA_TX_NAMES[15] << "\": " << (no_crc ? "true" : "false") // Check CRC
            << ",\"" << SAX_METADATA_TX_NAMES[13] << "\":" << msgBuilder.size();
         if (!radioPacketBase64.empty())
             ss << ",\"" << SAX_METADATA_TX_NAMES[14] << "\":\"" << radioPacketBase64;
-
     }
     ss << "\"}}";
     return true;
@@ -767,12 +774,12 @@ ssize_t GatewayBasicUdpProtocol::makePull(
     const DEVEUI &gwId,
     MessageBuilder &msgBuilder,
     uint16_t token,
-    const SEMTECH_PROTOCOL_METADATA_RX *rxMetadata,
+    const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
     const RegionalParameterChannelPlan *regionalPlan
 )
 {
     std::stringstream ss;
-    if (!makePullStream(ss, gwId, msgBuilder, token, rxMetadata, regionalPlan))
+    if (!makePullStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

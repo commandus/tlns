@@ -8,6 +8,7 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/power-dbm.h"
+#include "base64/base64.h"
 
 // LNS- Basic communication protocol between Lora gateway and server
 static const char *GATEWAY_BASIC_UDP_PROTOCOL_NAME = "LNS";
@@ -313,6 +314,7 @@ public:
                 break;
             case 13: // RF packet payload size in bytes
                 item->txMetadata.size = (uint16_t) val;
+                // item->txData.payloadSize = (uint16_t) val;
                 break;
             default:
                 break;
@@ -346,6 +348,13 @@ public:
                 break;
             case 9: // codr LoRa ECC coding rate identifier
                 item->txMetadata.coderate = string2codingRate(val);
+                break;
+            case 14: // payload
+            {
+                std::string s = base64_decode(val, true);
+                item->txData.payloadSize = s.size();
+                item->txData.setPayload(s.c_str(), s.size());
+            }
                 break;
             default:
                 break;

@@ -93,7 +93,7 @@ uint32_t lora_packet_time_on_air(const uint8_t bw, const uint8_t sf, const uint8
         return 0;
     }
     if (IS_LORA_BW(bw) == false) {
-        ERROR_PRINTF("ERROR: wrong bandwidth - %s\n", __FUNCTION__);
+        ERROR_PRINTF("ERROR: wrong bandwidth (%u) - %s\n", bw, __FUNCTION__);
         return 0;
     }
     if (IS_LORA_CR(cr) == false) {

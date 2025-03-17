@@ -2015,7 +2015,7 @@ DataRate::DataRate(
     value.uplink = true;
     value.downlink = true;
     value.modulation = MODULATION_FSK;
-    value.bandwidth = BANDWIDTH_INDEX_7KHZ;
+    value.bandwidth = BANDWIDTH_INDEX_125KHZ;
     value.spreadingFactor = DRLORA_SF5;
     value.bps = aBps;
 }
@@ -2040,7 +2040,7 @@ void DataRate::setFSK(
     value.uplink = true;
     value.downlink = true;
     value.modulation = MODULATION_FSK;
-    value.bandwidth = BANDWIDTH_INDEX_7KHZ;
+    value.bandwidth = BANDWIDTH_INDEX_125KHZ;
     value.spreadingFactor = DRLORA_SF5;
     value.bps = aBps;
 }

@@ -258,6 +258,8 @@ public:
     )
         : nameIndex(0), startItem(0), item(retVal), parseError(CODE_OK)
     {
+        if (retVal)
+            memset(retVal, 0, sizeof(GwPullData));
     }
 
     bool null() override {

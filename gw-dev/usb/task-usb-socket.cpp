@@ -144,7 +144,6 @@ SOCKET TaskUsbGatewaySocket::openSocket()
         uint16_t nPort = htons(sunAddr.sin_port); // random assigned UDP port (in network byte order).
         socketNameOrAddress = "127.0.0.1:" + std::to_string(nPort);
     }
-
 #else
     strncpy(sunAddr.sun_path, socketNameOrAddress.c_str(), sizeof(sunAddr.sun_path) - 1);
     r = bind(sock, (const struct sockaddr *) &sunAddr, sizeof(struct sockaddr_un));

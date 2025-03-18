@@ -352,11 +352,7 @@ public:
                 item->txMetadata.coderate = string2codingRate(val);
                 break;
             case 14: // payload
-            {
-                std::string s = base64_decode(val, true);
-                item->txData.payloadSize = (int) s.size();
-                item->txData.setPayload(s.c_str(), s.size());
-            }
+                base64SetToLORAWAN_MESSAGE_STORAGE(item->txData, val);
                 break;
             default:
                 break;

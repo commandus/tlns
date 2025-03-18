@@ -221,7 +221,6 @@ void TaskUsbGatewaySocket::customWriteSocket(
     std::cerr << "RAK2287 enqueueTxPacket "
         << (int) tx.pkt.size << " = " << (int) pr.gwPullData.txData.payloadSize
         << "\nmetadata: " << SEMTECH_PROTOCOL_METADATA_TX2string(pr.gwPullData.txMetadata)
-        << "\nbandwidth: " << (int) tx.pkt.bandwidth
         << "\ntxData: " << pr.gwPullData.txData.toString()
         << std::endl;
     pr.gwPullData.txData.toArray(tx.pkt.payload, sizeof(tx.pkt.payload), networkIdentity);      // uint8_t buffer containing the payload

@@ -36,7 +36,7 @@ public:
      * @param taskDescriptor. Provide task to reply to or create a new task
      * @param fport >0 if payload exists
      * @param payload optional, can be NULL
-     * @param payloadSize
+     * @param payloadSize payload size
      * @param fopts optional, up to 15 bytes, can be NULL
      * @param foptsSize
      */

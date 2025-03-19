@@ -356,8 +356,8 @@ int MessageTaskDispatcher::runUplink()
                                     pushData(s, srcAddr, pr.gwPushData, receivedTime, parser);
                                     break;
                                 case SEMTECH_GW_PULL_DATA:
-                                    // send a message to the end device via the specified gateway as is
-                                    std::cout << "SEND TO END-DEVICE gateway "
+                                    // re-translate a message to the end device via the specified gateway as is
+                                    std::cout << "Re-translate message to the end device via gateway "
                                         << gatewayId2str(pr.gwId.u)
                                         << " socket " << s->sock << " (" << s->toString() << ")"
                                         << std::endl;
@@ -605,7 +605,10 @@ void MessageTaskDispatcher::sendQueuedDownlinkMessages(
                 << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
             ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
-            sendDownlink(gw, &dId, buf, sz, proto);
+            if (sz > 0)
+                sendDownlink(gw, &dId, buf, sz, proto);
+            else
+                std::cerr << "make pull message error " << sz << std::endl;
         } else {
             std::cerr << "best gateway unknown, sending via all known gateways" << std::endl;
             std::vector<GatewayIdentity> gwLs;
@@ -620,6 +623,8 @@ void MessageTaskDispatcher::sendQueuedDownlinkMessages(
                                              token, nullptr, regionalPlan);
                 if (sz > 0)
                     sendDownlink(g.gatewayId, &dId, buf, sz, proto);
+                else
+                    std::cerr << "make pull message error " << sz << std::endl;
             }
         }
         it = queue.downlinkMessages.erase(it);
@@ -743,9 +748,6 @@ int MessageTaskDispatcher::enqueueDownlink(
     // build downlink message
     DownlinkMessageBuilder m(td, fPort, payload, payloadSize, fOpts, fOptsSize);
     queue.putDownlink(tim, m, td.deviceId, td.gatewayId.gatewayId, proto);
-
-    std::cout << "downlink message queued" << std::endl;
-
     return CODE_OK;
 }
 

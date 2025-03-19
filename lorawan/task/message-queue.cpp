@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iomanip>
+#include <iostream>
 
 #include "message-queue.h"
 #include "message-task-dispatcher.h"
@@ -140,7 +141,9 @@ void MessageQueue::putDownlink(
     auto f = downlinkMessages.find(msg.taskDescriptor.deviceId.devaddr);
     if (f != downlinkMessages.end()) {
         // update or skip
+        std::cout << "downlink message in queue already, skip" << std::endl;
     } else {
+        std::cout << "downlink message queued" << std::endl;
         MessageQueueItem qi(this, time, gatewayId, proto);
         qi.task.deviceId = networkIdentity;
         // copy radio packet
@@ -148,6 +151,7 @@ void MessageQueue::putDownlink(
         qi.radioPacket.payloadSize = msg.payloadSize;
         auto i = downlinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
     }
+    std::cout << "downlink timer at " << taskTime2string(time) << std::endl;
     time2ResponseAddr.push(msg.msg.getAddr(), time);
 }
 

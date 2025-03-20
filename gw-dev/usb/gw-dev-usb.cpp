@@ -285,7 +285,9 @@ void signalHandler(int signal)
         case SIGINT:
             std::cerr << MSG_INTERRUPTED << std::endl;
             stop();
+            std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
             done();
+            std::cerr << "Done" << std::endl;
             break;
         case SIGSEGV:
             std::cerr << ERR_SEGMENTATION_FAULT << std::endl;
@@ -295,7 +297,6 @@ void signalHandler(int signal)
             std::cerr << ERR_ABRT << std::endl;
             printTrace();
             exit(ERR_CODE_ABRT);
-
         case SIGHUP:
             std::cerr << ERR_HANGUP_DETECTED << std::endl;
             break;

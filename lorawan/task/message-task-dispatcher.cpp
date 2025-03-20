@@ -132,14 +132,12 @@ void MessageTaskDispatcher::stopUplink()
 {
     // stop
     if (state != TASK_STOPPED) {
+        // wait until thread finish
+        std::unique_lock<std::mutex> lock(mutexState);
         state = TASK_STOP;
         // wake up select over control socket, otherwise select wait timeout
         send2uplink('q');
-
-        // wait until thread finish
-        std::unique_lock<std::mutex> lock(mutexState);
-        while (state != TASK_STOPPED)
-            cvState.wait(lock);
+        cvState.wait(lock, [this] {return state == TASK_STOPPED;});
     }
 
     // free up resources
@@ -421,6 +419,7 @@ int MessageTaskDispatcher::runUplink()
 
     std::unique_lock<std::mutex> lck(mutexState);
     state = TASK_STOPPED;
+    lck.unlock();
     cvState.notify_all();
 
     return CODE_OK;

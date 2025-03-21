@@ -83,7 +83,7 @@ public:
     std::string pidfile;
     std::string controlSocketFileNameOrAddressAndPort;
     LocalGatewayConfiguration()
-        : regionIdx(0), regionChannelPlan(nullptr), enableSend(false), enableBeacon(false), daemonize(false), verbosity(0)
+        : regionIdx(0), regionChannelPlan(nullptr), enableSend(true), enableBeacon(false), daemonize(false), verbosity(0)
     {
     }
 };
@@ -158,7 +158,7 @@ int parseCmd(
 
     struct arg_str *a_bridge_plugin = arg_strn("o", "output", _("<directory>"), 0, 64, _("Output plugins directory"));
 
-    struct arg_lit *a_enable_send = arg_lit0("s", "allow-send", _("Allow send"));
+    struct arg_lit *a_disable_send = arg_lit0("s", "disable-send", _("Disable send"));
     struct arg_lit *a_enable_beacon = arg_lit0("b", "allow-beacon", _("Allow send beacon"));
     struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -174,7 +174,7 @@ int parseCmd(
     void *argtable[] = {
             a_device_path, a_region_name, a_identity_plugin_file, a_identity_file_name, a_gateway_file_name,
             a_bridge_plugin,
-            a_enable_send, a_enable_beacon,
+            a_disable_send, a_enable_beacon,
             a_daemonize, a_control_socket_file_name_or_address_n_port,
             a_pidfile, a_verbosity, a_help, a_end
     };
@@ -223,7 +223,7 @@ int parseCmd(
         config->regionChannelPlan = regionalParameterChannelPlanMem.get(0);
     }
 
-    config->enableSend = (a_enable_send->count > 0);
+    config->enableSend = (a_disable_send->count == 0);
     config->enableBeacon = (a_enable_beacon->count > 0);
 
     config->daemonize = (a_daemonize->count > 0);

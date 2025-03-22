@@ -213,9 +213,9 @@ int write_req(int fd, order_id_t cmd, const uint8_t * payload, uint16_t payload_
             return -1;
         }
     }
-
+#if DEBUG_MCU
     DEBUG_PRINTF("\nINFO: write_req 0x%02X (%s) done, id:0x%02X\n", cmd, cmd_get_str(cmd), buf_w[0]);
-
+#endif
 #if DEBUG_VERBOSE
     int i;
     for (i = 0; i < 4; i++) {
@@ -257,7 +257,9 @@ int read_ack(int fd, uint8_t * hdr, uint8_t * buf, size_t buf_size) {
         perror("ERROR: Unable to read /dev/ttyACMx - ");
         return -1;
     } else {
+#if DEBUG_MCU
         DEBUG_PRINTF("read %d bytes for header from gateway\n", n);
+#endif
     }
 
     /* Compute time spent in this function */
@@ -300,7 +302,9 @@ int read_ack(int fd, uint8_t * hdr, uint8_t * buf, size_t buf_size) {
                 perror("ERROR: Unable to read /dev/ttyACMx - ");
                 return -1;
             } else {
-               DEBUG_PRINTF("read %d bytes from gateway\n", n);
+#if DEBUG_MCU
+                DEBUG_PRINTF("read %d bytes from gateway\n", n);
+#endif
                 nb_read += n;
             }
         } while (nb_read < (int)size); /* we want to read only the expected payload, not more */

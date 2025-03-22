@@ -40,9 +40,9 @@ void wait_us(unsigned long delay_us) {
 
     dly.tv_sec = delay_us / 1000000;
     dly.tv_nsec = (delay_us % 1000000) * 1000;
-
+#ifdef DEBUG_AUX
     DEBUG_PRINTF("NOTE dly: %ld sec %ld ns\n", dly.tv_sec, dly.tv_nsec);
-
+#endif
     while ((dly.tv_sec > 0) || (dly.tv_nsec > 1000)) {
         /*
         rem is set ONLY if clock_nanosleep is interrupted (eg. by a signal).
@@ -51,7 +51,9 @@ void wait_us(unsigned long delay_us) {
         rem.tv_sec = 0;
         rem.tv_nsec = 0;
         clock_nanosleep(CLOCK_MONOTONIC, 0, &dly, &rem);
+#ifdef DEBUG_AUX
         DEBUG_PRINTF("NOTE remain: %ld sec %ld ns\n", rem.tv_sec, rem.tv_nsec);
+#endif
         dly = rem;
     }
 
@@ -66,12 +68,14 @@ void wait_ms(unsigned long delay_ms) {
 
     dly.tv_sec = delay_ms / 1000;
     dly.tv_nsec = ((long)delay_ms % 1000) * 1000000;
-
+#ifdef DEBUG_AUX
     DEBUG_PRINTF("NOTE dly: %ld sec %ld ns\n", dly.tv_sec, dly.tv_nsec);
-
+#endif
     if((dly.tv_sec > 0) || ((dly.tv_sec == 0) && (dly.tv_nsec > 100000))) {
         clock_nanosleep(CLOCK_MONOTONIC, 0, &dly, &rem);
+#ifdef DEBUG_AUX
         DEBUG_PRINTF("NOTE remain: %ld sec %ld ns\n", rem.tv_sec, rem.tv_nsec);
+#endif
     }
     return;
 }

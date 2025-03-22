@@ -32,6 +32,8 @@ typedef struct termios {
     cc_t c_cc[NCCS]; //special character
 } termios;
 
+#define DEBUG_CRT   1
+
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #if DEBUG_CRT == 1
     #define DEBUG_PRINTF(fmt, ...)    fprintf(stdout, fmt, __VA_ARGS__); fflush(stdout)

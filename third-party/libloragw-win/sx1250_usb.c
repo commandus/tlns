@@ -69,7 +69,9 @@ int sx1250_usb_w(void *com_target, uint8_t spi_mux_target, sx1250_op_code_t op_c
         ERROR_PRINTF("ERROR: USB SX1250 WRITE FAILURE\n");
         return -1;
     } else {
+#if DEBUG_USB == 1
         DEBUG_PRINTF("Note: USB SX1250 write success\n");
+#endif
         return 0;
     }
 }
@@ -112,7 +114,9 @@ int sx1250_usb_r(void *com_target, uint8_t spi_mux_target, sx1250_op_code_t op_c
         ERROR_PRINTF("ERROR: USB SX1250 READ FAILURE\n");
         return -1;
     } else {
+#if DEBUG_USB == 1
         DEBUG_PRINTF("Note: USB SX1250 read success\n");
+#endif
         memcpy(data, in_out_buf + 7, size); /* remove the first bytes, keep only the payload */
         return 0;
     }

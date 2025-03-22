@@ -1099,11 +1099,15 @@ int reg_w(uint8_t spi_mux_target, struct lgw_reg_s r, int32_t reg_value) {
     if ((r.leng == 8) && (r.offs == 0)) {
         /* direct write */
         com_stat = lgw_com_w(spi_mux_target, r.addr, (uint8_t)reg_value);
+#if DEBUG_REG
         DEBUG_PRINTF("==> DIRECT WRITE @ 0x%04X\n", r.addr);
+#endif
     } else if ((r.offs + r.leng) <= 8) {
         /* read-modify-write */
         com_stat = lgw_com_rmw(spi_mux_target, r.addr, r.offs, r.leng, (uint8_t)reg_value);
+#if DEBUG_REG
         DEBUG_PRINTF("==> READ MODIFY WRITE @ 0x%04X (offs:%u leng:%u)\n", r.addr, r.offs, r.leng);
+#endif
     } else {
         /* register spanning multiple memory bytes but with an offset */
         ERROR_PRINTF("ERROR: REGISTER SIZE AND OFFSET ARE NOT SUPPORTED\n");
@@ -1157,19 +1161,24 @@ int lgw_connect(const lgw_com_type_t com_type, const char * com_path) {
     /* open the COM link */
     com_stat = lgw_com_open(com_type, com_path);
     if (com_stat != LGW_COM_SUCCESS) {
+#if DEBUG_REG
         DEBUG_PRINTF("ERROR CONNECTING CONCENTRATOR\n");
+#endif
         return LGW_REG_ERROR;
     }
 
     /* check SX1302 version */
     com_stat = lgw_com_r(LGW_SPI_MUX_TARGET_SX1302, loregs[SX1302_REG_COMMON_VERSION_VERSION].addr, &u);
     if (com_stat != LGW_COM_SUCCESS) {
+#if DEBUG_REG
         DEBUG_PRINTF("ERROR READING CHIP VERSION REGISTER\n");
+#endif
         return LGW_REG_ERROR;
     }
     INFO_PRINTF("Note: chip version is 0x%02X (v%u.%u)\n", u, (u >> 4) & 0x0F, u & 0x0F) ;
-
+#if DEBUG_REG
     DEBUG_PRINTF("Note: success connecting the concentrator\n");
+#endif
     return LGW_REG_SUCCESS;
 }
 
@@ -1181,7 +1190,9 @@ int lgw_disconnect(void) {
 
     com_stat = lgw_com_close();
     if (com_stat == LGW_COM_SUCCESS) {
+#if DEBUG_REG
         DEBUG_PRINTF("Note: success disconnecting the concentrator\n");
+#endif
         return LGW_REG_SUCCESS;
     } else {
         ERROR_PRINTF("ERROR: Failed to disconnect the concentrator\n");

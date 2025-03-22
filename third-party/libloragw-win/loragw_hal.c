@@ -12,7 +12,6 @@ Description:
 License: Revised BSD License, see LICENSE.Semtech.txt file include in the project
 */
 
-
 /* -------------------------------------------------------------------------- */
 /* --- DEPENDANCIES --------------------------------------------------------- */
 
@@ -307,16 +306,20 @@ static int merge_packets(struct lgw_pkt_rx_s * p, uint8_t * nb_pkt) {
 
     /* --------------------------------------------- */
     /* ---------- For Debug only - START ----------- */
+#if DEBUG_HAL == 1
     if (cpt > 0) {
         DEBUG_PRINTF("<----- Searching for DUPLICATEs ------\n");
     }
+#endif
     for (j = 0; j < cpt; j++) {
+#if DEBUG_HAL == 1
         DEBUG_PRINTF("  %d: tmst=%u SF=%u CRC_status=%d freq=%u chan=%u", j, p[j].count_us, p[j].datarate, p[j].status, p[j].freq_hz, p[j].if_chain);
         if (p[j].ftime_received == true) {
             DEBUG_PRINTF(" ftime=%u\n", p[j].ftime);
         } else {
             DEBUG_PRINTF(" ftime=NONE\n");
         }
+#endif
     }
     /* ---------- For Debug only - END ------------- */
     /* --------------------------------------------- */
@@ -357,10 +360,12 @@ static int merge_packets(struct lgw_pkt_rx_s * p, uint8_t * nb_pkt) {
 #endif
                     }
                     /* sanity check */
+#if DEBUG_HAL == 1
                     if (((p[j].ftime_received == true) && (p[k].ftime_received == true)) ||
                         ((p[j].ftime_received == false) && (p[k].ftime_received == false))) {
                         DEBUG_PRINTF("WARNING: both duplicates have fine timestamps, or none has ? TBC\n");
                     }
+#endif
                 }
                 /* pkt_dup_idx contains the index to be deleted */
 #if DEBUG_HAL == 1
@@ -393,10 +398,12 @@ static int merge_packets(struct lgw_pkt_rx_s * p, uint8_t * nb_pkt) {
 
     /* Sort the packet array by ascending counter_us value */
     qsort(p, cpt, sizeof(p[0]), compare_pkt_tmst);
+#if DEBUG_HAL == 1
     DEBUG_PRINTF("elements swapped during sorting...\n");
-
+#endif
     /* --------------------------------------------- */
     /* ---------- For Debug only - START ----------- */
+#if DEBUG_HAL == 1
     if (cpt > 0) {
         DEBUG_PRINTF("--\n");
     }
@@ -411,6 +418,7 @@ static int merge_packets(struct lgw_pkt_rx_s * p, uint8_t * nb_pkt) {
     if (cpt > 0) {
         DEBUG_PRINTF( " ------------------------------------>\n\n" );
     }
+#endif
     /* ---------- For Debug only - END ------------- */
     /* --------------------------------------------- */
 
@@ -445,13 +453,13 @@ int lgw_board_setconf(struct lgw_conf_board_s * conf) {
     CONTEXT_COM_TYPE = conf->com_type;
     strncpy(CONTEXT_COM_PATH, conf->com_path, sizeof CONTEXT_COM_PATH);
     CONTEXT_COM_PATH[sizeof CONTEXT_COM_PATH - 1] = '\0'; /* ensure string termination */
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF("Note: board configuration: com_type: %s, com_path: %s, lorawan_public:%d, clksrc:%d, full_duplex:%d\n",   (CONTEXT_COM_TYPE == LGW_COM_SPI) ? "SPI" : "USB",
                                                                                                                             CONTEXT_COM_PATH,
                                                                                                                             CONTEXT_LWAN_PUBLIC,
                                                                                                                             CONTEXT_BOARD.clksrc,
                                                                                                                             CONTEXT_BOARD.full_duplex);
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
@@ -468,7 +476,9 @@ int lgw_rxrf_setconf(uint8_t rf_chain, struct lgw_conf_rxrf_s * conf) {
 
     if (conf->enable == false) {
         /* nothing to do */
+#if DEBUG_HAL == 1
         DEBUG_PRINTF("Note: rf_chain %d disabled\n", rf_chain);
+#endif
         return LGW_HAL_SUCCESS;
     }
 
@@ -502,7 +512,7 @@ int lgw_rxrf_setconf(uint8_t rf_chain, struct lgw_conf_rxrf_s * conf) {
     CONTEXT_RF_CHAIN[rf_chain].type = conf->type;
     CONTEXT_RF_CHAIN[rf_chain].tx_enable = conf->tx_enable;
     CONTEXT_RF_CHAIN[rf_chain].single_input_mode = conf->single_input_mode;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF("Note: rf_chain %d configuration; en:%d freq:%d rssi_offset:%f radio_type:%d tx_enable:%d single_input_mode:%d\n",  rf_chain,
                                                                                                                 CONTEXT_RF_CHAIN[rf_chain].enable,
                                                                                                                 CONTEXT_RF_CHAIN[rf_chain].freq_hz,
@@ -510,7 +520,7 @@ int lgw_rxrf_setconf(uint8_t rf_chain, struct lgw_conf_rxrf_s * conf) {
                                                                                                                 CONTEXT_RF_CHAIN[rf_chain].type,
                                                                                                                 CONTEXT_RF_CHAIN[rf_chain].tx_enable,
                                                                                                                 CONTEXT_RF_CHAIN[rf_chain].single_input_mode);
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
@@ -538,7 +548,9 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
     if (conf->enable == false) {
         CONTEXT_IF_CHAIN[if_chain].enable = false;
         CONTEXT_IF_CHAIN[if_chain].freq_hz = 0;
+#if DEBUG_HAL == 1
         DEBUG_PRINTF("Note: if_chain %d disabled\n", if_chain);
+#endif
         return LGW_HAL_SUCCESS;
     }
 
@@ -602,12 +614,13 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
             CONTEXT_LORA_SERVICE.implicit_payload_length = conf->implicit_payload_length;
             CONTEXT_LORA_SERVICE.implicit_crc_en   = conf->implicit_crc_en;
             CONTEXT_LORA_SERVICE.implicit_coderate = conf->implicit_coderate;
-
+#if DEBUG_HAL == 1
             DEBUG_PRINTF("Note: LoRa 'std' if_chain %d configuration; en:%d freq:%d bw:%d dr:%d\n", if_chain,
                                                                                                     CONTEXT_IF_CHAIN[if_chain].enable,
                                                                                                     CONTEXT_IF_CHAIN[if_chain].freq_hz,
                                                                                                     CONTEXT_LORA_SERVICE.bandwidth,
                                                                                                     CONTEXT_LORA_SERVICE.datarate);
+#endif
             break;
 
         case IF_LORA_MULTI:
@@ -631,10 +644,11 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
             CONTEXT_IF_CHAIN[if_chain].enable = conf->enable;
             CONTEXT_IF_CHAIN[if_chain].rf_chain = conf->rf_chain;
             CONTEXT_IF_CHAIN[if_chain].freq_hz = conf->freq_hz;
-
+#if DEBUG_HAL == 1
             DEBUG_PRINTF("Note: LoRa 'multi' if_chain %d configuration; en:%d freq:%d\n",   if_chain,
                                                                                             CONTEXT_IF_CHAIN[if_chain].enable,
                                                                                             CONTEXT_IF_CHAIN[if_chain].freq_hz);
+#endif
             break;
 
         case IF_FSK_STD:
@@ -664,6 +678,7 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
                 CONTEXT_FSK.sync_word_size = conf->sync_word_size;
                 CONTEXT_FSK.sync_word = conf->sync_word;
             }
+#if DEBUG_HAL == 1
             DEBUG_PRINTF("Note: FSK if_chain %d configuration; en:%d freq:%d bw:%d dr:%d (%d real dr) sync:0x%0*" PRIu64 "\n", if_chain,
                                                                                                                         CONTEXT_IF_CHAIN[if_chain].enable,
                                                                                                                         CONTEXT_IF_CHAIN[if_chain].freq_hz,
@@ -672,6 +687,7 @@ int lgw_rxif_setconf(uint8_t if_chain, struct lgw_conf_rxif_s * conf) {
                                                                                                                         LGW_XTAL_FREQU/(LGW_XTAL_FREQU/CONTEXT_FSK.datarate),
                                                                                                                         2*CONTEXT_FSK.sync_word_size,
                                                                                                                         CONTEXT_FSK.sync_word);
+#endif
             break;
 
         default:
@@ -824,13 +840,12 @@ int lgw_debug_setconf(struct lgw_conf_debug_s * conf) {
 
 int lgw_start(void) {
     int i, err;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "IN");
-
     if (CONTEXT_STARTED == true) {
         DEBUG_PRINTF("Note: LoRa concentrator already started, restarting it now\n");
     }
-
+#endif
     err = lgw_connect(CONTEXT_COM_TYPE, CONTEXT_COM_PATH);
     if (err == LGW_REG_ERROR) {
         ERROR_PRINTF("ERROR: FAIL TO CONNECT BOARD\n");
@@ -982,7 +997,9 @@ int lgw_start(void) {
     /* Load AGC firmware */
     switch (CONTEXT_RF_CHAIN[CONTEXT_BOARD.clksrc].type) {
         case LGW_RADIO_TYPE_SX1250:
+#if DEBUG_HAL == 1
             DEBUG_PRINTF("Loading AGC fw for sx1250\n");
+#endif
             err = sx1302_agc_load_firmware(agc_firmware_sx1250);
             if (err != LGW_REG_SUCCESS) {
                 ERROR_PRINTF("ERROR: failed to load AGC firmware for sx1250\n");
@@ -991,7 +1008,9 @@ int lgw_start(void) {
             break;
         case LGW_RADIO_TYPE_SX1255:
         case LGW_RADIO_TYPE_SX1257:
+#if DEBUG_HAL == 1
             DEBUG_PRINTF("Loading AGC fw for sx125x\n");
+#endif
             err = sx1302_agc_load_firmware(agc_firmware_sx125x);
             if (err != LGW_REG_SUCCESS) {
                 ERROR_PRINTF("ERROR: failed to load AGC firmware for sx125x\n");
@@ -1008,7 +1027,9 @@ int lgw_start(void) {
     }
 
     /* Load ARB firmware */
+#if DEBUG_HAL == 1
     DEBUG_PRINTF("Loading ARB fw\n");
+#endif
     err = sx1302_arb_load_firmware(arb_firmware);
     if (err != LGW_REG_SUCCESS) {
         ERROR_PRINTF("ERROR: failed to load ARB firmware\n");
@@ -1150,9 +1171,9 @@ int lgw_start(void) {
 
     /* set hal state */
     CONTEXT_STARTED = true;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
@@ -1160,11 +1181,13 @@ int lgw_start(void) {
 
 int lgw_stop(void) {
     int i, x, err = LGW_HAL_SUCCESS;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     if (CONTEXT_STARTED == false) {
+#if DEBUG_HAL == 1
         DEBUG_PRINTF("Note: LoRa concentrator was not started...\n");
+#endif
         return LGW_HAL_SUCCESS;
     }
 
@@ -1210,9 +1233,9 @@ int lgw_stop(void) {
     }
 
     CONTEXT_STARTED = false;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return err;
 }
 
@@ -1226,9 +1249,9 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     float current_temperature = 0.0, rssi_temperature_offset = 0.0;
     /* performances variables */
     struct timeval tm;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     /* Record function start time */
     _meas_time_start(&tm);
 
@@ -1298,9 +1321,9 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     }
 
     _meas_time_stop(1, tm, __FUNCTION__);
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return nb_pkt_found;
 }
 
@@ -1311,9 +1334,9 @@ int lgw_send(struct lgw_pkt_tx_s * pkt_data) {
     bool lbt_tx_allowed;
     /* performances variables */
     struct timeval tm;
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     /* Record function start time */
     _meas_time_start(&tm);
 
@@ -1445,9 +1468,9 @@ int lgw_send(struct lgw_pkt_tx_s * pkt_data) {
             return LGW_HAL_ERROR;
         }
     }
-
+#if DEBUG_HAL == 1
     DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     if (CONTEXT_SX1261.lbt_conf.enable == true && lbt_tx_allowed == false) {
         return LGW_LBT_NOT_ALLOWED;
     } else {
@@ -1458,8 +1481,9 @@ int lgw_send(struct lgw_pkt_tx_s * pkt_data) {
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int lgw_status(uint8_t rf_chain, uint8_t select, uint8_t *code) {
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     /* check input variables */
     CHECK_NULL(code);
     if (rf_chain >= LGW_RF_CHAIN_NB) {
@@ -1484,9 +1508,9 @@ int lgw_status(uint8_t rf_chain, uint8_t select, uint8_t *code) {
         ERROR_PRINTF("ERROR: SELECTION INVALID, NO STATUS TO RETURN\n");
         return LGW_HAL_ERROR;
     }
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     //INFO_PRINTF("STATUS %u\n", *code);
     return LGW_HAL_SUCCESS;
 }
@@ -1495,9 +1519,9 @@ int lgw_status(uint8_t rf_chain, uint8_t select, uint8_t *code) {
 
 int lgw_abort_tx(uint8_t rf_chain) {
     int err;
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     /* check input variables */
     if (rf_chain >= LGW_RF_CHAIN_NB) {
         ERROR_PRINTF("ERROR: NOT A VALID RF_CHAIN NUMBER\n");
@@ -1506,53 +1530,56 @@ int lgw_abort_tx(uint8_t rf_chain) {
 
     /* Abort current TX */
     err = sx1302_tx_abort(rf_chain);
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return err;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int lgw_get_trigcnt(uint32_t* trig_cnt_us) {
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     CHECK_NULL(trig_cnt_us);
 
     *trig_cnt_us = sx1302_timestamp_counter(true);
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int lgw_get_instcnt(uint32_t* inst_cnt_us) {
-   DEBUG_PRINTF(" --- %s\n", "IN");
-
+#if DEBUG_HAL == 1
+    DEBUG_PRINTF(" --- %s\n", "IN");
+#endif
     CHECK_NULL(inst_cnt_us);
 
     *inst_cnt_us = sx1302_timestamp_counter(false);
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int lgw_get_eui(uint64_t* eui) {
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     CHECK_NULL(eui);
 
     if (sx1302_get_eui(eui) != LGW_REG_SUCCESS) {
         return LGW_HAL_ERROR;
     }
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return LGW_HAL_SUCCESS;
 }
 
@@ -1560,9 +1587,9 @@ int lgw_get_eui(uint64_t* eui) {
 
 int lgw_get_temperature(float* temperature) {
     int err = LGW_HAL_ERROR;
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     CHECK_NULL(temperature);
 
     switch (CONTEXT_COM_TYPE) {
@@ -1576,9 +1603,9 @@ int lgw_get_temperature(float* temperature) {
             INFO_PRINTF("ERROR(%s:%d): wrong communication type (SHOULD NOT HAPPEN)\n", __FUNCTION__, __LINE__);
             break;
     }
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return err;
 }
 
@@ -1593,9 +1620,9 @@ const char* lgw_version_info() {
 uint32_t lgw_time_on_air(const struct lgw_pkt_tx_s *packet) {
     double t_fsk;
     uint32_t toa_ms, toa_us;
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "IN");
-
+#endif
     if (packet == NULL) {
         ERROR_PRINTF("ERROR: Failed to compute time on air, wrong parameter\n");
         return 0;
@@ -1621,9 +1648,9 @@ uint32_t lgw_time_on_air(const struct lgw_pkt_tx_s *packet) {
         toa_ms = 0;
         ERROR_PRINTF("ERROR: Cannot compute time on air for this packet, unsupported modulation (0x%02X)\n", packet->modulation);
     }
-
+#if DEBUG_HAL == 1
    DEBUG_PRINTF(" --- %s\n", "OUT");
-
+#endif
     return toa_ms;
 }
 

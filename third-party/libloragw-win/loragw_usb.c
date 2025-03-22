@@ -68,7 +68,9 @@ int lgw_usb_open(const char * com_path, void **com_target_ptr) {
 
     usb_device = malloc(sizeof(int));
     if (usb_device == NULL) {
+#ifdef DEBUG_USB
         DEBUG_PRINTF("ERROR : MALLOC FAIL\n");
+#endif
         return LGW_USB_ERROR;
     }
 
@@ -185,7 +187,9 @@ int lgw_usb_close(void *com_target) {
         ERROR_PRINTF("ERROR: USB PORT FAILED TO CLOSE\n");
         return LGW_USB_ERROR;
     } else {
+#ifdef DEBUG_USB
         DEBUG_PRINTF("Note: USB port closed\n");
+#endif
         return LGW_USB_SUCCESS;
     }
 }
@@ -217,9 +221,9 @@ int lgw_usb_rmw(void *com_target, uint16_t address, uint8_t offs, uint8_t leng, 
     CHECK_NULL(com_target);
 
     usb_device = *(int *)com_target;
-
+#ifdef DEBUG_USB
     DEBUG_PRINTF("==> RMW register @ 0x%04X, offs:%u leng:%u value:0x%02X\n", address, offs, leng, data);
-
+#endif
     /* prepare frame to be sent */
     in_out_buf[0] = _lgw_spi_req_nb; /* Req ID */
     in_out_buf[1] = MCU_SPI_REQ_TYPE_READ_MODIFY_WRITE; /* Req type */
@@ -240,7 +244,9 @@ int lgw_usb_rmw(void *com_target, uint16_t address, uint8_t offs, uint8_t leng, 
         ERROR_PRINTF("ERROR: USB WRITE FAILURE\n");
         return -1;
     } else {
+#ifdef DEBUG_USB
         DEBUG_PRINTF("Note: USB write success\n");
+#endif
         return 0;
     }
 }
@@ -288,7 +294,9 @@ int lgw_usb_wb(void *com_target, uint8_t spi_mux_target, uint16_t address, const
         ERROR_PRINTF("ERROR: USB WRITE BURST FAILURE\n");
         return -1;
     } else {
+#ifdef DEBUG_USB
         DEBUG_PRINTF("Note: USB write burst success\n");
+#endif
         return 0;
     }
 }
@@ -338,7 +346,9 @@ int lgw_usb_rb(void *com_target, uint8_t spi_mux_target, uint16_t address, uint8
         ERROR_PRINTF("ERROR: USB READ BURST FAILURE\n");
         return -1;
     } else {
+#ifdef DEBUG_USB
         DEBUG_PRINTF("Note: USB read burst success\n");
+#endif
         memcpy(data, in_out_buf + 9, size); /* remove the first bytes, keep only the payload */
         return 0;
     }

@@ -8,12 +8,48 @@
 
 #define DEF_MESSAGE_EXPIRATION_SEC  60
 
+GatewayMetadata::GatewayMetadata()
+    : taskSocket(nullptr), addr{}, typ(METADATA_TYPE_RX), parser(nullptr)
+{
+
+}
+
+GatewayMetadata::GatewayMetadata(
+    const TaskSocket *aTaskSocket,
+    const struct sockaddr &aAddr,
+    METADATA_TYPE aTyp,
+    const SEMTECH_PROTOCOL_METADATA_RX &aRx,
+    ProtoGwParser *aParser
+)
+    : taskSocket(aTaskSocket), addr(aAddr), typ(aTyp), rx(aRx), parser(aParser)
+{
+
+}
+
+GatewayMetadata::GatewayMetadata(
+    const TaskSocket *aTaskSocket,
+    const struct sockaddr &aAddr,
+    METADATA_TYPE aTyp,
+    const SEMTECH_PROTOCOL_METADATA_TX &aTx,
+    ProtoGwParser *aParser
+)
+    : taskSocket(aTaskSocket), addr(aAddr), typ(aTyp), tx(aTx), parser(aParser)
+{
+
+}
+
 std::string GatewayMetadata::toJsonString() const
 {
     std::stringstream ss;
     ss << "{\"taskSocket\": " << taskSocket->toJsonString()
-        << R"(, "sockAddr": ")" << sockaddr2string(&addr) << "\""
-        << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx);
+        << R"(, "sockAddr": ")" << sockaddr2string(&addr) << "\"";
+    switch (typ) {
+        case METADATA_TYPE_TX:
+            ss << ", \"tx\": " << SEMTECH_PROTOCOL_METADATA_TX2string(tx);
+            break;
+        default:
+            ss << ", \"rx\": " << SEMTECH_PROTOCOL_METADATA_RX2string(rx);
+    }
     if (parser)
         ss << ", \"protocol\": " << parser->toJsonString();
     ss << "}";
@@ -76,12 +112,8 @@ std::string MessageQueueItem::toString() const
     ss << R"({"received": ")" << time2string(t) << R"(", "radio": )" << radioPacket.toString();
     ss << ", \"gateways\": [";
     for (auto it : metadata) {
-        ss << R"({"id": ")" <<  gatewayId2str(it.first)
-            << R"(", "lsnr": )" << it.second.rx.lsnr
-            << ", \"frequency\": " << freq2string(it.second.rx.freq)
-            << ", \"chan\": " << (int) it.second.rx.chan;
-        if (it.second.parser)
-            ss << ", \"protocol\": " << it.second.parser->toJsonString();
+        ss << R"({"id": ")" <<  gatewayId2str(it.first);
+        ss << "\", \"metadata\": " << it.second.toJsonString();
         ss << "}";
     }
     ss << "]}";

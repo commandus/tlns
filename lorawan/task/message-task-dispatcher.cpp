@@ -526,6 +526,7 @@ void MessageTaskDispatcher::sendQueue(
                 }
                 char sb[512];
                 if (gwMetadata.parser) {
+                    gwMetadata.typ = METADATA_TYPE_TX;
                     auto sz = gwMetadata.parser->makePull(sb, sizeof(sb),
                         DEVEUI(m->second.task.gatewayId.gatewayId), confirmationMessage,
                         token, &gwMetadata.tx, regionalPlan);

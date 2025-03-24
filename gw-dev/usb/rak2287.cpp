@@ -1207,6 +1207,9 @@ void LoraGatewayListener::downstreamBeaconRunner() {
         case 125000:
             beacon_pkt.bandwidth = BW_125KHZ;
             break;
+        case 250000:
+            beacon_pkt.bandwidth = BW_250KHZ;
+            break;
         case 500000:
             beacon_pkt.bandwidth = BW_500KHZ;
             break;

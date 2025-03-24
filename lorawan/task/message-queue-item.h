@@ -13,13 +13,29 @@ class ProtoGwParser;
 
 class GatewayMetadata {
 public:
+    const TaskSocket *taskSocket;
+    struct sockaddr addr;                         ///< uplink: gateway network address (if any) where packet was sent from
+    METADATA_TYPE typ;
     union {
         SEMTECH_PROTOCOL_METADATA_RX rx;
         SEMTECH_PROTOCOL_METADATA_TX tx;
     };
-    const TaskSocket *taskSocket;
-    struct sockaddr addr;                         ///< uplink: gateway network address (if any) where packet was sent from
     ProtoGwParser *parser;                        ///< uplink: pointer to parser has been used (can be NULL)
+    GatewayMetadata();
+    GatewayMetadata(
+        const TaskSocket *taskSocket,
+        const struct sockaddr &addr,
+        METADATA_TYPE typ,
+        const SEMTECH_PROTOCOL_METADATA_RX &rx,
+        ProtoGwParser *parser
+    );
+    GatewayMetadata(
+        const TaskSocket *taskSocket,
+        const struct sockaddr &addr,
+        METADATA_TYPE typ,
+        const SEMTECH_PROTOCOL_METADATA_TX &tx,
+        ProtoGwParser *parser
+    );
     std::string toJsonString() const;
 };
 

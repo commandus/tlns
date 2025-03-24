@@ -505,10 +505,12 @@ static void run()
 
     if (!localConfig.daemonize)
         setSignalHandler();
+/*
     // downlinkRun() in separate thread
     DownlinkByTimer downlinkByTimer(&dispatcher, &identityClient);
     downlinkByTimer.start();
     // run() in main thread
+*/
     dispatcher.runUplink();
 }
 

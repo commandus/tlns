@@ -17,18 +17,22 @@ typedef enum MODULATION {
  * 5: 41.6 kHz, 6: 62.5 kHz, 7: 125 kHz, 8: 250 kHz, 9: 500 kHz, other: Reserved
  */
 typedef enum BANDWIDTH {
-    /*
     BANDWIDTH_INDEX_7KHZ   = 0,   // 7.8
-    BANDWIDTH_INDEX_10KHZ  = 0,   // 10.4
-    BANDWIDTH_INDEX_15KHZ  = 0,   // 15.6
-    BANDWIDTH_INDEX_20KHZ  = 0,   // 20.8
-    BANDWIDTH_INDEX_31KHZ  = 1,   // 31.2
-    BANDWIDTH_INDEX_41KHZ  = 2,   // 41.6
-    BANDWIDTH_INDEX_62KHZ  = 3,   // 62.5
-    */
+    BANDWIDTH_INDEX_10KHZ  = 1,   // 10.4
+    BANDWIDTH_INDEX_15KHZ  = 2,   // 15.6
+    BANDWIDTH_INDEX_20KHZ  = 3,   // 20.8
+    BANDWIDTH_INDEX_31KHZ  = 4,   // 31.2(?.25)
+    BANDWIDTH_INDEX_41KHZ  = 5,   // 41.6(?.7)
+    BANDWIDTH_INDEX_62KHZ  = 6,   // 62.5
+    BANDWIDTH_INDEX_125KHZ = 7,   // 125
+    BANDWIDTH_INDEX_250KHZ = 8,   // 250
+    BANDWIDTH_INDEX_500KHZ = 9    // 500
+    /*
+     * On send bandwidth -3
     BANDWIDTH_INDEX_125KHZ = 4,   // 125
     BANDWIDTH_INDEX_250KHZ = 5,   // 250
     BANDWIDTH_INDEX_500KHZ = 6    // 500
+    */
 } BANDWIDTH;
 
 typedef enum SPREADING_FACTOR {

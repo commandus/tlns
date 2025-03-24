@@ -484,7 +484,6 @@ std::string BANDWIDTH2String(
     BANDWIDTH value
 ) {
     switch (value) {
-        /*
         case BANDWIDTH_INDEX_7KHZ:
             return "7.8";
         case BANDWIDTH_INDEX_10KHZ:
@@ -499,7 +498,6 @@ std::string BANDWIDTH2String(
             return "41.6";
         case BANDWIDTH_INDEX_62KHZ:
             return "62.5";
-            */
         case BANDWIDTH_INDEX_125KHZ:
             return "125";
         case BANDWIDTH_INDEX_250KHZ:
@@ -727,7 +725,6 @@ BANDWIDTH string2BANDWIDTH(
     const char *value
 )
 {
-    /*
     if (strcmp(value, "7.8") == 0)
         return BANDWIDTH_INDEX_7KHZ;
     if (strcmp(value, "10.4") == 0)
@@ -742,7 +739,6 @@ BANDWIDTH string2BANDWIDTH(
         return BANDWIDTH_INDEX_41KHZ;
     if (strcmp(value, "62.5") == 0)
         return BANDWIDTH_INDEX_62KHZ;
-        */
     if (strcmp(value, "125") == 0)
         return BANDWIDTH_INDEX_125KHZ;
     if (strcmp(value, "250") == 0)
@@ -1095,7 +1091,6 @@ SPREADING_FACTOR string2datr(
     s = value.substr(p + 2);
     int bandwidthValue = strtol(s.c_str(), nullptr, 10);
     switch (bandwidthValue) {
-        /*
         case 7:
             bandwidth = BANDWIDTH_INDEX_7KHZ; // 7.8
             break;
@@ -1117,7 +1112,6 @@ SPREADING_FACTOR string2datr(
         case 62:
             bandwidth = BANDWIDTH_INDEX_62KHZ; // 62.5
             break;
-            */
         case 125:
             bandwidth = BANDWIDTH_INDEX_125KHZ; // 125
             break;
@@ -1145,7 +1139,6 @@ std::string datr2string(
 {
     int bandwidthValue;
     switch (bandwidth) {
-        /*
         case BANDWIDTH_INDEX_7KHZ:
             bandwidthValue = 7; // 7.8
             break;
@@ -1167,7 +1160,6 @@ std::string datr2string(
         case BANDWIDTH_INDEX_62KHZ:
             bandwidthValue = 62; // 62.5
             break;
-            */
         case BANDWIDTH_INDEX_125KHZ:
             bandwidthValue = 125; // 125
             break;
@@ -1362,7 +1354,6 @@ std::string DATA_RATE2string(
 {
     int bandwithValue;
     switch (value.bandwidth) {
-        /*
         case BANDWIDTH_INDEX_7KHZ:
             bandwithValue = 7; // 7.8
             break;
@@ -1384,7 +1375,6 @@ std::string DATA_RATE2string(
         case BANDWIDTH_INDEX_62KHZ:
             bandwithValue = 62; // 62.5
             break;
-            */
         case BANDWIDTH_INDEX_125KHZ:
             bandwithValue = 125; // 125
             break;
@@ -1412,7 +1402,6 @@ std::string DATA_RATE2string(
 {
     int bandwithValue;
     switch (bandwidth) {
-        /*
         case BANDWIDTH_INDEX_7KHZ:
             bandwithValue = 7; // 7.8
             break;
@@ -1434,7 +1423,6 @@ std::string DATA_RATE2string(
         case BANDWIDTH_INDEX_62KHZ:
             bandwithValue = 62; // 62.5
             break;
-            */
         case BANDWIDTH_INDEX_125KHZ:
             bandwithValue = 125; // 125
             break;
@@ -1475,7 +1463,6 @@ void string2DATA_RATE(
     s = value.substr(p + 2);
     int bandwithValue = atoi(s.c_str());
     switch (bandwithValue) {
-        /*
         case 7:
             retVal.bandwidth = BANDWIDTH_INDEX_7KHZ; // 7.8
             break;
@@ -1497,7 +1484,6 @@ void string2DATA_RATE(
         case 62:
             retVal.bandwidth = BANDWIDTH_INDEX_62KHZ; // 62.5
             break;
-            */
         case 125:
             retVal.bandwidth = BANDWIDTH_INDEX_125KHZ; // 125
             break;

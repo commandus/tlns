@@ -73,10 +73,10 @@ void MessageQueue::putUplink(
         auto f = uplinkMessages.find(*loraAddr);
         if (f != uplinkMessages.end()) {
             // update metadata
-            f->second.metadata[gwId] = { metadata, taskSocket, addr };
+            f->second.metadata[gwId] = { taskSocket, addr, METADATA_TYPE_RX, metadata, parser };
         } else {
             MessageQueueItem qi(this, time, gwId, parser);
-            qi.metadata[gwId] = { metadata, taskSocket, addr };
+            qi.metadata[gwId] = { taskSocket, addr, METADATA_TYPE_RX, metadata, parser };
             auto i = uplinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(*loraAddr, qi));
         }
     } else {
@@ -110,7 +110,7 @@ bool MessageQueue::putUplink(
     bool isSame = (f != uplinkMessages.end()) && (f->second.radioPacket == pushData.rxData);
     if (isSame) {
         // update metadata
-        f->second.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr, parser };
+        f->second.metadata[pushData.rxMetadata.gatewayId] = { taskSocket,srcAddr, METADATA_TYPE_RX, pushData.rxMetadata, parser };
     } else {
         if (dispatcher && dispatcher->identityClient) {
             // getUplink device identity
@@ -119,7 +119,7 @@ bool MessageQueue::putUplink(
             qi.task.deviceId.set(*addr, did);
         }
 
-        qi.metadata[pushData.rxMetadata.gatewayId] = { pushData.rxMetadata, taskSocket, srcAddr, parser };
+        qi.metadata[pushData.rxMetadata.gatewayId] = { taskSocket, srcAddr, METADATA_TYPE_RX, pushData.rxMetadata, parser };
         qi.task.gatewayId = pushData.rxMetadata.gatewayId;
         qi.task.deviceId.devaddr = *addr;
         qi.task.repeats = 0;

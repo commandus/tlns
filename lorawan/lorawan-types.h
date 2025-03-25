@@ -297,7 +297,6 @@ typedef PACK( struct {
 
 #define SIZE_SEMTECH_PREFIX  4
 
-
 enum METADATA_TYPE {
     METADATA_TYPE_RX = 0,
     METADATA_TYPE_TX

@@ -18,6 +18,7 @@ DownlinkByTimer::DownlinkByTimer(
 
 void DownlinkByTimer::run()
 {
+    int cnt = 0;
     while (state != TASK_STOP) {
         if (index >= identities.size())
             index = 0;
@@ -41,5 +42,10 @@ void DownlinkByTimer::run()
 #else
         sleep(seconds);
 #endif
+        cnt++;
+        /*
+        if (cnt >= 2)
+            state = TASK_STOP;
+        */
     }
 }

@@ -1012,7 +1012,7 @@ bool LoraGatewayListener::getTxGainLutIndex(
  * @return
  */
 int LoraGatewayListener::enqueueTxPacket(
-        TxPacket &tx
+    TxPacket &tx
 )
 {
     // determine packet type (class A, B or C)
@@ -1098,6 +1098,20 @@ int LoraGatewayListener::enqueueTxPacket(
             log(LOG_ERR, ERR_CODE_LORA_GATEWAY_UNKNOWN_MODULATION, ERR_LORA_GATEWAY_UNKNOWN_MODULATION);
             return ERR_CODE_LORA_GATEWAY_UNKNOWN_MODULATION;
             break;
+    }
+    // translate "soft" bandwidth index into hardware index
+    switch (tx.pkt.bandwidth) {
+        case BANDWIDTH_INDEX_125KHZ:
+            tx.pkt.bandwidth = BW_125KHZ;
+            break;
+        case BANDWIDTH_INDEX_250KHZ:
+            tx.pkt.bandwidth = BW_250KHZ;
+            break;
+        case BANDWIDTH_INDEX_500KHZ:
+            tx.pkt.bandwidth = BW_500KHZ;
+            break;
+        default:
+            tx.pkt.bandwidth = BW_125KHZ;
     }
 
     // record measurement data
@@ -1353,6 +1367,21 @@ void LoraGatewayListener::downstreamBeaconRunner() {
                 field_crc1 = crc16(beacon_pkt.payload, 4 + beacon_RFU1_size); // CRC for the network common part
                 beacon_pkt.payload[beacon_pyld_idx++] = 0xff & field_crc1;
                 beacon_pkt.payload[beacon_pyld_idx++] = 0xff & (field_crc1 >> 8);
+
+                // translate "soft" bandwidth index into hardware index
+                switch (beacon_pkt.bandwidth) {
+                    case BANDWIDTH_INDEX_125KHZ:
+                        beacon_pkt.bandwidth = BW_125KHZ;
+                        break;
+                    case BANDWIDTH_INDEX_250KHZ:
+                        beacon_pkt.bandwidth = BW_250KHZ;
+                        break;
+                    case BANDWIDTH_INDEX_500KHZ:
+                        beacon_pkt.bandwidth = BW_500KHZ;
+                        break;
+                    default:
+                        beacon_pkt.bandwidth = BW_125KHZ;
+                }
 
                 // Insert beacon packet in JiT queue
                 mLGW.lock();

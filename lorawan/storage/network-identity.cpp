@@ -106,7 +106,7 @@ uint32_t calculateMIC(
     if (!buf || size < SIZE_MHDR)
         return 0;
     auto b = (uint8_t*) buf;
-    switch (*((MTYPE*) buf)) {
+    switch (((MHDR*) buf)->f.mtype) {
         case MTYPE_JOIN_REQUEST:
             if (size < SIZE_MHDR + SIZE_JOIN_REQUEST_FRAME )
                 return 0;

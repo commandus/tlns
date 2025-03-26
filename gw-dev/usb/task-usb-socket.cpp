@@ -218,11 +218,13 @@ void TaskUsbGatewaySocket::customWriteSocket(
     tx.pkt.no_crc = pr.gwPullData.txMetadata.no_crc;            // bool if true, do not send a CRC in the packet
     tx.pkt.no_header = pr.gwPullData.txMetadata.no_header;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
     tx.pkt.size = pr.gwPullData.txMetadata.size;                // uint16_t payload size in bytes
-    std::cerr << "RAK2287 enqueueTxPacket "
-        << (int) tx.pkt.size << " = " << (int) pr.gwPullData.txData.payloadSize
+    std::cerr << "RAK2287 enqueueTxPacket size "
+        << (int) tx.pkt.size << " payload size " << (int) pr.gwPullData.txData.payloadSize << " header size "
+        << (int) (tx.pkt.size - pr.gwPullData.txData.payloadSize)
         << "\nmetadata: " << SEMTECH_PROTOCOL_METADATA_TX2string(pr.gwPullData.txMetadata)
         << "\ntxData: " << pr.gwPullData.txData.toString()
         << std::endl;
-    pr.gwPullData.txData.toArray(tx.pkt.payload, sizeof(tx.pkt.payload), networkIdentity);      // uint8_t buffer containing the payload
+    size_t sz = pr.gwPullData.txData.toArray(tx.pkt.payload, sizeof(tx.pkt.payload), networkIdentity);      // uint8_t buffer containing the payload
+    std::cerr << "payload: " << hexString(tx.pkt.payload, sz) << " size " << sz << std::endl;
     listener.enqueueTxPacket(tx);
 }

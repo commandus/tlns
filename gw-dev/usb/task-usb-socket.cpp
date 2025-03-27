@@ -14,6 +14,9 @@
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/lorawan-string.h"
 
+#define STD_LORA_PREAMBLE 8
+#define STD_FSK_PREAMBLE  5
+
 static void onPushData(
     MessageTaskDispatcher* dispatcher,
     const TaskSocket *taskSocket,
@@ -215,6 +218,14 @@ void TaskUsbGatewaySocket::customWriteSocket(
     tx.pkt.invert_pol = pr.gwPullData.txMetadata.invert_pol;    // bool invert signal polarity, for orthogonal downlinks (LoRa only)
     tx.pkt.f_dev = pr.gwPullData.txMetadata.f_dev;              // uint8_t frequency deviation, in kHz (FSK only)
     tx.pkt.preamble = pr.gwPullData.txMetadata.preamble;        // uint16_t set the preamble length, 0 for default
+    // check minimum preamble size
+    if (tx.pkt.modulation == MODULATION_LORA) {
+        if (tx.pkt.preamble == 0)
+            tx.pkt.preamble = STD_LORA_PREAMBLE;
+    } else {
+        if (tx.pkt.preamble == 0)
+            tx.pkt.preamble = STD_FSK_PREAMBLE;
+    }
     tx.pkt.no_crc = pr.gwPullData.txMetadata.no_crc;            // bool if true, do not send a CRC in the packet
     tx.pkt.no_header = pr.gwPullData.txMetadata.no_header;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
     tx.pkt.size = pr.gwPullData.txMetadata.size;                // uint16_t payload size in bytes

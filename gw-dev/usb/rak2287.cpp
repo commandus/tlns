@@ -936,6 +936,8 @@ void LoraGatewayListener::upstreamRunner()
 #define PROTOCOL_VERSION            2           // v1.6
 #define MIN_LORA_PREAMBLE_LEN       6           // minimum Lora preamble length
 #define MIN_FSK_PREAMBBLE_LEN       3           // minimum FSK preamble length
+#define STD_LORA_PREAMBLE           8
+#define STD_FSK_PREAMBLE            5
 
 static uint16_t crc16(
     const uint8_t *data,
@@ -1086,10 +1088,14 @@ int LoraGatewayListener::enqueueTxPacket(
     switch (tx.pkt.modulation) {
         case MOD_LORA:
             // Check minimum Lora preamble length
+            if (tx.pkt.preamble == 0)
+                tx.pkt.preamble = STD_LORA_PREAMBLE;
             if (tx.pkt.preamble < MIN_LORA_PREAMBLE_LEN)
                 tx.pkt.preamble = MIN_LORA_PREAMBLE_LEN;
             break;
         case MOD_FSK:
+            if (tx.pkt.preamble == 0)
+                tx.pkt.preamble = STD_FSK_PREAMBLE;
             // Check minimum FSK preamble length
             if (tx.pkt.preamble < MIN_FSK_PREAMBBLE_LEN)
                 tx.pkt.preamble = MIN_FSK_PREAMBBLE_LEN;

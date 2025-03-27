@@ -28,7 +28,6 @@ else()
 		set(OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
 		find_library(loragw NAMES loragw PATHS "../third-party/libloragw-win/")
 		set(EXTRA_INC ${EXTRA_INC} ../../third-party/libloragw-win)
-		set(EXTRA_SRC ${EXTRA_SRC})
 	else()
 		find_library(loragw NAMES loragw PATHS "../third-party/libloragw/")
 		set(EXTRA_INC ${EXTRA_INC} ../../third-party/libloragw ../../third-party/libloragw/inc)
@@ -41,8 +40,8 @@ else()
 	#
 	# gw-dev-usb
 	#
-	set(GW_DEV_USB_SRC
-        gw-dev-usb.cpp task-usb-socket.cpp rak2287.cpp
+	add_executable(gw-dev-usb
+		gw-dev-usb.cpp task-usb-socket.cpp rak2287.cpp gateway-settings-helper.cpp
 		${ARGTABLE}
 		../../task-response-threaded.cpp
 		../../lorawan/bridge/stdout-bridge.cpp
@@ -53,17 +52,23 @@ else()
 		../../third-party/daemonize.cpp
 		${EXTRA_SRC}
 	)
-	add_executable(gw-dev-usb ${GW_DEV_USB_SRC})
 	target_link_libraries(gw-dev-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
 	target_compile_definitions(gw-dev-usb PRIVATE ${TLNS_DEF})
 	target_include_directories(gw-dev-usb PRIVATE "." "../.." ${EXTRA_INC} ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
-	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
-		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-		set(OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
-	endif()
+	#
+	# listen-lora-usb
+	#
+
+	add_executable(listen-lora-usb
+		listen-lora-usb.cpp rak2287.cpp gateway-settings-helper.cpp
+		${ARGTABLE}
+		../../third-party/daemonize.cpp
+		${EXTRA_SRC}
+	)
+	target_link_libraries(listen-lora-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
+	target_compile_definitions(listen-lora-usb PRIVATE ${TLNS_DEF})
+	target_include_directories(listen-lora-usb PRIVATE "." "../.." ${EXTRA_INC} ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	set(CPACK_PACKAGE_VERSION_MAJOR "0")
 	set(CPACK_PACKAGE_VERSION_MINOR "1")

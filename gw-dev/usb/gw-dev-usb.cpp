@@ -6,13 +6,14 @@
 #include <csignal>
 #include <algorithm>
 
-
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "127.0.0.1:42288"
+#include "lorawan/task/task-udp-control-socket.h"
 #else
 #include <execinfo.h>
 #include <algorithm>
 #include <sys/un.h>
+#include "lorawan/task/task-unix-control-socket.h"
 
 #define DEF_CONTROL_SOCKET_FILE_NAME_OR_ADDRESS_N_PORT "/tmp/control.socket"
 #endif
@@ -24,17 +25,10 @@
 
 // generated gateway regional settings source code
 #include "gen/gateway-usb-conf.h"
+#include "task-usb-socket.h"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
-
-#include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
-
-#ifdef _MSC_VER
-#include "lorawan/task/task-udp-control-socket.h"
-#else
-#include "lorawan/task/task-unix-control-socket.h"
-#endif
 #include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/bridge/plugin-bridge.h"
@@ -42,26 +36,12 @@
 #include "lorawan/storage/service/device-best-gateway-mem.h"
 #include "lorawan/downlink/downlink-by-timer.h"
 #include "gen/regional-parameters-3.h"
+#include "gateway-settings-helper.h"
 
 // i18n
 // #include <libintl.h>
 // #define _(String) gettext (String)
 #define _(String) (String)
-
-size_t findGatewayRegionIndex(
-    const std::string &namePrefix
-)
-{
-    std::string upperPrefix(namePrefix);
-    std::transform(upperPrefix.begin(), upperPrefix.end(), upperPrefix.begin(), ::toupper);
-    for (size_t i = 0; i < sizeof(lorawanGatewaySettings) / sizeof(GatewaySettings); i++) {
-        std::string upperName(lorawanGatewaySettings[i].name);
-        std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
-        if (upperName.find(upperPrefix) != std::string::npos)
-            return i;
-    }
-    return 0;
-}
 
 const std::string programName = _("lorawan-gateway");
 static TaskSocket *taskUSBSocket = nullptr;
@@ -216,7 +196,7 @@ int parseCmd(
         config->bridgePluginFiles.emplace_back(a_bridge_plugin->sval[i]);
 
     if (a_region_name->count) {
-        config->regionIdx = findGatewayRegionIndex(*a_region_name->sval);
+        config->regionIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
         config->regionChannelPlan = regionalParameterChannelPlanMem.get(*a_region_name->sval);
     } else {
         config->regionIdx = 0;

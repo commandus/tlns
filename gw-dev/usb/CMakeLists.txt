@@ -62,6 +62,7 @@ else()
 
 	add_executable(listen-lora-usb
 		listen-lora-usb.cpp rak2287.cpp gateway-settings-helper.cpp
+		usb-listener.cpp
 		${ARGTABLE}
 		../../third-party/daemonize.cpp
 		${EXTRA_SRC}

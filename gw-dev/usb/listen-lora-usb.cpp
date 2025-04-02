@@ -34,6 +34,7 @@
 #include "lorawan/downlink/downlink-by-timer.h"
 #include "gen/regional-parameters-3.h"
 #include "gateway-settings-helper.h"
+#include "usb-listener.h"
 
 // i18n
 // #include <libintl.h>
@@ -44,6 +45,7 @@ const std::string programName = _("listen-lora-usb");
 
 class LocalListenerConfiguration {
 public:
+    UsbListener listener;
     std::vector <std::string> devicePaths;
     size_t regionIdx;
     bool daemonize;
@@ -66,6 +68,7 @@ static LocalListenerConfiguration localConfig;
 
 static void stop()
 {
+    localConfig.listener.stop();
 }
 
 static void done()
@@ -128,7 +131,7 @@ int parseCmd(
             arg_print_errors(stderr, a_end, programName.c_str());
         std::cerr << _("Usage: ") << programName << std::endl;
         arg_print_syntax(stderr, argtable, "\n");
-        std::cerr << MSG_PROG_NAME_GATEWAY_USB << std::endl;
+        std::cerr << MSG_PROG_NAME_LISTEN_LORA_USB << std::endl;
         arg_print_glossary(stderr, argtable, "  %-25s %s\n");
         std::cerr << _("  region name: ");
         for (auto & lorawanGatewaySetting : lorawanGatewaySettings)
@@ -225,12 +228,14 @@ void setSignalHandler()
 
 static void run()
 {
-    if (localConfig.verbosity > 1) {
-        std::cout
-            << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
-    }
-    if (!localConfig.daemonize)
+    if (!localConfig.daemonize) {
+        if (localConfig.verbosity > 1)
+            std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
         setSignalHandler();
+    }
+
+    localConfig.listener.init(&lorawanGatewaySettings[localConfig.regionIdx]);
+    localConfig.listener.start();
 }
 
 int main(

@@ -254,6 +254,7 @@
 #define MSG_CPAREN                      ")"
 #define MSG_PROG_NAME_NETWORK			"LoRaWAN network listener"
 #define MSG_PROG_NAME_GATEWAY_USB       "LoRaWAN USB gateway"
+#define MSG_PROG_NAME_LISTEN_LORA_USB   "LoRaWAN USB listener"
 #define MSG_PROTO_DB_PROG_NAME			"proto-db helper utility"
 #define MSG_LORA_PRINT_PROG_NAME		"lora-print helper utility"
 #define MSG_INTERRUPTED 				"Interrupted "

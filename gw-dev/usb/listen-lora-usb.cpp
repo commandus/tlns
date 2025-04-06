@@ -26,13 +26,7 @@
 
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
-#include "lorawan/proto/gw/basic-udp.h"
 #include "lorawan/storage/client/plugin-client.h"
-#include "lorawan/bridge/plugin-bridge.h"
-#include "lorawan/bridge/stdout-bridge.h"
-#include "lorawan/storage/service/device-best-gateway-mem.h"
-#include "lorawan/downlink/downlink-by-timer.h"
-#include "gen/regional-parameters-3.h"
 #include "gateway-settings-helper.h"
 #include "usb-listener.h"
 
@@ -45,7 +39,7 @@ const std::string programName = _("listen-lora-usb");
 
 class LocalListenerConfiguration {
 public:
-    UsbListener listener;
+    std::vector<UsbListener> listeners;
     std::vector <std::string> devicePaths;
     size_t regionIdx;
     bool daemonize;
@@ -68,7 +62,7 @@ static LocalListenerConfiguration localConfig;
 
 static void stop()
 {
-    localConfig.listener.stop();
+    localConfig.listeners.clear();
 }
 
 static void done()
@@ -233,9 +227,14 @@ static void run()
             std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
         setSignalHandler();
     }
-
-    localConfig.listener.init(&lorawanGatewaySettings[localConfig.regionIdx]);
-    localConfig.listener.start();
+    for (int deviceIndex = 0; deviceIndex < localConfig.devicePaths.size(); deviceIndex++) {
+        strncpy(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path, localConfig.devicePaths[deviceIndex].c_str(),
+                    sizeof(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path));
+        localConfig.listeners.push_back(UsbListener{});
+        auto &l = localConfig.listeners.back();
+        if (l.init(&lorawanGatewaySettings[localConfig.regionIdx]) == 0)
+            l.start();
+    }
 }
 
 int main(

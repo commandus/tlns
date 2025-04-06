@@ -13,16 +13,37 @@ enum UsbListenerState {
 class UsbListener {
 private:
     std::mutex mutexState;
-    std::mutex mLGW;
     std::condition_variable cvState;
     GatewaySettings *gatewaySettings;
     UsbListenerState state;
     int runner();
 public:
+    /**
+     * Default constructor, call init() to set regional parameters.
+     */
     UsbListener();
+    /**
+     * Initialize listener
+     * @param gatewaySettings
+     */
+    UsbListener(GatewaySettings *gatewaySettings);
+    UsbListener(const UsbListener&);
     virtual ~UsbListener();
+    /**
+     * Initialize or re-initialize listener. If listener is running, it stops.
+     * @param gatewaySettings regional settings
+     * @return 0- success
+     */
     int init(GatewaySettings *gatewaySettings);
+    /**
+     * Start listener thread. Listener must be initialized first.
+     * @return 0- success. <0- error code.
+     */
     int start();
+    /**
+     * Stop listener thread
+     * @return
+     */
     int stop();
 };
 

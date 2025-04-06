@@ -1,19 +1,77 @@
 #include <thread>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 #include "usb-listener.h"
 #include "loragw_hal.h"
 
 #include "lorawan/lorawan-error.h"
+#include "lorawan/lorawan-date.h"
+#include "lorawan/lorawan-string.h"
 
 // max number of packets per fetch/send cycle
 #define NB_PKT_MAX         255
 // ms waited when a fetch return no packets
 #define UPSTREAM_FETCH_DELAY_MS     10
 
+static const char DLMT = '\n';
+
+static std::string lgw_pkt_rx_s2string(
+    const lgw_pkt_rx_s *rx
+)
+{
+    if (!rx)
+        return "";
+    std::stringstream ss;
+    ss
+    << "Frequency        " << rx->freq_hz << " Hz" << DLMT
+    << "Frequency offset " << rx->freq_offset << " Hz" << DLMT
+    << "IF chain         " << rx->if_chain << " Hz" << DLMT
+    << "Status           " << (int) rx->status << DLMT
+    << "Counter          " << rx->count_us << " microseconds" << DLMT
+    << "RF chain         " << (int) rx->rf_chain << DLMT
+    << "Modem            " << (int) rx->modem_id << DLMT
+    << "Modulation       " << MODULATION2String((MODULATION) rx->modulation) << DLMT
+    << "Bandwidth        " << DATA_RATE2string((BANDWIDTH) rx->bandwidth, (SPREADING_FACTOR) rx->datarate) << DLMT
+    << "Coding date      " << codingRate2string((CODING_RATE) rx->coderate) << DLMT
+    << std::fixed << std::setprecision(2)
+    << "Channel RSSI     " << rx->rssic << " dB" << DLMT
+    << "Signal RSSI      " << rx->rssis << " dB" << DLMT
+    << "Signal/noise     " << rx->snr << " dB" << DLMT
+    << "Signal/noise min " << rx->snr_min << " dB" << DLMT
+    << "Signal/noise max " << rx->snr_max << " dB" << DLMT
+    << std::hex << std::setfill('0') << std::setw(4)
+    << "CRC              " << rx->crc << DLMT
+    << std::dec << std::setw(0)
+    << "Payload size     " << rx->size << " bytes" << DLMT
+    << "Payload          " << hexString(rx->payload, rx->size) << " bytes" << DLMT
+    << "Fine timestamp   " << (rx->ftime_received ? "true": "false") << DLMT
+    << "Since last PPS   " << rx->ftime << " nanoseconds" << DLMT;
+    return ss.str();
+}
+
 UsbListener::UsbListener()
     : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED)
 {
 
+}
+
+UsbListener::UsbListener(
+    GatewaySettings *aGatewaySettings
+)
+    : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED)
+{
+    init(aGatewaySettings);
+}
+
+/**
+ * Copy constructor
+ * @param value Must be stopped
+ */
+UsbListener::UsbListener(const UsbListener& value)
+    : gatewaySettings(value.gatewaySettings), state(value.state)
+{
 }
 
 int UsbListener::init(
@@ -96,9 +154,7 @@ int UsbListener::runner()
     struct lgw_pkt_rx_s rxpkt[NB_PKT_MAX]; // array containing inbound packets + metadata
     while (state == USB_LISTENER_STATE_RUNNING) {
         // fetch packets
-        mLGW.lock();
         int nb_pkt = lgw_receive(NB_PKT_MAX, rxpkt);
-        mLGW.unlock();
         if (nb_pkt == LGW_HAL_ERROR) {
             return ERR_CODE_LORA_GATEWAY_FETCH;
         }
@@ -113,6 +169,7 @@ int UsbListener::runner()
         int pkt_in_dgram = 0;
         for (int i = 0; i < nb_pkt; ++i) {
             auto p = &rxpkt[i];
+            std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2string(p) << std::endl;
         }
     }
     std::unique_lock<std::mutex> lck(mutexState);

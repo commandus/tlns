@@ -228,14 +228,35 @@ std::string gatewayId2str(
 }
 
 std::string MHDR2String(
-        const MHDR &value
+    const MHDR &value
 )
 {
     std::stringstream ss;
-    ss << "{\"mtype\": " << (int) value.f.mtype
-       << ", \"major\": " << (int) value.f.major
-       << ", \"rfu\": " << (int) value.f.rfu
-       << "}";
+    ss
+        << "{\"mtype\": " << (int) value.f.mtype
+        << R"(,"m_type": ")" << mtype2string((MTYPE) value.f.mtype) // text explanation
+        << R"(", "major": )" << (int) value.f.major
+        << ", \"rfu\": " << (int) value.f.rfu
+        << "}";
+    return ss.str();
+}
+
+std::string FHDR2String(
+    const FHDR &value,
+    bool downLink   ///< true- sent by server
+)
+{
+    std::stringstream ss;
+    ss << R"({"addr": ")" << DEVADDR2string(value.devaddr)
+        << R"(", "foptslen": )" << (int) value.fctrl.f.foptslen;
+    if (downLink)
+        ss << ", \"classb\": " << (value.fctrl.fup.classb ? "true" : "false")
+            << ", \"ack\": " << (value.fctrl.fup.ack ? "true" : "false")
+            << ", \"addrackreq\": " << (value.fctrl.fup.addrackreq ? "true" : "false");
+    else
+        ss << ", \"fpending\": " << (value.fctrl.f.fpending ? "true" : "false")
+            << ", \"ack\": " << (value.fctrl.f.ack ? "true" : "false");
+    ss << ", \"adr\": " << (value.fctrl.f.adr ? "true" : "false");
     return ss.str();
 }
 
@@ -353,7 +374,7 @@ std::string CFLIST2string(
 }
 
 std::string JOIN_REQUEST_FRAME2string(
-        const JOIN_REQUEST_FRAME &value
+    const JOIN_REQUEST_FRAME &value
 ) {
     return R"({"joinEUI": ")" + DEVEUI2string(value.joinEUI) + "\", "
        + R"("devEUI": ")" + DEVEUI2string(value.devEUI) + "\", "
@@ -361,7 +382,7 @@ std::string JOIN_REQUEST_FRAME2string(
 }
 
 std::string JOIN_ACCEPT_FRAME_CFLIST2string(
-        const JOIN_ACCEPT_FRAME_CFLIST &value
+    const JOIN_ACCEPT_FRAME_CFLIST &value
 ) {
     std::stringstream ss;
     ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr) << ", "
@@ -556,7 +577,7 @@ MTYPE string2mtype(
 }
 
 std::string mtype2string(
-        MTYPE value
+    MTYPE value
 )
 {
     switch (value) {
@@ -582,7 +603,7 @@ std::string mtype2string(
 }
 
 MHDR string2mhdr(
-        const std::string &value
+    const std::string &value
 )
 {
     MHDR r{};
@@ -591,21 +612,21 @@ MHDR string2mhdr(
 }
 
 std::string mhdr2string(
-        MHDR value
+    MHDR value
 )
 {
     return mtype2string((MTYPE) value.f.mtype);
 }
 
-static bool isDownlink(
-        MHDR mhdr
+bool isDownlink(
+    MHDR mhdr
 )
 {
     return ((mhdr.f.mtype == MTYPE_UNCONFIRMED_DATA_DOWN) || (mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN));
 }
 
 static bool isUplink(
-        MHDR mhdr
+    MHDR mhdr
 )
 {
     return ((mhdr.f.mtype == MTYPE_UNCONFIRMED_DATA_UP) || (mhdr.f.mtype == MTYPE_CONFIRMED_DATA_UP));

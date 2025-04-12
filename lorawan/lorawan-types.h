@@ -332,6 +332,8 @@ typedef PACK( struct {
 	DEVEUI mac;					// 4-11	Gateway unique identifier (MAC address). For example : 00:0c:29:19:b2:37
 } ) SEMTECH_PREFIX_GW;	        // 12 bytes
 
+#define SIZE_SEMTECH_PREFIX_GW 12
+
 /**
 @struct lgw_pkt_tx_s
 @brief Structure containing the configuration of a packet to send and a pointer to the payload
@@ -355,7 +357,6 @@ typedef PACK( struct {
     // uint8_t     payload[256];   ///> buffer containing the payload
 } ) SEMTECH_PROTOCOL_METADATA_TX;
 
-#define SIZE_SEMTECH_PREFIX_GW 12
 
 /**
  * PUSH_ACK packet

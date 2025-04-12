@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "usb-listener.h"
-#include "loragw_hal.h"
 
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-date.h"
@@ -25,7 +24,7 @@ static std::string lgw_pkt_rx_s2string(
         return "";
     std::stringstream ss;
     ss
-    << "Frequency        " << rx->freq_hz << " Hz" << DLMT
+    << "Frequency        " << std::fixed << std::setprecision(6) << rx->freq_hz << " Hz" << DLMT
     << "Frequency offset " << rx->freq_offset << " Hz" << DLMT
     << "IF chain         " << (int) rx->if_chain << DLMT
     << "Status           " << (int) rx->status << DLMT
@@ -44,10 +43,75 @@ static std::string lgw_pkt_rx_s2string(
     << "CRC              " << std::hex << std::setfill('0') << std::setw(4) << rx->crc << DLMT
     << std::dec << std::setw(0)
     << "Payload size     " << rx->size << " bytes" << DLMT
-    << "Payload          " << hexString(&rx->payload[0], rx->size) << DLMT
+    << "Payload          " << hexString(rx->payload, rx->size) << DLMT
     << "Fine timestamp   " << (rx->ftime_received ? "true": "false") << DLMT
     << "Since last PPS   " << rx->ftime << " nanoseconds" << DLMT;
     return ss.str();
+}
+
+static std::string lgw_pkt_rx_s2json(
+    const lgw_pkt_rx_s *rx
+)
+{
+    if (!rx)
+        return "{}";
+    std::stringstream ss;
+    ss  << "{\"freq\": " << std::fixed << std::setprecision(6) << rx->freq_hz + rx->freq_offset
+        << ", \"status\": " << (int) rx->status
+        << ", \"count_us\": " << rx->count_us
+        << ", \"rfch\": " << (int) rx->if_chain
+        << ", \"modem\": " << (int) rx->modem_id
+        << R"(, "modu": ")" << MODULATION2String((MODULATION) rx->modulation)
+        << R"(", "bandwidth": ")" << DATA_RATE2string((BANDWIDTH) rx->bandwidth, (SPREADING_FACTOR) rx->datarate)
+        << R"(", "codr": ")" << codingRate2string((CODING_RATE) rx->coderate)
+        << std::fixed << std::setprecision(2)
+        << R"(", "rssic": )" << rx->rssic
+        << ", \"rssis\": " << rx->rssis
+        << ", \"snr\": " << rx->snr
+        << ", \"snr_min\": " << rx->snr_min
+        << ", \"snr_max\": " << rx->snr_max
+        << R"(, "crc": ")" << std::hex << std::setfill('0') << std::setw(4) << rx->crc
+        << std::dec << std::setw(0)
+        << R"(", "size": )" << rx->size
+        << R"(, "payload": ")" << hexString(rx->payload, rx->size)
+        << R"(", "ftime_received": )" << (rx->ftime_received ? "true" : "false")
+        << ", \"ftime\": " << rx->ftime
+        << "}";
+    return ss.str();
+}
+
+int rxPayload2json(
+    std::ostream &ss,
+    const lgw_pkt_rx_s *rx
+) {
+    if (rx->size < sizeof(SIZE_MHDR)) // at least 1 byte
+        return ERR_CODE_INVALID_PACKET;
+    auto *m = (MHDR *) rx->payload;
+    ss << "{\"mhdr\": " << MHDR2String(*m);
+    if (rx->size < sizeof(SIZE_MHDR) + sizeof(SIZE_FHDR)) { // expects 8 bytes
+        ss << '}';
+        return CODE_OK;
+    }
+    auto *f = (FHDR*) rx->payload + sizeof(SIZE_MHDR);
+    ss << ", \"fhdr\": " << FHDR2String(*f, isDownlink(*m));
+    const uint8_t *pp = rx->payload + sizeof(SIZE_MHDR) + sizeof(SIZE_FHDR);
+
+    switch (m->f.mtype) {
+        case MTYPE_JOIN_REQUEST:
+            ss << JOIN_REQUEST_FRAME2string(*(const JOIN_REQUEST_FRAME *) pp);
+            break;
+        case MTYPE_JOIN_ACCEPT:
+        case MTYPE_UNCONFIRMED_DATA_UP:          // sent by end-devices to the Network Server
+        case MTYPE_UNCONFIRMED_DATA_DOWN:        // sent by the Network Server to only one end-device and is relayed by a single gateway
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+        case MTYPE_REJOIN_REQUEST:
+        case MTYPE_PROPRIETARYRADIO:
+            break;
+        default:
+            break;
+    }
+    return CODE_OK;
 }
 
 UsbListener::UsbListener()
@@ -72,7 +136,7 @@ int UsbListener::init(
     stop(true);
     gatewaySettings = aGatewaySettings;
 
-    int lastLgwCode = 0;
+    int lastLgwCode;
     if (!gatewaySettings)
         return ERR_CODE_INSUFFICIENT_PARAMS;
     lastLgwCode = lgw_board_setconf(&gatewaySettings->sx130x.boardConf);
@@ -166,10 +230,11 @@ int UsbListener::runner()
         }
 
         // serialize Lora packets metadata and payload
-        int pkt_in_dgram = 0;
         for (int i = 0; i < nb_pkt; ++i) {
             auto p = &rxpkt[i];
             std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2string(p) << std::endl;
+            std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2json(p) << std::endl;
+
         }
     }
     std::unique_lock<std::mutex> lck(mutexState);
@@ -187,6 +252,7 @@ int UsbListener::stop(
     state = USB_LISTENER_STATE_STOP_REQUEST;
     if (aWait)
         wait();
+    return 0;
 }
 
 void UsbListener::wait() {

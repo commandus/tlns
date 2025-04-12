@@ -62,11 +62,13 @@ static LocalListenerConfiguration localConfig;
 
 static void stop()
 {
-    localConfig.listeners.clear();
+    for (auto &l : localConfig.listeners)
+        l.stop(false);
 }
 
 static void done()
 {
+    localConfig.listeners.clear();
 #ifdef _MSC_VER
     WSACleanup();
 #endif
@@ -233,7 +235,14 @@ static void run()
         localConfig.listeners.push_back(UsbListener{});
         auto &l = localConfig.listeners.back();
         if (l.init(&lorawanGatewaySettings[localConfig.regionIdx]) == 0)
-            l.start();
+            if (l.start() == 0)
+                continue;
+        // if fail, delete
+        localConfig.listeners.pop_back();
+    }
+    // wait all
+    for (auto &l : localConfig.listeners) {
+        l.wait();
     }
 }
 
@@ -251,12 +260,9 @@ int main(
     if (r)
         return r;
 #endif
-    if (localConfig.daemonize)	{
+    if (localConfig.daemonize)
         Daemonize daemonize(programName, getCurrentDir(), run, stop, done, 0, localConfig.pidfile);
-    } else {
+    else
         run();
-        stop();
-        done();
-    }
     return CODE_OK;
 }

@@ -18,15 +18,11 @@ private:
     UsbListenerState state;
     int runner();
 public:
+    uint64_t eui;
     /**
      * Default constructor, call init() to set regional parameters.
      */
     UsbListener();
-    /**
-     * Initialize listener
-     * @param gatewaySettings
-     */
-    UsbListener(GatewaySettings *gatewaySettings);
     UsbListener(const UsbListener&);
     virtual ~UsbListener();
     /**
@@ -42,9 +38,12 @@ public:
     int start();
     /**
      * Stop listener thread
-     * @return
+     * @param aWait true- wait thread has been stopped
+     * @return 0 -success
      */
-    int stop();
+    int stop(bool aWait);
+
+    void wait();
 };
 
 #endif //TLNS_USB_LISTENER_H

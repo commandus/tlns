@@ -27,7 +27,7 @@ static std::string lgw_pkt_rx_s2string(
     ss
     << "Frequency        " << rx->freq_hz << " Hz" << DLMT
     << "Frequency offset " << rx->freq_offset << " Hz" << DLMT
-    << "IF chain         " << rx->if_chain << " Hz" << DLMT
+    << "IF chain         " << (int) rx->if_chain << DLMT
     << "Status           " << (int) rx->status << DLMT
     << "Counter          " << rx->count_us << " microseconds" << DLMT
     << "RF chain         " << (int) rx->rf_chain << DLMT
@@ -41,28 +41,19 @@ static std::string lgw_pkt_rx_s2string(
     << "Signal/noise     " << rx->snr << " dB" << DLMT
     << "Signal/noise min " << rx->snr_min << " dB" << DLMT
     << "Signal/noise max " << rx->snr_max << " dB" << DLMT
-    << std::hex << std::setfill('0') << std::setw(4)
-    << "CRC              " << rx->crc << DLMT
+    << "CRC              " << std::hex << std::setfill('0') << std::setw(4) << rx->crc << DLMT
     << std::dec << std::setw(0)
     << "Payload size     " << rx->size << " bytes" << DLMT
-    << "Payload          " << hexString(rx->payload, rx->size) << " bytes" << DLMT
+    << "Payload          " << hexString(&rx->payload[0], rx->size) << DLMT
     << "Fine timestamp   " << (rx->ftime_received ? "true": "false") << DLMT
     << "Since last PPS   " << rx->ftime << " nanoseconds" << DLMT;
     return ss.str();
 }
 
 UsbListener::UsbListener()
-    : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED)
+    : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED), eui(0)
 {
 
-}
-
-UsbListener::UsbListener(
-    GatewaySettings *aGatewaySettings
-)
-    : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED)
-{
-    init(aGatewaySettings);
 }
 
 /**
@@ -70,7 +61,7 @@ UsbListener::UsbListener(
  * @param value Must be stopped
  */
 UsbListener::UsbListener(const UsbListener& value)
-    : gatewaySettings(value.gatewaySettings), state(value.state)
+    : gatewaySettings(value.gatewaySettings), state(value.state), eui(0)
 {
 }
 
@@ -78,7 +69,7 @@ int UsbListener::init(
     GatewaySettings *aGatewaySettings
 )
 {
-    stop();
+    stop(true);
     gatewaySettings = aGatewaySettings;
 
     int lastLgwCode = 0;
@@ -136,13 +127,23 @@ int UsbListener::init(
 
 UsbListener::~UsbListener()
 {
-    stop();
+    stop(false);
 }
 
 int UsbListener::start()
 {
     if (state == USB_LISTENER_STATE_RUNNING)
         return 0;
+    state = USB_LISTENER_STATE_RUNNING;
+    // starting the concentrator
+    int r = lgw_start();
+    if (r)
+        return ERR_CODE_LORA_GATEWAY_START_FAILED;
+
+    // getUplink the concentrator EUI
+    r = lgw_get_eui(&eui);
+    if (r)
+        return ERR_CODE_LORA_GATEWAY_GET_EUI;
     std::thread upstreamThread(&UsbListener::runner, this);
     upstreamThread.detach();
     return 0;
@@ -150,7 +151,6 @@ int UsbListener::start()
 
 int UsbListener::runner()
 {
-    state = USB_LISTENER_STATE_RUNNING;
     struct lgw_pkt_rx_s rxpkt[NB_PKT_MAX]; // array containing inbound packets + metadata
     while (state == USB_LISTENER_STATE_RUNNING) {
         // fetch packets
@@ -178,11 +178,18 @@ int UsbListener::runner()
     return 0;
 }
 
-int UsbListener::stop()
+int UsbListener::stop(
+    bool aWait
+)
 {
     if (state == USB_LISTENER_STATE_STOPPED)
         return 0;
     state = USB_LISTENER_STATE_STOP_REQUEST;
+    if (aWait)
+        wait();
+}
+
+void UsbListener::wait() {
     // wait until thread finished
     std::unique_lock<std::mutex> lock(mutexState);
     while (state != USB_LISTENER_STATE_STOPPED)

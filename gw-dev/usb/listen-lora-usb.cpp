@@ -167,6 +167,7 @@ void signalHandler(int signal)
         case SIGINT:
             std::cerr << MSG_INTERRUPTED << std::endl;
             stop();
+            std::cerr << "Stop request" << std::endl;
             done();
             std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
             exit(CODE_OK);

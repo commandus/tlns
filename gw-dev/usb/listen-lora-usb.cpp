@@ -167,10 +167,9 @@ void signalHandler(int signal)
         case SIGINT:
             std::cerr << MSG_INTERRUPTED << std::endl;
             stop();
-            std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
             done();
-            std::cerr << "Done" << std::endl;
-            break;
+            std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
+            exit(CODE_OK);
         case SIGSEGV:
             std::cerr << ERR_SEGMENTATION_FAULT << std::endl;
             printTrace();
@@ -201,6 +200,7 @@ BOOL WINAPI winSignalHandler(DWORD signal) {
     std::cerr << "Interrupted.." << std::endl;
     stop();
     done();
+    std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
     return true;
 }
 #endif

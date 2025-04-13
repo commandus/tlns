@@ -332,7 +332,7 @@ DEVNONCE string2DEVNONCE(
 }
 
 std::string JOIN_ACCEPT_FRAME_HEADER2string(
-        const JOIN_ACCEPT_FRAME_HEADER &value
+    const JOIN_ACCEPT_FRAME_HEADER &value
 ) {
     std::stringstream ss;
     ss << R"({"joinNonce": ")" << JOINNONCE2string(value.joinNonce)
@@ -348,7 +348,7 @@ std::string JOIN_ACCEPT_FRAME_HEADER2string(
 }
 
 std::string JOIN_ACCEPT_FRAME2string(
-        const JOIN_ACCEPT_FRAME &value
+    const JOIN_ACCEPT_FRAME &value
 ) {
     std::stringstream ss;
     ss << "{\"header\": " << JOIN_ACCEPT_FRAME_HEADER2string(value.hdr)
@@ -555,7 +555,7 @@ std::string deviceclass2string(
 
 
 MTYPE string2mtype(
-        const std::string &value
+    const std::string &value
 ) {
     if (value == "join-request")
         return MTYPE_JOIN_REQUEST;
@@ -618,6 +618,33 @@ std::string mhdr2string(
     return mtype2string((MTYPE) value.f.mtype);
 }
 
+std::string rfmMac2string(
+    void* radioBuffer,
+    uint16_t size
+)
+{
+    if (!radioBuffer || (size < SIZE_MHDR + SIZE_FHDR))
+        return "";
+    const RFM_HEADER* hdr = (const RFM_HEADER*) radioBuffer;
+    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR > size)
+        return "";
+    return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR, hdr->fhdr.fctrl.f.foptslen);
+}
+
+std::string rfmPayload2string(
+    void* radioBuffer,
+    uint16_t size
+)
+{
+    if (!radioBuffer || (size < SIZE_MHDR + SIZE_FHDR))
+        return "";
+    const RFM_HEADER* hdr = (const RFM_HEADER*) radioBuffer;
+    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR > size)
+        return "";
+    return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR + hdr->fhdr.fctrl.f.foptslen,
+        size - SIZE_MHDR - SIZE_FHDR - hdr->fhdr.fctrl.f.foptslen);
+}
+
 bool isDownlink(
     MHDR mhdr
 )
@@ -642,19 +669,52 @@ std::string fctrl2string(
         return "";
     std::stringstream ss;
     // frame-options length actual length of FOpts
-    ss << (unsigned int) hdr->fhdr.fctrl.f.foptslen << DLMT;
+    ss << (unsigned int) hdr->fhdr.fctrl.f.foptslen;
     // 1- gateway has more data pending to be sent
     if (isDownlink(hdr->macheader))
-        ss << (hdr->fhdr.fctrl.f.fpending == 0?"not-":"") << "pending" << DLMT;
-
+        if (hdr->fhdr.fctrl.f.fpending)
+            ss << DLMT << "pending";
     if (isUplink(hdr->macheader))
-        ss << (hdr->fhdr.fctrl.fup.classb == 0?"no-":"") << "classB" << DLMT;
-    ss << (hdr->fhdr.fctrl.f.ack == 0?"no ":"") << "ACK" << DLMT;
+        if (hdr->fhdr.fctrl.fup.classb)
+            ss << DLMT << "classB";
+    if (hdr->fhdr.fctrl.f.ack)
+        ss << DLMT << "ack";
     // validate that the network still receives the uplink frames.
     if (isUplink(hdr->macheader))
-        ss << (hdr->fhdr.fctrl.fup.addrackreq == 0?"no-":"") << "addrACKrequest" << DLMT;
+        if (hdr->fhdr.fctrl.fup.addrackreq)
+            ss << DLMT << "addrAckReq";
     // network will control the data rate of the end-device through the MAC commands
-    ss << (hdr->fhdr.fctrl.f.adr == 0?"no ":"") << "adr";
+    if (hdr->fhdr.fctrl.f.adr)
+        ss << DLMT << "adr";
+    return ss.str();
+}
+
+std::string fctrl2json(
+    const RFM_HEADER* hdr
+)
+{
+    if (!hdr)
+        return "{}";
+    std::stringstream ss;
+    // frame-options length actual length of FOpts
+    ss << "{\"foptslen\": " << (unsigned int) hdr->fhdr.fctrl.f.foptslen;
+    // 1- gateway has more data pending to be sent
+    if (isDownlink(hdr->macheader))
+        if (hdr->fhdr.fctrl.f.fpending)
+            ss << DLMT << "\"pending\": true";
+    if (isUplink(hdr->macheader))
+        if (hdr->fhdr.fctrl.fup.classb)
+            ss << DLMT << "\"classB\": true";
+    if (hdr->fhdr.fctrl.f.ack)
+        ss << DLMT << "\"ack\": true";
+    // validate that the network still receives the uplink frames.
+    if (isUplink(hdr->macheader))
+        if (hdr->fhdr.fctrl.fup.addrackreq)
+            ss << DLMT << "\"addrAckReq\": true";
+    // network will control the data rate of the end-device through the MAC commands
+    if (hdr->fhdr.fctrl.f.adr)
+        ss << DLMT << "\"adr\": true";
+    ss << '}';
     return ss.str();
 }
 
@@ -673,9 +733,9 @@ static std::string cid2string(
 }
 
 std::string mac2string(
-        void *value,
-        uint8_t foptSize,
-        size_t bufferSize
+    void *value,
+    uint8_t foptSize,
+    size_t bufferSize
 )
 {
     size_t sz = foptSize;
@@ -687,7 +747,7 @@ std::string mac2string(
 }
 
 std::string rfm_header2string(
-        const RFM_HEADER* value
+    const RFM_HEADER* value
 )
 {
     std::stringstream ss;
@@ -695,6 +755,18 @@ std::string rfm_header2string(
         << DEVADDR2string(value->fhdr.devaddr) << DLMT
         << fctrl2string(value) << DLMT
         << value->fhdr.fcnt;     // frame counter
+    return ss.str();
+}
+
+std::string rfm_header2json(
+    const RFM_HEADER* value
+)
+{
+    std::stringstream ss;
+    ss  << "{\"mhdr\": " << mhdr2string(value->macheader) << DLMT
+        << "\"addr\": \"" << DEVADDR2string(value->fhdr.devaddr) << "\", "
+        << fctrl2json(value) << DLMT
+        << "\"fcnt\": " << value->fhdr.fcnt;     // frame counter
     return ss.str();
 }
 

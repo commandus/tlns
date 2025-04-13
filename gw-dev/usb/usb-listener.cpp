@@ -98,19 +98,25 @@ int rxPayload2json(
 
     switch (m->f.mtype) {
         case MTYPE_JOIN_REQUEST:
-            ss << JOIN_REQUEST_FRAME2string(*(const JOIN_REQUEST_FRAME *) pp);
+            ss << ", " << JOIN_REQUEST_FRAME2string(*(const JOIN_REQUEST_FRAME *) pp);
             break;
         case MTYPE_JOIN_ACCEPT:
+            ss << ", "<< JOIN_ACCEPT_FRAME2string(*(const JOIN_ACCEPT_FRAME *) pp);
+            break;
         case MTYPE_UNCONFIRMED_DATA_UP:          // sent by end-devices to the Network Server
         case MTYPE_UNCONFIRMED_DATA_DOWN:        // sent by the Network Server to only one end-device and is relayed by a single gateway
         case MTYPE_CONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_DOWN:
+            ss << ", \"mac\": \"" << rfmMac2string((void *) pp, rx->size)
+               << "\", \"payload\": \"" << rfmPayload2string((void *) pp, rx->size) << "\"";
+            break;
         case MTYPE_REJOIN_REQUEST:
         case MTYPE_PROPRIETARYRADIO:
             break;
         default:
             break;
     }
+    ss << '}';
     return CODE_OK;
 }
 
@@ -233,8 +239,9 @@ int UsbListener::runner()
         for (int i = 0; i < nb_pkt; ++i) {
             auto p = &rxpkt[i];
             std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2string(p) << std::endl;
-            std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2json(p) << std::endl;
-
+            std::cout << lgw_pkt_rx_s2json(p) << std::endl;
+            rxPayload2json(std::cout, p);
+            std::cout << std::endl;
         }
     }
     std::unique_lock<std::mutex> lck(mutexState);

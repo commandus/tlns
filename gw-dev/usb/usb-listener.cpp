@@ -204,7 +204,7 @@ int UsbListener::init(
 UsbListener::~UsbListener()
 {
     std::cout << "<~UsbListener" << std::endl;
-    stop(false);
+    stop(true);
     std::cout << "~UsbListener>" << std::endl;
 }
 
@@ -252,9 +252,11 @@ int UsbListener::runner()
             std::cout << std::endl;
         }
     }
+    std::cout << "runner loop stop" << std::endl;
     std::unique_lock<std::mutex> lck(mutexState);
     state = USB_LISTENER_STATE_STOPPED;
     cvState.notify_all();
+    std::cout << "runner loop exit" << std::endl;
     return 0;
 }
 

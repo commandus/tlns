@@ -2,6 +2,8 @@
 #define TLNS_USB_LISTENER_H
 
 #include <mutex>
+#include <condition_variable>
+
 #include "gateway-settings.h"
 
 enum UsbListenerState {

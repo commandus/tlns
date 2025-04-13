@@ -203,7 +203,9 @@ int UsbListener::init(
 
 UsbListener::~UsbListener()
 {
+    std::cout << "<~UsbListener" << std::endl;
     stop(false);
+    std::cout << "~UsbListener>" << std::endl;
 }
 
 int UsbListener::start()
@@ -260,11 +262,13 @@ int UsbListener::stop(
     bool aWait
 )
 {
+    std::cout << "<stop" << std::endl;
     if (state == USB_LISTENER_STATE_STOPPED)
         return 0;
     state = USB_LISTENER_STATE_STOP_REQUEST;
     if (aWait)
         wait();
+    std::cout << "stop>" << std::endl;
     return 0;
 }
 

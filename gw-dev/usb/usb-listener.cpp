@@ -84,17 +84,17 @@ int rxPayload2json(
     std::ostream &ss,
     const lgw_pkt_rx_s *rx
 ) {
-    if (rx->size < sizeof(SIZE_MHDR)) // at least 1 byte
+    if (rx->size < SIZE_MHDR) // at least 1 byte
         return ERR_CODE_INVALID_PACKET;
     auto *m = (MHDR *) rx->payload;
     ss << "{\"mhdr\": " << MHDR2String(*m);
-    if (rx->size < sizeof(SIZE_MHDR) + sizeof(SIZE_FHDR)) { // expects 8 bytes
+    if (rx->size < SIZE_MHDR + SIZE_FHDR) { // expects 8 bytes
         ss << '}';
         return CODE_OK;
     }
-    auto *f = (FHDR*) rx->payload + sizeof(SIZE_MHDR);
+    auto *f = (FHDR*) (rx->payload + SIZE_MHDR);
     ss << ", \"fhdr\": " << FHDR2String(*f, isDownlink(*m));
-    const uint8_t *pp = rx->payload + sizeof(SIZE_MHDR) + sizeof(SIZE_FHDR);
+    const uint8_t *pp = rx->payload + SIZE_MHDR + SIZE_FHDR;
 
     switch (m->f.mtype) {
         case MTYPE_JOIN_REQUEST:
@@ -107,8 +107,14 @@ int rxPayload2json(
         case MTYPE_UNCONFIRMED_DATA_DOWN:        // sent by the Network Server to only one end-device and is relayed by a single gateway
         case MTYPE_CONFIRMED_DATA_UP:
         case MTYPE_CONFIRMED_DATA_DOWN:
-            ss << ", \"mac\": \"" << rfmMac2string((void *) pp, rx->size)
-               << "\", \"payload\": \"" << rfmPayload2string((void *) pp, rx->size) << "\"";
+            ss << "}, \"mac\": \"" << rfmMac2string((void *) rx->payload, rx->size);
+            {
+                int fport = rfmPort((void *) rx->payload, rx->size);
+                if (fport >= 0)
+                    ss << "\", \"fport\": " << fport
+                        << ", \"payload\": \"" << rfmPayload2string((void *) rx->payload, rx->size);
+            }
+            ss << "\", \"mic\": \"" << std::hex << std::setfill('0') << std::setw(8) << rfmMic((void *) rx->payload, rx->size) << "\"";
             break;
         case MTYPE_REJOIN_REQUEST:
         case MTYPE_PROPRIETARYRADIO:

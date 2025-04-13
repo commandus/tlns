@@ -84,6 +84,20 @@ std::string mtype2string(MTYPE value);
 MHDR string2mhdr(const std::string &value);
 std::string mhdr2string(MHDR value);
 std::string rfmMac2string(void* radioBuffer, uint16_t size);
+/**
+ * Return FPort 0..255 if payload (or just FPort number) exists, -1 if no FPort and payload
+ * @param radioBuffer radio buffer
+ * @param size buffer size
+ * @return FPort 0..255 if payload (or just FPort number) exists, -1 if no FPort and payload
+ */
+int rfmPort(void* radioBuffer, uint16_t size);
+/**
+ * Return MIC (message integrity code)
+ * @param radioBuffer radio buffer
+ * @param size buffer size
+ * @return -1 if no MIC in the message
+ */
+uint32_t rfmMic(void* radioBuffer, uint16_t size);
 std::string rfmPayload2string(void* radioBuffer, uint16_t size);
 bool isDownlink(MHDR mhdr);
 std::string fctrl2string(const RFM_HEADER*);

@@ -234,7 +234,7 @@ std::string MHDR2String(
     std::stringstream ss;
     ss
         << "{\"mtype\": " << (int) value.f.mtype
-        << R"(,"m_type": ")" << mtype2string((MTYPE) value.f.mtype) // text explanation
+        << R"(, "m_type": ")" << mtype2string((MTYPE) value.f.mtype) // text explanation
         << R"(", "major": )" << (int) value.f.major
         << ", \"rfu\": " << (int) value.f.rfu
         << "}";
@@ -631,6 +631,32 @@ std::string rfmMac2string(
     return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR, hdr->fhdr.fctrl.f.foptslen);
 }
 
+int rfmPort(
+    void* radioBuffer,
+    uint16_t size
+)
+{
+    if (!radioBuffer || (size < SIZE_MHDR + SIZE_FHDR))
+        return -1;
+    const RFM_HEADER* hdr = (const RFM_HEADER*) radioBuffer;
+    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR + SIZE_FPORT > size)
+        return -1;
+    return *((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR + hdr->fhdr.fctrl.f.foptslen);
+}
+
+uint32_t rfmMic(
+    void* radioBuffer,
+    uint16_t size
+)
+{
+    if (!radioBuffer || (size < SIZE_MHDR + SIZE_FHDR))
+        return -1;
+    const RFM_HEADER* hdr = (const RFM_HEADER*) radioBuffer;
+    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR + SIZE_FPORT + 4 > size)
+        return -1;
+    return NTOH4(*((uint32_t *) ((uint8_t *) radioBuffer + size - 4)));
+}
+
 std::string rfmPayload2string(
     void* radioBuffer,
     uint16_t size
@@ -639,10 +665,10 @@ std::string rfmPayload2string(
     if (!radioBuffer || (size < SIZE_MHDR + SIZE_FHDR))
         return "";
     const RFM_HEADER* hdr = (const RFM_HEADER*) radioBuffer;
-    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR > size)
+    if (hdr->fhdr.fctrl.f.foptslen + SIZE_MHDR + SIZE_FHDR + SIZE_FPORT > size)
         return "";
-    return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR + hdr->fhdr.fctrl.f.foptslen,
-        size - SIZE_MHDR - SIZE_FHDR - hdr->fhdr.fctrl.f.foptslen);
+    return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR + SIZE_FPORT + hdr->fhdr.fctrl.f.foptslen,
+        size - SIZE_MHDR - SIZE_FHDR - SIZE_FPORT - hdr->fhdr.fctrl.f.foptslen - 4);
 }
 
 bool isDownlink(

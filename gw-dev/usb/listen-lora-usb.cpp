@@ -68,7 +68,7 @@ static void stop()
 
 static void done()
 {
-    std::cout << "<done>" << std::endl;
+    std::cout << "<done" << std::endl;
     localConfig.listeners.clear();
 #ifdef _MSC_VER
     WSACleanup();

@@ -1,5 +1,21 @@
 # RAK2287 USB gateway 
 
+## Preparation
+
+Windows requires CP210xUSB to UART bridge VCP driver installed.
+
+See [https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers](https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers)
+
+After COM port number re-assignment and possibly other manipulation driver may require re-install.
+
+To do this, run:
+
+```
+cd "C:\Program Files\DIFX\4A7292F75FEBBD3C\" 
+CP210xVCPInstaller_x64.exe /u C:\WINDOWS\System32\DriverStore\FileRepository\slabvcp.inf_amd64_ab8310f5de07b344\slabvcp.inf
+```
+
+or find out other way to uninstall driver.
 
 ## Acknowledgement
 

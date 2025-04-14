@@ -34,7 +34,7 @@ Signal/noise min 0.00 dB
 Signal/noise max 0.00 dB
 CRC              819d
 Payload size     25 bytes
-Payload          60e26a7e0004000002616c6772792d686f701065b25a54167c
+Payload          60 e26a7e00 040000 02616c6772 792d686f701065b2 5a54167c
 Fine timestamp   false
 Since last PPS   0 nanoseconds
 
@@ -57,7 +57,7 @@ Signal/noise min 0.00 dB
 Signal/noise max 0.00 dB
 CRC              fe1f
 Payload size     25 bytes
-Payload          60e16a1e00000010026561676574fd7a657073656e22c2a2d2
+Payload          60 e16a1e00 000010 02 6561676574fd7a657073656e 22c2a2d2
 Fine timestamp   false
 Since last PPS   0 nanoseconds
 

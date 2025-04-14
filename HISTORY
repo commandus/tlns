@@ -1,1 +1,67 @@
 2023/08/30	Initial release
+
+
+./listen-lora-usb -c EU863-870 /dev/ttyACM0 
+<~UsbListener
+<stop
+~UsbListener>
+<stop
+Opening USB communication interface
+INFO: Configuring TTY
+INFO: Flushing TTY
+INFO: Setting TTY in blocking mode
+INFO: Connect to MCU
+INFO: Concentrator MCU version is V00.02.06
+INFO: MCU status: sys_time:97426 temperature:-0.0oC
+Note: chip version is 0x10 (v1.0)
+INFO: using legacy timestamp
+INFO: LoRa Service modem: configuring preamble size to 8 symbols
+ARB: dual demodulation disabled for all SF
+2025-04-14T14:41:05+0900 Frequency        868500000 Hz
+Frequency offset -25071 Hz
+IF chain         2
+Status           17
+Counter          138480809 microseconds
+RF chain         1
+Modem            0
+Modulation       LORA
+Bandwidth        SF12BW31
+Coding date      4/6
+Channel RSSI     -85.40 dB
+Signal RSSI      -100.40 dB
+Signal/noise     -16.00 dB
+Signal/noise min 0.00 dB
+Signal/noise max 0.00 dB
+CRC              819d
+Payload size     25 bytes
+Payload          60e26a7e0004000002616c6772792d686f701065b25a54167c
+Fine timestamp   false
+Since last PPS   0 nanoseconds
+
+{"freq": 868474929, "status": 17, "count_us": 138480809, "rfch": 2, "modem": 0, "modu": "LORA", "bandwidth": "SF12BW31", "codr": "4/6", "rssic": -85.40, "rssis": -100.40, "snr": -16.00, "snr_min": 0.00, "snr_max": 0.00, "crc": "819d", "size": 25, "payload": "60e26a7e0004000002616c6772792d686f701065b25a54167c", "ftime_received": false, "ftime": 0}
+{"mhdr": {"mtype": 3, "m_type": "unconfirmed-data-down", "major": 0, "rfu": 0}, "fhdr": {"addr": "007e6ae2", "foptslen": 4, "classb": false, "ack": false, "addrackreq": false, "adr": false}, "mac": "02616c67", "fport": 114, "payload": "792d686f701065b2", "mic": "5a54167c"}
+2025-04-14T14:41:23+0900 Frequency        868500000 Hz
+Frequency offset -25134 Hz
+IF chain         2
+Status           17
+Counter          156521940 microseconds
+RF chain         1
+Modem            0
+Modulation       LORA
+Bandwidth        SF12BW31
+Coding date      4/6
+Channel RSSI     -84.40 dB
+Signal RSSI      -99.40 dB
+Signal/noise     -15.75 dB
+Signal/noise min 0.00 dB
+Signal/noise max 0.00 dB
+CRC              fe1f
+Payload size     25 bytes
+Payload          60e16a1e00000010026561676574fd7a657073656e22c2a2d2
+Fine timestamp   false
+Since last PPS   0 nanoseconds
+
+{"freq": 868474866, "status": 17, "count_us": 156521940, "rfch": 2, "modem": 0, "modu": "LORA", "bandwidth": "SF12BW31", "codr": "4/6", "rssic": -84.40, "rssis": -99.40, "snr": -15.75, "snr_min": 0.00, "snr_max": 0.00, "crc": "fe1f", "size": 25, "payload": "60e16a1e00000010026561676574fd7a657073656e22c2a2d2", "ftime_received": false, "ftime": 0}
+{"mhdr": {"mtype": 3, "m_type": "unconfirmed-data-down", "major": 0, "rfu": 0}, "fhdr": {"addr": "001e6ae1", "foptslen": 0, "classb": false, "ack": false, "addrackreq": false, "adr": false}, "mac": "", "fport": 2, "payload": "6561676574fd7a657073656e", "mic": "22c2a2d2"}
+
+

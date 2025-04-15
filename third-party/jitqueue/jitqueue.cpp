@@ -304,6 +304,10 @@ C_CALL enum jit_error_e jit_enqueue(struct jit_queue_s *queue, uint32_t time_us,
     std::cout << "enqueued packet with count_us=" << packet->count_us
             << " (size " << packet->size << " bytes, toa = " << packet_post_delay
             << " type= " << (int) pkt_type << std::endl;
+    for (int i = 0; i < 27 + packet->size; i++) {
+        printf("%02x", ((uint8_t *)packet )[i]);
+    }
+    std::cout << std::endl;
 
     return JIT_ERROR_OK;
 }
@@ -348,6 +352,10 @@ C_CALL enum jit_error_e jit_dequeue(struct jit_queue_s *queue, int index, struct
     jit_print_queue(queue, false, DEBUG_JIT);
 
     std::cout << "dequeued packet with count_us=" << packet->count_us << " from index " << index << std::endl;
+    for (int i = 0; i < 27 + packet->size; i++) {
+        printf("%02x", ((uint8_t *)packet )[i]);
+    }
+    std::cout << std::endl;
 
     return JIT_ERROR_OK;
 }

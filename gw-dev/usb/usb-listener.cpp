@@ -253,7 +253,8 @@ int UsbListener::runner()
         }
     }
     std::cout << "runner loop stop" << std::endl;
-    std::unique_lock<std::mutex> lck(mutexState);
+    // std::unique_lock<std::mutex> lck(mutexState);
+    std::lock_guard<std::mutex> lck(mutexState);
     state = USB_LISTENER_STATE_STOPPED;
     cvState.notify_all();
     std::cout << "runner loop exit" << std::endl;
@@ -277,6 +278,7 @@ int UsbListener::stop(
 void UsbListener::wait() {
     // wait until thread finished
     std::unique_lock<std::mutex> lock(mutexState);
-    while (state != USB_LISTENER_STATE_STOPPED)
-        cvState.wait(lock);
+    cvState.wait(lock, [this] {
+        return state == USB_LISTENER_STATE_STOPPED;
+    });
 }

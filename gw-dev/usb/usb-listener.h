@@ -18,8 +18,6 @@ private:
     GatewaySettings *gatewaySettings;
     int runner();
 public:
-    // std::mutex mutexState;
-    // std::condition_variable cvState;
     UsbListenerState state;
     uint64_t eui;
 

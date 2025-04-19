@@ -68,9 +68,7 @@ static void stop()
 
 static void done()
 {
-    std::cout << "<done" << std::endl;
     localConfig.listeners.clear();
-    std::cout << "done>" << std::endl;
 #ifdef _MSC_VER
     WSACleanup();
 #endif
@@ -243,11 +241,8 @@ static void run()
         localConfig.listeners.pop_back();
     }
     // wait all
-    for (auto &l : localConfig.listeners) {
-        std::cout << "Wait " << gatewayId2str(l.eui) << std::endl;
+    for (auto &l : localConfig.listeners)
         l.wait();
-        std::cout << "Wait done" << gatewayId2str(l.eui) << std::endl;
-    }
 }
 
 int main(

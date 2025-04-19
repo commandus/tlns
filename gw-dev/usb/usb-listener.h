@@ -26,7 +26,7 @@ public:
      */
     UsbListener();
     UsbListener(const UsbListener&);
-    virtual ~UsbListener();
+    ~UsbListener();
     /**
      * Initialize or re-initialize listener. If listener is running, it stops.
      * @param gatewaySettings regional settings

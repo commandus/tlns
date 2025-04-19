@@ -129,7 +129,7 @@ int rxPayload2json(
 UsbListener::UsbListener()
     : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED), eui(0)
 {
-    std::cout << "UsbListener()" << std::endl;
+    std::cout << "UsbListener(" << this << ")" << std::endl;
 }
 
 /**
@@ -139,7 +139,7 @@ UsbListener::UsbListener()
 UsbListener::UsbListener(const UsbListener& value)
     : gatewaySettings(value.gatewaySettings), state(value.state), eui(0)
 {
-    std::cout << "UsbListener(copy)" << std::endl;
+    std::cout << "UsbListener copy(" << this << ")" << std::endl;
 }
 
 int UsbListener::init(
@@ -204,9 +204,8 @@ int UsbListener::init(
 
 UsbListener::~UsbListener()
 {
-    std::cout << "<~UsbListener" << std::endl;
     stop(true);
-    std::cout << "~UsbListener>" << std::endl;
+    std::cout << "~UsbListener(" << this << ")" << std::endl;
 }
 
 int UsbListener::start()

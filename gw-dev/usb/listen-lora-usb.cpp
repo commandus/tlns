@@ -70,10 +70,10 @@ static void done()
 {
     std::cout << "<done" << std::endl;
     localConfig.listeners.clear();
+    std::cout << "done>" << std::endl;
 #ifdef _MSC_VER
     WSACleanup();
 #endif
-    std::cout << "done>" << std::endl;
 }
 
 /**
@@ -169,7 +169,6 @@ void signalHandler(int signal)
         case SIGINT:
             std::cerr << MSG_INTERRUPTED << std::endl;
             stop();
-            std::cerr << "Stop request" << std::endl;
             done();
             std::cerr << MSG_GRACEFULLY_STOPPED << std::endl;
             exit(CODE_OK);

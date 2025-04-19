@@ -127,9 +127,8 @@ int rxPayload2json(
 }
 
 UsbListener::UsbListener()
-    : gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED), eui(0)
+    : upstreamThread(nullptr), gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED), eui(0)
 {
-    std::cout << "UsbListener(" << this << ")" << std::endl;
 }
 
 /**
@@ -137,9 +136,8 @@ UsbListener::UsbListener()
  * @param value Must be stopped
  */
 UsbListener::UsbListener(const UsbListener& value)
-    : gatewaySettings(value.gatewaySettings), state(value.state), eui(0)
+    : upstreamThread(value.upstreamThread), gatewaySettings(value.gatewaySettings), state(value.state), eui(value.eui)
 {
-    std::cout << "UsbListener copy(" << this << ")" << std::endl;
 }
 
 int UsbListener::init(
@@ -205,7 +203,6 @@ int UsbListener::init(
 UsbListener::~UsbListener()
 {
     stop(true);
-    std::cout << "~UsbListener(" << this << ")" << std::endl;
 }
 
 int UsbListener::start()
@@ -222,8 +219,7 @@ int UsbListener::start()
     r = lgw_get_eui(&eui);
     if (r)
         return ERR_CODE_LORA_GATEWAY_GET_EUI;
-    std::thread upstreamThread(&UsbListener::runner, this);
-    upstreamThread.detach();
+    upstreamThread = new std::thread(&UsbListener::runner, this);
     return 0;
 }
 
@@ -257,7 +253,7 @@ int UsbListener::runner()
         // std::unique_lock<std::mutex> lck(mutexState);
         // std::lock_guard<std::mutex> lck(mutexState);
         state = USB_LISTENER_STATE_STOPPED;
-        cvState.notify_all();
+        // cvState.notify_all();
         std::cout << "runner loop exit" << std::endl;
     }
     return 0;
@@ -278,9 +274,14 @@ int UsbListener::stop(
 }
 
 void UsbListener::wait() {
+    if (!upstreamThread)
+        return;
+    upstreamThread->join();
+    /*
     // wait until thread finished
     std::unique_lock<std::mutex> lock(mutexState);
     cvState.wait(lock, [this] {
         return state == USB_LISTENER_STATE_STOPPED;
     });
+     */
 }

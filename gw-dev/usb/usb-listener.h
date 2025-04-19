@@ -14,11 +14,12 @@ enum UsbListenerState {
 
 class UsbListener {
 private:
+    std::thread *upstreamThread;
     GatewaySettings *gatewaySettings;
     int runner();
 public:
-    std::mutex mutexState;
-    std::condition_variable cvState;
+    // std::mutex mutexState;
+    // std::condition_variable cvState;
     UsbListenerState state;
     uint64_t eui;
 

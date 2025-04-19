@@ -245,14 +245,7 @@ static void run()
     // wait all
     for (auto &l : localConfig.listeners) {
         std::cout << "Wait " << gatewayId2str(l.eui) << std::endl;
-        // l.wait();
-        {
-            std::unique_lock<std::mutex> lock(l.mutexState);
-            l.cvState.wait(lock, [l] {
-                return l.state == USB_LISTENER_STATE_STOPPED;
-            });
-        }
-
+        l.wait();
         std::cout << "Wait done" << gatewayId2str(l.eui) << std::endl;
     }
 }

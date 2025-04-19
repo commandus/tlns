@@ -204,7 +204,7 @@ int UsbListener::init(
 UsbListener::~UsbListener()
 {
     std::cout << "<~UsbListener" << std::endl;
-    // stop(true);
+    stop(true);
     std::cout << "~UsbListener>" << std::endl;
 }
 

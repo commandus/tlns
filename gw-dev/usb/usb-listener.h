@@ -14,13 +14,14 @@ enum UsbListenerState {
 
 class UsbListener {
 private:
-    std::mutex mutexState;
-    std::condition_variable cvState;
     GatewaySettings *gatewaySettings;
-    UsbListenerState state;
     int runner();
 public:
+    std::mutex mutexState;
+    std::condition_variable cvState;
+    UsbListenerState state;
     uint64_t eui;
+
     /**
      * Default constructor, call init() to set regional parameters.
      */
@@ -44,7 +45,6 @@ public:
      * @return 0 -success
      */
     int stop(bool aWait);
-
     void wait();
 };
 

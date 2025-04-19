@@ -242,15 +242,19 @@ static void run()
         // if fail, delete
         localConfig.listeners.pop_back();
     }
-    return;
     // wait all
-    std::cout << "Wait for stop" << std::endl;
     for (auto &l : localConfig.listeners) {
         std::cout << "Wait " << gatewayId2str(l.eui) << std::endl;
-        l.wait();
+        // l.wait();
+        {
+            std::unique_lock<std::mutex> lock(l.mutexState);
+            l.cvState.wait(lock, [l] {
+                return l.state == USB_LISTENER_STATE_STOPPED;
+            });
+        }
+
         std::cout << "Wait done" << gatewayId2str(l.eui) << std::endl;
     }
-    std::cout << "Wait for stop exit" << std::endl;
 }
 
 int main(

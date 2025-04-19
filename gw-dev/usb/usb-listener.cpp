@@ -258,6 +258,7 @@ int UsbListener::runner()
     state = USB_LISTENER_STATE_STOPPED;
     cvState.notify_all();
     std::cout << "runner loop exit" << std::endl;
+    sleep(2);
     return 0;
 }
 

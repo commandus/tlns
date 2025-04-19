@@ -64,13 +64,12 @@ static void stop()
 {
     for (auto &l : localConfig.listeners)
         l.stop(true);
-    sleep(3);
 }
 
 static void done()
 {
     std::cout << "<done" << std::endl;
-    localConfig.listeners.clear();
+    // localConfig.listeners.clear();
     std::cout << "done>" << std::endl;
 #ifdef _MSC_VER
     WSACleanup();

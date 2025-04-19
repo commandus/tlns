@@ -243,9 +243,13 @@ static void run()
         localConfig.listeners.pop_back();
     }
     // wait all
+    std::cout << "Wait for stop" << std::endl;
     for (auto &l : localConfig.listeners) {
+        std::cout << "Wait " << gatewayId2str(l.eui) << std::endl;
         l.wait();
+        std::cout << "Wait done" << gatewayId2str(l.eui) << std::endl;
     }
+    std::cout << "Wait for stop exit" << std::endl;
 }
 
 int main(

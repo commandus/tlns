@@ -242,6 +242,7 @@ static void run()
         // if fail, delete
         localConfig.listeners.pop_back();
     }
+    return;
     // wait all
     std::cout << "Wait for stop" << std::endl;
     for (auto &l : localConfig.listeners) {

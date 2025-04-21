@@ -80,52 +80,6 @@ static std::string lgw_pkt_rx_s2json(
     return ss.str();
 }
 
-int rxPayload2json(
-    std::ostream &ss,
-    const lgw_pkt_rx_s *rx
-) {
-    if (rx->size < SIZE_MHDR) // at least 1 byte
-        return ERR_CODE_INVALID_PACKET;
-    auto *m = (MHDR *) rx->payload;
-    ss << "{\"mhdr\": " << MHDR2String(*m);
-    if (rx->size < SIZE_MHDR + SIZE_FHDR) { // expects 8 bytes
-        ss << '}';
-        return CODE_OK;
-    }
-    auto *f = (FHDR*) (rx->payload + SIZE_MHDR);
-    ss << ", \"fhdr\": " << FHDR2String(*f, isDownlink(*m));
-    const uint8_t *pp = rx->payload + SIZE_MHDR + SIZE_FHDR;
-
-    switch (m->f.mtype) {
-        case MTYPE_JOIN_REQUEST:
-            ss << ", " << JOIN_REQUEST_FRAME2string(*(const JOIN_REQUEST_FRAME *) pp);
-            break;
-        case MTYPE_JOIN_ACCEPT:
-            ss << ", "<< JOIN_ACCEPT_FRAME2string(*(const JOIN_ACCEPT_FRAME *) pp);
-            break;
-        case MTYPE_UNCONFIRMED_DATA_UP:          // sent by end-devices to the Network Server
-        case MTYPE_UNCONFIRMED_DATA_DOWN:        // sent by the Network Server to only one end-device and is relayed by a single gateway
-        case MTYPE_CONFIRMED_DATA_UP:
-        case MTYPE_CONFIRMED_DATA_DOWN:
-            ss << "}, \"mac\": \"" << rfmMac2string((void *) rx->payload, rx->size);
-            {
-                int fport = rfmPort((void *) rx->payload, rx->size);
-                if (fport >= 0)
-                    ss << "\", \"fport\": " << fport
-                        << ", \"payload\": \"" << rfmPayload2string((void *) rx->payload, rx->size);
-            }
-            ss << "\", \"mic\": \"" << std::hex << std::setfill('0') << std::setw(8) << rfmMic((void *) rx->payload, rx->size) << "\"";
-            break;
-        case MTYPE_REJOIN_REQUEST:
-        case MTYPE_PROPRIETARYRADIO:
-            break;
-        default:
-            break;
-    }
-    ss << '}';
-    return CODE_OK;
-}
-
 UsbListener::UsbListener()
     : upstreamThread(nullptr), gatewaySettings(nullptr), state(USB_LISTENER_STATE_STOPPED), eui(0)
 {
@@ -244,7 +198,7 @@ int UsbListener::runner()
             auto p = &rxpkt[i];
             std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2string(p) << std::endl;
             std::cout << lgw_pkt_rx_s2json(p) << std::endl;
-            rxPayload2json(std::cout, p);
+            printRFM2json(std::cout, p->payload, p->size);
             std::cout << std::endl;
         }
     }

@@ -9,6 +9,8 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-mac.h"
+#include "lorawan-error.h"
+
 #ifdef ENABLE_UNICODE
 #include <unicode/unistr.h>
 #endif
@@ -669,6 +671,53 @@ std::string rfmPayload2string(
         return "";
     return hexString((uint8_t *) radioBuffer + SIZE_MHDR + SIZE_FHDR + SIZE_FPORT + hdr->fhdr.fctrl.f.foptslen,
         size - SIZE_MHDR - SIZE_FHDR - SIZE_FPORT - hdr->fhdr.fctrl.f.foptslen - 4);
+}
+
+int printRFM2json(
+    std::ostream &ss,
+    const uint8_t *payload,
+    uint16_t size
+) {
+    if (size < SIZE_MHDR) // at least 1 byte
+        return ERR_CODE_INVALID_PACKET;
+    auto *m = (MHDR *) payload;
+    ss << "{\"mhdr\": " << MHDR2String(*m);
+    if (size < SIZE_MHDR + SIZE_FHDR) { // expects 8 bytes
+        ss << '}';
+        return CODE_OK;
+    }
+    auto *f = (FHDR*) (payload + SIZE_MHDR);
+    ss << ", \"fhdr\": " << FHDR2String(*f, isDownlink(*m));
+    const uint8_t *pp = payload + SIZE_MHDR + SIZE_FHDR;
+
+    switch (m->f.mtype) {
+        case MTYPE_JOIN_REQUEST:
+            ss << ", " << JOIN_REQUEST_FRAME2string(*(const JOIN_REQUEST_FRAME *) pp);
+            break;
+        case MTYPE_JOIN_ACCEPT:
+            ss << ", "<< JOIN_ACCEPT_FRAME2string(*(const JOIN_ACCEPT_FRAME *) pp);
+            break;
+        case MTYPE_UNCONFIRMED_DATA_UP:          // sent by end-devices to the Network Server
+        case MTYPE_UNCONFIRMED_DATA_DOWN:        // sent by the Network Server to only one end-device and is relayed by a single gateway
+        case MTYPE_CONFIRMED_DATA_UP:
+        case MTYPE_CONFIRMED_DATA_DOWN:
+            ss << "}, \"mac\": \"" << rfmMac2string((void *) payload, size);
+            {
+                int fport = rfmPort((void *) payload, size);
+                if (fport >= 0)
+                    ss << std::dec << "\", \"fport\": " << fport
+                       << ", \"payload\": \"" << rfmPayload2string((void *) payload, size);
+            }
+            ss << "\", \"mic\": \"" << std::hex << std::setfill('0') << std::setw(8) << rfmMic((void *) payload, size) << "\"";
+            break;
+        case MTYPE_REJOIN_REQUEST:
+        case MTYPE_PROPRIETARYRADIO:
+            break;
+        default:
+            break;
+    }
+    ss << '}';
+    return CODE_OK;
 }
 
 bool isDownlink(

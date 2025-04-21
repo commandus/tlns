@@ -98,6 +98,12 @@ C_CALL bool jit_collision_test(uint32_t p1_count_us, uint32_t p1_pre_delay, uint
     }
 }
 
+int printRFM2json(
+    std::ostream &ss,
+    const uint8_t *payload,
+    uint16_t size
+);
+
 C_CALL enum jit_error_e jit_enqueue(struct jit_queue_s *queue, uint32_t time_us, struct lgw_pkt_tx_s *packet, enum jit_pkt_type_e pkt_type) {
     int i = 0;
     uint32_t packet_post_delay = 0;
@@ -308,6 +314,8 @@ C_CALL enum jit_error_e jit_enqueue(struct jit_queue_s *queue, uint32_t time_us,
         printf("%02x", ((uint8_t *)packet )[i]);
     }
     std::cout << std::endl;
+    printRFM2json(std::cout, (uint8_t *) packet, 27 + packet->size);
+    std::cout << std::endl;
 
     return JIT_ERROR_OK;
 }
@@ -355,6 +363,8 @@ C_CALL enum jit_error_e jit_dequeue(struct jit_queue_s *queue, int index, struct
     for (int i = 0; i < 27 + packet->size; i++) {
         printf("%02x", ((uint8_t *)packet )[i]);
     }
+    std::cout << std::endl;
+    printRFM2json(std::cout, (uint8_t *) packet, 27 + packet->size);
     std::cout << std::endl;
 
     return JIT_ERROR_OK;

@@ -99,6 +99,8 @@ int rfmPort(void* radioBuffer, uint16_t size);
  */
 uint32_t rfmMic(void* radioBuffer, uint16_t size);
 std::string rfmPayload2string(void* radioBuffer, uint16_t size);
+int printRFM2json(std::ostream &ss, const uint8_t *payload, uint16_t size);
+
 bool isDownlink(MHDR mhdr);
 std::string fctrl2string(const RFM_HEADER*);
 std::string fctrl2json(const RFM_HEADER* hdr);

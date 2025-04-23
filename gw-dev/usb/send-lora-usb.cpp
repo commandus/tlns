@@ -1,5 +1,5 @@
 /**
- * LoRaWAN RAK2287 radio listener
+ * Example send LoRaWAN packet using RAK2287 USB stick
  */
 #include <iostream>
 #include <cstring>
@@ -12,8 +12,6 @@
 #endif
 
 #include "argtable3/argtable3.h"
-
-#include "daemonize.h"
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/helper/file-helper.h"
@@ -21,7 +19,7 @@
 #include "task-usb-socket.h"
 #include "lorawan/lorawan-string.h"
 #include "gateway-settings-helper.h"
-#include "usb-listener.h"
+#include "gw-dev/usb/usb-lora-gw.h"
 
 // generated gateway regional settings source code
 #include "gen/gateway-usb-conf.h"
@@ -31,18 +29,20 @@
 // #define _(String) gettext (String)
 #define _(String) (String)
 
-const std::string programName = _("listen-lora-usb");
+const std::string programName = _("send-lora-usb");
+
+#define STD_LORA_PREAMBLE           8
+#define STD_FSK_PREAMBLE            5
 
 class LocalSenderConfiguration {
 public:
-    std::vector <UsbListener> listeners;
+    std::vector <UsbLoRaWANGateway> gateway;
     std::vector <std::string> devicePaths;
     size_t regionIdx;
-    bool daemonize;
     int verbosity;
-    std::string pidfile;
+    std::string payload;
     LocalSenderConfiguration()
-        : regionIdx(0), daemonize(false), verbosity(0)
+        : regionIdx(0), verbosity(0)
     {
     }
 };
@@ -61,13 +61,11 @@ static LocalSenderConfiguration localConfig;
 
 static void stop()
 {
-    for (auto &l : localConfig.listeners)
-        l.stop(true);
 }
 
 static void done()
 {
-    localConfig.listeners.clear();
+    localConfig.gateway.clear();
 }
 
 /**
@@ -76,22 +74,21 @@ static void done()
  *        ERR_CODE_PARAM_INVALID- show help and exit, or command syntax error
  **/
 int parseCmd(
-        LocalSenderConfiguration *config,
-        int argc,
-        char *argv[]
+    LocalSenderConfiguration *config,
+    int argc,
+    char *argv[]
 )
 {
     // device path
     struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 100, _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
-    struct arg_lit *a_daemonize = arg_lit0("d", "daemonize", _("Run as daemon"));
-    struct arg_str *a_pidfile = arg_str0("p", "pidfile", _("<file>"), _("Check whether a process has created the file pidfile"));
+    struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-    a_device_path, a_region_name, a_pidfile, a_verbosity, a_help, a_end
+    a_device_path, a_region_name, a_payload, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -110,11 +107,9 @@ int parseCmd(
     else
         config->regionIdx = 0;
 
-    config->daemonize = (a_daemonize->count > 0);
-    if (a_pidfile->count)
-        config->pidfile = *a_pidfile->sval;
-    else
-        config->pidfile = "";
+    if (a_payload->count)
+        config->payload = hex2string(a_payload->sval[0]);
+
     config->verbosity = a_verbosity->count;
 
     // special case: '--help' takes precedence over error reporting
@@ -153,8 +148,6 @@ static void printTrace() {
     backtrace_symbols_fd(t, size, STDERR_FILENO);
 #endif
 }
-
-static void run();
 
 #ifndef _MSC_VER
 void signalHandler(int signal)
@@ -220,25 +213,88 @@ void setSignalHandler()
 
 static void run()
 {
-    if (!localConfig.daemonize) {
-        if (localConfig.verbosity > 1)
-            std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
-        setSignalHandler();
-    }
+    if (localConfig.verbosity > 1)
+        std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
+    setSignalHandler();
+    // initialize
     for (int deviceIndex = 0; deviceIndex < localConfig.devicePaths.size(); deviceIndex++) {
         strncpy(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path, localConfig.devicePaths[deviceIndex].c_str(),
                     sizeof(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path));
-        localConfig.listeners.push_back(UsbListener{});
-        auto &l = localConfig.listeners.back();
+        localConfig.gateway.push_back(UsbLoRaWANGateway{});
+        auto &l = localConfig.gateway.back();
         if (l.init(&lorawanGatewaySettings[localConfig.regionIdx]) == 0)
-            if (l.start() == 0)
-                continue;
+            continue;
         // if fail, delete
-        localConfig.listeners.pop_back();
+        localConfig.gateway.pop_back();
     }
-    // wait all
-    for (auto &l : localConfig.listeners)
-        l.wait();
+    // send over all gateways
+    for (auto &l : localConfig.gateway) {
+        int r = lgw_start();
+        if (r)
+            continue;
+        // get the concentrator EUI
+        r = lgw_get_eui(&l.eui);
+        if (r)
+            continue;
+        struct lgw_pkt_tx_s pkt;
+        pkt.freq_hz = lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[0].freq_hz;          // uint32_t center frequency of TX
+        pkt.tx_mode = 0;         // immediately uint8_t select on what event/time the TX is triggered
+        pkt.count_us = 0;        // immediately uint32_t timestamp or delay in microseconds for TX trigger
+        pkt.rf_chain = 0;        // uint8_t through which RF chain will the packet be sent
+        pkt.rf_power = 14;       // int8_t TX power, in dBm
+        pkt.modulation = MODULATION_LORA;    // uint8_t modulation to use for the packet
+        pkt.freq_offset = 0;                                     // int8_t frequency offset from Radio Tx frequency (CW mode)
+        pkt.bandwidth = BANDWIDTH_INDEX_125KHZ;      // uint8_t modulation bandwidth (LoRa only)
+        pkt.datarate = 88;        // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+        pkt.coderate = 88;        // uint8_t error-correcting code of the packet (LoRa only)
+        pkt.invert_pol = false;    // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+        pkt.f_dev = 0;              // uint8_t frequency deviation, in kHz (FSK only)
+        pkt.preamble = STD_LORA_PREAMBLE;        // uint16_t set the preamble length, 0 for default
+
+        // Validate is channel allowed
+        if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable)
+            continue;
+
+        // Correct radio transmission power
+        pkt.rf_power -= lorawanGatewaySettings[localConfig.regionIdx].sx130x.antennaGain;
+
+        // check minimum preamble size
+        if (pkt.modulation == MODULATION_LORA) {
+            if (pkt.preamble == 0)
+                pkt.preamble = STD_LORA_PREAMBLE;
+        } else {
+            if (pkt.preamble == 0)
+                pkt.preamble = STD_FSK_PREAMBLE;
+        }
+        // translate "soft" bandwidth index into hardware index
+        switch (pkt.bandwidth) {
+            case BANDWIDTH_INDEX_125KHZ:
+                pkt.bandwidth = BW_125KHZ;
+                break;
+            case BANDWIDTH_INDEX_250KHZ:
+                pkt.bandwidth = BW_250KHZ;
+                break;
+            case BANDWIDTH_INDEX_500KHZ:
+                pkt.bandwidth = BW_500KHZ;
+                break;
+            default:
+                pkt.bandwidth = BW_125KHZ;
+        }
+
+        pkt.no_crc = false;            // bool if true, do not send a CRC in the packet
+        pkt.no_header = false;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+        pkt.size = localConfig.payload.size() - 27;                // uint16_t payload size in bytes
+        std::cerr << "RAK2287 enqueueTxPacket size "
+                  << (int) pkt.size
+                  << std::endl;
+
+        r = lgw_send(&pkt);
+        if (r)
+            continue;
+        r = lgw_stop();
+        if (r)
+            continue;
+    }
 }
 
 int main(
@@ -249,9 +305,6 @@ int main(
     int r = parseCmd(&localConfig, argc, argv);
     if (r)
         return r;
-    if (localConfig.daemonize)
-        Daemonize daemonize(programName, getCurrentDir(), run, stop, done, 0, localConfig.pidfile);
-    else
-        run();
+    run();
     return CODE_OK;
 }

@@ -1,10 +1,8 @@
 #ifndef TLNS_USB_LISTENER_H
 #define TLNS_USB_LISTENER_H
 
-#include <mutex>
-#include <condition_variable>
-
 #include "gateway-settings.h"
+#include "gw-dev/usb/usb-lora-gw.h"
 
 enum UsbListenerState {
     USB_LISTENER_STATE_STOPPED = 0,
@@ -12,14 +10,12 @@ enum UsbListenerState {
     USB_LISTENER_STATE_STOP_REQUEST
 };
 
-class UsbListener {
+class UsbListener : public UsbLoRaWANGateway {
 private:
     std::thread *upstreamThread;
-    GatewaySettings *gatewaySettings;
     int runner();
 public:
     UsbListenerState state;
-    uint64_t eui;
 
     /**
      * Default constructor, call init() to set regional parameters.
@@ -27,12 +23,6 @@ public:
     UsbListener();
     UsbListener(const UsbListener&);
     virtual ~UsbListener();
-    /**
-     * Initialize or re-initialize listener. If listener is running, it stops.
-     * @param gatewaySettings regional settings
-     * @return 0- success
-     */
-    int init(GatewaySettings *gatewaySettings);
     /**
      * Start listener thread. Listener must be initialized first.
      * @return 0- success. <0- error code.
@@ -47,4 +37,4 @@ public:
     void wait();
 };
 
-#endif //TLNS_USB_LISTENER_H
+#endif

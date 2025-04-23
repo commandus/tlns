@@ -59,9 +59,8 @@ else()
 	#
 	# listen-lora-usb
 	#
-
 	add_executable(listen-lora-usb
-		listen-lora-usb.cpp rak2287.cpp gateway-settings-helper.cpp
+		listen-lora-usb.cpp usb-lora-gw.cpp rak2287.cpp gateway-settings-helper.cpp
 		usb-listener.cpp
 		${ARGTABLE}
 		../../third-party/daemonize.cpp
@@ -70,6 +69,18 @@ else()
 	target_link_libraries(listen-lora-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
 	target_compile_definitions(listen-lora-usb PRIVATE ${TLNS_DEF})
 	target_include_directories(listen-lora-usb PRIVATE "." "../.." ${EXTRA_INC} ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+
+	#
+	# send-lora-usb
+	#
+	add_executable(send-lora-usb
+		send-lora-usb.cpp usb-lora-gw.cpp rak2287.cpp gateway-settings-helper.cpp
+		${ARGTABLE}
+		${EXTRA_SRC}
+	)
+	target_link_libraries(send-lora-usb PRIVATE ${OS_SPECIFIC_LIBS} ${LIBINTL} lorawan loragw)
+	target_compile_definitions(send-lora-usb PRIVATE ${TLNS_DEF})
+	target_include_directories(send-lora-usb PRIVATE "." "../.." ${EXTRA_INC} ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
 
 	set(CPACK_PACKAGE_VERSION_MAJOR "0")
 	set(CPACK_PACKAGE_VERSION_MINOR "1")

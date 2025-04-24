@@ -140,6 +140,7 @@ static void printTrace() {
 }
 
 #ifndef _MSC_VER
+static void run();
 void signalHandler(int signal)
 {
     switch (signal) {

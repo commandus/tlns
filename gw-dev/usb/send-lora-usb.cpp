@@ -237,16 +237,41 @@ static void run()
         if (r)
             continue;
         struct lgw_pkt_tx_s pkt;
-        pkt.freq_hz = lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[0].freq_hz;          // uint32_t center frequency of TX
-        pkt.tx_mode = 0;         // immediately uint8_t select on what event/time the TX is triggered
-        pkt.count_us = 0;        // immediately uint32_t timestamp or delay in microseconds for TX trigger
-        pkt.rf_chain = 0;        // uint8_t through which RF chain will the packet be sent
-        pkt.rf_power = 14;       // int8_t TX power, in dBm
-        pkt.modulation = MODULATION_LORA;    // uint8_t modulation to use for the packet
-        pkt.freq_offset = 0;                                     // int8_t frequency offset from Radio Tx frequency (CW mode)
+        int rfChain = -1;
+        for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
+            if (lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[c].enable) {
+                rfChain = c;
+                break;
+            }
+        }
+        if (rfChain < 0)
+            continue;
+
+        int freqOffset = -1;
+        uint32_t dr = 0;
+        uint8_t bw = 0;
+        for (int c = 0; c < LGW_MULTI_NB; c++) {
+            if (lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].enable &&
+                    lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].rf_chain == rfChain) {
+                freqOffset = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].freq_hz;
+                dr = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].datarate;
+                bw = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].bandwidth;
+                break;
+            }
+        }
+        if (freqOffset == -1)
+            continue;
+        // uint32_t center frequency of TX
+        pkt.freq_hz = (uint32_t) ((int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
+        pkt.tx_mode = IMMEDIATE;            // immediately uint8_t select on what event/time the TX is triggered
+        pkt.count_us = 0;                   // immediately uint32_t timestamp or delay in microseconds for TX trigger
+        pkt.rf_chain = (uint8_t ) rfChain;  // uint8_t through which RF chain will the packet be sent
+        pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[rfChain].lut[0].rf_power;   // int8_t TX power, in dBm
+        pkt.modulation = MODULATION_LORA;   // uint8_t modulation to use for the packet
+        pkt.freq_offset = 0;                // frequency offset from Radio Tx frequency (CW mode)
         pkt.bandwidth = BANDWIDTH_INDEX_125KHZ;      // uint8_t modulation bandwidth (LoRa only)
-        pkt.datarate = 88;        // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
-        pkt.coderate = 88;        // uint8_t error-correcting code of the packet (LoRa only)
+        pkt.datarate = DRLORA_SF5;        // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+        pkt.coderate = CRLORA_4_5;          // uint8_t error-correcting code of the packet (LoRa only)
         pkt.invert_pol = false;    // bool invert signal polarity, for orthogonal downlinks (LoRa only)
         pkt.f_dev = 0;              // uint8_t frequency deviation, in kHz (FSK only)
         pkt.preamble = STD_LORA_PREAMBLE;        // uint16_t set the preamble length, 0 for default

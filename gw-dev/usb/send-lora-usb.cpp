@@ -47,16 +47,6 @@ public:
     }
 };
 
-static GatewaySettings* getGatewayConfig(
-    LocalSenderConfiguration *config,
-    int deviceIndex
-) {
-    // set COM port device path, just in case
-    strncpy(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path, config->devicePaths[deviceIndex].c_str(),
-            sizeof(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path));
-    return &lorawanGatewaySettings[config->regionIdx];
-}
-
 static LocalSenderConfiguration localConfig;
 
 static void stop()
@@ -82,7 +72,7 @@ int parseCmd(
     // device path
     struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 100, _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
-    struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string"));
+    struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string, e.g. 60e26a7e00000000026b69636b6173732d776f7a6e69616b5a54167c"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
@@ -100,7 +90,7 @@ int parseCmd(
     int nErrors = arg_parse(argc, argv, argtable);
 
     for (int i = 0; i < a_device_path->count; i++)
-        config->devicePaths.push_back(a_device_path->sval[i]);
+        config->devicePaths.emplace_back(a_device_path->sval[i]);
 
     if (a_region_name->count)
         config->regionIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
@@ -220,7 +210,7 @@ static void run()
     for (int deviceIndex = 0; deviceIndex < localConfig.devicePaths.size(); deviceIndex++) {
         strncpy(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path, localConfig.devicePaths[deviceIndex].c_str(),
                     sizeof(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path));
-        localConfig.gateway.push_back(UsbLoRaWANGateway{});
+        localConfig.gateway.emplace_back();
         auto &l = localConfig.gateway.back();
         if (l.init(&lorawanGatewaySettings[localConfig.regionIdx]) == 0)
             continue;
@@ -236,7 +226,7 @@ static void run()
         r = lgw_get_eui(&l.eui);
         if (r)
             continue;
-        struct lgw_pkt_tx_s pkt;
+        struct lgw_pkt_tx_s pkt {};
         int rfChain = -1;
         for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
             if (lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[c].enable) {
@@ -248,14 +238,9 @@ static void run()
             continue;
 
         int freqOffset = -1;
-        uint32_t dr = 0;
-        uint8_t bw = 0;
-        for (int c = 0; c < LGW_MULTI_NB; c++) {
-            if (lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].enable &&
-                    lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].rf_chain == rfChain) {
-                freqOffset = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].freq_hz;
-                dr = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].datarate;
-                bw = lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs[c].bandwidth;
+        for (auto & ifConf : lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs) {
+            if (ifConf.enable && ifConf.rf_chain == rfChain) {
+                freqOffset = ifConf.freq_hz;
                 break;
             }
         }
@@ -306,16 +291,27 @@ static void run()
                 pkt.bandwidth = BW_125KHZ;
         }
 
-        pkt.no_crc = false;            // bool if true, do not send a CRC in the packet
-        pkt.no_header = false;      // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
-        pkt.size = localConfig.payload.size() - 27;                // uint16_t payload size in bytes
-        std::cerr << "RAK2287 enqueueTxPacket size "
-                  << (int) pkt.size
-                  << std::endl;
-
+        pkt.no_crc = false;                                 // bool if true, do not send a CRC in the packet
+        pkt.no_header = false;                              // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+        pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
+        memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
         r = lgw_send(&pkt);
         if (r)
             continue;
+        bool sent = false;
+        while (true) {
+            uint8_t c;
+            r = lgw_status(rfChain, TX_STATUS, &c);
+            if (r)
+                break;
+            if (c == TX_EMITTING) {
+                sent = true;
+                continue;
+            }
+            if (sent && c == TX_FREE)
+                break;
+        }
+
         r = lgw_stop();
         if (r)
             continue;

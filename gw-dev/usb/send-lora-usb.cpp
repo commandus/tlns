@@ -312,7 +312,7 @@ static void run()
             if (sent && c == TX_FREE)
                 break;
         }
-
+        sleep(1);
         r = lgw_stop();
         if (r)
             continue;

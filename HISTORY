@@ -1,12 +1,12 @@
 2023/08/30	Initial release
 
 007e6ae1
-60e16a7e00000000026b69636b6173732d73686f636b6c657922c2a2d2
-{"freq": 867899879, "status": 16, "count_us": 15054649, "rfch": 7, "modem": 2, "modu": "LORA", "bandwidth": "SF12BW31", "codr": "4/6", "rssic": -90.40, "rssis": -104.40, "snr": -15.00, "snr_min": 0.00, "snr_max": 0.00, "crc": "d18b", "size": 29, "payload": "60e16a7e00000000026b69636b6173732d73686f636b6c657922c2a2d2", "ftime_received": false, "ftime": 0}
-{"mhdr": {"mtype": 3, "m_type": "unconfirmed-data-down", "major": 0, "rfu": 0}, "fhdr": {"addr": "007e6ae1", "foptslen": 0, "classb": false, "ack": false, "addrackreq": false, "adr": false}, "mac": "", "fport": 2, "payload": "6b69636b6173732d73686f636b6c6579", "mic": "22c2a2d2"}
-
+60e16a7e0000000002666f63757365642d6d6168617669726122c2a2d2
+60e16a7e0000000002616e6772792d676f6c6477617373657222c2a2d2
+60e16a7e0000000002626f72696e672d626c61636b77656c6c22c2a2d2
+60e16a7e0000000002676f6f66792d6d6168617669726122c2a2d2
 
 007e6ae2
-60e26a7e0008000002657069632d626f73655a54167c
-{"freq": 868474879, "status": 17, "count_us": 26870570, "rfch": 2, "modem": 1, "modu": "LORA", "bandwidth": "SF12BW31", "codr": "4/6", "rssic": -74.40, "rssis": -88.40, "snr": -15.25, "snr_min": 0.00, "snr_max": 0.00, "crc": "edd0", "size": 22, "payload": "60e26a7e0008000002657069632d626f73655a54167c", "ftime_received": false, "ftime": 0}
-{"mhdr": {"mtype": 3, "m_type": "unconfirmed-data-down", "major": 0, "rfu": 0}, "fhdr": {"addr": "007e6ae2", "foptslen": 8, "classb": false, "ack": false, "addrackreq": false, "adr": false}, "mac": "02657069632d626f", "fport": 115, "payload": "65", "mic": "5a54167c"}
+60e26a7e00000000027374757065666965642d77696e675a54167c
+60e26a7e00000000026e6175676874792d6e6f62656c5a54167c
+60e26a7e00000000027a656e2d686f707065725a54167c

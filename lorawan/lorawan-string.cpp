@@ -727,6 +727,16 @@ bool isDownlink(
     return ((mhdr.f.mtype == MTYPE_UNCONFIRMED_DATA_DOWN) || (mhdr.f.mtype == MTYPE_CONFIRMED_DATA_DOWN));
 }
 
+bool isDownlink(
+    const void *mhdr,
+    size_t size
+)
+{
+    if (!mhdr || size < sizeof(MHDR))
+        return false;
+    return (((MHDR*)mhdr)->f.mtype == MTYPE_UNCONFIRMED_DATA_DOWN || (((MHDR*)mhdr)->f.mtype == MTYPE_CONFIRMED_DATA_DOWN));
+}
+
 static bool isUplink(
     MHDR mhdr
 )

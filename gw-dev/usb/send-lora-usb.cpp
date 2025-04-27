@@ -247,20 +247,23 @@ static void run()
         }
         if (freqOffset == -1)
             continue;
+
+        bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
+
         // uint32_t center frequency of TX
         pkt.freq_hz = (uint32_t) ((int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
-        pkt.tx_mode = IMMEDIATE;            // immediately uint8_t select on what event/time the TX is triggered
-        pkt.count_us = 0;                   // immediately uint32_t timestamp or delay in microseconds for TX trigger
-        pkt.rf_chain = (uint8_t ) rfChain;  // uint8_t through which RF chain will the packet be sent
+        pkt.tx_mode = IMMEDIATE;                // immediately uint8_t select on what event/time the TX is triggered
+        pkt.count_us = 0;                       // immediately uint32_t timestamp or delay in microseconds for TX trigger
+        pkt.rf_chain = (uint8_t ) rfChain;      // uint8_t through which RF chain will the packet be sent
         pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[rfChain].lut[0].rf_power;   // int8_t TX power, in dBm
-        pkt.modulation = MODULATION_LORA;   // uint8_t modulation to use for the packet
-        pkt.freq_offset = 0;                // frequency offset from Radio Tx frequency (CW mode)
-        pkt.bandwidth = BANDWIDTH_INDEX_125KHZ;      // uint8_t modulation bandwidth (LoRa only)
-        pkt.datarate = DRLORA_SF5;        // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
-        pkt.coderate = CRLORA_4_5;          // uint8_t error-correcting code of the packet (LoRa only)
-        pkt.invert_pol = false;    // bool invert signal polarity, for orthogonal downlinks (LoRa only)
-        pkt.f_dev = 0;              // uint8_t frequency deviation, in kHz (FSK only)
-        pkt.preamble = STD_LORA_PREAMBLE;        // uint16_t set the preamble length, 0 for default
+        pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
+        pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
+        pkt.bandwidth = BANDWIDTH_INDEX_125KHZ; // uint8_t modulation bandwidth (LoRa only)
+        pkt.datarate = DRLORA_SF5;              // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+        pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
+        pkt.invert_pol = payloadIsDownlink;                 // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+        pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
+        pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
 
         // Validate is channel allowed
         if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable)
@@ -292,7 +295,7 @@ static void run()
                 pkt.bandwidth = BW_125KHZ;
         }
 
-        pkt.no_crc = false;                                 // bool if true, do not send a CRC in the packet
+        pkt.no_crc = payloadIsDownlink;                     // bool if true, do not send a CRC in the packet
         pkt.no_header = false;                              // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
         pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
         memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());

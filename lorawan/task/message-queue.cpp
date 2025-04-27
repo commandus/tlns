@@ -149,6 +149,12 @@ void MessageQueue::putDownlink(
         // copy radio packet
         msg.get(&qi.radioPacket.mhdr, SIZE_DOWNLINK_STORAGE);
         qi.radioPacket.payloadSize = msg.payloadSize;
+        SEMTECH_PROTOCOL_METADATA_TX *tx = &qi.metadata[gatewayId].tx;
+        tx->freq_hz = 0;
+
+        tx->invert_pol = true;  // downlink
+        tx->no_crc = true;      // downlink
+        // TODO
         auto i = downlinkMessages.insert(std::pair<DEVADDR, MessageQueueItem>(msg.taskDescriptor.deviceId.devaddr, qi));
     }
     std::cout << "downlink timer at " << taskTime2string(time) << std::endl;

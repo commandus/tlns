@@ -261,7 +261,7 @@ static void run()
         pkt.bandwidth = BANDWIDTH_INDEX_125KHZ; // uint8_t modulation bandwidth (LoRa only)
         pkt.datarate = DRLORA_SF5;              // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
         pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
-        pkt.invert_pol = payloadIsDownlink;                 // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+        pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
         pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
         pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
 
@@ -296,7 +296,7 @@ static void run()
         }
 
         pkt.no_crc = payloadIsDownlink;                     // bool if true, do not send a CRC in the packet
-        pkt.no_header = false;                              // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+        pkt.no_header = true;                               // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
         pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
         memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
         r = lgw_send(&pkt);

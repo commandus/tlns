@@ -46,6 +46,7 @@ static std::string lgw_pkt_rx_s2string(
     << "Payload          " << hexString(rx->payload, rx->size) << DLMT
     << "Fine timestamp   " << (rx->ftime_received ? "true": "false") << DLMT
     << "Since last PPS   " << rx->ftime << " nanoseconds" << DLMT;
+
     return ss.str();
 }
 
@@ -137,7 +138,7 @@ int UsbListener::runner()
         // serialize Lora packets metadata and payload
         for (int i = 0; i < nb_pkt; ++i) {
             auto p = &rxpkt[i];
-            std::cout << time2string(time(nullptr)) << ' ' << lgw_pkt_rx_s2string(p) << std::endl;
+            std::cout << time2string(time(nullptr)) << '\n' << lgw_pkt_rx_s2string(p) << std::endl;
             std::cout << lgw_pkt_rx_s2json(p) << std::endl;
             printRFM2json(std::cout, p->payload, p->size);
             std::cout << std::endl;

@@ -196,9 +196,9 @@ private:
     JSON_STATE_GATEWAY_CONFIG prevState;
 
     int bandCount, dataRateCount, maxPayloadSizePerDataRateCount,
-            maxPayloadSizePerDataRateRepeaterCount,
-            rx1DataRateOffsetCount, txPowerOffsetCount,
-            uplinkChannelCount, downlinkChannelCount;
+        maxPayloadSizePerDataRateRepeaterCount,
+        rx1DataRateOffsetCount, txPowerOffsetCount,
+        uplinkChannelCount, downlinkChannelCount;
 
     bool Integer(int64_t val) {
         switch (state) {
@@ -307,7 +307,8 @@ private:
                 }
                 if (maxPayloadSizePerDataRateCount >= DATA_RATE_SIZE) {
                     applyErrorDescription("UInt maxPayloadSizePerDataRate more than 8 elements");
-                    return false;
+                    // skip error, just warning
+                    return true;
                 }
                 switch (keyIndex) {
                     case JK_M:
@@ -329,7 +330,8 @@ private:
                 }
                 if (maxPayloadSizePerDataRateRepeaterCount  >= DATA_RATE_SIZE) {
                     applyErrorDescription("maxPayloadSizePerDataRateRepeater has more than 8 elements");
-                    return false;
+                    // just warning, not error
+                    return true;
                 }
                 switch (keyIndex) {
                     case JK_M:
@@ -353,7 +355,8 @@ private:
                         }
                         if (dataRateCount > DATA_RATE_SIZE) {
                             applyErrorDescription("dataRates array size bigger than 8 elements");
-                            return false;
+                            // warning, not error
+                            return true;
                         }
                         value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bandwidth = int2BANDWIDTH((int) val);
                         return true;
@@ -363,8 +366,9 @@ private:
                             return false;
                         }
                         if (dataRateCount > DATA_RATE_SIZE) {
-                            applyErrorDescription("dataRates array size bigger than 8 elements");
-                            return false;
+                            applyErrorDescription("SF dataRates array size bigger than 8 elements");
+                            // warning, not error
+                            return true;
                         }
                         value->storage.bands.back().value.dataRates[dataRateCount - 1].value.spreadingFactor = (SPREADING_FACTOR) val;
                         return true;
@@ -374,8 +378,8 @@ private:
                             return false;
                         }
                         if (dataRateCount > DATA_RATE_SIZE) {
-                            applyErrorDescription("dataRates array size bigger than 8 elements");
-                            return false;
+                            applyErrorDescription("BPS dataRates array size bigger than 8 elements");
+                            return true;
                         }
                         value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bps = (uint32_t) val;
                         return true;
@@ -478,8 +482,9 @@ public :
                         return false;
                     }
                     if (dataRateCount > DATA_RATE_SIZE) {
-                        applyErrorDescription("dataRates array size bigger than 8 elements");
-                        return false;
+                        applyErrorDescription("Downlink dataRates array size bigger than 8 elements");
+                        // warning not error
+                        return true;
                     }
                     if (keyIndex == JK_UPLINK)
                         value->storage.bands.back().value.dataRates[dataRateCount - 1].value.uplink = b;
@@ -562,8 +567,9 @@ public :
                             return false;
                         }
                         if (dataRateCount > DATA_RATE_SIZE) {
-                            applyErrorDescription("dataRates array size bigger than 8 elements");
-                            return false;
+                            applyErrorDescription("BW dataRates array size bigger than 8 elements");
+                            // warning
+                            return true;
                         }
                         value->storage.bands.back().value.dataRates[dataRateCount - 1].value.bandwidth = double2BANDWIDTH(d);
                         return true;
@@ -616,8 +622,9 @@ public :
                         return false;
                     }
                     if (dataRateCount > DATA_RATE_SIZE) {
-                        applyErrorDescription("dataRates array size bigger than 8 elements");
-                        return false;
+                        applyErrorDescription("Modulation dataRates array size bigger than 8 elements");
+                        // warning
+                        return true;
                     }
                     value->storage.bands.back().value.dataRates[dataRateCount - 1].value.modulation = string2MODULATION(str.c_str());
                     return true;
@@ -881,7 +888,7 @@ int RegionalParameterChannelPlanFileJson::loadFile(
     // parse JSON
     RegionBandsJsonHandler handler(this);
     std::string j = file2string(fileName.c_str());
-    auto r = nlohmann::json::sax_parse(j, &handler, nlohmann::json::input_format_t::json, false, true);
+    auto r = nlohmann::json::sax_parse(j, &handler, nlohmann::json::input_format_t::json, true, true);
     return r ? 0 : ERR_CODE_INVALID_JSON;
 }
 

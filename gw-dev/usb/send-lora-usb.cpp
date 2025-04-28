@@ -296,7 +296,7 @@ static void run()
         }
 
         pkt.no_crc = payloadIsDownlink;                     // bool if true, do not send a CRC in the packet
-        pkt.no_header = true;                               // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+        pkt.no_header = false;                               // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
         pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
         memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
         r = lgw_send(&pkt);

@@ -32,7 +32,7 @@ static std::string lgw_pkt_rx_s2string(
     << "RF chain         " << (int) rx->rf_chain << DLMT
     << "Modem            " << (int) rx->modem_id << DLMT
     << "Modulation       " << MODULATION2String((MODULATION) rx->modulation) << DLMT
-    << "Bandwidth        " << DATA_RATE2string((BANDWIDTH) rx->bandwidth, (SPREADING_FACTOR) rx->datarate) << DLMT
+    << "Bandwidth        " << DATA_RATE2string((BANDWIDTH) (rx->bandwidth + 3), (SPREADING_FACTOR) rx->datarate) << DLMT
     << "Coding date      " << codingRate2string((CODING_RATE) rx->coderate) << DLMT
     << std::fixed << std::setprecision(2)
     << "Channel RSSI     " << rx->rssic << " dB" << DLMT
@@ -63,7 +63,7 @@ static std::string lgw_pkt_rx_s2json(
         << ", \"rfch\": " << (int) rx->if_chain
         << ", \"modem\": " << (int) rx->modem_id
         << R"(, "modu": ")" << MODULATION2String((MODULATION) rx->modulation)
-        << R"(", "bandwidth": ")" << DATA_RATE2string((BANDWIDTH) rx->bandwidth, (SPREADING_FACTOR) rx->datarate)
+        << R"(", "bandwidth": ")" << DATA_RATE2string((BANDWIDTH) (rx->bandwidth + 3), (SPREADING_FACTOR) rx->datarate)
         << R"(", "codr": ")" << codingRate2string((CODING_RATE) rx->coderate)
         << std::fixed << std::setprecision(2)
         << R"(", "rssic": )" << rx->rssic

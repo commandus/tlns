@@ -11,7 +11,7 @@
 			"pingSlotFrequency": 869525000,
 			"supportsExtraChannels": true,
 			"bandDefaults": {
-				"RX2Frequency": 869100000,
+				"RX2Frequency": 869525000,
 				"RX2DataRate": 0,
 				"ReceiveDelay1": 1,
 				"ReceiveDelay2": 2,
@@ -76,26 +76,38 @@
 				"bps": 50000
 			}],			
 			"uplinkChannels": [{
-				"frequency": 868900000,
+				"frequency": 869100000,
 				"minDR": 0,
 				"maxDR": 5,
 				"enabled": true,
 				"custom": false
 			}, {
-				"frequency": 869100000,
+				"frequency": 869300000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 869500000,
 				"minDR": 0,
 				"maxDR": 5,
 				"enabled": true,
 				"custom": false
 			}],
 			"downlinkChannels": [{
-				"frequency": 868900000,
+				"frequency": 868100000,
 				"minDR": 0,
 				"maxDR": 5,
 				"enabled": true,
 				"custom": false
 			}, {
-				"frequency": 869100000,
+				"frequency": 869300000,
+				"minDR": 0,
+				"maxDR": 5,
+				"enabled": true,
+				"custom": false
+			}, {
+				"frequency": 869500000,
 				"minDR": 0,
 				"maxDR": 5,
 				"enabled": true,

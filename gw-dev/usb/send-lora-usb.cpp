@@ -260,7 +260,7 @@ static void run()
         pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
         pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
         pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
-        pkt.datarate = DR_LORA_SF9;             // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+        pkt.datarate = DR_LORA_SF12;            // DR_LORA_SF9;             // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
         pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
         pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
         pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)

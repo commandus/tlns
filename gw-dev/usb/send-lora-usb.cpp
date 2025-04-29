@@ -252,7 +252,7 @@ static void run()
 
         // uint32_t center frequency of TX
         pkt.freq_hz = (uint32_t) ((int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
-        pkt.freq_hz = 869525000;
+        // pkt.freq_hz = 869525000;
         pkt.tx_mode = IMMEDIATE;                // immediately uint8_t select on what event/time the TX is triggered
         pkt.count_us = 0;                       // immediately uint32_t timestamp or delay in microseconds for TX trigger
         pkt.rf_chain = (uint8_t ) rfChain;      // uint8_t through which RF chain will the packet be sent

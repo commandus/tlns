@@ -2611,7 +2611,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 				// chan_multiSF_7
 				true, // enable
 				0, // rf_chain
-				400000 // freq_hz
+                    400000 // freq_hz
 			}
 		},
 		// Lora std 

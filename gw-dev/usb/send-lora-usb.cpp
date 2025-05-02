@@ -255,6 +255,12 @@ static void run()
         pkt.freq_hz = (uint32_t) ((int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
         // ----------- TODO
         pkt.freq_hz = 869525000;
+        if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[rfChain]) ||
+            pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[rfChain]) {
+            // unsupported frequency
+            continue;
+        }
+
         pkt.tx_mode = IMMEDIATE;                // immediately uint8_t select on what event/time the TX is triggered
         pkt.count_us = 0;                       // immediately uint32_t timestamp or delay in microseconds for TX trigger
         pkt.rf_chain = (uint8_t) rfChain;       // uint8_t through which RF chain will the packet be sent

@@ -254,7 +254,7 @@ static void run()
         // uint32_t center frequency of TX
         pkt.freq_hz = (uint32_t) ((int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
         // ----------- TODO
-        pkt.freq_hz = 869525000;
+        pkt.freq_hz = 869000000; //869525000;
         if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[rfChain]) ||
             pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[rfChain]) {
             // unsupported frequency

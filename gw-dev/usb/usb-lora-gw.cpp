@@ -5,7 +5,7 @@
 
 // ms waited when a fetch return no packets
 UsbLoRaWANGateway::UsbLoRaWANGateway()
-    : gatewaySettings(nullptr), eui(0)
+    : gatewaySettings(nullptr), eui(0), enable(true)
 {
 }
 
@@ -14,7 +14,7 @@ UsbLoRaWANGateway::UsbLoRaWANGateway(
     GatewaySettings *aGatewaySettings,
     uint64_t aEui
 )
-    : gatewaySettings(aGatewaySettings), eui(aEui)
+    : gatewaySettings(aGatewaySettings), eui(aEui), enable(true)
 {
 }
 
@@ -23,7 +23,7 @@ UsbLoRaWANGateway::UsbLoRaWANGateway(
  * @param value Must be stopped
  */
 UsbLoRaWANGateway::UsbLoRaWANGateway(const UsbLoRaWANGateway& value)
-    : gatewaySettings(value.gatewaySettings), eui(value.eui)
+    : gatewaySettings(value.gatewaySettings), eui(value.eui), enable(value.enable)
 {
 }
 

@@ -7,6 +7,7 @@ class UsbLoRaWANGateway {
 public:
     GatewaySettings *gatewaySettings;
     uint64_t eui;
+    bool enable;
     /**
      * Default constructor, call init() to set regional parameters.
      */

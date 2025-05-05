@@ -53,12 +53,15 @@ public:
     size_t regionIdx;
     bool rx1;
     bool rx2;
+    uint8_t rx1dataRateOffset;
+    uint8_t rx2dataRateOffset;
     bool classC;
     int verbosity;
     std::string payload;
     bool stopRequest;
     LocalSenderConfiguration()
-        : regionIdx(0), rx1(false), rx2(false), classC(true), verbosity(0), stopRequest(false)
+        : regionIdx(0), rx1(false), rx2(false),
+          rx1dataRateOffset(0), rx2dataRateOffset(0), classC(true), verbosity(0), stopRequest(false)
     {
     }
 
@@ -225,13 +228,107 @@ void setSignalHandler()
 #endif
 }
 
-static void sendClassA(
+#define RECEIVE_DELAY1 1000000
+#define RECEIVE_DELAY2 2000000
+
+static int sendClassRx1(
     const LocalSenderConfiguration &configuration,
-    const DEVADDR &devAddr,
+    int rxdataRateOffset,
     lgw_pkt_rx_s &rx,
     UsbLoRaWANGateway &gateway
 ) {
+    struct lgw_pkt_tx_s pkt{};
+    pkt.freq_hz = rx.freq_hz;
+    pkt.count_us = rx.count_us + RECEIVE_DELAY1;
+    pkt.rf_chain = rx.rf_chain;
+    pkt.datarate = rx.datarate;  // regional settings not loaded, so skip DROffset alignment
+    if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].enable
+        || !lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
+        // RF chain disabled or is not intended for transmission
+        return ERR_CODE_PARAM_INVALID;
+    }
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
+        // unsupported frequency
+        return ERR_CODE_PARAM_INVALID;
+    }
+    bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
+    pkt.tx_mode = TIMESTAMPED;                // immediately uint8_t select on what event/time the TX is triggered
+    pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
+    pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
+    pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
+    pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
+    pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
+    pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+    pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
+    pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
+    int r = lgw_send(&pkt);
+    if (r)
+        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
+    bool sent = false;
+    while (true) {
+        uint8_t c;
+        r = lgw_status(pkt.rf_chain, TX_STATUS, &c);
+        if (r)
+            break;
+        if (c == TX_EMITTING) {
+            sent = true;
+            continue;
+        }
+        if (sent && c == TX_FREE)
+            break;
+    }
+    return CODE_OK;
+}
 
+static int sendClassRx2(
+    const LocalSenderConfiguration &configuration,
+    int rxdataRateOffset,
+    lgw_pkt_rx_s &rx,
+    UsbLoRaWANGateway &gateway
+) {
+    struct lgw_pkt_tx_s pkt{};
+    pkt.freq_hz = rx.freq_hz;
+    pkt.count_us = rx.count_us + RECEIVE_DELAY2;
+    pkt.rf_chain = rx.rf_chain;
+    pkt.datarate = rx.datarate;  // regional settings not loaded, so skip DROffset alignment
+    if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].enable
+        || !lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
+        // RF chain disabled or is not intended for transmission
+        return ERR_CODE_PARAM_INVALID;
+    }
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
+        // unsupported frequency
+        return ERR_CODE_PARAM_INVALID;
+    }
+    bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
+    pkt.tx_mode = TIMESTAMPED;                // immediately uint8_t select on what event/time the TX is triggered
+    pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
+    pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
+    pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
+    pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
+    pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
+    pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
+    pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
+    pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
+    int r = lgw_send(&pkt);
+    if (r)
+        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
+    bool sent = false;
+    while (true) {
+        uint8_t c;
+        r = lgw_status(pkt.rf_chain, TX_STATUS, &c);
+        if (r)
+            break;
+        if (c == TX_EMITTING) {
+            sent = true;
+            continue;
+        }
+        if (sent && c == TX_FREE)
+            break;
+    }
+    return CODE_OK;
 }
 
 static int sendClassC(
@@ -285,10 +382,6 @@ static int sendClassC(
     pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
     pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
-
-    // Validate is channel allowed
-    if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable)
-        return ERR_CODE_PARAM_INVALID;
 
     // Correct radio transmission power
     pkt.rf_power -= lorawanGatewaySettings[localConfig.regionIdx].sx130x.antennaGain;
@@ -428,7 +521,10 @@ static void run() {
             return;
         }
         // send in window
-        sendClassA(localConfig, a, rx, l);
+        if (localConfig.rx1)
+            sendClassRx1(localConfig, 0, rx, l);
+        if (localConfig.rx2)
+            sendClassRx2(localConfig, 0, rx, l);
     }
 
     sleep(1);

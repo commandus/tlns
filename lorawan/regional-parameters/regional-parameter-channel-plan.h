@@ -116,7 +116,7 @@ public:
     void toHeader(std::ostream &strm, int tabs, bool cpp20) const;
 
     void get(
-        size_t mwssageSize,
+        size_t messageSize,
         uint32_t &freqHz,
         int &pwr,
         BANDWIDTH &bandwidth,

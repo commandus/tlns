@@ -23,6 +23,7 @@
 
 // generated gateway regional settings source code
 #include "gen/gateway-usb-conf.h"
+#include "gen/regional-parameters-3.h"
 
 // i18n
 // #include <libintl.h>
@@ -50,7 +51,7 @@ class LocalSenderConfiguration {
 public:
     std::vector <UsbLoRaWANGateway> gateway;
     std::vector <std::string> devicePaths;
-    size_t regionIdx;
+    size_t regionGWIdx;
     bool rx1;
     bool rx2;
     uint8_t rx1dataRateOffset;
@@ -59,13 +60,38 @@ public:
     int verbosity;
     std::string payload;
     bool stopRequest;
+    const RegionalParameterChannelPlan *channelPlan;
     LocalSenderConfiguration()
-        : regionIdx(0), rx1(false), rx2(false),
-          rx1dataRateOffset(0), rx2dataRateOffset(0), classC(true), verbosity(0), stopRequest(false)
+        : regionGWIdx(0), rx1(false), rx2(false),
+          rx1dataRateOffset(0), rx2dataRateOffset(0), classC(true), verbosity(0), stopRequest(false), channelPlan(nullptr)
     {
     }
-
 };
+
+static bool waitSent(
+    uint8_t rf_chain,
+    int timeoutSeconds
+) {
+    bool sent = false;
+    time_t t;
+    time_t t2;
+    time(&t);
+    t2 = t;
+    while (t + timeoutSeconds < t2) {
+        uint8_t c;
+        int r = lgw_status(rf_chain, TX_STATUS, &c);
+        if (r)
+            break;
+        if (c == TX_EMITTING) {
+            sent = true;
+            continue;
+        }
+        if (sent && c == TX_FREE)
+            break;
+        time(&t2);
+    }
+    return sent ? CODE_OK : ERR_CODE_LORA_GATEWAY_SEND_FAILED;
+}
 
 static LocalSenderConfiguration localConfig;
 
@@ -115,10 +141,13 @@ int parseCmd(
     for (int i = 0; i < a_device_path->count; i++)
         config->devicePaths.emplace_back(a_device_path->sval[i]);
 
-    if (a_region_name->count)
-        config->regionIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
-    else
-        config->regionIdx = 0;
+    if (a_region_name->count) {
+        config->regionGWIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
+        config->channelPlan = regionalParameterChannelPlanMem.get(*a_region_name->sval);
+    } else {
+        config->regionGWIdx = 0;
+        config->channelPlan = regionalParameterChannelPlanMem.get(0);
+    }
 
     if (a_payload->count)
         config->payload = hex2string(a_payload->sval[0]);
@@ -238,46 +267,37 @@ static int sendClassRx1(
     UsbLoRaWANGateway &gateway
 ) {
     struct lgw_pkt_tx_s pkt{};
-    pkt.freq_hz = rx.freq_hz;
-    pkt.count_us = rx.count_us + RECEIVE_DELAY1;
     pkt.rf_chain = rx.rf_chain;
-    pkt.datarate = rx.datarate;  // regional settings not loaded, so skip DROffset alignment
-    if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].enable
-        || !lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
+    if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
+        || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
         // RF chain disabled or is not intended for transmission
         return ERR_CODE_PARAM_INVALID;
     }
-    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
-        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
+    pkt.freq_hz = rx.freq_hz;
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
         // unsupported frequency
         return ERR_CODE_PARAM_INVALID;
     }
-    bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
-    pkt.tx_mode = TIMESTAMPED;                // immediately uint8_t select on what event/time the TX is triggered
-    pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
-    pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
+
+    pkt.tx_mode = TIMESTAMPED;              // sent at time stamp
+    pkt.count_us = rx.count_us + RECEIVE_DELAY1;
+    pkt.datarate = rx.datarate;             // regional settings not loaded, so skip DROffset alignment
+
+    bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
+    pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
+    pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
     pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
     pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
     pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
     pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
+
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    bool sent = false;
-    while (true) {
-        uint8_t c;
-        r = lgw_status(pkt.rf_chain, TX_STATUS, &c);
-        if (r)
-            break;
-        if (c == TX_EMITTING) {
-            sent = true;
-            continue;
-        }
-        if (sent && c == TX_FREE)
-            break;
-    }
+    waitSent(pkt.rf_chain, 2);
     return CODE_OK;
 }
 
@@ -288,23 +308,54 @@ static int sendClassRx2(
     UsbLoRaWANGateway &gateway
 ) {
     struct lgw_pkt_tx_s pkt{};
-    pkt.freq_hz = rx.freq_hz;
+    int rfChain = -1;
+    for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
+        if (lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].enable
+            && lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].tx_enable) {
+            rfChain = c;
+            break;
+        }
+    }
+    if (rfChain < 0)
+        return ERR_CODE_PARAM_INVALID;
+
+    int freqOffset = -1;
+    for (auto &ifConf: lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.ifConfs) {
+        if (ifConf.enable && ifConf.rf_chain == rfChain) {
+            freqOffset = ifConf.freq_hz;
+            break;
+        }
+    }
+    if (freqOffset == -1)
+        return ERR_CODE_PARAM_INVALID;
+
+    pkt.rf_chain = rfChain;
+
     pkt.count_us = rx.count_us + RECEIVE_DELAY2;
-    pkt.rf_chain = rx.rf_chain;
+
     pkt.datarate = rx.datarate;  // regional settings not loaded, so skip DROffset alignment
-    if (!lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].enable
-        || !lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
+    if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
+        || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
         // RF chain disabled or is not intended for transmission
         return ERR_CODE_PARAM_INVALID;
     }
-    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
-        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
+
+    pkt.freq_hz = (uint32_t) (
+            (int32_t) lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[rfChain].freq_hz);
+    // ----------- TODO
+    if (localConfig.channelPlan) {
+        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
+    } else {
+        pkt.freq_hz = 869525000;
+    }
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
         // unsupported frequency
         return ERR_CODE_PARAM_INVALID;
     }
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
     pkt.tx_mode = TIMESTAMPED;                // immediately uint8_t select on what event/time the TX is triggered
-    pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
+    pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
     pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
     pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
@@ -315,19 +366,7 @@ static int sendClassRx2(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    bool sent = false;
-    while (true) {
-        uint8_t c;
-        r = lgw_status(pkt.rf_chain, TX_STATUS, &c);
-        if (r)
-            break;
-        if (c == TX_EMITTING) {
-            sent = true;
-            continue;
-        }
-        if (sent && c == TX_FREE)
-            break;
-    }
+    waitSent(pkt.rf_chain, 2);
     return CODE_OK;
 }
 
@@ -338,8 +377,8 @@ static int sendClassC(
     struct lgw_pkt_tx_s pkt{};
     int rfChain = -1;
     for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
-        if (lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[c].enable
-            && lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[c].tx_enable) {
+        if (lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].enable
+            && lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].tx_enable) {
             rfChain = c;
             break;
         }
@@ -348,7 +387,7 @@ static int sendClassC(
         return ERR_CODE_PARAM_INVALID;
 
     int freqOffset = -1;
-    for (auto &ifConf: lorawanGatewaySettings[localConfig.regionIdx].sx130x.ifConfs) {
+    for (auto &ifConf: lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.ifConfs) {
         if (ifConf.enable && ifConf.rf_chain == rfChain) {
             freqOffset = ifConf.freq_hz;
             break;
@@ -361,11 +400,11 @@ static int sendClassC(
 
     // uint32_t center frequency of TX
     pkt.freq_hz = (uint32_t) (
-            (int32_t) lorawanGatewaySettings[localConfig.regionIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
+            (int32_t) lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
     // ----------- TODO
     pkt.freq_hz = 869525000;
-    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_min[rfChain]) ||
-        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionIdx].sx130x.tx_freq_max[rfChain]) {
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[rfChain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[rfChain]) {
         // unsupported frequency
         return ERR_CODE_PARAM_INVALID;
     }
@@ -373,7 +412,7 @@ static int sendClassC(
     pkt.tx_mode = IMMEDIATE;                // immediately uint8_t select on what event/time the TX is triggered
     pkt.count_us = 0;                       // immediately uint32_t timestamp or delay in microseconds for TX trigger
     pkt.rf_chain = (uint8_t) rfChain;       // uint8_t through which RF chain will the packet be sent
-    pkt.rf_power = lorawanGatewaySettings[localConfig.regionIdx].sx130x.txLut[rfChain].lut[0].rf_power;   // int8_t TX power, in dBm
+    pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[rfChain].lut[0].rf_power;   // int8_t TX power, in dBm
     pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
     pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
@@ -384,7 +423,7 @@ static int sendClassC(
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
 
     // Correct radio transmission power
-    pkt.rf_power -= lorawanGatewaySettings[localConfig.regionIdx].sx130x.antennaGain;
+    pkt.rf_power -= lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.antennaGain;
 
     // check minimum preamble size
     if (pkt.modulation == MODULATION_LORA) {
@@ -410,25 +449,13 @@ static int sendClassC(
     }
 
     pkt.no_crc = payloadIsDownlink;                     // bool if true, do not send a CRC in the packet
-    pkt.no_header = false;                               // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
+    pkt.no_header = false;                              // bool if true, enable implicit header mode (LoRa), fixed length (FSK)
     pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
     memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    bool sent = false;
-    while (true) {
-        uint8_t c;
-        r = lgw_status(rfChain, TX_STATUS, &c);
-        if (r)
-            break;
-        if (c == TX_EMITTING) {
-            sent = true;
-            continue;
-        }
-        if (sent && c == TX_FREE)
-            break;
-    }
+    waitSent(pkt.rf_chain, 2);
     return CODE_OK;
 }
 
@@ -474,17 +501,17 @@ static int listen4addr(
 
 static void run() {
     if (localConfig.verbosity > 1)
-        std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name
+        std::cout << "Region " << localConfig.regionGWIdx << ' ' << lorawanGatewaySettings[localConfig.regionGWIdx].name
                   << '\n';
     setSignalHandler();
     // initialize all gateways. It seems like only one gateway is possible to serve.
     for (int deviceIndex = 0; deviceIndex < localConfig.devicePaths.size(); deviceIndex++) {
-        strncpy(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path,
+        strncpy(lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.boardConf.com_path,
                 localConfig.devicePaths[deviceIndex].c_str(),
-                sizeof(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path));
+                sizeof(lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.boardConf.com_path));
         localConfig.gateway.emplace_back();
         auto &l = localConfig.gateway.back();
-        int r = l.init(&lorawanGatewaySettings[localConfig.regionIdx]);
+        int r = l.init(&lorawanGatewaySettings[localConfig.regionGWIdx]);
         if (!r)
             continue;
         r = lgw_start();

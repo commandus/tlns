@@ -37,12 +37,12 @@ class LocalSenderConfiguration {
 public:
     std::vector <UsbListener> listeners;
     std::vector <std::string> devicePaths;
-    size_t regionIdx;
+    size_t regionGWIdx;
     bool daemonize;
     int verbosity;
     std::string pidfile;
     LocalSenderConfiguration()
-        : regionIdx(0), daemonize(false), verbosity(0)
+        : regionGWIdx(0), daemonize(false), verbosity(0)
     {
     }
 };
@@ -52,9 +52,9 @@ static GatewaySettings* getGatewayConfig(
     int deviceIndex
 ) {
     // set COM port device path, just in case
-    strncpy(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path, config->devicePaths[deviceIndex].c_str(),
-            sizeof(lorawanGatewaySettings[config->regionIdx].sx130x.boardConf.com_path));
-    return &lorawanGatewaySettings[config->regionIdx];
+    strncpy(lorawanGatewaySettings[config->regionGWIdx].sx130x.boardConf.com_path, config->devicePaths[deviceIndex].c_str(),
+            sizeof(lorawanGatewaySettings[config->regionGWIdx].sx130x.boardConf.com_path));
+    return &lorawanGatewaySettings[config->regionGWIdx];
 }
 
 static LocalSenderConfiguration localConfig;
@@ -106,9 +106,9 @@ int parseCmd(
         config->devicePaths.push_back(a_device_path->sval[i]);
 
     if (a_region_name->count)
-        config->regionIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
+        config->regionGWIdx = findGatewayRegionIndex(lorawanGatewaySettings, *a_region_name->sval);
     else
-        config->regionIdx = 0;
+        config->regionGWIdx = 0;
 
     config->daemonize = (a_daemonize->count > 0);
     if (a_pidfile->count)
@@ -222,15 +222,15 @@ static void run()
 {
     if (!localConfig.daemonize) {
         if (localConfig.verbosity > 1)
-            std::cout << "Region " << localConfig.regionIdx << ' ' << lorawanGatewaySettings[localConfig.regionIdx].name << '\n';
+            std::cout << "Region " << localConfig.regionGWIdx << ' ' << lorawanGatewaySettings[localConfig.regionGWIdx].name << '\n';
         setSignalHandler();
     }
     for (int deviceIndex = 0; deviceIndex < localConfig.devicePaths.size(); deviceIndex++) {
-        strncpy(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path, localConfig.devicePaths[deviceIndex].c_str(),
-                    sizeof(lorawanGatewaySettings[localConfig.regionIdx].sx130x.boardConf.com_path));
+        strncpy(lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.boardConf.com_path, localConfig.devicePaths[deviceIndex].c_str(),
+                sizeof(lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.boardConf.com_path));
         localConfig.listeners.push_back(UsbListener{});
         auto &l = localConfig.listeners.back();
-        if (l.init(&lorawanGatewaySettings[localConfig.regionIdx]) == 0)
+        if (l.init(&lorawanGatewaySettings[localConfig.regionGWIdx]) == 0)
             if (l.start() == 0)
                 continue;
         // if fail, delete

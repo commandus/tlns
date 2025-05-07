@@ -260,7 +260,7 @@ void setSignalHandler()
 #define RECEIVE_DELAY1 1000000
 #define RECEIVE_DELAY2 2000000
 
-static int sendClassRx1(
+static int sendClassARx1(
     const LocalSenderConfiguration &configuration,
     int rxdataRateOffset,
     lgw_pkt_rx_s &rx,
@@ -301,13 +301,14 @@ static int sendClassRx1(
     return CODE_OK;
 }
 
-static int sendClassRx2(
+static int sendClassARx2(
     const LocalSenderConfiguration &configuration,
     int rxdataRateOffset,
     lgw_pkt_rx_s &rx,
     UsbLoRaWANGateway &gateway
 ) {
     struct lgw_pkt_tx_s pkt{};
+    // get radio channel chain
     int rfChain = -1;
     for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
         if (lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].enable
@@ -318,6 +319,20 @@ static int sendClassRx2(
     }
     if (rfChain < 0)
         return ERR_CODE_PARAM_INVALID;
+    pkt.rf_chain = rfChain;
+
+    // get frequency
+    if (localConfig.channelPlan) {
+        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
+    } else {
+        pkt.freq_hz = 869525000;
+    }
+    // validate frequency does gateway support it
+    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
+        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
+        // unsupported frequency
+        return ERR_CODE_PARAM_INVALID;
+    }
 
     int freqOffset = -1;
     for (auto &ifConf: lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.ifConfs) {
@@ -329,30 +344,17 @@ static int sendClassRx2(
     if (freqOffset == -1)
         return ERR_CODE_PARAM_INVALID;
 
-    pkt.rf_chain = rfChain;
-
+    // set RX2 time window
     pkt.count_us = rx.count_us + RECEIVE_DELAY2;
 
-    pkt.datarate = rx.datarate;  // regional settings not loaded, so skip DROffset alignment
+    // same data rate
+    pkt.datarate = rx.datarate;  // skip DROffset alignment for now
     if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
         || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
         // RF chain disabled or is not intended for transmission
         return ERR_CODE_PARAM_INVALID;
     }
 
-    pkt.freq_hz = (uint32_t) (
-            (int32_t) lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[rfChain].freq_hz);
-    // ----------- TODO
-    if (localConfig.channelPlan) {
-        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
-    } else {
-        pkt.freq_hz = 869525000;
-    }
-    if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
-        pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
-        // unsupported frequency
-        return ERR_CODE_PARAM_INVALID;
-    }
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
     pkt.tx_mode = TIMESTAMPED;                // immediately uint8_t select on what event/time the TX is triggered
     pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
@@ -549,9 +551,9 @@ static void run() {
         }
         // send in window
         if (localConfig.rx1)
-            sendClassRx1(localConfig, 0, rx, l);
+            sendClassARx1(localConfig, 0, rx, l);
         if (localConfig.rx2)
-            sendClassRx2(localConfig, 0, rx, l);
+            sendClassARx2(localConfig, 0, rx, l);
     }
 
     sleep(1);

@@ -529,20 +529,26 @@ static void run() {
         }
 
         // listen first gateway
-        auto &l= localConfig.gateway.front();
+        auto &l = localConfig.gateway.front();
         std::cout << "Listen for uplink from device address " << DEVADDR2string(a)
-            << " from  gateway " << gatewayId2str(l.eui) << std::endl;
-        struct lgw_pkt_rx_s rx {};
+                  << " from  gateway " << gatewayId2str(l.eui) << std::endl;
+        struct lgw_pkt_rx_s rx{};
         r = listen4addr(rx, localConfig, a, l);
         if (r) {
             std::cerr << _("No uplink received: can not get RX1 or RX2 window time, exit") << std::endl;
             return;
         }
         // send in window
-        if (localConfig.rx1)
-            sendClassARx1(rx);
-        if (localConfig.rx2)
-            sendClassARx2(rx);
+        if (localConfig.rx1) {
+            r = sendClassARx1(rx);
+            if (r)
+                std::cerr << _("Error send in RX1 window") << std::endl;
+        }
+        if (localConfig.rx2) {
+            r = sendClassARx2(rx);
+            if (r)
+                std::cerr << _("Error send in RX2 window") << std::endl;
+        }
     }
 
     sleep(1);

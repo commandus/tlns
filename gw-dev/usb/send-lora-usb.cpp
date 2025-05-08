@@ -298,6 +298,9 @@ static int sendClassARx1(
     pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
 
+    pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
+    memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
+
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
@@ -358,6 +361,10 @@ static int sendClassARx2(
     pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
     pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
+
+    pkt.size = (uint16_t) localConfig.payload.size();   // uint16_t payload size in bytes
+    memmove(pkt.payload, localConfig.payload.c_str(), localConfig.payload.size());
+
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;

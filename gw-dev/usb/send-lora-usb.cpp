@@ -55,7 +55,6 @@ public:
     bool rx1;
     bool rx2;
     uint8_t rx1dataRateOffset;
-    uint8_t rx2dataRateOffset;
     bool classC;
     int verbosity;
     std::string payload;
@@ -63,7 +62,7 @@ public:
     const RegionalParameterChannelPlan *channelPlan;
     LocalSenderConfiguration()
         : regionGWIdx(0), rx1(false), rx2(false),
-          rx1dataRateOffset(0), rx2dataRateOffset(0), classC(true), verbosity(0), stopRequest(false), channelPlan(nullptr)
+          rx1dataRateOffset(0), classC(true), verbosity(0), stopRequest(false), channelPlan(nullptr)
     {
     }
 };
@@ -117,11 +116,11 @@ int parseCmd(
 )
 {
     // device path
-    struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 100, _("USB gateway device e.g. /dev/ttyACM0"));
+    struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 1, _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
     struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string, e.g. 60e26a7e00000000026b69636b6173732d776f7a6e69616b5a54167c"));
-    struct arg_lit *a_rx1 = arg_lit1("1", "rx1", _("Device is class A. Wait downlink message then send uplink message in RX1 window"));
-    struct arg_lit *a_rx2 = arg_lit1("2", "rx2", _("Device is class A. Wait downlink message then send uplink message in RX2 window"));
+    struct arg_lit *a_rx1 = arg_lit0("1", "rx1", _("Device is class A. Wait downlink message then send uplink message in RX1 window"));
+    struct arg_lit *a_rx2 = arg_lit0("2", "rx2", _("Device is class A. Wait downlink message then send uplink message in RX2 window"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
@@ -261,10 +260,7 @@ void setSignalHandler()
 #define RECEIVE_DELAY2 2000000
 
 static int sendClassARx1(
-    const LocalSenderConfiguration &configuration,
-    int rxdataRateOffset,
-    lgw_pkt_rx_s &rx,
-    UsbLoRaWANGateway &gateway
+    lgw_pkt_rx_s &rx
 ) {
     struct lgw_pkt_tx_s pkt{};
     pkt.rf_chain = rx.rf_chain;
@@ -283,7 +279,15 @@ static int sendClassARx1(
 
     pkt.tx_mode = TIMESTAMPED;              // sent at time stamp
     pkt.count_us = rx.count_us + RECEIVE_DELAY1;
-    pkt.datarate = rx.datarate;             // regional settings not loaded, so skip DROffset alignment
+
+    // get frequency & data rate
+    pkt.datarate = rx.datarate;
+    if (localConfig.channelPlan) {
+        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
+        if (rx.datarate < DATA_RATE_SIZE && localConfig.rx1dataRateOffset < localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate].size())
+            pkt.datarate = localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate][localConfig.rx1dataRateOffset];
+    } else
+        pkt.freq_hz = 869525000;
 
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
     pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
@@ -302,10 +306,7 @@ static int sendClassARx1(
 }
 
 static int sendClassARx2(
-    const LocalSenderConfiguration &configuration,
-    int rxdataRateOffset,
-    lgw_pkt_rx_s &rx,
-    UsbLoRaWANGateway &gateway
+    lgw_pkt_rx_s &rx
 ) {
     struct lgw_pkt_tx_s pkt{};
     // get radio channel chain
@@ -321,12 +322,6 @@ static int sendClassARx2(
         return ERR_CODE_PARAM_INVALID;
     pkt.rf_chain = rfChain;
 
-    // get frequency
-    if (localConfig.channelPlan) {
-        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
-    } else {
-        pkt.freq_hz = 869525000;
-    }
     // validate frequency does gateway support it
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
         pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
@@ -347,8 +342,6 @@ static int sendClassARx2(
     // set RX2 time window
     pkt.count_us = rx.count_us + RECEIVE_DELAY2;
 
-    // same data rate
-    pkt.datarate = rx.datarate;  // skip DROffset alignment for now
     if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
         || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
         // RF chain disabled or is not intended for transmission
@@ -373,7 +366,6 @@ static int sendClassARx2(
 }
 
 static int sendClassC(
-    const LocalSenderConfiguration &config,
     UsbLoRaWANGateway &gateway
 ) {
     struct lgw_pkt_tx_s pkt{};
@@ -513,22 +505,19 @@ static void run() {
                 sizeof(lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.boardConf.com_path));
         localConfig.gateway.emplace_back();
         auto &l = localConfig.gateway.back();
-        int r = l.init(&lorawanGatewaySettings[localConfig.regionGWIdx]);
-        if (!r)
-            continue;
-        r = lgw_start();
-        if (!r)
-            continue;
-        // get the concentrator EUI
-        r = lgw_get_eui(&l.eui);
-        if (!r)
-            continue;
         // if fail, delete gateway from the list
-        localConfig.gateway.pop_back();
+        if (l.init(&lorawanGatewaySettings[localConfig.regionGWIdx]))
+            localConfig.gateway.pop_back();
+        else
+            if (lgw_start())
+                localConfig.gateway.pop_back();
+            else
+                if (lgw_get_eui(&l.eui)) // get the concentrator EUI
+                    localConfig.gateway.pop_back();
     }
     if (localConfig.classC) {
         for (auto &l: localConfig.gateway) {
-            sendClassC(localConfig, l);
+            sendClassC(l);
         }
     } else {
         // get device address
@@ -543,7 +532,7 @@ static void run() {
         auto &l= localConfig.gateway.front();
         std::cout << "Listen for uplink from device address " << DEVADDR2string(a)
             << " from  gateway " << gatewayId2str(l.eui) << std::endl;
-        struct lgw_pkt_rx_s rx;
+        struct lgw_pkt_rx_s rx {};
         r = listen4addr(rx, localConfig, a, l);
         if (r) {
             std::cerr << _("No uplink received: can not get RX1 or RX2 window time, exit") << std::endl;
@@ -551,9 +540,9 @@ static void run() {
         }
         // send in window
         if (localConfig.rx1)
-            sendClassARx1(localConfig, 0, rx, l);
+            sendClassARx1(rx);
         if (localConfig.rx2)
-            sendClassARx2(localConfig, 0, rx, l);
+            sendClassARx2(rx);
     }
 
     sleep(1);

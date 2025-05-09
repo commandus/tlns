@@ -27,11 +27,9 @@ target_include_directories(test-decode-rxpk PRIVATE .. ../third-party)
 target_link_libraries(test-decode-rxpk PRIVATE lorawan)
 
 #
-add_executable(test-decode-1
-	test-decode-1.cpp
-)
-target_include_directories(test-decode-1 PRIVATE .. ../third-party)
-target_link_libraries(test-decode-1 PRIVATE lorawan)
+add_executable(test-decode-payload test-decode-payload.cpp)
+target_include_directories(test-decode-payload PRIVATE .. ../third-party)
+target_link_libraries(test-decode-payload PRIVATE lorawan)
 
 
 add_executable(test-mac-parse
@@ -65,9 +63,8 @@ add_executable(test-usb-init ${TEST_USB_SRC})
 target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party ../gw-dev/usb)
 target_link_libraries(test-usb-init PRIVATE lorawan loragw)
 
-#
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
-add_test(NAME test-decode-1 COMMAND "test-decode-1")
+add_test(NAME test-decode-payload COMMAND "test-decode-payload")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
 add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
 add_test(NAME test-usb-init COMMAND "test-usb-init")

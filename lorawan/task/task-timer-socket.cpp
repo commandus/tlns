@@ -134,7 +134,7 @@ int TaskTimerSocket::setStartupTime(
     // set timer structure
     struct itimerspec t = {
         .it_interval = { .tv_sec = 0, .tv_nsec = 0 },
-        .it_value = { .tv_sec = static_cast<time_t>s.count(), .tv_nsec = static_cast<long>(ns.count()) }
+        .it_value = { .tv_sec = static_cast<time_t>(s.count()), .tv_nsec = static_cast<long>(ns.count()) }
     };
     return timerfd_settime(sock, TFD_TIMER_ABSTIME, &t, nullptr);
 #endif

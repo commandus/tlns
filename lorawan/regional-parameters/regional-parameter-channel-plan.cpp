@@ -426,6 +426,7 @@ void RegionalParameterChannelPlan::toHeader(
         strm << prefix << ".RX2Frequency = " << value.bandDefaults.value.RX2Frequency << ",\n"
              << prefix << ".RX2DataRate = " << value.bandDefaults.value.RX2DataRate << ",\n"
              << prefix << ".ReceiveDelay1 = " << value.bandDefaults.value.ReceiveDelay1 << ",\n"
+             << prefix << ".ReceiveDelay2 = " << value.bandDefaults.value.ReceiveDelay2 << ",\n"
              << prefix << ".JoinAcceptDelay1 = " << value.bandDefaults.value.JoinAcceptDelay1 << ",\n"
              << prefix << ".JoinAcceptDelay2 = " << value.bandDefaults.value.JoinAcceptDelay2 << "\n";
         prefix.erase(prefix.size() - 1);
@@ -591,6 +592,7 @@ void RegionalParameterChannelPlan::toHeader(
         strm << prefix << value.bandDefaults.value.RX2Frequency << ", // RX2Frequency\n"
              << prefix << value.bandDefaults.value.RX2DataRate << ", // RX2DataRate\n"
              << prefix << value.bandDefaults.value.ReceiveDelay1 << ", // ReceiveDelay1\n"
+             << prefix << value.bandDefaults.value.ReceiveDelay2 << ", // ReceiveDelay2\n"
              << prefix << value.bandDefaults.value.JoinAcceptDelay1 << ", // JoinAcceptDelay1\n"
              << prefix << value.bandDefaults.value.JoinAcceptDelay2 << " // JoinAcceptDelay2\n";
         prefix.erase(prefix.size() - 1);

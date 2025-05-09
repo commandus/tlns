@@ -263,6 +263,8 @@ static int sendClassARx1(
     lgw_pkt_rx_s &rx
 ) {
     struct lgw_pkt_tx_s pkt{};
+    if (!localConfig.channelPlan)
+        return ERR_CODE_PARAM_INVALID;
     pkt.rf_chain = rx.rf_chain;
     if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
         || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
@@ -276,18 +278,14 @@ static int sendClassARx1(
         return ERR_CODE_PARAM_INVALID;
     }
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
-
     pkt.tx_mode = TIMESTAMPED;              // sent at time stamp
-    pkt.count_us = rx.count_us + RECEIVE_DELAY1;
+    pkt.count_us = rx.count_us + localConfig.channelPlan->value.bandDefaults.value.ReceiveDelay1 * 1000000;
 
-    // get frequency & data rate
+    // get data rate
     pkt.datarate = rx.datarate;
-    if (localConfig.channelPlan) {
-        pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
-        if (rx.datarate < DATA_RATE_SIZE && localConfig.rx1dataRateOffset < localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate].size())
-            pkt.datarate = localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate][localConfig.rx1dataRateOffset];
-    } else
-        pkt.freq_hz = 869525000;
+    // shift data rate
+    if (rx.datarate < DATA_RATE_SIZE && localConfig.rx1dataRateOffset < localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate].size())
+        pkt.datarate = localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate][localConfig.rx1dataRateOffset];
 
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
     pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
@@ -325,25 +323,19 @@ static int sendClassARx2(
         return ERR_CODE_PARAM_INVALID;
     pkt.rf_chain = rfChain;
 
+    // set frequency & data rate
+    if (!localConfig.channelPlan)
+        return ERR_CODE_PARAM_INVALID;
+    pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
+    pkt.datarate = 12 - localConfig.channelPlan->value.bandDefaults.value.RX2DataRate;  // data rate 0 -> spreading factor 12 (~250bit/s)
+    pkt.count_us = rx.count_us + (localConfig.channelPlan->value.bandDefaults.value.ReceiveDelay2 * 1000000);
+
     // validate frequency does gateway support it
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
         pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[pkt.rf_chain]) {
         // unsupported frequency
         return ERR_CODE_PARAM_INVALID;
     }
-
-    int freqOffset = -1;
-    for (auto &ifConf: lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.ifConfs) {
-        if (ifConf.enable && ifConf.rf_chain == rfChain) {
-            freqOffset = ifConf.freq_hz;
-            break;
-        }
-    }
-    if (freqOffset == -1)
-        return ERR_CODE_PARAM_INVALID;
-
-    // set RX2 time window
-    pkt.count_us = rx.count_us + RECEIVE_DELAY2;
 
     if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
         || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
@@ -368,7 +360,7 @@ static int sendClassARx2(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    waitSent(pkt.rf_chain, 2);
+    waitSent(pkt.rf_chain, 3);
     return CODE_OK;
 }
 
@@ -404,6 +396,7 @@ static int sendClassC(
             (int32_t) lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
     // ----------- TODO
     pkt.freq_hz = 869525000;
+
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[rfChain]) ||
         pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[rfChain]) {
         // unsupported frequency
@@ -456,7 +449,7 @@ static int sendClassC(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    waitSent(pkt.rf_chain, 2);
+    waitSent(pkt.rf_chain, 3);
     return CODE_OK;
 }
 
@@ -522,6 +515,10 @@ static void run() {
                 if (lgw_get_eui(&l.eui)) // get the concentrator EUI
                     localConfig.gateway.pop_back();
     }
+    if (localConfig.gateway.empty()) {
+        std::cerr << _("Invalid device: no any gateway found") << std::endl;
+        return;
+    }
     if (localConfig.classC) {
         for (auto &l: localConfig.gateway) {
             sendClassC(l);
@@ -537,6 +534,7 @@ static void run() {
 
         // listen first gateway
         auto &l = localConfig.gateway.front();
+
         std::cout << "Listen for uplink from device address " << DEVADDR2string(a)
                   << " from  gateway " << gatewayId2str(l.eui) << std::endl;
         struct lgw_pkt_rx_s rx{};

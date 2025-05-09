@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
         reinterpret_cast<const unsigned char *>(s.c_str()), (uint8_t) (s.size() - 4),
         225, LORAWAN_UPLINK, DEVADDR(0x007e6ae2), nwkSKey);
     std::cout << "MIC: " << MIC2String(mic) << std::endl;
-    if (mic != NTOH4(0x466da92c))
+    if (mic != 0x466da92c)
         return 3;
 
     s = decodePayload(s, appSKey);

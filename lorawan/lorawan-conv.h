@@ -21,7 +21,6 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
     #include <WinSock2.h>
 #endif
-
 #if defined(_MSC_VER)
     #define SWAP_BYTES_2(x) htons(x)
     #define SWAP_BYTES_4(x) htonl(x)
@@ -44,7 +43,15 @@
     #endif
 #endif
 
-#if BYTE_ORDER == BIG_ENDIAN
+
+// #if BYTE_ORDER == BIG_ENDIAN does work on Windows platform because no endian.h header file
+// @see https://stackoverflow.com/questions/2100331/macro-definition-to-determine-big-endian-or-little-endian-machine
+#define LITTLE_ENDIAN 0x41424344UL
+#define BIG_ENDIAN    0x44434241UL
+#define PDP_ENDIAN    0x42414443UL
+#define ENDIAN_ORDER  ('ABCD')
+
+#if ENDIAN_ORDER == BIG_ENDIAN
     #define NTOH2(x) (x)
     #define NTOH4(x) (x)
     #define NTOH8(x) (x)

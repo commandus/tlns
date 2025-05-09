@@ -4,6 +4,7 @@
 #include "system/crypto/aes.h"
 #include "system/crypto/cmac.h"
 #include "lorawan/helper/aes-const.h"
+#include "lorawan-conv.h"
 
 static uint32_t calculateMICRev103(
 	const unsigned char *data,
@@ -52,7 +53,7 @@ static uint32_t calculateMICRev103(
 	AES_CMAC_Update(&aesCmacCtx, data, size);
 	uint8_t mic[16];
 	AES_CMAC_Final(mic, &aesCmacCtx);
-    return (uint32_t) ((uint32_t) mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0] );
+    return NTOH4((uint32_t) ((uint32_t) mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0]));
 }
 
 /**
@@ -74,6 +75,13 @@ static uint32_t calculateMICRev103(
  * FC Frame control
  * CN Frame counter
  * FP Frame port
+ * @param data message buffer
+ * @param size message buffer size
+ * @param frameCounter
+ * @param direction 1(LORAWAN_DOWNLINK), 0(LORAWAN_UPLINK)
+ * @param devAddr device address
+ * @param key network session key
+ * @return MIC
  */
 uint32_t calculateMICFrmPayload(
 	const unsigned char *data,
@@ -113,7 +121,7 @@ uint32_t calculateMICReJoinRequest(
     AES_CMAC_Update(&aesCmacCtx, (const uint8_t *) header, 1 + sizeof(JOIN_REQUEST_FRAME));
     uint8_t mic[16];
     AES_CMAC_Final(mic, &aesCmacCtx);
-    return (uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0] );
+    return NTOH4((uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0]));
 }
 
 uint32_t calculateMICJoinRequest(
@@ -144,7 +152,7 @@ uint32_t calculateMICJoinResponse(
     AES_CMAC_Update(&aesCmacCtx, (const uint8_t *) &frame, 1 + sizeof(JOIN_ACCEPT_FRAME_HEADER));
     uint8_t mic[16];
     AES_CMAC_Final(mic, &aesCmacCtx);
-    return (uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0] );
+    return NTOH4((uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0]));
 }
 
  /**
@@ -186,5 +194,5 @@ uint32_t calculateOptNegMICJoinResponse(
     AES_CMAC_Update(&aesCmacCtx, (const uint8_t *) &d, 1 + sizeof(d));
     uint8_t mic[16];
     AES_CMAC_Final(mic, &aesCmacCtx);
-    return (uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0] );
+    return NTOH4((uint32_t) ((uint32_t)mic[3] << 24 | (uint32_t)mic[2] << 16 | (uint32_t)mic[1] << 8 | (uint32_t)mic[0]));
 }

@@ -12,9 +12,6 @@
  * String conversion defined in the @see lorawan-string.h
  */
 
-#define IS_LITTLE_ENDIAN (*(unsigned char *)&(uint16_t){1})
-#define IS_BIG_ENDIAN (!*(unsigned char *)&(uint16_t){1})
-
 #ifdef ESP_PLATFORM
     #include <arpa/inet.h>
 #endif
@@ -44,14 +41,19 @@
 #endif
 
 
+#if defined(_MSC_VER)
 // #if BYTE_ORDER == BIG_ENDIAN does work on Windows platform because no endian.h header file
 // @see https://stackoverflow.com/questions/2100331/macro-definition-to-determine-big-endian-or-little-endian-machine
 #define LITTLE_ENDIAN 0x41424344UL
 #define BIG_ENDIAN    0x44434241UL
 #define PDP_ENDIAN    0x42414443UL
 #define ENDIAN_ORDER  ('ABCD')
+#define IS_BIG_ENDIAN (ENDIAN_ORDER == BIG_ENDIAN)
+#else
+#define IS_BIG_ENDIAN BYTE_ORDER == BIG_ENDIAN
+#endif
 
-#if ENDIAN_ORDER == BIG_ENDIAN
+#if IS_BIG_ENDIAN
     #define NTOH2(x) (x)
     #define NTOH4(x) (x)
     #define NTOH8(x) (x)
@@ -134,7 +136,7 @@ void ntoh_FHDR(FHDR &value);
 #define ntoh_JOIN_REQUEST_FRAME(v) {}
 #define ntoh_JOIN_ACCEPT_FRAME(v) {}
 #define ntoh_RFM_HEADER(v) {}
-#define ntoh_FHDR(FHDR v) {}
+#define ntoh_FHDR(v) {}
 #endif
 
 BANDWIDTH int2BANDWIDTH(int value);

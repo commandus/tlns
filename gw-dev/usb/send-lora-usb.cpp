@@ -60,9 +60,10 @@ public:
     std::string payload;
     bool stopRequest;
     const RegionalParameterChannelPlan *channelPlan;
+    uint32_t timeoutSeconds;
     LocalSenderConfiguration()
         : regionGWIdx(0), rx1(false), rx2(false),
-          rx1dataRateOffset(0), classC(true), verbosity(0), stopRequest(false), channelPlan(nullptr)
+          rx1dataRateOffset(0), classC(true), verbosity(0), stopRequest(false), channelPlan(nullptr), timeoutSeconds(0)
     {
     }
 };
@@ -72,11 +73,11 @@ static bool waitSent(
     int timeoutSeconds
 ) {
     bool sent = false;
-    time_t t;
-    time_t t2;
-    time(&t);
-    t2 = t;
-    while (t + timeoutSeconds < t2) {
+    time_t t0;
+    time_t t1;
+    time(&t0);
+    t1 = t0;
+    while (t1 < t0 + timeoutSeconds) {
         uint8_t c;
         int r = lgw_status(rf_chain, TX_STATUS, &c);
         if (r)
@@ -85,9 +86,11 @@ static bool waitSent(
             sent = true;
             continue;
         }
-        if (sent && c == TX_FREE)
+        if (c == TX_FREE) {
+            sent = true;
             break;
-        time(&t2);
+        }
+        time(&t1);
     }
     return sent ? CODE_OK : ERR_CODE_LORA_GATEWAY_SEND_FAILED;
 }
@@ -121,12 +124,13 @@ int parseCmd(
     struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string, e.g. 60e26a7e00000000026b69636b6173732d776f7a6e69616b5a54167c"));
     struct arg_lit *a_rx1 = arg_lit0("1", "rx1", _("Device is class A. Wait downlink message then send uplink message in RX1 window"));
     struct arg_lit *a_rx2 = arg_lit0("2", "rx2", _("Device is class A. Wait downlink message then send uplink message in RX2 window"));
+    struct arg_int *a_timeout = arg_int0("t", "timeout", _("<seconds>"), _("Wait for device uplink Timeout, seconds. Default no time out (0)"));
     struct arg_lit *a_verbosity = arg_litn("v", "verbose", 0, 7, _("Verbosity level 1- alert, 2-critical error, 3- error, 4- warning, 5- siginicant info, 6- info, 7- debug"));
     struct arg_lit *a_help = arg_lit0("?", "help", _("Show this help"));
     struct arg_end *a_end = arg_end(20);
 
     void *argtable[] = {
-    a_device_path, a_region_name, a_payload, a_rx1, a_rx2, a_verbosity, a_help, a_end
+    a_device_path, a_region_name, a_payload, a_rx1, a_rx2, a_timeout, a_verbosity, a_help, a_end
     };
 
     // verify the argtable[] entries were allocated successfully
@@ -150,6 +154,9 @@ int parseCmd(
 
     if (a_payload->count)
         config->payload = hex2string(a_payload->sval[0]);
+    if (a_timeout->count)
+        config->timeoutSeconds = *a_timeout->ival;
+
 
     config->rx1 = a_rx1->count > 0;
     config->rx2 = a_rx2->count > 0;
@@ -360,7 +367,8 @@ static int sendClassARx2(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    waitSent(pkt.rf_chain, 3);
+    if (waitSent(pkt.rf_chain, 3))
+        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
     return CODE_OK;
 }
 
@@ -449,7 +457,8 @@ static int sendClassC(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    waitSent(pkt.rf_chain, 3);
+    if (waitSent(pkt.rf_chain, 5))
+        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
     return CODE_OK;
 }
 
@@ -465,7 +474,16 @@ static int listen4addr(
     UsbLoRaWANGateway &gateway
 ) {
     struct lgw_pkt_rx_s rxpkt[NB_PKT_MAX]; // array containing inbound packets + metadata
+    time_t t0 = time(nullptr);
+
     while (!config.stopRequest) {
+        if (config.timeoutSeconds) {
+            time_t t1 = time(nullptr);
+            if (t1 > t0 + config.timeoutSeconds)
+                // time out
+                break;
+        }
+
         // fetch packets
         int nb_pkt = lgw_receive(NB_PKT_MAX, rxpkt);
         if (nb_pkt == LGW_HAL_ERROR) {
@@ -521,7 +539,10 @@ static void run() {
     }
     if (localConfig.classC) {
         for (auto &l: localConfig.gateway) {
-            sendClassC(l);
+            if (sendClassC(l)) {
+                std::cerr << _("Error send to class C device: unknown error") << std::endl;
+                return;
+            }
         }
     } else {
         // get device address

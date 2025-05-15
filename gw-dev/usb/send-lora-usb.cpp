@@ -24,6 +24,7 @@
 // generated gateway regional settings source code
 #include "gen/gateway-usb-conf.h"
 #include "gen/regional-parameters-3.h"
+#include "lorawan/lorawan-date.h"
 
 // i18n
 // #include <libintl.h>
@@ -68,7 +69,7 @@ public:
     }
 };
 
-static bool waitSent(
+static int waitSent(
     uint8_t rf_chain,
     int timeoutSeconds
 ) {
@@ -77,11 +78,13 @@ static bool waitSent(
     time_t t1;
     time(&t0);
     t1 = t0;
+    std::cout << "Wait " << time2string(t1) << ' ';
     while (t1 < t0 + timeoutSeconds) {
         uint8_t c;
         int r = lgw_status(rf_chain, TX_STATUS, &c);
         if (r)
-            break;
+            return ERR_CODE_LORA_GATEWAY_UNKNOWN_STATUS;
+        std::cout << (int) c << ' ';
         if (c == TX_EMITTING) {
             sent = true;
             continue;
@@ -90,9 +93,13 @@ static bool waitSent(
             sent = true;
             break;
         }
+        struct timespec dly { 200 / 1000000, (200 % 1000000) * 1000};
+        struct timespec rem {0, 0};
+        clock_nanosleep(CLOCK_MONOTONIC, 0, &dly, &rem);
         time(&t1);
     }
-    return sent ? CODE_OK : ERR_CODE_LORA_GATEWAY_SEND_FAILED;
+    std::cout << "\nEnd " << time2string(t1) << std::endl;
+    return sent ? CODE_OK : ERR_CODE_LORA_GATEWAY_STATUS_FAILED;
 }
 
 static LocalSenderConfiguration localConfig;
@@ -272,7 +279,19 @@ static int sendClassARx1(
     struct lgw_pkt_tx_s pkt{};
     if (!localConfig.channelPlan)
         return ERR_CODE_PARAM_INVALID;
-    pkt.rf_chain = rx.rf_chain;
+
+    int rfChain = -1;
+    for (int c = 0; c < LGW_RF_CHAIN_NB; c++) {
+        if (lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].enable
+            && lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[c].tx_enable) {
+            rfChain = c;
+            break;
+        }
+    }
+    if (rfChain < 0)
+        return ERR_CODE_PARAM_INVALID;
+    pkt.rf_chain = rfChain;
+
     if (!lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].enable
         || !lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[pkt.rf_chain].tx_enable) {
         // RF chain disabled or is not intended for transmission
@@ -309,8 +328,7 @@ static int sendClassARx1(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    waitSent(pkt.rf_chain, 2);
-    return CODE_OK;
+    return waitSent(pkt.rf_chain, 2);
 }
 
 static int sendClassARx2(
@@ -367,9 +385,7 @@ static int sendClassARx2(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    if (waitSent(pkt.rf_chain, 3))
-        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    return CODE_OK;
+    return waitSent(pkt.rf_chain, 3);
 }
 
 static int sendClassC(
@@ -400,10 +416,7 @@ static int sendClassC(
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
 
     // uint32_t center frequency of TX
-    pkt.freq_hz = (uint32_t) (
-            (int32_t) lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.rfConfs[rfChain].freq_hz + freqOffset);
-    // ----------- TODO
-    pkt.freq_hz = 869525000;
+    pkt.freq_hz = (uint32_t) localConfig.channelPlan->value.pingSlotFrequency;
 
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[rfChain]) ||
         pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[rfChain]) {
@@ -418,7 +431,7 @@ static int sendClassC(
     pkt.modulation = MODULATION_LORA;       // uint8_t modulation to use for the packet
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
     pkt.bandwidth = BW_125KHZ;              // uint8_t modulation bandwidth (LoRa only)
-    pkt.datarate = DR_LORA_SF9;             // DR_LORA_SF12 DR_LORA_SF9;             // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
+    pkt.datarate = DR_LORA_SF12;            // DR_LORA_SF12 DR_LORA_SF9;             // uint32_t TX datarate (baudrate for FSK, SF for LoRa)
     pkt.coderate = CRLORA_4_5;              // uint8_t error-correcting code of the packet (LoRa only)
     pkt.invert_pol = payloadIsDownlink;     // bool invert signal polarity, for orthogonal downlinks (LoRa only)
     pkt.f_dev = 0;                          // uint8_t frequency deviation, in kHz (FSK only)
@@ -457,9 +470,7 @@ static int sendClassC(
     int r = lgw_send(&pkt);
     if (r)
         return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    if (waitSent(pkt.rf_chain, 5))
-        return ERR_CODE_LORA_GATEWAY_SEND_FAILED;
-    return CODE_OK;
+    return waitSent(pkt.rf_chain, 5);
 }
 
 // max number of packets per fetch/send cycle
@@ -564,16 +575,18 @@ static void run() {
             std::cerr << _("No uplink received: can not get RX1 or RX2 window time, exit") << std::endl;
             return;
         }
+        // Inform about uplink TX frequency
+        std::cout << _("Uplink received on ") << rx.freq_hz << "Hz at DR" << rx.datarate << std::endl;
         // send in window
         if (localConfig.rx1) {
             r = sendClassARx1(rx);
             if (r)
-                std::cerr << _("Error send in RX1 window") << std::endl;
+                std::cerr << _("Error send in RX1 window ") << r << std::endl;
         }
         if (localConfig.rx2) {
             r = sendClassARx2(rx);
             if (r)
-                std::cerr << _("Error send in RX2 window") << std::endl;
+                std::cerr << _("Error send in RX2 window ") << r << std::endl;
         }
     }
 

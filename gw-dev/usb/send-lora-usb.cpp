@@ -78,13 +78,11 @@ static int waitSent(
     time_t t1;
     time(&t0);
     t1 = t0;
-    std::cout << "Wait " << time2string(t1) << ' ';
     while (t1 < t0 + timeoutSeconds) {
         uint8_t c;
         int r = lgw_status(rf_chain, TX_STATUS, &c);
         if (r)
             return ERR_CODE_LORA_GATEWAY_UNKNOWN_STATUS;
-        std::cout << (int) c << ' ';
         if (c == TX_EMITTING) {
             sent = true;
             continue;
@@ -98,7 +96,6 @@ static int waitSent(
         clock_nanosleep(CLOCK_MONOTONIC, 0, &dly, &rem);
         time(&t1);
     }
-    std::cout << "\nEnd " << time2string(t1) << std::endl;
     return sent ? CODE_OK : ERR_CODE_LORA_GATEWAY_STATUS_FAILED;
 }
 

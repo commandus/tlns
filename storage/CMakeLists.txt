@@ -11,7 +11,7 @@
 # -DENABLE_SQLITE=off  	enable SQLITE3 backend. sqlite3 libsqlite3-dev dependencies required.
 # -DENABLE_LMDB=off  	enable LMDB backend. liblmdb++-dev (and liblmdb-dev) dependencies required.
 # -DENABLE_IPV6=off   	enable IPv6 (reserved)
-# -DENABLE_JSON=off		Build with JSON file
+# -DENABLE_JSON=on		Build with JSON file
 # -DENABLE_MINIZIP=off	Build with minizip
 #
 # Example:
@@ -126,7 +126,10 @@ else()
 		${ARGTABLE}
 	)
 
-	add_executable(lorawan-identity-service ${LORAWAN_IDENTITY_SERVICE_SRC})
+	add_executable(lorawan-identity-service
+		${STORAGE_JSON}
+		${LORAWAN_IDENTITY_SERVICE_SRC}
+	)
 	target_link_libraries(lorawan-identity-service PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBMICROHTTPD} ${LIBINTL} ${LIBUVA})
 	target_compile_definitions(lorawan-identity-service PRIVATE ${TLNS_DEF})
 

@@ -1,6 +1,10 @@
 #ifndef REGION_BAND_H_
 #define REGION_BAND_H_	1
 
+/**
+ * RegionBands - collection of RegionalParameterChannelPlan
+ */
+
 #include <string>
 #include <vector>
 #include <cinttypes>
@@ -106,12 +110,10 @@ public:
     RegionalParameterChannelPlan();
     explicit RegionalParameterChannelPlan(const REGIONAL_PARAMETER_CHANNEL_PLAN &value);
     RegionalParameterChannelPlan(const RegionalParameterChannelPlan &value);
+
     std::string toString() const override;
-
     void setTxPowerOffsets(int count, ...);
-
     void setRx1DataRateOffsets(int dataRateIndex, int count, ...);
-
     std::string toDescriptionTableString() const;
     void toHeader(std::ostream &strm, int tabs, bool cpp20) const;
 
@@ -137,6 +139,12 @@ public:
     RegionBands();
     RegionBands(const RegionBands &value);
     explicit RegionBands(const std::vector<REGIONAL_PARAMETER_CHANNEL_PLAN> &bands);
+
+    /**
+     * Return regional parameters by the name
+     * @param name regional paramaters full name or common name
+     * @return NULL if not found
+     */
     const RegionalParameterChannelPlan* get(const std::string &name) const;
     std::string toString() const override;
     bool setRegionalParametersVersion(const std::string &value);

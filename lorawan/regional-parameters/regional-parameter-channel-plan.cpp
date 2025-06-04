@@ -789,7 +789,7 @@ void RegionalParameterChannelPlan::get(
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const
 {
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(bands.begin()); it != bands.end(); it++) {
-        if (it->value.name == name) {
+        if (it->value.name == name || it->value.cn == name) {
             return &*it;
         }
     }

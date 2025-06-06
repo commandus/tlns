@@ -98,11 +98,17 @@ typedef struct REGIONAL_PARAMETER_CHANNEL_PLAN {
     std::vector<int8_t> txPowerOffsets;
     std::vector<Channel> uplinkChannels;
     std::vector<Channel> downlinkChannels;
+
+    REGIONAL_PARAMETER_CHANNEL_PLAN &operator=(const REGIONAL_PARAMETER_CHANNEL_PLAN &value);
 } REGIONAL_PARAMETER_CHANNEL_PLAN;
 
 class RegionalParameterChannelPlan : public StringifyIntf {
-public:
+private:
     REGIONAL_PARAMETER_CHANNEL_PLAN value;
+public:
+    const REGIONAL_PARAMETER_CHANNEL_PLAN* get() const;
+    REGIONAL_PARAMETER_CHANNEL_PLAN* mut();
+    void set(const REGIONAL_PARAMETER_CHANNEL_PLAN &value);
     // Join Accept delay
     int joinAcceptDelay1() const; // 5s
     int joinAcceptDelay2() const; // 6s

@@ -38,18 +38,18 @@ static void invalidateSEMTECH_PROTOCOL_METADATA_TX(
 {
     // RF channel
     // RF channel frequency
-    if (val.rf_power > plan.value.maxUplinkEIRP)
-        val.rf_power = (int8_t) plan.value.maxUplinkEIRP;
+    if (val.rf_power > plan.get()->maxUplinkEIRP)
+        val.rf_power = (int8_t) plan.get()->maxUplinkEIRP;
     bool found = false;
-    for (auto ch = plan.value.downlinkChannels.begin(); ch != plan.value.downlinkChannels.end(); ch++) {
+    for (auto ch = plan.get()->downlinkChannels.begin(); ch != plan.get()->downlinkChannels.end(); ch++) {
         if (ch->value.frequency == val.freq_hz) {
             found = true;
             break;
         }
     }
     if (!found) {
-        if (plan.value.downlinkChannels.size()) {
-            val.freq_hz = plan.value.downlinkChannels[0].value.frequency;
+        if (plan.get()->downlinkChannels.size()) {
+            val.freq_hz = plan.get()->downlinkChannels[0].value.frequency;
         }
     }
 }
@@ -59,7 +59,7 @@ static int8_t calculateTxPower(
     const RegionalParameterChannelPlan &plan,
     uint16_t payloadSize
 ) {
-    int power = (int) plan.value.maxUplinkEIRP; //defaultDownlinkTXPower;
+    int power = (int) plan.get()->maxUplinkEIRP; //defaultDownlinkTXPower;
     return power;
 }
 

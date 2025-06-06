@@ -32,7 +32,7 @@ static void printRegionNames(
 )
 {
     for (auto & regionalPlan : regionalParameterChannelPlanMem.storage.bands) {
-        strm << "\"" << regionalPlan.value.cn << "\" ";
+        strm << "\"" << regionalPlan.get()->cn << "\" ";
     }
 }
 
@@ -123,7 +123,7 @@ static void run() {
     };
 
     if (params.verbose) {
-        std::cout << _("Region") << '\t' << params.regionalParameterChannelPlan->value.cn << std::endl;
+        std::cout << _("Region") << '\t' << params.regionalParameterChannelPlan->get()->cn << std::endl;
     }
 
     // set selected regional parameters e.g. frequency
@@ -167,7 +167,7 @@ static void printRegionNames(
 )
 {
     for (auto &lorawanGatewaySetting : lorawanGatewaySettings.storage.bands)
-        strm << "\"" << lorawanGatewaySetting.value.name << "\" ";
+        strm << "\"" << lorawanGatewaySetting.get()->name << "\" ";
 }
 
 int main(int argc, char **argv) {

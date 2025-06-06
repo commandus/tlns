@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         if (config.verbosity > 1) {
             std::cerr << _("Regions: ");
             for (auto &b: rpFj.storage.bands) {
-                std::cerr << b.value.cn << " ";
+                std::cerr << b.get()->cn << " ";
             }
             std::cerr << std::endl;
         }

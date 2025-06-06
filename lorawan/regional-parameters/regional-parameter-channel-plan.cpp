@@ -4,6 +4,9 @@
 #include <iomanip>
 
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
+
+#include <algorithm>
+
 #include "lorawan/lorawan-string.h"
 
 Channel::Channel()
@@ -156,6 +159,30 @@ std::string MaxPayloadSize::toString() const
 void MaxPayloadSize::setValue(uint8_t am, uint8_t an) {
     value.m = am;
     value.n = an;
+}
+
+REGIONAL_PARAMETER_CHANNEL_PLAN &REGIONAL_PARAMETER_CHANNEL_PLAN::operator=(
+    const REGIONAL_PARAMETER_CHANNEL_PLAN &value
+) {
+id = value.id;                                              // 1..14
+    name = value.name;                                      // channel plan name
+    cn = value.cn;                                          // common name
+    maxUplinkEIRP = value.maxUplinkEIRP;                    // dBm default
+    defaultDownlinkTXPower = value.defaultDownlinkTXPower;  // can depend on frequency
+    pingSlotFrequency = value.pingSlotFrequency;
+    implementsTXParamSetup = value.implementsTXParamSetup;
+    defaultRegion = value.defaultRegion;                    // true- default region
+    supportsExtraChannels = value.supportsExtraChannels;
+    bandDefaults = value.bandDefaults;                      //
+    std::copy(value.dataRates,  value.dataRates + DATA_RATE_SIZE, dataRates);
+    std::copy(value.maxPayloadSizePerDataRate,  value.maxPayloadSizePerDataRate + DATA_RATE_SIZE, maxPayloadSizePerDataRate);
+    std::copy(value.maxPayloadSizePerDataRateRepeater,  value.maxPayloadSizePerDataRateRepeater + DATA_RATE_SIZE, maxPayloadSizePerDataRateRepeater);
+    std::copy(value.rx1DataRateOffsets,  value.rx1DataRateOffsets + DATA_RATE_SIZE, rx1DataRateOffsets);
+    // Max EIRP - <offset> dB, 0..16
+    std::copy(value.txPowerOffsets.begin(),  value.txPowerOffsets.end() + DATA_RATE_SIZE, txPowerOffsets.begin());
+    std::copy(value.uplinkChannels.begin(),  value.uplinkChannels.end() + DATA_RATE_SIZE, uplinkChannels.begin());
+    std::copy(value.downlinkChannels.begin(),  value.downlinkChannels.end() + DATA_RATE_SIZE, downlinkChannels.begin());
+    return *this;
 }
 
 RegionalParameterChannelPlan::RegionalParameterChannelPlan()
@@ -376,6 +403,21 @@ void RegionalParameterChannelPlan::setRx1DataRateOffsets(
     va_end(ap);
 }
 
+const REGIONAL_PARAMETER_CHANNEL_PLAN* RegionalParameterChannelPlan::get() const
+{
+    return &value;
+}
+
+REGIONAL_PARAMETER_CHANNEL_PLAN* RegionalParameterChannelPlan::mut()
+{
+    return &value;
+}
+
+void RegionalParameterChannelPlan::set(
+    const REGIONAL_PARAMETER_CHANNEL_PLAN &val
+) {
+    value = val;
+}
 
 int RegionalParameterChannelPlan::joinAcceptDelay1() const
 {
@@ -788,10 +830,18 @@ void RegionalParameterChannelPlan::get(
 
 const RegionalParameterChannelPlan* RegionBands::get(const std::string &name) const
 {
+    std::string upperName(name);
+    std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
     for (std::vector<RegionalParameterChannelPlan>::const_iterator it(bands.begin()); it != bands.end(); it++) {
-        if (it->value.name == name || it->value.cn == name) {
+        auto *rs = it->get();
+        std::string valUpperCN(rs->cn);
+        std::transform(valUpperCN.begin(), valUpperCN.end(), valUpperCN.begin(), ::toupper);
+        std::string valUpperName(rs->name);
+        std::transform(valUpperName.begin(), valUpperName.end(), valUpperName.begin(), ::toupper);
+        if (valUpperCN.find(upperName) != std::string::npos)
             return &*it;
-        }
+        if (valUpperName.find(upperName) != std::string::npos)
+            return &*it;
     }
     return nullptr;
 }

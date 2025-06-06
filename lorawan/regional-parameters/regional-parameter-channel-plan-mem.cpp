@@ -26,7 +26,7 @@ RegionalParameterChannelPlanMem::~RegionalParameterChannelPlanMem()
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::getDefault() const
 {
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->value.defaultRegion)
+        if (it->get()->defaultRegion)
             return &*it;
     }
     return nullptr;
@@ -39,9 +39,10 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(
     std::string upperName(name);
     std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        std::string valUpperCN(it->value.cn);
+        auto *rs = it->get();
+        std::string valUpperCN(rs->cn);
         std::transform(valUpperCN.begin(), valUpperCN.end(), valUpperCN.begin(), ::toupper);
-        std::string valUpperName(it->value.name);
+        std::string valUpperName(rs->name);
         std::transform(valUpperName.begin(), valUpperName.end(), valUpperName.begin(), ::toupper);
         if (valUpperCN.find(upperName) != std::string::npos)
             return &*it;
@@ -54,7 +55,7 @@ const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(
 const RegionalParameterChannelPlan *RegionalParameterChannelPlanMem::get(int id) const
 {
     for (auto it(storage.bands.begin()); it != storage.bands.end(); it++) {
-        if (it->value.id == id)
+        if (it->get()->id == id)
             return &*it;
     }
     return getDefault();;

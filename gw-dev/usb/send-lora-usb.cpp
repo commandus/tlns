@@ -302,13 +302,13 @@ static int sendClassARx1(
     }
     pkt.freq_offset = 0;                    // frequency offset from Radio Tx frequency (CW mode)
     pkt.tx_mode = TIMESTAMPED;              // sent at time stamp
-    pkt.count_us = rx.count_us + localConfig.channelPlan->value.bandDefaults.value.ReceiveDelay1 * 1000000;
+    pkt.count_us = rx.count_us + localConfig.channelPlan->get()->bandDefaults.value.ReceiveDelay1 * 1000000;
 
     // get data rate
     pkt.datarate = rx.datarate;
     // shift data rate
-    if (rx.datarate < DATA_RATE_SIZE && localConfig.rx1dataRateOffset < localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate].size())
-        pkt.datarate = localConfig.channelPlan->value.rx1DataRateOffsets[rx.datarate][localConfig.rx1dataRateOffset];
+    if (rx.datarate < DATA_RATE_SIZE && localConfig.rx1dataRateOffset < localConfig.channelPlan->get()->rx1DataRateOffsets[rx.datarate].size())
+        pkt.datarate = localConfig.channelPlan->get()->rx1DataRateOffsets[rx.datarate][localConfig.rx1dataRateOffset];
 
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
     pkt.rf_power = lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.txLut[pkt.rf_chain].lut[0].rf_power;   // int8_t TX power, in dBm
@@ -348,9 +348,9 @@ static int sendClassARx2(
     // set frequency & data rate
     if (!localConfig.channelPlan)
         return ERR_CODE_PARAM_INVALID;
-    pkt.freq_hz = localConfig.channelPlan->value.bandDefaults.value.RX2Frequency;
-    pkt.datarate = 12 - localConfig.channelPlan->value.bandDefaults.value.RX2DataRate;  // data rate 0 -> spreading factor 12 (~250bit/s)
-    pkt.count_us = rx.count_us + (localConfig.channelPlan->value.bandDefaults.value.ReceiveDelay2 * 1000000);
+    pkt.freq_hz = localConfig.channelPlan->get()->bandDefaults.value.RX2Frequency;
+    pkt.datarate = 12 - localConfig.channelPlan->get()->bandDefaults.value.RX2DataRate;  // data rate 0 -> spreading factor 12 (~250bit/s)
+    pkt.count_us = rx.count_us + (localConfig.channelPlan->get()->bandDefaults.value.ReceiveDelay2 * 1000000);
 
     // validate frequency does gateway support it
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[pkt.rf_chain]) ||
@@ -413,7 +413,7 @@ static int sendClassC(
     bool payloadIsDownlink = isDownlink(localConfig.payload.c_str(), localConfig.payload.size());
 
     // uint32_t center frequency of TX
-    pkt.freq_hz = (uint32_t) localConfig.channelPlan->value.pingSlotFrequency;
+    pkt.freq_hz = (uint32_t) localConfig.channelPlan->get()->pingSlotFrequency;
 
     if ((pkt.freq_hz < lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_min[rfChain]) ||
         pkt.freq_hz > lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.tx_freq_max[rfChain]) {

@@ -6,7 +6,7 @@ int gwPower(
 )
 {
     if (pPlan)
-        return pPlan->value.defaultDownlinkTXPower;
+        return pPlan->get()->defaultDownlinkTXPower;
     return 14;  // dBm
 }
 
@@ -15,6 +15,6 @@ int gwPowerTx(
     const RegionalParameterChannelPlan *pPlan
 ) {
     if (pPlan)
-        return pPlan->value.defaultDownlinkTXPower;
+        return pPlan->get()->defaultDownlinkTXPower;
     return 14;  // dBm
 }

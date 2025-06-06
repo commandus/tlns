@@ -1,7 +1,7 @@
 #ifndef TLNS_POWER_DBM_H
 #define TLNS_POWER_DBM_H
 
-#include "lorawan-types.h"
+#include "lorawan/lorawan-types.h"
 #include "lorawan/regional-parameters/regional-parameter-channel-plan.h"
 
 /**

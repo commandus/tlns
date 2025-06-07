@@ -28,7 +28,8 @@ protected:
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-        const RegionalParameterChannelPlan *aRegionalPlan
+        const RegionalParameterChannelPlan *aRegionalPlan,
+        const MessageQueueItem *queueItem
     );
 public:
     /** Upstream only. array of packets from Basic communication protocol packet
@@ -58,7 +59,8 @@ public:
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-        const RegionalParameterChannelPlan *pPlan
+        const RegionalParameterChannelPlan *pPlan,
+        const MessageQueueItem *queueItem
     ) override;
 
     int tag() const override;

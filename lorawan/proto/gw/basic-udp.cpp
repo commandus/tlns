@@ -697,7 +697,8 @@ bool GatewayBasicUdpProtocol::makePullStream(
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-    const RegionalParameterChannelPlan *regionalPlan
+    const RegionalParameterChannelPlan *regionalPlan,
+    const MessageQueueItem *queueItem
 )
 {
     SEMTECH_PREFIX_GW pullPrefix { 2, token, SEMTECH_GW_PULL_DATA, gwId };
@@ -773,11 +774,12 @@ ssize_t GatewayBasicUdpProtocol::makePull(
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-    const RegionalParameterChannelPlan *regionalPlan
+    const RegionalParameterChannelPlan *regionalPlan,
+    const MessageQueueItem *queueItem
 )
 {
     std::stringstream ss;
-    if (!makePullStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan))
+    if (!makePullStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan, queueItem))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

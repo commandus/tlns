@@ -68,7 +68,8 @@ public:
         MessageBuilder &msgBuilder,
         uint16_t token,
         const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-        const RegionalParameterChannelPlan *regionalPlan
+        const RegionalParameterChannelPlan *regionalPlan,
+        const MessageQueueItem *queueItem
     ) = 0;
 
     /**

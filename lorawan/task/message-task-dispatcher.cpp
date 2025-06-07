@@ -508,11 +508,12 @@ void MessageTaskDispatcher::sendQueue(
 ) {
     TimeAddr ta;
     while (queue.time2ResponseAddr.pop(ta, now)) {
-        std::cout << "Pop and send from queue " << ta.toString() << "\n";
+        std::cout << "Pop and send from uplink queue " << ta.toString() << "\n";
         auto m = queue.uplinkMessages.find(ta.addr);
         if (m == queue.uplinkMessages.end())
-            continue;
+            continue;   // no uplink message in the uplink queue from the end-device found
         if (m->second.needConfirmation()) {
+            // send uplink message confirmation to the end-device
             ConfirmationMessage confirmationMessage(m->second.radioPacket, m->second.task);
             GatewayMetadata gwMetadata;
             // determine best gateway
@@ -529,7 +530,7 @@ void MessageTaskDispatcher::sendQueue(
                     gwMetadata.typ = METADATA_TYPE_TX;
                     auto sz = gwMetadata.parser->makePull(sb, sizeof(sb),
                         DEVEUI(m->second.task.gatewayId.gatewayId), confirmationMessage,
-                        token, &gwMetadata.tx, regionalPlan);
+                        token, &gwMetadata.tx, regionalPlan, &m->second);
                     std::cout << "Send " << std::string(sb, sz)
                               << " to gateway " << gatewayId2str(gwMetadata.rx.gatewayId)
                               << " over socket " << gwMetadata.taskSocket->toString()
@@ -604,7 +605,7 @@ void MessageTaskDispatcher::sendQueuedDownlinkMessages(
                 << " over best known gateway " << gatewayId2str(gw)
                 << ' ' << sockaddr2string(&gwm.addr)
                 << std::endl;
-            ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan);
+            ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(gw), msgBuilder, token, nullptr, regionalPlan, &it->second);
             if (sz > 0)
                 sendDownlink(gw, &dId, buf, sz, proto);
             else
@@ -620,7 +621,7 @@ void MessageTaskDispatcher::sendQueuedDownlinkMessages(
                     << " = " << it->second.toJsonString()
                     << std::endl;
                 ssize_t sz = proto->makePull(buf, sizeof(buf), DEVEUI(g.gatewayId), msgBuilder,
-                                             token, nullptr, regionalPlan);
+                    token, nullptr, regionalPlan, &it->second);
                 if (sz > 0)
                     sendDownlink(g.gatewayId, &dId, buf, sz, proto);
                 else

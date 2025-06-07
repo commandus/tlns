@@ -5,6 +5,9 @@
 #include "lorawan/lorawan-types.h"
 #include "lorawan/task/task-platform.h"
 
+/**
+ * Message RX/TX time and device address item
+ */
 class TimeAddr {
 public:
     TASK_TIME startTime;
@@ -19,6 +22,9 @@ public:
     std::string toString();
 };
 
+/**
+ * Message RX/TX time and device address items collection
+ */
 class TimeAddrSet {
 public:
     std::map<TASK_TIME, DEVADDR> timeAddr;

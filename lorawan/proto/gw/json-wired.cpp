@@ -360,7 +360,8 @@ bool GatewayJsonWiredProtocol::makeMessage2GatewayStream(
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-    const RegionalParameterChannelPlan *aRegionalPlan
+    const RegionalParameterChannelPlan *aRegionalPlan,
+    const MessageQueueItem *queueItem
 )
 {
     if (!txMetadata)
@@ -383,11 +384,12 @@ ssize_t GatewayJsonWiredProtocol::makePull(
     MessageBuilder &msgBuilder,
     uint16_t token,
     const SEMTECH_PROTOCOL_METADATA_TX *txMetadata,
-    const RegionalParameterChannelPlan *regionalPlan
+    const RegionalParameterChannelPlan *regionalPlan,
+    const MessageQueueItem *queueItem
 )
 {
     std::stringstream ss;
-    if (!makeMessage2GatewayStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan))
+    if (!makeMessage2GatewayStream(ss, gwId, msgBuilder, token, txMetadata, regionalPlan, queueItem))
         return ERR_CODE_PARAM_INVALID;
     std::string s(ss.str());
     auto sz = s.size();

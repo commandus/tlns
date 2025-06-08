@@ -39,7 +39,8 @@ LORAWAN_VERSION::LORAWAN_VERSION(
 
 // <------------------- NETID -------------------
 
-NETID::NETID() {
+NETID::NETID()
+{
     memset(&c, 0, sizeof(NETID));
 }
 
@@ -1420,8 +1421,11 @@ DEVICEID::DEVICEID() {
     memset(&this->id.appEUI.c, 0, sizeof(DEVEUI));
     memset(&this->id.nwkKey.c, 0, sizeof(KEY128));
     memset(&this->id.appKey.c, 0, sizeof(KEY128));
-    this->id.devNonce.u = 0;
+    id.devNonce.u = 0;
     memset(&this->id.joinNonce.c, 0, sizeof(JOINNONCE));
+    id.token = 0;
+    id.region = 0;
+    id.subRegion = 0;
     memset(&this->id.name.c, 0, sizeof(DEVICENAME));
     id.version.major = 1;
 }
@@ -1431,8 +1435,8 @@ DEVICEID::DEVICEID(
 )
 {
     id.devEUI = deveui;
-    this->id.activation = ABP;
-    this->id.deviceclass = CLASS_A;
+    id.activation = ABP;
+    id.deviceclass = CLASS_A;
 
     memset(&this->id.nwkSKey.c, 0, sizeof(KEY128));
     memset(&this->id.appSKey.c, 0, sizeof(KEY128));
@@ -1440,8 +1444,11 @@ DEVICEID::DEVICEID(
     memset(&this->id.appEUI.c, 0, sizeof(DEVEUI));
     memset(&this->id.nwkKey.c, 0, sizeof(KEY128));
     memset(&this->id.appKey.c, 0, sizeof(KEY128));
-    this->id.devNonce.u = 0;
+    id.devNonce.u = 0;
     memset(&this->id.joinNonce.c, 0, sizeof(JOINNONCE));
+    id.token = 0;
+    id.region = 0;
+    id.subRegion = 0;
     memset(&this->id.name.c, 0, sizeof(DEVICENAME));
     id.version.major = 1;
 }
@@ -1471,6 +1478,9 @@ DEVICEID::DEVICEID(
     memmove(&this->id.appKey.c, &appKey.c, sizeof(KEY128));
     this->id.devNonce = devNonce;
     memmove(&this->id.joinNonce.c, &joinNonce.c, sizeof(JOINNONCE));
+    id.token = 0;
+    id.region = 0;
+    id.subRegion = 0;
     memmove(&this->id.name, &name, sizeof(DEVICENAME));
 }
 
@@ -1482,19 +1492,21 @@ DEVICEID::DEVICEID(
     LORAWAN_VERSION version,
     const DEVICENAME name
 ) {
-    this->id.activation = ABP;
-    this->id.deviceclass = deviceclass;
+    id.activation = ABP;
+    id.deviceclass = deviceclass;
     memmove(&this->id.devEUI.c, &devEUI.c, sizeof(DEVEUI));
     memmove(&this->id.nwkSKey.c, &nwkSKey.c, sizeof(KEY128));
     memmove(&this->id.appSKey.c, &appSKey.c, sizeof(KEY128));
-    this->id.version = version;
-    memmove(&this->id.name, &name, sizeof(DEVICENAME));
-
+    id.version = version;
     memset(&this->id.appEUI.c, 0, sizeof(DEVEUI));
     memset(&this->id.nwkKey.c, 0, sizeof(KEY128));
     memset(&this->id.appKey.c, 0, sizeof(KEY128));
-    this->id.devNonce.u = 0;
-    memset(&this->id.joinNonce.c, 0, sizeof(JOINNONCE));
+    id.devNonce.u = 0;
+    memset(&id.joinNonce.c, 0, sizeof(JOINNONCE));
+    id.token = 0;
+    id.region = 0;
+    id.subRegion = 0;
+    memmove(&this->id.name, &name, sizeof(DEVICENAME));
 }
 
 DEVICEID::DEVICEID(
@@ -1515,6 +1527,9 @@ DEVICEID::DEVICEID(
     memset(&this->id.joinNonce.c, 0, sizeof(JOINNONCE));
     memset(&this->id.name.c, 0, sizeof(DEVICENAME));
     id.version.major = 1;
+    id.token = 0;
+    id.region = 0;
+    id.subRegion = 0;
 }
 
 DEVICEID::DEVICEID(
@@ -1542,6 +1557,10 @@ DEVICEID& DEVICEID::operator=(
     id.devNonce = value.id.devNonce;
     memmove(&id.joinNonce.c, &value.id.joinNonce.c, sizeof(JOINNONCE));
 	memmove(&id.name, &value.id.name, sizeof(DEVICENAME));
+    id.token = value.id.token;
+    id.region = value.id.region;
+    id.subRegion = value.id.subRegion;
+
 	return *this;
 }
 
@@ -1566,6 +1585,10 @@ void DEVICEID::set(
 	memmove(&id.nwkKey.c, &value.id.nwkKey.c, sizeof(KEY128));
     id.devNonce = value.id.devNonce;
 	memmove(&id.joinNonce.c, &value.id.joinNonce.c, sizeof(JOINNONCE));
+    id.token = value.id.token;
+    id.region = value.id.region;
+    id.subRegion = value.id.subRegion;
+
 	memmove(&id.name, &value.id.name, sizeof(DEVICENAME));
 }
 
@@ -1631,6 +1654,9 @@ std::string DEVICEID::toString(
         << LIST_SEPARATOR << KEY2string(id.nwkKey)
         << LIST_SEPARATOR << DEVNONCE2string(id.devNonce)
         << LIST_SEPARATOR << JOINNONCE2string(id.joinNonce)
+        << LIST_SEPARATOR << token2string(id.token)
+        << LIST_SEPARATOR << region2string(id.region)
+        << LIST_SEPARATOR << subRegion2string(id.subRegion)
         << LIST_SEPARATOR << DEVICENAME2string(id.name);
     return ss.str();
 }
@@ -1655,14 +1681,15 @@ std::string DEVICEID::toJsonString(
        << R"(","nwkSKey":")" << KEY2string(id.nwkSKey)
        << R"(","appSKey":")" << KEY2string(id.appSKey)
        << R"(","version":")" << LORAWAN_VERSION2string(id.version)
-
        << R"(","appeui":")" << DEVEUI2string(id.appEUI)
        << R"(","appKey":")" << KEY2string(id.appKey)
        << R"(","nwkKey":")" << KEY2string(id.nwkKey)
        << R"(","devNonce":")" << DEVNONCE2string(id.devNonce)
        << R"(","joinNonce":")" << JOINNONCE2string(id.joinNonce)
-
-       << R"(","name":")" << id.name.toString()
+       << R"(","token":)" << token2string(id.token)
+       << R"(,"region":)" << region2string(id.region)
+       << R"(,"subRegion":)" << subRegion2string(id.subRegion)
+       << R"(,"name":")" << id.name.toString()
        << "\"}";
     return ss.str();
 }
@@ -1697,6 +1724,12 @@ void DEVICEID::toArray(
     p+= sizeof(DEVNONCE);
     memmove(p, &id.joinNonce.c, sizeof(JOINNONCE));
     p+= sizeof(JOINNONCE);
+    memmove(p, &id.token, sizeof(uint32_t));
+    p+= sizeof(uint32_t);
+    memmove(p, &id.region, sizeof(uint8_t));
+    p+= sizeof(uint8_t);
+    memmove(p, &id.subRegion, sizeof(uint8_t));
+    p+= sizeof(uint8_t);
     memmove(p, &id.name, sizeof(DEVICENAME));
 }
 
@@ -1730,6 +1763,12 @@ void DEVICEID::fromArray(
     p+= sizeof(DEVNONCE);
     memmove(&id.joinNonce.c, p, sizeof(JOINNONCE));
     p+= sizeof(JOINNONCE);
+    memmove(&id.token, p, sizeof(uint32_t));
+    p+= sizeof(uint32_t);
+    memmove(&id.region, p, sizeof(uint8_t));
+    p+= sizeof(uint8_t);
+    memmove(&id.subRegion, p, sizeof(uint8_t));
+    p+= sizeof(uint8_t);
     memmove(&id.name, p, sizeof(DEVICENAME));
 }
 
@@ -1741,13 +1780,16 @@ void DEVICEID::setProperties
 	retval["activation"] = activation2string(id.activation);
 	retval["class"] = deviceclass2string(id.deviceclass);
 	retval["deveui"] = DEVEUI2string(id.devEUI);
+	retval["version"] = LORAWAN_VERSION2string(id.version);
     retval["appeui"] = DEVEUI2string(id.appEUI);
     retval["appKey"] = KEY2string(id.appKey);
     retval["nwkKey"] = KEY2string(id.nwkKey);
     retval["devNonce"] = DEVNONCE2string(id.devNonce);
     retval["joinNonce"] = JOINNONCE2string(id.joinNonce);
+    retval["token"] = token2string(id.token);
+    retval["region"] = token2string(id.region);
+    retval["subRegion"] = token2string(id.subRegion);
 	retval["name"] = DEVICENAME2string(id.name);
-	retval["version"] = LORAWAN_VERSION2string(id.version);
 }
 
 bool DEVICEID::empty() const

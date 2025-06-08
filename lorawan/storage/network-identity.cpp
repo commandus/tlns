@@ -1,5 +1,6 @@
 #include <cstring>
 #include <sstream>
+#include <lorawan/lorawan-msg.h>
 
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-string.h"
@@ -12,16 +13,23 @@ NetworkIdentity::NetworkIdentity(
 	const DEVICEID &value
 )
     :   devaddr(a.u), activation(value.id.activation), deviceclass(value.id.deviceclass),
-        devEUI(value.id.devEUI), nwkSKey(value.id.nwkSKey), appSKey(value.id.appSKey), name(value.id.name)
+        devEUI(value.id.devEUI), nwkSKey(value.id.nwkSKey), appSKey(value.id.appSKey),
+        version(value.id.version),
+        appEUI(value.id.appEUI), appKey(value.id.appKey), nwkKey(value.id.nwkKey),
+        devNonce(value.id.devNonce), token(value.id.token), region(value.id.region), subRegion(value.id.subRegion),
+        name(value.id.name)
 {
 }
 
-NetworkIdentity::NetworkIdentity
-(
+NetworkIdentity::NetworkIdentity(
 	const DEVICEID &value
 )
     : devaddr(0), activation(value.id.activation), deviceclass(value.id.deviceclass),
-          devEUI(value.id.devEUI), nwkSKey(value.id.nwkSKey), appSKey(value.id.appSKey), name(value.id.name)
+    devEUI(value.id.devEUI), nwkSKey(value.id.nwkSKey), appSKey(value.id.appSKey),
+    version(value.id.version),
+    appEUI(value.id.appEUI), appKey(value.id.appKey), nwkKey(value.id.nwkKey),
+    devNonce(value.id.devNonce), token(value.id.token), region(value.id.region), subRegion(value.id.subRegion),
+    name(value.id.name)
 {
 }
 
@@ -35,6 +43,14 @@ NetworkIdentity& NetworkIdentity::operator=(
     nwkSKey = value.id.nwkSKey;
     appSKey = value.id.appSKey;
     name = value.id.name;
+    version = value.id.version;
+    appEUI = value.id.appEUI;
+    appKey = value.id.appKey;
+    nwkKey = value.id.nwkKey;
+    devNonce = value.id.devNonce;
+    token = value.id.token;
+    region = value.id.region;
+    subRegion = value.id.subRegion;
     return *this;
 }
 
@@ -42,18 +58,21 @@ std::string NetworkIdentity::toString() const
 {
 	std::stringstream ss;
 	ss << DEVADDR2string(devaddr) 
-		<< " " << activation2string(activation)
-		<< " " << deviceclass2string(deviceclass)
-		<< " " << DEVEUI2string(devEUI)
-		<< " " << KEY2string(nwkSKey)
-		<< " " << KEY2string(appSKey)
-		<< " " << LORAWAN_VERSION2string(version)
-        << " " << DEVEUI2string(appEUI)
-        << " " << KEY2string(appKey)
-        << " " << KEY2string(nwkKey)
-        << " " << DEVNONCE2string(devNonce)
-        << " " << JOINNONCE2string(joinNonce)
-		<< " " << DEVICENAME2string(name);
+		<< MSG_SPACE << activation2string(activation)
+		<< MSG_SPACE << deviceclass2string(deviceclass)
+		<< MSG_SPACE << DEVEUI2string(devEUI)
+		<< MSG_SPACE << KEY2string(nwkSKey)
+		<< MSG_SPACE << KEY2string(appSKey)
+		<< MSG_SPACE << LORAWAN_VERSION2string(version)
+        << MSG_SPACE << DEVEUI2string(appEUI)
+        << MSG_SPACE << KEY2string(appKey)
+        << MSG_SPACE << KEY2string(nwkKey)
+        << MSG_SPACE << DEVNONCE2string(devNonce)
+        << MSG_SPACE << JOINNONCE2string(joinNonce)
+        << MSG_SPACE << token2string(token)
+        << MSG_SPACE << region2string(region)
+        << MSG_SPACE << subRegion2string(subRegion)
+		<< MSG_SPACE << DEVICENAME2string(name);
 	return ss.str();
 }
 
@@ -72,7 +91,10 @@ std::string NetworkIdentity::toJsonString() const
        << R"(", "nwkKey": ")" << KEY2string(nwkKey)
        << R"(", "nonce": ")" << DEVNONCE2string(devNonce)
        << R"(", "joinNonce": ")" << JOINNONCE2string(joinNonce)
-       << R"(", "name": ")" << DEVICENAME2string(name)
+       << R"(", "token": )" << token2string(token)
+       << R"(, "region": )" << region2string(region)
+       << R"(, "subRegion": )" << subRegion2string(subRegion)
+       << R"(, "name": ")" << DEVICENAME2string(name)
        << "\"}";
     return ss.str();
 }
@@ -93,6 +115,9 @@ void NetworkIdentity::set(
 	memmove(&nwkKey.c, &value.id.nwkKey.c, sizeof(KEY128));
 	devNonce = value.id.devNonce;
 	memmove(&joinNonce, &value.id.joinNonce, sizeof(JOINNONCE));
+    token = value.id.token;
+    region = value.id.region;
+    subRegion = value.id.subRegion;
 	memmove(&name, &value.id.name, sizeof(DEVICENAME));
 	memmove(&version, &value.id.version, sizeof(LORAWAN_VERSION));
 }

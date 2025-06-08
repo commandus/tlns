@@ -9,7 +9,7 @@
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-date.h"
 #include "lorawan/lorawan-mac.h"
-#include "lorawan-error.h"
+#include "lorawan/lorawan-error.h"
 
 #ifdef ENABLE_UNICODE
 #include <unicode/unistr.h>
@@ -324,6 +324,47 @@ DEVNONCE string2DEVNONCE(
     r.u = (uint16_t) strtoul(value, nullptr, 16);
     r.u = NTOH2(r.u);
     return r;
+}
+
+std::string token2string(
+    uint32_t token
+)
+{
+    return std::to_string(token & 0xffff);
+}
+
+uint32_t string2token(
+    const std::string& token
+)
+{
+    return strtoul(token.c_str(), nullptr, 10);
+}
+
+std::string region2string(
+    uint8_t region
+)
+{
+    return std::to_string(region);
+}
+
+uint8_t string2region(
+    const std::string& region
+)
+{
+    return strtoul(region.c_str(), nullptr, 10);
+}
+
+std::string subRegion2string(
+    uint8_t subRegion
+) {
+    return std::to_string(subRegion);
+}
+
+uint8_t string2subRegion(
+    const std::string& subRegion
+)
+{
+    return strtoul(subRegion.c_str(), nullptr, 10);
 }
 
 DEVNONCE string2DEVNONCE(

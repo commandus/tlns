@@ -16,7 +16,6 @@ class DeviceId;
  * are directly stored into the end-device
 */
 class NetworkIdentity {
-private:
 public:
 	// key
 	DEVADDR devaddr;		///< network address
@@ -31,8 +30,12 @@ public:
 	DEVEUI appEUI;			///< OTAA application identifier
 	KEY128 appKey;			///< OTAA application private key
     KEY128 nwkKey;          ///< OTAA network key
-    DEVNONCE devNonce{};    ///< last device nonce
+    DEVNONCE devNonce;      ///< last device nonce
 	JOINNONCE joinNonce;    ///< last Join nonce
+
+	uint32_t token;			///< last end-device token used, 2 bytes used, high bytes reserved
+	uint8_t region;			///< 0- default(assigned by gateway or network server) 1..14- device programmed
+	uint8_t subRegion;		///< 0- default. CN470-510: 1- type A(20MHz antenna), 2- type B(26MHz antenna)
 	// added for searching
 	DEVICENAME name;
 	NetworkIdentity();

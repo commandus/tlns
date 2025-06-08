@@ -244,3 +244,27 @@ int string2NETWORK_IDENTITY_FILTERS(
     const char *expression,
     size_t size
 );
+
+std::string token2string(
+    uint32_t token
+);
+
+uint32_t string2token(
+    const std::string& token
+);
+
+std::string region2string(
+    uint8_t region
+);
+
+uint8_t string2region(
+    const std::string& region
+);
+
+std::string subRegion2string(
+    uint8_t subRegion
+);
+
+uint8_t string2subRegion(
+    const std::string& subRegion
+);

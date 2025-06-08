@@ -646,7 +646,12 @@ typedef PACK( struct {
     KEY128 nwkKey;          ///< OTAA network key               16 83
     DEVNONCE devNonce;      ///< last device nonce              2  85
     JOINNONCE joinNonce;    ///< last Join nonce                3  88
-    DEVICENAME name;        ///< name, comment or tag           8 96
+
+	uint32_t token;			///< last end-device token used, 2 bytes used, high bytes reserved
+	uint8_t region;			///< 0- default(assigned by gateway or network server) 1..14- device programmed
+	uint8_t subRegion;		///< 0- default. CN470-510: 1- type A(20MHz antenna), 2- type B(26MHz antenna)
+
+    DEVICENAME name;        ///< name, comment or tag           8 102
 } ) DEVICE_ID;
 
 PACK(class DEVICEID {
@@ -721,13 +726,13 @@ public:
 	void setProperties(std::map<std::string, std::string> &retval) const;
 
     bool empty() const;
-});					// 96 bytes
+});					// 102 bytes
 
-#define SIZE_DEVICEID 96
+#define SIZE_DEVICEID 102
 
 typedef PACK(struct {
     DEVADDR devaddr;        ///< network address 4 bytes
-    DEVICEID devid;         // 96 bytes
+    DEVICEID devid;         // 102 bytes
 } ) NETWORK_IDENTITY;
 
 class NETWORKIDENTITY {

@@ -733,7 +733,7 @@ public:
 typedef PACK(struct {
     DEVADDR devaddr;        ///< network address 4 bytes
     DEVICEID devid;         // 102 bytes
-} ) NETWORK_IDENTITY;
+} ) NETWORK_IDENTITY;		// 106 bytes
 
 class NETWORKIDENTITY {
 public:
@@ -747,9 +747,9 @@ public:
 	void set(const DEVADDR &addr, const DEVICEID &value);
 	std::string toString() const;
     std::string toJsonString() const;
-};  // 100 bytes
+};  // 106 bytes
 
-#define SIZE_NETWORKIDENTITY 100
+#define SIZE_NETWORKIDENTITY 106
 
 typedef PACK(struct {
      uint16_t vendorId;

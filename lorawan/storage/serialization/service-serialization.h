@@ -9,9 +9,9 @@
 
 class ServiceMessage {
 public:
-    char tag;
-    int32_t code;           // "account#" in request
-    uint64_t accessCode;    // magic number in request, retCode in response, negative is error code
+    char tag;               // 1
+    int32_t code;           // 4 5 "account#" in request
+    uint64_t accessCode;    // 8 13 magic number in request, retCode in response, negative is error code
     ServiceMessage();
     ServiceMessage(char tag, int32_t code, uint64_t accessCode);
     ServiceMessage(const unsigned char *buf, size_t sz);
@@ -19,7 +19,7 @@ public:
     virtual void ntoh();
     virtual size_t serialize(unsigned char *retBuf) const;
     virtual std::string toJsonString() const;
-};  // 5 bytes
+};  // data (starting with tag) total 13 bytes
 
 /**
  * Serialize Internet address v4, v6

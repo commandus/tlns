@@ -25,32 +25,37 @@ static void serializeNETWORKIDENTITY(
     unsigned char *p = retBuf;
     memmove(p, &response.value.devaddr.u, sizeof(uint32_t));      // 4
     p += sizeof(uint32_t);
-    *(uint8_t *) p = (uint8_t) response.value.devid.id.activation;	// 1 activation type: ABP or OTAA
+    *(uint8_t *) p = (uint8_t) response.value.devid.id.activation;	// 1 5 activation type: ABP or OTAA
     p++;
-    *(uint8_t *) p = (uint8_t) response.value.devid.id.deviceclass;	// 1 DEVICECLASS: A, B. C
+    *(uint8_t *) p = (uint8_t) response.value.devid.id.deviceclass;	// 1 6 DEVICECLASS: A, B. C
     p++;
-    ((DEVEUI *) p)->u = response.value.devid.id.devEUI.u;	        // 8 device identifier (ABP device may not store EUI) (14)
+    ((DEVEUI *) p)->u = response.value.devid.id.devEUI.u;	        // 8 14 device identifier (ABP device may not store EUI) (14)
     p += 8;
-    memmove(p, &response.value.devid.id.nwkSKey, 16);	            // 16 shared session key
+    memmove(p, &response.value.devid.id.nwkSKey, 16);	            // 16 30 shared session key
     p += 16;
-    memmove(p, &response.value.devid.id.appSKey, 16);	            // 16 private key
+    memmove(p, &response.value.devid.id.appSKey, 16);	            // 16 46 private key
     p += 16;
-    *(uint8_t *) p = response.value.devid.id.version.c;	            // 1 LORAWAN_VERSION 1
+    *(uint8_t *) p = response.value.devid.id.version.c;	            // 1 47 LORAWAN_VERSION 1
     p++;
     // OTAA
-    ((DEVEUI *) p)->u = response.value.devid.id.appEUI.u;	        // 8 OTAA application identifier
+    ((DEVEUI *) p)->u = response.value.devid.id.appEUI.u;	        // 8 55 OTAA application identifier
     p += 8;
-    memmove(p, &response.value.devid.id.appKey, 16);	                // 16 OTAA application private key
+    memmove(p, &response.value.devid.id.appKey, 16);	            // 16 71 OTAA application private key
     p += 16;
-    memmove(p, &response.value.devid.id.nwkKey, 16);	                // 16 OTAA network key
+    memmove(p, &response.value.devid.id.nwkKey, 16);	            // 16 87 OTAA network key
     p += 16;
-    ((DEVNONCE *) p)->u = response.value.devid.id.devNonce.u;	    // 2 last device nonce (87)
+    ((DEVNONCE *) p)->u = response.value.devid.id.devNonce.u;	    // 2 89 last device nonce (87)
     p += 2;
-    memmove(p, &response.value.devid.id.joinNonce.c, 3);	// 3 Join nonce
+    memmove(p, &response.value.devid.id.joinNonce.c, 3);	        // 3 92 Join nonce
     p += 3;
-
+    memmove(p, &response.value.devid.id.token, 4);	            // 4 96 token
+    p += 4;
+    memmove(p, &response.value.devid.id.region, 1);	            // 1 97 region id
+    p++;
+    memmove(p, &response.value.devid.id.subRegion, 1);	        // 1 98 sub region id
+    p++;
     // added for searching
-    memmove(p, &response.value.devid.id.name, 8);	                // 8 total 141
+    memmove(p, &response.value.devid.id.name, 8);	                // 8 total 106
 }
 
 static void deserializeNETWORKIDENTITY(
@@ -83,8 +88,14 @@ static void deserializeNETWORKIDENTITY(
     p += 2;
     memmove(&retVal.value.devid.id.joinNonce.c, &(((JOINNONCE *) p)->c), 3);	// 3 Join nonce
     p += 3;
+    memmove(&retVal.value.devid.id.token, p, 4);	            // 4 96 token
+    p += 4;
+    memmove(&retVal.value.devid.id.region, p, 1);	            // 1 97 region id
+    p++;
+    memmove(&retVal.value.devid.id.subRegion, p, 1);	        // 1 98 sub region id
+    p++;
     // added for searching
-    memmove(&retVal.value.devid.id.name, p, 8);	            // 8
+    memmove(&retVal.value.devid.id.name, p, 8);	            // 8 total 106
 }
 
 IdentityEUIRequest::IdentityEUIRequest()
@@ -199,7 +210,7 @@ IdentityAssignRequest::IdentityAssignRequest(
     if (sz >= SIZE_ASSIGN_REQUEST) {
         memmove(&identity.value.devaddr.u, buf + SIZE_SERVICE_MESSAGE, sizeof(identity.value.devaddr.u));   // 4
         deserializeNETWORKIDENTITY(identity, buf + SIZE_SERVICE_MESSAGE);
-    }   // 108
+    }   // 119
 }
 
 IdentityAssignRequest::IdentityAssignRequest(
@@ -224,8 +235,8 @@ size_t IdentityAssignRequest::serialize(
 ) const
 {
     ServiceMessage::serialize(retBuf);      // 13
-    serializeNETWORKIDENTITY(retBuf + SIZE_SERVICE_MESSAGE, identity);  // 141
-    return SIZE_ASSIGN_REQUEST;                           // 13 + 141 = 154
+    serializeNETWORKIDENTITY(retBuf + SIZE_SERVICE_MESSAGE, identity);  // 106
+    return SIZE_ASSIGN_REQUEST;                           // 13 + 106 = 119
 }
 
 std::string IdentityAssignRequest::toJsonString() const
@@ -315,6 +326,8 @@ static void ntohNETWORKIDENTITY(
     // OTAA
     value.value.devid.id.appEUI.u = NTOH8(value.value.devid.id.appEUI.u);
     value.value.devid.id.devNonce.u = NTOH2(value.value.devid.id.devNonce.u);
+    // token
+    value.value.devid.id.token = NTOH4(value.value.devid.id.token);
 }
 
 IdentityGetResponse::IdentityGetResponse(
@@ -324,7 +337,7 @@ IdentityGetResponse::IdentityGetResponse(
     : ServiceMessage(buf, sz)   // 13
 {
     if (sz >= SIZE_GET_RESPONSE) {
-        deserializeNETWORKIDENTITY(response, buf + 13);
+        deserializeNETWORKIDENTITY(response, buf + SIZE_SERVICE_MESSAGE);   // staring with byte 13
     }
 }
 
@@ -346,7 +359,7 @@ size_t IdentityGetResponse::serialize(
 {
     ServiceMessage::serialize(retBuf);                   // 13
     serializeNETWORKIDENTITY(retBuf + SIZE_SERVICE_MESSAGE, this->response);
-    return SIZE_GET_RESPONSE;                           // 13 + 95 = 108
+    return SIZE_GET_RESPONSE;                           // 13 + 106 = 119
 }
 
 IdentityNextResponse::IdentityNextResponse(
@@ -356,7 +369,7 @@ IdentityNextResponse::IdentityNextResponse(
     : ServiceMessage(buf, sz)   // 13
 {
     if (sz >= SIZE_GET_RESPONSE) {
-        deserializeNETWORKIDENTITY(response, buf + 13);
+        deserializeNETWORKIDENTITY(response, buf + SIZE_SERVICE_MESSAGE);
     }
 }
 
@@ -378,7 +391,7 @@ size_t IdentityNextResponse::serialize(
 {
     ServiceMessage::serialize(retBuf);                   // 13
     serializeNETWORKIDENTITY(retBuf + SIZE_SERVICE_MESSAGE, this->response);
-    return SIZE_GET_RESPONSE;                           // 13 + 95 = 108
+    return SIZE_GET_RESPONSE;                           // 13 + 106 = 119
 }
 
 IdentityOperationResponse::IdentityOperationResponse()

@@ -25,14 +25,20 @@ enum IdentityQueryTag {
     QUERY_IDENTITY_FILTER = 'f'
 };
 
-// 13 + 4 + 1
+// Operation request: service + size + offset :  13 + 4 + 1
 #define SIZE_OPERATION_REQUEST 18
+// Operation response: Operation request + 4
 #define SIZE_OPERATION_RESPONSE 22
+// Device EUI request: service + eui :  13 + 8
 #define SIZE_DEVICE_EUI_REQUEST  21
+// Device address request: service + addr :  13 + 4
 #define SIZE_DEVICE_ADDR_REQUEST 17
+// Device address & eui request: service + addr :  13 + 8 + 4
 #define SIZE_DEVICE_EUI_ADDR_REQUEST 25
 #define SIZE_NETWORK_IDENTITY 106
+// Device assign identity: service + identity (including address) :  13 + 106
 #define SIZE_ASSIGN_REQUEST 119
+// Device get identity: service + identity (including address) :  13 + 106
 #define SIZE_GET_RESPONSE 119
 
 class IdentityEUIRequest : public ServiceMessage {

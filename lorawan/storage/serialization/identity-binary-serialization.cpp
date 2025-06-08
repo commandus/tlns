@@ -121,7 +121,7 @@ IdentityEUIRequest::IdentityEUIRequest(
     : ServiceMessage(buf, sz)   //  13
 {
     if (sz >= SIZE_DEVICE_EUI_REQUEST) {
-        memmove(&eui.u, &buf[13], sizeof(eui.u));     // 8
+        memmove(&eui.u, &buf[SIZE_SERVICE_MESSAGE], sizeof(eui.u));     // 13 + 8
     }   // 21
 }
 
@@ -208,9 +208,8 @@ IdentityAssignRequest::IdentityAssignRequest(
     : ServiceMessage(buf, sz)   // 13
 {
     if (sz >= SIZE_ASSIGN_REQUEST) {
-        memmove(&identity.value.devaddr.u, buf + SIZE_SERVICE_MESSAGE, sizeof(identity.value.devaddr.u));   // 4
-        deserializeNETWORKIDENTITY(identity, buf + SIZE_SERVICE_MESSAGE);
-    }   // 119
+        deserializeNETWORKIDENTITY(identity, buf + SIZE_SERVICE_MESSAGE);   // 106
+    }   // 13 + 106 = 119
 }
 
 IdentityAssignRequest::IdentityAssignRequest(
@@ -270,8 +269,8 @@ IdentityOperationRequest::IdentityOperationRequest(
     : ServiceMessage(buf, sz)   // 13
 {
     if (sz >= SIZE_OPERATION_REQUEST) {
-        memmove(&offset, &buf[13], sizeof(offset));     // 4
-        memmove(&size, &buf[17], sizeof(size));         // 1
+        memmove(&offset, &buf[SIZE_SERVICE_MESSAGE], sizeof(offset));           // 4
+        memmove(&size, &buf[SIZE_SERVICE_MESSAGE + 4], sizeof(size));           // 1
     }   // 18
 }
 

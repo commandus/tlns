@@ -43,6 +43,9 @@ typedef uint8_t C_KEY128[16];
 typedef uint16_t C_DEVNONCE;
 typedef uint8_t C_JOINNONCE[3];
 typedef uint8_t C_NETID[3];
+typedef uint32_t C_TOKEN;
+typedef uint8_t C_REGION;
+typedef uint8_t C_SUBREGION;
 typedef char C_DEVICENAME[8];
 
 typedef PACK_STRUCT( struct {
@@ -58,13 +61,16 @@ typedef PACK_STRUCT( struct {
     C_KEY128 nwkKey;            ///< OTAA network key
     C_DEVNONCE devNonce;        ///< last device nonce
     C_JOINNONCE joinNonce;      ///< last Join nonce
-    C_DEVICENAME name;
+    C_TOKEN token;              ///< token
+    C_REGION region;            ///< region id
+    C_SUBREGION subRegion;      ///< subRegion id
+    C_DEVICENAME name;          ///< end-device name
 } ) C_DEVICEID;
 
 typedef PACK_STRUCT( struct {
-    C_DEVADDR devaddr;		///< network address 4 bytes
-    C_DEVICEID devid;         // 91 bytes
-} ) C_NETWORKIDENTITY;
+    C_DEVADDR devaddr;		    ///< network address 4 bytes
+    C_DEVICEID devid;           ///< device id 102 bytes
+} ) C_NETWORKIDENTITY;          // 106 bytes
 
 typedef enum C_NETWORK_IDENTITY_COMPARISON_OPERATOR {
     C_NICO_NONE = 0,
@@ -85,20 +91,23 @@ typedef enum C_NETWORK_IDENTITY_LOGICAL_PRE_OPERATOR {
 typedef enum C_NETWORK_IDENTITY_PROPERTY {
     C_NIP_NONE = 0,
     C_NIP_ADDRESS = 1,
-    C_NIP_ACTIVATION = 2,     ///< activation type: ABP or OTAA
-    C_NIP_DEVICE_CLASS = 3,   ///< A, B, C
-    C_NIP_DEVEUI = 4,		    ///< device identifier 8 bytes (ABP device may not store EUI)
-    C_NIP_NWKSKEY = 5,		///< shared session key 16 bytes
-    C_NIP_APPSKEY = 6,        ///< private key 16 bytes
+    C_NIP_ACTIVATION = 2,         ///< activation type: ABP or OTAA
+    C_NIP_DEVICE_CLASS = 3,       ///< A, B, C
+    C_NIP_DEVEUI = 4,		      ///< device identifier 8 bytes (ABP device may not store EUI)
+    C_NIP_NWKSKEY = 5,		      ///< shared session key 16 bytes
+    C_NIP_APPSKEY = 6,            ///< private key 16 bytes
     C_NIP_LORAWAN_VERSION = 7,
     // OTAA
-    C_NIP_APPEUI = 8,			///< OTAA application identifier
-    C_NIP_APPKEY = 9,			///< OTAA application private key
-    C_NIP_NWKKEY = 10,        ///< OTAA network key
-    C_NIP_DEVNONCE = 11,      ///< last device nonce
-    C_NIP_JOINNONCE = 12,     ///< last Join nonce
+    C_NIP_APPEUI = 8,			  ///< OTAA application identifier
+    C_NIP_APPKEY = 9,             ///< OTAA application private key
+    C_NIP_NWKKEY = 10,            ///< OTAA network key
+    C_NIP_DEVNONCE = 11,          ///< last device nonce
+    C_NIP_JOINNONCE = 12,         ///< last Join nonce
+    C_NIP_TOKEN = 13,             ///< last token
+    C_NIP_REGION = 14,            ///< end-device region
+    C_NIP_SUBREGION = 15,         ///< end-device sub-region
     // added for searching
-    C_NIP_DEVICENAME = 13
+    C_NIP_DEVICENAME = 16
 } C_NETWORK_IDENTITY_PROPERTY;
 
 typedef PACK_STRUCT( struct {
@@ -149,11 +158,36 @@ EXPORT_SHARED_C_FUNC void destroyIdentityServiceC(
     void *instance
 );
 
-EXPORT_SHARED_C_FUNC int c_get(void *o, C_DEVICEID *retVal, const C_DEVADDR *devAddr);
-EXPORT_SHARED_C_FUNC int c_getNetworkIdentity(void *o, C_NETWORKIDENTITY *retVal, const C_DEVEUI *eui);
-EXPORT_SHARED_C_FUNC int c_put(void *o, const C_DEVADDR *devaddr, const C_DEVICEID *id);
-EXPORT_SHARED_C_FUNC int c_rm(void *o, const C_DEVADDR *addr);
-EXPORT_SHARED_C_FUNC int c_list(void *o, C_NETWORKIDENTITY retVal[], uint32_t offset, uint8_t size);
+EXPORT_SHARED_C_FUNC int c_get(
+    void *o,
+    C_DEVICEID *retVal,
+    const C_DEVADDR *devAddr
+);
+
+EXPORT_SHARED_C_FUNC int c_getNetworkIdentity(
+    void *o,
+    C_NETWORKIDENTITY *retVal,
+    const C_DEVEUI *eui
+);
+
+EXPORT_SHARED_C_FUNC int c_put(
+    void *o,
+    const C_DEVADDR *devaddr,
+    const C_DEVICEID *id
+);
+
+EXPORT_SHARED_C_FUNC int c_rm(
+    void *o,
+    const C_DEVADDR *addr
+);
+
+EXPORT_SHARED_C_FUNC int c_list(
+    void *o,
+    C_NETWORKIDENTITY retVal[],
+    uint32_t offset,
+    uint8_t size
+);
+
 EXPORT_SHARED_C_FUNC int c_filter(
     void *o,
     C_NETWORKIDENTITY retVal[],
@@ -172,15 +206,49 @@ EXPORT_SHARED_C_FUNC int c_filterExpression(
     uint8_t size
 );
 
-EXPORT_SHARED_C_FUNC size_t c_size(void *o);
-EXPORT_SHARED_C_FUNC int c_next(void *o, C_NETWORKIDENTITY *retVal);
-EXPORT_SHARED_C_FUNC void c_flush(void *o);
-EXPORT_SHARED_C_FUNC int c_init(void *o, const char *option, void *data);
-EXPORT_SHARED_C_FUNC void c_done(void *o);
-EXPORT_SHARED_C_FUNC void c_setOption(void *o, int option, void *value);
-EXPORT_SHARED_C_FUNC C_NETID *c_getNetworkId(void *o);
-EXPORT_SHARED_C_FUNC void c_setNetworkId(void *o, const C_NETID *value);
-EXPORT_SHARED_C_FUNC int c_joinAccept(void *o, C_JOIN_ACCEPT_FRAME_HEADER *retVal, C_NETWORKIDENTITY *networkIdentity);
+EXPORT_SHARED_C_FUNC size_t c_size(
+    void *o
+);
+
+EXPORT_SHARED_C_FUNC int c_next(
+    void *o,
+    C_NETWORKIDENTITY *retVal
+);
+
+EXPORT_SHARED_C_FUNC void c_flush(
+    void *o
+);
+
+EXPORT_SHARED_C_FUNC int c_init(
+    void *o,
+    const char *option,
+    void *data
+);
+
+EXPORT_SHARED_C_FUNC void c_done(
+    void *o
+);
+
+EXPORT_SHARED_C_FUNC void c_setOption(
+    void *o,
+    int option,
+    void *value
+);
+
+EXPORT_SHARED_C_FUNC C_NETID *c_getNetworkId(
+    void *o
+);
+
+EXPORT_SHARED_C_FUNC void c_setNetworkId(
+    void *o,
+    const C_NETID *value
+);
+
+EXPORT_SHARED_C_FUNC int c_joinAccept(
+    void *o,
+    C_JOIN_ACCEPT_FRAME_HEADER *retVal,
+    C_NETWORKIDENTITY *networkIdentity
+);
 
 EXPORT_SHARED_C_FUNC void text2c_devaddr(
     C_DEVADDR *retVal,

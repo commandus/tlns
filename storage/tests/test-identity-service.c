@@ -15,7 +15,8 @@ static C_DEVICEID devId = {
     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
     0xaabb,      // last device nonce
-    { 5, 6, 7 },    ///< last Join nonce
+    { 5, 6, 7 },    // last Join nonce
+    0, 0, 0, // token, region, sub-region
     { 'n', 'a', 'm', 'e', 0, 0, 0, 0 }
 };
 
@@ -115,7 +116,7 @@ static void testLmdb()
 static void testString()
 {
     char buffer[256];
-    char *p[13];
+    char *p[16];
 
     memset(buffer, 0, sizeof(buffer));
     C_DEVADDR a = 0x01020304;
@@ -130,11 +131,10 @@ static void testString()
     c_deviceid2text(buffer + position, sizeof(buffer) - position, p, &devId);
     memset(&did, 0, sizeof(did));
     text2c_deviceid(&did, (const char **) p);
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 16; i++) {
         printf("%s ", p[i]);
     }
     printf("\n");
-
 
     memset(buffer, 0, sizeof(buffer));
     C_NETWORKIDENTITY v;
@@ -148,11 +148,10 @@ static void testString()
     memset(&buffer, 0, sizeof(buffer));
     memset(&p, 0, sizeof(p));
     c_networkidentity2text(buffer, sizeof(buffer), p, &v);
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 16; i++) {
         printf("%s ", p[i]);
     }
     printf("\n");
-
 }
 
 int main() {

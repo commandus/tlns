@@ -646,11 +646,9 @@ typedef PACK( struct {
     KEY128 nwkKey;          ///< OTAA network key               16 83
     DEVNONCE devNonce;      ///< last device nonce              2  85
     JOINNONCE joinNonce;    ///< last Join nonce                3  88
-
 	uint32_t token;			///< last end-device token used, 2 bytes used, high bytes reserved
 	uint8_t region;			///< 0- default(assigned by gateway or network server) 1..14- device programmed
 	uint8_t subRegion;		///< 0- default. CN470-510: 1- type A(20MHz antenna), 2- type B(26MHz antenna)
-
     DEVICENAME name;        ///< name, comment or tag           8 102
 } ) DEVICE_ID;
 
@@ -693,6 +691,9 @@ public:
         const KEY128 &nwkKey,
         DEVNONCE devNonce,
         const JOINNONCE joinNonce,
+        uint32_t token,
+		uint8_t region,
+		uint8_t subRegion,
         const DEVICENAME name
     );
     // ABP
@@ -702,6 +703,9 @@ public:
         const KEY128 &nwkSKey,
         const KEY128 &appSKey,
         LORAWAN_VERSION version,
+        uint32_t token,
+		uint8_t region,
+		uint8_t subRegion,
         const DEVICENAME name
     );
 

@@ -1465,6 +1465,9 @@ DEVICEID::DEVICEID(
     const KEY128 &nwkKey,
     DEVNONCE devNonce,
     const JOINNONCE joinNonce,
+    uint32_t token,
+    uint8_t region,
+    uint8_t subRegion,
     const DEVICENAME name
 ) {
     this->id.activation = activation;
@@ -1478,9 +1481,9 @@ DEVICEID::DEVICEID(
     memmove(&this->id.appKey.c, &appKey.c, sizeof(KEY128));
     this->id.devNonce = devNonce;
     memmove(&this->id.joinNonce.c, &joinNonce.c, sizeof(JOINNONCE));
-    id.token = 0;
-    id.region = 0;
-    id.subRegion = 0;
+    id.token = token;
+    id.region = region;
+    id.subRegion = subRegion;
     memmove(&this->id.name, &name, sizeof(DEVICENAME));
 }
 
@@ -1490,6 +1493,9 @@ DEVICEID::DEVICEID(
     const KEY128 &nwkSKey,
     const KEY128 &appSKey,
     LORAWAN_VERSION version,
+    uint32_t token,
+    uint8_t region,
+    uint8_t subRegion,
     const DEVICENAME name
 ) {
     id.activation = ABP;
@@ -1503,9 +1509,9 @@ DEVICEID::DEVICEID(
     memset(&this->id.appKey.c, 0, sizeof(KEY128));
     id.devNonce.u = 0;
     memset(&id.joinNonce.c, 0, sizeof(JOINNONCE));
-    id.token = 0;
-    id.region = 0;
-    id.subRegion = 0;
+    id.token = token;
+    id.region = region;
+    id.subRegion = subRegion;
     memmove(&this->id.name, &name, sizeof(DEVICENAME));
 }
 

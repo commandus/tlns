@@ -84,6 +84,9 @@ static void DEVICEID2C_DEVICEID(
     memmove(&retVal->nwkKey, &did.id.nwkKey, sizeof(KEY128));
     retVal->devNonce = did.id.devNonce.u;
     memmove(&retVal->joinNonce, &did.id.joinNonce, sizeof(C_JOINNONCE));
+    retVal->token = did.id.token;
+    retVal->region = did.id.region;
+    retVal->subRegion = did.id.subRegion;
     memmove(&retVal->name, &did.id.name, sizeof(C_DEVICENAME));
 }
 
@@ -103,6 +106,9 @@ static void NETWORKIDENTITY2C_NETWORKIDENTITY(
     memmove(&retVal->devid.nwkKey, &nid.value.devid.id.nwkKey, sizeof(KEY128));
     retVal->devid.devNonce = nid.value.devid.id.devNonce.u;
     memmove(&retVal->devid.joinNonce, &nid.value.devid.id.joinNonce, sizeof(C_JOINNONCE));
+    retVal->devid.token = nid.value.devid.id.token;
+    retVal->devid.region = nid.value.devid.id.region;
+    retVal->devid.subRegion = nid.value.devid.id.subRegion;
     memmove(&retVal->devid.name, &nid.value.devid.id.name, sizeof(C_DEVICENAME));
 }
 
@@ -121,6 +127,9 @@ static void C_DEVICEID2DEVICEID(
     memmove(&retVal.id.nwkKey, &did->nwkKey, sizeof(KEY128));
     retVal.id.devNonce.u = did->devNonce;
     memmove(&retVal.id.joinNonce, &did->joinNonce, sizeof(C_JOINNONCE));
+    retVal.id.token = did->token;
+    retVal.id.region = did->region;
+    retVal.id.subRegion = did->subRegion;
     memmove(&retVal.id.name, &did->name, sizeof(C_DEVICENAME));
 }
 
@@ -144,8 +153,8 @@ static void C_NETWORK_IDENTITY_FILTER2NETWORK_IDENTITY_FILTER(
 }
 
 static void JOIN_ACCEPT_FRAME_HEADER2C_JOIN_ACCEPT_FRAME_HEADER(
-        C_JOIN_ACCEPT_FRAME_HEADER *retVal,
-        const JOIN_ACCEPT_FRAME_HEADER &hdr
+    C_JOIN_ACCEPT_FRAME_HEADER *retVal,
+    const JOIN_ACCEPT_FRAME_HEADER &hdr
 ) {
     retVal->joinNonce[0] = hdr.joinNonce.c[0];
     retVal->joinNonce[1] = hdr.joinNonce.c[1];
@@ -189,18 +198,21 @@ EXPORT_SHARED_C_FUNC int c_put(
 ) {
     const DEVADDR a(*devaddr);
     const DEVICEID did(
-            static_cast<ACTIVATION>(id->activation),
-            static_cast<DEVICECLASS>(id->deviceclass),
-            static_cast<DEVEUI>(id->devEUI),
-            *(KEY128 *) &id->nwkSKey,
-            *(KEY128 *) &id->appSKey,
-            id->version,
-            static_cast<DEVEUI>(id->appEUI),
-            *(KEY128 *) &id->appKey,
-            *(KEY128 *) &id->nwkKey,
-            static_cast<DEVNONCE>(id->devNonce),
-            *(JOINNONCE *) &id->joinNonce,
-            static_cast<DEVICENAME>(id->name)
+        static_cast<ACTIVATION>(id->activation),
+        static_cast<DEVICECLASS>(id->deviceclass),
+        static_cast<DEVEUI>(id->devEUI),
+        *(KEY128 *) &id->nwkSKey,
+        *(KEY128 *) &id->appSKey,
+        id->version,
+        static_cast<DEVEUI>(id->appEUI),
+        *(KEY128 *) &id->appKey,
+        *(KEY128 *) &id->nwkKey,
+        static_cast<DEVNONCE>(id->devNonce),
+        *(JOINNONCE *) &id->joinNonce,
+        id->token,
+        id->region,
+        id->subRegion,
+        static_cast<DEVICENAME>(id->name)
     );
     return ((IdentityService *) o)->put(a, did);
 }
@@ -249,7 +261,6 @@ EXPORT_SHARED_C_FUNC int c_filter(
     for (auto i = 0; i < v.size(); i++) {
         retVal[i].devaddr = v[i].value.devaddr.u;
         NETWORKIDENTITY2C_NETWORKIDENTITY(&retVal[i], v[i]);
-
     }
     return r < 0 ? r : (int) v.size();
 }
@@ -379,7 +390,10 @@ EXPORT_SHARED_C_FUNC void text2c_deviceid(
     string2KEY(did.id.nwkKey, lines[9]);
     did.id.devNonce = string2DEVNONCE(lines[10]);
     string2JOINNONCE(did.id.joinNonce, lines[11]);
-    string2DEVICENAME(did.id.name, lines[12]);
+    did.id.token = string2token(lines[12]);
+    did.id.region = string2token(lines[13]);
+    did.id.subRegion = string2token(lines[14]);
+    string2DEVICENAME(did.id.name, lines[15]);
 
     DEVICEID2C_DEVICEID(retVal, did);
 }
@@ -449,7 +463,11 @@ EXPORT_SHARED_C_FUNC void c_deviceid2text(
     position += addString2Buffer(buffer, position, bufferSize, 9, retVal, KEY2string(did.id.appKey));
     position += addString2Buffer(buffer, position, bufferSize, 10, retVal, DEVNONCE2string(did.id.devNonce));
     position += addString2Buffer(buffer, position, bufferSize, 11, retVal, JOINNONCE2string(did.id.joinNonce));
-    position += addString2Buffer(buffer, position, bufferSize, 12, retVal, DEVICENAME2string(did.id.name));
+
+    position += addString2Buffer(buffer, position, bufferSize, 12, retVal, token2string(did.id.token));
+    position += addString2Buffer(buffer, position, bufferSize, 13, retVal, region2string(did.id.region));
+    position += addString2Buffer(buffer, position, bufferSize, 14, retVal, subRegion2string(did.id.subRegion));
+    position += addString2Buffer(buffer, position, bufferSize, 15, retVal, DEVICENAME2string(did.id.name));
 }
 
 EXPORT_SHARED_C_FUNC void c_networkidentity2text(

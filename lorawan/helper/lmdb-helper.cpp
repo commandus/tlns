@@ -16,10 +16,10 @@ dbenv::dbenv()
 
 dbenv::dbenv(
     const std::string &aPath,
-    int aflags,
-    int amode
+    int aFlags,
+    int aMode
 )
-    : path(aPath), flags(aflags), mode(amode), log(nullptr)
+    : path(aPath), flags(aFlags), mode(aMode), log(nullptr)
 {
 
 }
@@ -108,7 +108,7 @@ bool openDb(
 
     rc = mdb_env_open(env->env, env->path.c_str(), env->flags, env->mode);
     if (rc) {
-        if (rc == 3) {
+        if (rc) {  // rc == 2, rc == 3
             // try to create a new directory
             bool dirCreated = file::mkDir(env->path);
             if (dirCreated) {

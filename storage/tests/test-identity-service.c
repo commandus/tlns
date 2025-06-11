@@ -22,9 +22,14 @@ static C_DEVICEID devId = {
 
 static void testSqlite()
 {
+    printf("Test SQLite3 backend filters, database 'test.sqlite.db'\n");
+
     // sqlite
     void *o = makeIdentityServiceC(CISI_SQLITE);
-
+    if (!o) {
+        fprintf(stderr, "SQLite3 support disabled, exit.\n");
+        return;
+    }
     c_init(o, "test.sqlite.db", NULL);
     c_put(o, &devAddr, &devId);
     memset(&devId, 0, sizeof(devId));
@@ -42,9 +47,25 @@ static void testSqlite()
         { C_NILPO_AND, C_NIP_DEVICE_CLASS, C_NICO_EQ, 1, 1 }
     };
     c = c_filter(o, nis, filters, 3, 0, 2);
+    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %d\n", c);
+
+    char buffer[256];
+    char *p[16];
+    memset(&p, 0, sizeof(p));
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
 
     const char *filterExpression = "activation = 'ABP' and deveui = '12345678' and class = 'B'";
     c = c_filterExpression(o, nis, filterExpression, strlen(filterExpression), 0, 2);
+    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %d\n", c);
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
 
     c_done(o);
     destroyIdentityServiceC(o);
@@ -52,6 +73,7 @@ static void testSqlite()
 
 static void testJson()
 {
+    printf("Test JSON file backend filters, file 'test.json'\n");
     // JSON
     void *o = makeIdentityServiceC(CISI_JSON);
     c_init(o, "test.json", NULL);
@@ -71,10 +93,22 @@ static void testJson()
         { C_NILPO_AND, C_NIP_DEVICE_CLASS, C_NICO_EQ, 1, 1 }
     };
     c = c_filter(o, nis, filters, 3, 0, 2);
-
+    char buffer[256];
+    char *p[16];
+    memset(&p, 0, sizeof(p));
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
 
     const char *filterExpression = "activation = 'ABP' and deveui = '12345678' and class = 'B'";
     c = c_filterExpression(o, nis, filterExpression, strlen(filterExpression), 0, 2);
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
 
     c_flush(o);
     c_done(o);
@@ -83,12 +117,18 @@ static void testJson()
 
 static void testLmdb()
 {
+    printf("Test LMDB file backend filters, file 'test.identity.lmdb.db'\n");
     // LMDB
     void *o = makeIdentityServiceC(CISI_LMDB);
-
-    int r = c_init(o, "test.identity.lmdb.db", NULL);
-    if (r)
+    if (!o) {
+        fprintf(stderr, "LMDB support disabled, exit.\n");
         return;
+    }
+    int r = c_init(o, "test.identity.lmdb.db", NULL);
+    if (r) {
+        fprintf(stderr, "LMDB error %d (In case -5031 create file )\n", r);
+        return;
+    }
     c_put(o, &devAddr, &devId);
     memset(&devId, 0, sizeof(devId));
 
@@ -106,8 +146,25 @@ static void testLmdb()
     };
     c = c_filter(o, nis, filters, 3, 0, 2);
 
+    char buffer[256];
+    char *p[16];
+    memset(&p, 0, sizeof(p));
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %d\n", c);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
+
     const char *filterExpression = "activation = 'ABP' and deveui = '12345678' and class = 'B'";
     c = c_filterExpression(o, nis, filterExpression, strlen(filterExpression), 0, 2);
+    c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
+
+    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %d\n", c);
+    for (int i = 0; i < 16; i++) {
+        printf("%s ", p[i]);
+    }
+    printf("\n");
 
     c_done(o);
     destroyIdentityServiceC(o);
@@ -115,6 +172,8 @@ static void testLmdb()
 
 static void testString()
 {
+    printf("Test c_deviceid2text(), c_networkidentity2text(), text2c_networkidentity()\n");
+
     char buffer[256];
     char *p[16];
 
@@ -156,8 +215,8 @@ static void testString()
 
 int main() {
     testString();
-    // testSqlite();
-    // testJson();
-    // testLmdb();
+    testSqlite();
+    testJson();
+    testLmdb();
     return 0;
 }

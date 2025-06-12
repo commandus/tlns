@@ -257,6 +257,7 @@ public:
     explicit DEVICENAME(const std::string &value);
     explicit DEVICENAME(const char *value);
     std::string toString() const;
+	bool empty() const;
 });
 
 #define SIZE_DEVICENAME 8
@@ -760,6 +761,9 @@ typedef PACK(struct {
      uint16_t vendorProfileId;
 } ) PROFILE_TYPE;		// 4 bytes
 
+/**
+ * Vendor identifer & vendor profile identifier
+ */
 PACK(class PROFILEID {
      public:
          union {

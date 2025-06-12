@@ -1411,6 +1411,11 @@ std::string DEVICENAME::toString() const
     return DEVICENAME2string(*this);
 }
 
+bool DEVICENAME::empty() const
+{
+    return c[0] == 0;
+}
+
 DEVICEID::DEVICEID() {
     this->id.activation = ABP;
     this->id.deviceclass = CLASS_A;

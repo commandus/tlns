@@ -98,6 +98,18 @@ bool LorawanIdentificationURN::parseToken(
                         case 'J':    // joinNonce
                             string2JOINNONCE(networkIdentity.value.devid.id.joinNonce, token.substr(2));
                             break;
+                        case 'M':
+                            string2DEVICENAME(networkIdentity.value.devid.id.name, token.substr(2).c_str());
+                            break;
+                        case 'E':
+                            networkIdentity.value.devid.id.token = string2token(token.substr(2).c_str());
+                            break;
+                        case 'R':
+                            networkIdentity.value.devid.id.region = string2region(token.substr(2).c_str());
+                            break;
+                        case 'G':
+                            networkIdentity.value.devid.id.subRegion = string2subRegion(token.substr(2).c_str());
+                            break;
                         case 'X':     // 'command': 'A', 'I', 'L', 'C', 'N', 'P', 'R', 'S', 'E'
                             if (token.size() > 1)
                                 command = token[2];
@@ -204,6 +216,15 @@ std::string NETWORKIDENTITY2URN(
         proprietary.push_back("N" + KEY2string(networkIdentity.value.devid.id.nwkKey));
         proprietary.push_back("O" + DEVNONCE2string(networkIdentity.value.devid.id.devNonce));
         proprietary.push_back("J" + JOINNONCE2string(networkIdentity.value.devid.id.joinNonce));
+
+        if (!networkIdentity.value.devid.id.name.empty())
+            proprietary.push_back("M" + DEVICENAME2string(networkIdentity.value.devid.id.name));
+        if (networkIdentity.value.devid.id.token)
+            proprietary.push_back("E" + token2string(networkIdentity.value.devid.id.token));
+        if (networkIdentity.value.devid.id.region)
+            proprietary.push_back("R" + region2string(networkIdentity.value.devid.id.region));
+        if (networkIdentity.value.devid.id.subRegion)
+            proprietary.push_back("G" + subRegion2string(networkIdentity.value.devid.id.subRegion));
     }
 
     return mkURN(networkIdentity.value.devid.id.appEUI, networkIdentity.value.devid.id.devEUI, pid,

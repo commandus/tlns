@@ -8,6 +8,7 @@
 const char* URN_PREFIX = "LW:";
 const char* SCHEMA_ID = "D0:";
 const char* DLMT = ":";
+#define PROPRITERY_SYMBOL   'P'
 
 static uint16_t calcCheckSum(
     const std::string &urn
@@ -64,7 +65,7 @@ bool LorawanIdentificationURN::parseToken(
                 case 'S':
                     serialNumber = token.substr(1);
                     break;
-                case 'P':
+                case PROPRITERY_SYMBOL: // 'P'
                     if (token.size() < 2)
                         return false;
                     switch (token[1]) {
@@ -102,13 +103,13 @@ bool LorawanIdentificationURN::parseToken(
                             string2DEVICENAME(networkIdentity.value.devid.id.name, token.substr(2).c_str());
                             break;
                         case 'E':
-                            networkIdentity.value.devid.id.token = string2token(token.substr(2).c_str());
+                            networkIdentity.value.devid.id.token = string2token(token.substr(2));
                             break;
                         case 'R':
-                            networkIdentity.value.devid.id.region = string2region(token.substr(2).c_str());
+                            networkIdentity.value.devid.id.region = string2region(token.substr(2));
                             break;
                         case 'G':
-                            networkIdentity.value.devid.id.subRegion = string2subRegion(token.substr(2).c_str());
+                            networkIdentity.value.devid.id.subRegion = string2subRegion(token.substr(2));
                             break;
                         case 'X':     // 'command': 'A', 'I', 'L', 'C', 'N', 'P', 'R', 'S', 'E'
                             if (token.size() > 1)
@@ -269,10 +270,9 @@ std::string stripURNProprietary(
     std::stringstream ss;
     size_t p = 0;
     size_t lastP = 0;
-    int count = 0;
     while ((p = urn.find(':', p)) != std::string::npos)  {
         auto c = urn.substr(lastP, p - lastP + 1);
-        if (!(c.length() >= 1 && c[0] == 'P'))
+        if (!(!c.empty() && c[0] == PROPRITERY_SYMBOL))
             ss << c;
         p++;
         lastP = p;
@@ -280,7 +280,7 @@ std::string stripURNProprietary(
     auto sz = urn.size();
     if (lastP < sz) {
         auto c = urn.substr(lastP, sz - lastP + 1);
-        if (!(c.length() >= 1 && c[0] == 'P'))
+        if (!(!c.empty() && c[0] == PROPRITERY_SYMBOL))
             ss << c;
     }
     return ss.str();

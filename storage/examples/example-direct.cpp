@@ -1,5 +1,5 @@
 /**
- * g++ -o example-direct -I.. example-direct.cpp -L../cmake-build-debug -llorawan
+ * g++ -o example-direct -I.. example-direct.cpp $LORAWAN/storage/service/gateway-service-json.cpp -L../cmake-build-debug -llorawan
  */
 #include "lorawan/storage/client/service-client.h"
 

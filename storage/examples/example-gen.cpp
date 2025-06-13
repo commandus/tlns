@@ -28,13 +28,13 @@ int main(int argc, char *argv[])
     size_t size = 10;
     c.list(nids, offset, size);
     for (auto n: nids) {
-        std::cout << DEVADDR2string(n.devaddr)
-            << '\t' << DEVEUI2string(n.devid.devEUI)
-            << '\t' << DEVEUI2string(n.devid.appEUI)
-            << '\t' << KEY2string(n.devid.nwkKey)
-            << '\t' << KEY2string(n.devid.appKey)
-            << '\t' << KEY2string(n.devid.nwkSKey)
-            << '\t' << KEY2string(n.devid.appSKey)
+        std::cout << DEVADDR2string(n.value.devaddr)
+            << '\t' << DEVEUI2string(n.value.devid.id.devEUI)
+            << '\t' << DEVEUI2string(n.value.devid.id.appEUI)
+            << '\t' << KEY2string(n.value.devid.id.nwkKey)
+            << '\t' << KEY2string(n.value.devid.id.appKey)
+            << '\t' << KEY2string(n.value.devid.id.nwkSKey)
+            << '\t' << KEY2string(n.value.devid.id.appSKey)
             << '\n';
     }
 

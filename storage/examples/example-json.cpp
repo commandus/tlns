@@ -1,6 +1,6 @@
 /**
  * Example shows how to use device in-memory storage stored in JSON file
- * g++ -o example-json -I.. example-json.cpp -L../cmake-build-debug -llorawan
+ * g++ -o example-json -I.. example-json.cpp $LORAWAN/storage/service/gateway-service-json.cpp -L../cmake-build-debug -llorawan
  */
 #include <iostream>
 #include "lorawan/storage/service/identity-service-json.h"

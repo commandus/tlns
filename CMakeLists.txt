@@ -6,6 +6,7 @@
 # -DENABLE_GW_DEV_USB=on    build RAK2287 USB gateway backend
 # -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only. libuv dependency required.
 # -DENABLE_DEBUG=off   		enable debugging output
+# -DENABLE_EXAMPLES=off 	build examples
 # -DENABLE_GEN=on   		enable key generator (default in memory storage)
 # -DENABLE_SQLITE=off  		enable SQLite3 backend. sqlite3 libsqlite3-dev dependencies required.
 # -DENABLE_LMDB=off  		enable LMDB backend. liblmdb++-dev (and liblmdb-dev) dependencies required.
@@ -96,6 +97,7 @@ else()
 	option(ENABLE_GW_DEV_USB "Build RAK2287 USB gateway backend" ON)
 	option(ENABLE_IPV6 "Build with IPv6" OFF)
 	option(ENABLE_DEBUG "Build with debug" OFF)
+	option(ENABLE_EXAMPLES "Build examples" OFF)
 	option(ENABLE_LIBUV "Build with libuv" OFF)
 	option(ENABLE_GEN "Build with generator" OFF)
 	option(ENABLE_SQLITE "Build with SQLite" OFF)
@@ -424,7 +426,7 @@ if (ENABLE_VIEW_IDENTITY)
 endif()
 
 #
-# Gateway and identifier storage
+# Gateway and end-device identifier storage service/client
 #
 add_subdirectory(storage)
 
@@ -444,6 +446,7 @@ message("")
 message("-DENABLE_GW_DEV_USB=${ENABLE_GW_DEV_USB} \t build RAK2287 USB gateway backend")
 message("-DENABLE_LIBUV=${ENABLE_LIBUV} \t enable libuv UDP/TCP")
 message("-DENABLE_DEBUG=${ENABLE_DEBUG} \t enable debugging output")
+message("-DENABLE_EXAMPLES=${ENABLE_EXAMPLES} \t build examples")
 message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory storage)")
 message("-DENABLE_SQLITE=${ENABLE_SQLITE} \t enable SQLITE3 backend (reserved)")
 message("-DENABLE_LMDB=${ENABLE_LMDB} \t enable LMDB backend")

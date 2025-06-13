@@ -5,6 +5,7 @@
 # Options:
 # -DENABLE_LIBUV=off   	enable libuv UDP/TCP. Default UDP only. libuv dependency required.
 # -DENABLE_DEBUG=off   	enable debugging output
+# -DENABLE_EXAMPLES=off build examples
 # -DENABLE_GEN=on   	enable key generator (default in memory storage)
 # -DENABLE_HTTP=off		enable HTTP service. libmicrohttpd dependency required.
 # -DENABLE_QRCODE=off	enable HTTP QRCode URN service.
@@ -42,6 +43,7 @@ else()
 
 	option(ENABLE_IPV6 "Build with IPv6" OFF)
 	option(ENABLE_DEBUG "Build with debug" OFF)
+	option(ENABLE_EXAMPLES "Build examples" OFF)
 	option(ENABLE_LIBUV "Build with libuv" OFF)
 	option(ENABLE_GEN "Build with generator" OFF)
 	option(ENABLE_HTTP "Build with HTTP" OFF)
@@ -172,6 +174,10 @@ else()
 	target_link_libraries(lorawan-tag PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(lorawan-tag PRIVATE ${TLNS_DEF})
 
+	if (ENABLE_EXAMPLES)
+		add_subdirectory(examples)
+	endif()
+
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
@@ -197,6 +203,7 @@ else()
 	message("")
 	message("-DENABLE_LIBUV=${ENABLE_LIBUV} \t enable libuv UDP/TCP")
 	message("-DENABLE_DEBUG=${ENABLE_DEBUG} \t enable debugging output")
+	message("-DENABLE_EXAMPLES=${ENABLE_EXAMPLES} \t build examples")
 	message("-DENABLE_GEN=${ENABLE_GEN} \t enable key generator (default in memory storage)")
 	message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 	message("-DENABLE_QRCODE=${ENABLE_QRCODE} \t enable HTTP QRCode URN service")

@@ -47,7 +47,7 @@ static void testSqlite()
         { C_NILPO_AND, C_NIP_DEVICE_CLASS, C_NICO_EQ, 1, 1 }
     };
     c = c_filter(o, nis, filters, 3, 0, 2);
-    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %d\n", c);
+    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %lu\n", c);
 
     char buffer[256];
     char *p[16];
@@ -60,7 +60,7 @@ static void testSqlite()
 
     const char *filterExpression = "activation = 'ABP' and deveui = '12345678' and class = 'B'";
     c = c_filterExpression(o, nis, filterExpression, strlen(filterExpression), 0, 2);
-    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %d\n", c);
+    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %lu\n", c);
     c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
     for (int i = 0; i < 16; i++) {
         printf("%s ", p[i]);
@@ -77,7 +77,6 @@ static void testJson()
     // JSON
     void *o = makeIdentityServiceC(CISI_JSON);
     c_init(o, "test.json", NULL);
-    size_t sz = c_size(o);
     c_put(o, &devAddr, &devId);
     memset(&devId, 0, sizeof(devId));
     c_get(o, &devId, &devAddr);
@@ -86,7 +85,6 @@ static void testJson()
     int c = c_list(o, nis, 0, 2);
     // c_rm(o, &devAddr);
     c = c_list(o, nis, 0, 2);
-    C_NETWORK_IDENTITY_FILTER ff = {C_NILPO_AND, C_NIP_ACTIVATION, C_NICO_EQ, 1, 1};
     C_NETWORK_IDENTITY_FILTER filters[3] = {
         { C_NILPO_AND, C_NIP_ACTIVATION, C_NICO_EQ, 1, 0 },
         { C_NILPO_AND, C_NIP_DEVEUI, C_NICO_EQ, sizeof(C_DEVEUI), { 0x78, 0x56, 0x34, 0x12 }},

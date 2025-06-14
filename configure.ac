@@ -8,6 +8,7 @@
 # --enable-gen=no          	enable key generator (default in memory storage)
 # --enable-mqtt=no          build with MQTT bridge
 # --enable-json=no 	        enable JSON file backend
+# --enable-gw-dev-usb=no 	  enable USB gateway 
 
 #
 AC_PREREQ([2.63])
@@ -88,6 +89,15 @@ AC_ARG_ENABLE([json],
 esac],[json=false])
 AM_CONDITIONAL([ENABLE_JSON], [test x$json = xtrue])
 
+AC_ARG_ENABLE([gw_dev_usb],
+[  --enable-gw-dev-usb    enable USB gateway],
+[case "${enableval}" in
+  yes) gw_dev_usb=true ;;
+  no)  gw_dev_usb=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-gw-dev-usb]) ;;
+esac],[json=false])
+AM_CONDITIONAL([ENABLE_GW_DEV_USB], [test x$gw_dev_usb = xtrue])
+
 if test "$sqlite" = "true"; then
 AC_CHECK_HEADERS(sqlite3.h)
 AC_CHECK_LIB(sqlite3,sqlite3_close)
@@ -134,6 +144,13 @@ AC_MSG_RESULT([build with MQTT (--enable-mqtt):       yes])
 else
 AC_MSG_RESULT([build with MQTT (--enable-mqtt):       no])
 fi
+
+if test "$gw_dev_usb" = "true"; then
+AC_MSG_RESULT([build with USB (--enable-gw-dev-usb):  yes])
+else
+AC_MSG_RESULT([build with USB (--enable-gw-dev-usb):  no])
+fi
+
 AC_MSG_RESULT([+--------------------------------------])
 
 AC_OUTPUT

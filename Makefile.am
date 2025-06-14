@@ -187,7 +187,7 @@ nobase_dist_include_HEADERS = \
 #
 lib_LIBRARIES = liblorawan.a
 if ENABLE_GW_DEV_USB
-lib_LIBRARIES += libloragw.a
+    lib_LIBRARIES += libloragw.a
 endif
 
 #
@@ -195,7 +195,7 @@ endif
 #
 lib_LTLIBRARIES = libstdout-bridge.la libfile-json-bridge.la libtcp-udp-bridge.la
 if ENABLE_MQTT
-lib_LTLIBRARIES += libbridge-mqtt-wss.la
+    lib_LTLIBRARIES += libbridge-mqtt-wss.la
 endif
 
 #
@@ -224,15 +224,21 @@ cli_main_check_CPPFLAGS = $(EXTRA_DEF)
 
 # -----------------------
 gw_dev_usb_SOURCES = \
-	gw-dev/usb/gw-dev-usb.cpp gw-dev/usb/task-usb-socket.cpp gw-dev/usb/rak2286.cpp \
+	gw-dev/usb/gw-dev-usb.cpp gw-dev/usb/task-usb-socket.cpp gw-dev/usb/rak2287.cpp \
+    gw-dev/usb/gateway-settings-helper.cpp \
     task-response-threaded.cpp \
     lorawan/bridge/app-bridge.cpp \
     lorawan/bridge/stdout-bridge.cpp \
     lorawan/bridge/tcp-udp-v4-bridge.cpp \
     lorawan/helper/thread-helper.cpp \
     lorawan/task/task-accepted-socket.cpp \
-    third-party/daemonize.cpp third-party/libloragw/libloragw-helper.cpp third-party/libloragw/subst-call-c.cpp \
-	$(SRC_ARGTABLE)
+    lorawan/downlink/run-downlink.cpp \
+	lorawan/downlink/downlink-by-timer.cpp \
+	lorawan/helper/passphrase.cpp \
+    third-party/daemonize.cpp \
+    third-party/libloragw/libloragw-helper.cpp \
+    third-party/libloragw/subst-call-c.cpp \
+ 	$(SRC_ARGTABLE)
 gw_dev_usb_LDADD = -L. -llorawan -lloragw
 gw_dev_usb_CPPFLAGS = $(EXTRA_DEF) -Igw-dev/usb -Ithird-party/libloragw -Ithird-party/libloragw/inc
 
@@ -294,15 +300,11 @@ TESTS = $(check_PROGRAMS)
 #
 configdir = $(datadir)
 dist_config_DATA = \
-    bridge/README.bridge.md \
-    bridge/mqtt/CMakeLists.txt bridge/mqtt/README.bridge.mqtt.md \
-    gen/gateway-usb-conf.h \
-    gen/regional-parameters.json \
-    gen/regional-parameters-3.h \
-	autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
-	gw-dev/usb/CMakeLists.txt \
-	lorawan/bridge/README.lorawan.bridge.md \
-	lorawan/proto/gw/README.lorawan.proto.gw.md \
+    bridge/README.bridge.md bridge/mqtt/CMakeLists.txt bridge/mqtt/README.bridge.mqtt.md \
+    gen/gateway-usb-conf.h third-party/ns-regional-settings/regional-parameters.json \
+    gen/regional-parameters-3.h gw-dev/usb/CMakeLists.txt \
+    autogen.sh CMakeLists.txt CODE_OF_CONDUCT.md CONTRIBUTING.md COPYING HISTORY LICENSE README.md TODO \
+	lorawan/bridge/README.lorawan.bridge.md lorawan/proto/gw/README.lorawan.proto.gw.md \
 	third-party/argtable3/README.argtable3 \
 	third-party/base64/README.base64 \
 	third-party/libloragw/README.libloragw.md third-party/libloragw/LICENSE.libloragw.txt \

@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     size_t offset = 0;
     size_t size = 10;
     c.list(nids, offset, size);
+    std::cout << "Address\t\tDevice EUI\t\t\tApp EUI\t\t\t\tApp Key\t\t\t\t\t\t\t\tNetwork Key\t\t\t\t\t\t\tnwkSKey\t\t\t\t\t\t\t\tappSKey\n";
     for (auto n: nids) {
         std::cout << DEVADDR2string(n.value.devaddr)
             << '\t' << DEVEUI2string(n.value.devid.id.devEUI)

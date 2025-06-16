@@ -270,7 +270,7 @@ void setSignalHandler()
 #define RECEIVE_DELAY1 1000000
 #define RECEIVE_DELAY2 2000000
 
-static int sendClassARx1(
+static int sendClassA_Rx1(
     lgw_pkt_rx_s &rx
 ) {
     struct lgw_pkt_tx_s pkt{};
@@ -328,7 +328,7 @@ static int sendClassARx1(
     return waitSent(pkt.rf_chain, 2);
 }
 
-static int sendClassARx2(
+static int sendClassA_Rx2(
     lgw_pkt_rx_s &rx
 ) {
     struct lgw_pkt_tx_s pkt{};
@@ -576,12 +576,12 @@ static void run() {
         std::cout << _("Uplink received on ") << rx.freq_hz << "Hz at DR" << rx.datarate << std::endl;
         // send in window
         if (localConfig.rx1) {
-            r = sendClassARx1(rx);
+            r = sendClassA_Rx1(rx);
             if (r)
                 std::cerr << _("Error send in RX1 window ") << r << std::endl;
         }
         if (localConfig.rx2) {
-            r = sendClassARx2(rx);
+            r = sendClassA_Rx2(rx);
             if (r)
                 std::cerr << _("Error send in RX2 window ") << r << std::endl;
         }

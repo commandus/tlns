@@ -1,68 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    width="1280"
    height="640"
    viewBox="0 0 1280 640"
    version="1.1"
-   id="svg1"
-   sodipodi:docname="logo1280x640.svg"
-   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
-   inkscape:export-filename="logo1280x640.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   id="tlns-logo-svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="px"
-     inkscape:antialias-rendering="false"
-     inkscape:zoom="0.6183358"
-     inkscape:cx="369.5403"
-     inkscape:cy="224.79695"
-     inkscape:window-width="1920"
-     inkscape:window-height="1010"
-     inkscape:window-x="-6"
-     inkscape:window-y="-6"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
-     showgrid="false" />
-  <defs
-     id="defs1">
-    <rect
-       x="-33.962129"
-       y="85.713944"
-       width="176.27962"
-       height="215.09348"
-       id="rect2" />
-    <rect
-       x="54.986304"
-       y="127.76229"
-       width="354.17648"
-       height="399.45932"
-       id="rect1" />
-  </defs>
   <path
      style="fill:#808080;fill-opacity:1;stroke-width:5.83663"
      d="m 761.42844,63.831039 c 175.7448,85.320521 432.96396,212.731321 435.23896,215.591051 1.5142,1.90331 -8.3719,47.01139 -18.7762,85.67176 l -2.0194,7.5036 -26.1331,10.8581 c -73.6873,30.6165 -451.28086,184.62801 -513.38076,209.39591 -11.8147,4.7122 -21.8121,8.2367 -22.2165,7.8323 -0.9881,-0.9881 23.8361,-104.26794 25.3646,-105.52784 0.2989,-0.2464 43.8452,-17.581 96.7695,-38.52127 210.27293,-83.1974 316.97986,-126.1559 316.97986,-127.6109 0,-1.14249 -324.80856,-164.2332 -332.10406,-166.75385 -0.7577,-0.2618 4.5186,-23.55888 11.7251,-51.7713 7.2064,-28.212421 13.1026,-51.657971 13.1026,-52.101221 0,-1.67074 2.96,-0.62971 15.4494,5.43366 z"
-     id="path4" />
-  <g
-     inkscape:label="Слой 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     id="path-grey" />
+  <g>
     <path
        style="fill:#001e55;fill-opacity:1;stroke-width:5.83663"
        d="M 335.57817,489.94551 C 158.68181,403.07053 110.04536,378.54827 110.3096,376.36626 c 0.74723,-6.17039 21.80183,-91.809 22.82292,-92.83116 1.87404,-1.87599 563.582,-231.022855 564.37144,-230.233424 0.40952,0.40952 -5.32111,25.077664 -12.73473,54.818114 l -13.4793,54.07353 -207.43172,82.24501 c -114.08744,45.23476 -207.45271,82.67089 -207.47836,83.19143 -0.0257,0.52053 75.09457,38.25677 166.93382,83.85829 91.83926,45.60153 167.08017,83.01916 167.20203,83.15028 0.26964,0.29014 -24.31826,97.40319 -25.9592,102.5291 -0.64067,2.00134 -1.66163,3.62432 -2.26881,3.60663 -0.60716,-0.0177 -102.62645,-49.89053 -226.70952,-110.82855 z"
-       id="path3" />
+       id="path-navy" />
   </g>
 </svg>

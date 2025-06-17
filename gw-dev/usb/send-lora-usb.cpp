@@ -24,7 +24,6 @@
 // generated gateway regional settings source code
 #include "gen/gateway-usb-conf.h"
 #include "gen/regional-parameters-3.h"
-#include "lorawan/lorawan-date.h"
 
 // i18n
 // #include <libintl.h>
@@ -50,7 +49,7 @@ static int getDEVADDR(
 
 class LocalSenderConfiguration {
 public:
-    std::vector <UsbLoRaWANGateway> gateway;
+    std::vector <UsbLoRaWANGateway> gateway;    ///< only one device allowed (lgw_xxx() functions
     std::vector <std::string> devicePaths;
     size_t regionGWIdx;
     bool rx1;
@@ -122,7 +121,7 @@ int parseCmd(
     char *argv[]
 )
 {
-    // device path
+    // device path. Because lgw_xxx() functions uses static variable lgw_context, only one device can operate.
     struct arg_str *a_device_path = arg_strn(nullptr, nullptr, _("<device-name>"), 1, 1, _("USB gateway device e.g. /dev/ttyACM0"));
     struct arg_str *a_region_name = arg_str1("c", "region", _("<region-name>"), _("Region name, e.g. \"EU433\" or \"US\""));
     struct arg_str *a_payload = arg_str1("p", "payload", _("<hex-string>"), _("Radio packet, hex string, e.g. 60e26a7e00000000026b69636b6173732d776f7a6e69616b5a54167c"));
@@ -435,7 +434,7 @@ static int sendClassC(
     pkt.preamble = STD_LORA_PREAMBLE;       // uint16_t set the preamble length, 0 for default
 
     // Correct radio transmission power
-    pkt.rf_power -= lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.antennaGain;
+    pkt.rf_power = (int8_t) (pkt.rf_power - lorawanGatewaySettings[localConfig.regionGWIdx].sx130x.antennaGain);
 
     // check minimum preamble size
     if (pkt.modulation == MODULATION_LORA) {
@@ -564,8 +563,8 @@ static void run() {
         // listen first gateway
         auto &l = localConfig.gateway.front();
 
-        std::cout << "Listen for uplink from device address " << DEVADDR2string(a)
-                  << " from  gateway " << gatewayId2str(l.eui) << std::endl;
+        std::cout << _("Listen for uplink from device address ") << DEVADDR2string(a)
+                  << _(" from gateway ") << gatewayId2str(l.eui) << std::endl;
         struct lgw_pkt_rx_s rx{};
         r = listen4addr(rx, localConfig, a, l);
         if (r) {
@@ -573,7 +572,7 @@ static void run() {
             return;
         }
         // Inform about uplink TX frequency
-        std::cout << _("Uplink received on ") << rx.freq_hz << "Hz at DR" << rx.datarate << std::endl;
+        std::cout << _("Uplink received on ") << rx.freq_hz << _("Hz at DR") << rx.datarate << std::endl;
         // send in window
         if (localConfig.rx1) {
             r = sendClassA_Rx1(rx);
@@ -599,7 +598,7 @@ int main(
 	char *argv[]
 )
 {
-    int r = parseCmd(&localConfig, argc, argv);
+    const int r = parseCmd(&localConfig, argc, argv);
     if (r)
         return r;
     run();

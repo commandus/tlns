@@ -10,16 +10,10 @@
 #include "lorawan/lorawan-error.h"
 #include "lorawan/lorawan-msg.h"
 
-/**
- * 	JSON attribute names
- */
-#define ATTRS_GATEWAY_CONFIG_COUNT	39
-
 enum JSON_STATE_GATEWAY_CONFIG {
     JRB_NONE = 0,                  	        // Initial state
     JRB_ROOT = 1,                           //
     JRB_BANDS = 2,                 	        // Array of bands
-
     JRB_BAND = 3,        	                // Band
     JRB_BAND_DEFAULTS = 4,         	        //     Band defaults
     JRB_BAND_DATA_RATES = 5,                // Array
@@ -58,52 +52,55 @@ static const char *PARSE_STATE_NAMES[JSON_STATE_GATEWAY_CONFIG_COUNT] = {
     "up/downlinkChannels[]"
 };
 
+/**
+ * 	JSON attribute names
+ */
+#define ATTRS_GATEWAY_CONFIG_COUNT	40
+
 enum JSON_KEY_GATEWAY_CONFIG {
     JK_NONE = 0,
     JK_REGIONALPARAMETERSVERSION = 1,
     JK_REGIONBANDS = 2,
     JK_ID = 3,
-    JK_NAME = 4,
+    JK_SUBREGION = 4,
+    JK_NAME = 5,
+    JK_CN = 6,
+    JK_MAXUPLINKEIRP = 7,
+    JK_DEFAULTDOWNLINKTXPOWER = 8,
+    JK_PINGSLOTFREQUENCY = 9,
 
-    JK_CN = 5,
-    JK_MAXUPLINKEIRP = 6,
-    JK_DEFAULTDOWNLINKTXPOWER = 7,
-    JK_PINGSLOTFREQUENCY = 8,
-    JK_IMPLEMENTSTXPARAMSETUP = 9,
+    JK_IMPLEMENTSTXPARAMSETUP = 10,
+    JK_SUPPORTSEXTRACHANNELS = 11,
+    JK_DEFAULT_REGION = 12,
+    JK_BANDDEFAULTS = 13,
+    JK_DATA_RATES = 14,
+    JK_UPLINKCHANNELS = 15,
+    JK_DOWNLINKCHANNELS = 16,
+    JK_MAXPAYLOADSIZEPERDATARATE = 17,
+    JK_MAXPAYLOADSIZEPERDATARATEREPEATOR = 18,
+    JK_RX1DATARATEOFFSETS = 19,
 
-    JK_SUPPORTSEXTRACHANNELS = 10,
-    JK_DEFAULT_REGION = 11,
-    JK_BANDDEFAULTS = 12,
-    JK_DATA_RATES = 13,
-    JK_UPLINKCHANNELS = 14,
-    JK_DOWNLINKCHANNELS = 15,
-    JK_MAXPAYLOADSIZEPERDATARATE = 16,
-    JK_MAXPAYLOADSIZEPERDATARATEREPEATOR = 17,
-    JK_RX1DATARATEOFFSETS = 18,
-    JK_TXPOWEROFFSETS = 19,
+    JK_TXPOWEROFFSETS = 20,
+    JK_RX2FREQUENCY = 21,
+    JK_RX2DATARATE = 22,
+    JK_RECEIVEDELAY1 = 23,
+    JK_RECEIVEDELAY2 = 24,
+    JK_JOINACCEPTDELAY1 = 25,
+    JK_JOINACCEPTDELAY2 = 26,
+    JK_UPLINK = 27,
+    JK_DOWNLINK = 28,
+    JK_MODULATION = 29,
 
-    JK_RX2FREQUENCY = 20,
-    JK_RX2DATARATE = 21,
-    JK_RECEIVEDELAY1 = 22,
-    JK_RECEIVEDELAY2 = 23,
-    JK_JOINACCEPTDELAY1 = 24,
-    JK_JOINACCEPTDELAY2 = 25,
-
-    JK_UPLINK = 26,
-    JK_DOWNLINK = 27,
-    JK_MODULATION = 28,
-    JK_BANDWIDTH = 29,
-    JK_SPREADINGFACTOR = 30,
-    JK_BPS = 31,
-
-    JK_M = 32,
-    JK_N = 33,
-
-    JK_FREQUENCY = 34,
-    JK_MINDR = 35,
-    JK_MAXDR = 36,
-    JK_ENABLED = 37,
-    JK_CUSTOM = 38
+    JK_BANDWIDTH = 30,
+    JK_SPREADINGFACTOR = 31,
+    JK_BPS = 32,
+    JK_M = 33,
+    JK_N = 34,
+    JK_FREQUENCY = 35,
+    JK_MINDR = 36,
+    JK_MAXDR = 37,
+    JK_ENABLED = 38,
+    JK_CUSTOM = 39
 };
 
 static const char *ATTR_REGION_BAND_NAMES[ATTRS_GATEWAY_CONFIG_COUNT] = {
@@ -111,46 +108,45 @@ static const char *ATTR_REGION_BAND_NAMES[ATTRS_GATEWAY_CONFIG_COUNT] = {
         "regionalParametersVersion",         // 1
         "RegionBands",                       // 2
         "id",                                // 3
-        "name",                              // 4
+        "subRegion",                         // 4
+        "name",                              // 5
+        "cn",                                // 6
+        "maxUplinkEIRP",                     // 7
+        "defaultDownlinkTXPower",            // 8
+        "pingSlotFrequency",                 // 9
 
-        "cn",                                // 5
-        "maxUplinkEIRP",                     // 6
-        "defaultDownlinkTXPower",            // 7
-        "pingSlotFrequency",                 // 8
-        "implementsTXParamSetup",            // 9
+        "implementsTXParamSetup",            // 10
+        "supportsExtraChannels",             // 11
+        "defaultRegion",                     // 12
+        "bandDefaults",                      // 13
+        "dataRates",                         // 14
+        "uplinkChannels",                    // 15
+        "downlinkChannels",                  // 16
+        "maxPayloadSizePerDataRate",         // 17
+        "maxPayloadSizePerDataRateRepeater", // 18
+        "rx1DataRateOffsets",                // 19
 
-        "supportsExtraChannels",             // 10
-        "defaultRegion",                     // 11
-        "bandDefaults",                      // 12
-        "dataRates",                         // 13
-        "uplinkChannels",                    // 14
-        "downlinkChannels",                  // 15
-        "maxPayloadSizePerDataRate",         // 16
-        "maxPayloadSizePerDataRateRepeater", // 17
-        "rx1DataRateOffsets",                // 18
-        "txPowerOffsets",                    // 19
-        "RX2Frequency",                      // 20
-        "RX2DataRate",                       // 21
-        "ReceiveDelay1",                     // 22
-        "ReceiveDelay2",                     // 23
-        "JoinAcceptDelay1",                  // 24
-        "JoinAcceptDelay2",                  // 25
+        "txPowerOffsets",                    // 20
+        "RX2Frequency",                      // 21
+        "RX2DataRate",                       // 22
+        "ReceiveDelay1",                     // 23
+        "ReceiveDelay2",                     // 24
+        "JoinAcceptDelay1",                  // 25
+        "JoinAcceptDelay2",                  // 26
+        "uplink",                            // 27
+        "downlink",                          // 28
+        "modulation",                        // 29
 
-        "uplink",                            // 26
-        "downlink",                          // 27
-        "modulation",                        // 28
-        "bandwidth",                         // 29
-        "spreadingFactor",                   // 30
-        "bps",                               // 31
-
-        "m",                                 // 32
-        "n",                                 // 33
-
-        "frequency",                         // 34
-        "minDR",                             // 35
-        "maxDR",                             // 36
-        "enabled",                           // 37
-        "custom"                             // 38
+        "bandwidth",                         // 30
+        "spreadingFactor",                   // 31
+        "bps",                               // 32
+        "m",                                 // 33
+        "n",                                 // 34
+        "frequency",                         // 35
+        "minDR",                             // 36
+        "maxDR",                             // 37
+        "enabled",                           // 38
+        "custom"                             // 39
 };
 
 static JSON_KEY_GATEWAY_CONFIG getAttrByName(
@@ -250,12 +246,12 @@ private:
                     return false;
                 }
                 if (rx1DataRateOffsetCount >= DATA_RATE_SIZE) {
+                    // just warning
                     applyErrorDescription("rx1DataRateOffset more than 8 elements");
-                    return false;
                 }
 
                 RegionalParameterChannelPlan &rb = value->storage.bands.back();
-                rb.mut()->rx1DataRateOffsets[rx1DataRateOffsetCount].push_back((uint8_t) val);
+                rb.mut()->rx1DataRateOffsets[rx1DataRateOffsetCount - 1].push_back((uint8_t) val);
                 return true;
             }
             case JRB_BAND_CHANNEL: {
@@ -308,14 +304,13 @@ private:
                 if (maxPayloadSizePerDataRateCount >= DATA_RATE_SIZE) {
                     applyErrorDescription("UInt maxPayloadSizePerDataRate more than 8 elements");
                     // skip error, just warning
-                    return true;
                 }
                 switch (keyIndex) {
                     case JK_M:
-                        value->storage.bands.back().mut()->maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].value.m = (uint8_t) val;
+                        value->storage.bands.back().mut()->maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount - 1].value.m = (uint8_t) val;
                         return true;
                     case JK_N:
-                        value->storage.bands.back().mut()->maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount].value.n = (uint8_t) val;
+                        value->storage.bands.back().mut()->maxPayloadSizePerDataRate[maxPayloadSizePerDataRateCount - 1].value.n = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -328,17 +323,16 @@ private:
                     applyErrorDescription(ERR_REGION_BAND_EMPTY);
                     return false;
                 }
-                if (maxPayloadSizePerDataRateRepeaterCount  >= DATA_RATE_SIZE) {
+                if (maxPayloadSizePerDataRateRepeaterCount >= DATA_RATE_SIZE) {
                     applyErrorDescription("maxPayloadSizePerDataRateRepeater has more than 8 elements");
                     // just warning, not error
-                    return true;
                 }
                 switch (keyIndex) {
                     case JK_M:
-                        value->storage.bands.back().mut()->maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].value.m = (uint8_t) val;
+                        value->storage.bands.back().mut()->maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount - 1].value.m = (uint8_t) val;
                         return true;
                     case JK_N:
-                        value->storage.bands.back().mut()->maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount].value.n = (uint8_t) val;
+                        value->storage.bands.back().mut()->maxPayloadSizePerDataRateRepeater[maxPayloadSizePerDataRateRepeaterCount - 1].value.n = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -378,6 +372,7 @@ private:
                             return false;
                         }
                         if (dataRateCount > DATA_RATE_SIZE) {
+                            // warning
                             applyErrorDescription("BPS dataRates array size bigger than 8 elements");
                             return true;
                         }
@@ -418,6 +413,13 @@ private:
                             return false;
                         }
                         value->storage.bands.back().mut()->id = (uint8_t) val;
+                        return true;
+                    case JK_SUBREGION:
+                        if (value->storage.bands.empty()) {
+                            applyErrorDescription(ERR_REGION_BAND_EMPTY);
+                            return false;
+                        }
+                        value->storage.bands.back().mut()->subRegion = (uint8_t) val;
                         return true;
                     default:
                         break;
@@ -668,13 +670,18 @@ public :
                 return false;
             case JRB_BAND_DATA_RATES:
                 state = JRB_BAND_DATA_RATE;
+                value->storage.bands.back().mut()->dataRates.push_back(DataRate{});
                 dataRateCount++;
                 return true;
             case JRB_BAND_P_SIZES:
                 state = JRB_BAND_P_SIZE;
+                value->storage.bands.back().mut()->maxPayloadSizePerDataRate.push_back({});
+                maxPayloadSizePerDataRateCount++;
                 return true;
             case JRB_BAND_PRPT_SIZES:
                 state = JRB_BAND_PRPT_SIZE;
+                value->storage.bands.back().mut()->maxPayloadSizePerDataRateRepeater.push_back({});
+                maxPayloadSizePerDataRateRepeaterCount++;
                 return true;
             case JRB_BAND_UPLINKS:
                 state = JRB_BAND_CHANNEL;
@@ -726,11 +733,9 @@ public :
                 return true;
             case JRB_BAND_P_SIZE:
                 state = JRB_BAND_P_SIZES;
-                maxPayloadSizePerDataRateCount++;
                 return true;
             case JRB_BAND_PRPT_SIZE:
                 state = JRB_BAND_PRPT_SIZES;
-                maxPayloadSizePerDataRateRepeaterCount++;
                 return true;
             case JRB_BAND_CHANNEL:
                 state = prevState;
@@ -784,6 +789,11 @@ public :
                 }
             case JRB_BAND_RX1_DR_OFFSETS:
                 state = JRB_BAND_RX1_DR_OFFSET;
+                value->storage.bands.back().mut()->rx1DataRateOffsets.push_back({});
+                rx1DataRateOffsetCount++;
+                return true;
+            case JRB_BAND_RX1_DR_OFFSET:
+                value->storage.bands.back().mut()->rx1DataRateOffsets.back().push_back({});
                 return true;
             default:
                 applyErrorDescription("Unexpected array");
@@ -812,7 +822,6 @@ public :
                 return true;
             case JRB_BAND_RX1_DR_OFFSET:
                 state = JRB_BAND_RX1_DR_OFFSETS;
-                rx1DataRateOffsetCount++;
                 return true;
             default:
                 applyErrorDescription("Unexpected end of array");

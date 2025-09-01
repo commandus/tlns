@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
     else
         params.regionName = "";
 
-    auto region= regionalParameterChannelPlanMem.get(params.regionName);
+    auto region = regionalParameterChannelPlanMem.get(params.regionName);
 
     if (!region) {
         errorCount++;

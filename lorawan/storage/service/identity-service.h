@@ -1,7 +1,6 @@
 #ifndef IDENTITY_SERVICE_H_
 #define IDENTITY_SERVICE_H_ 1
 
-#include <map>
 #include <vector>
 
 #include "lorawan/lorawan-types.h"

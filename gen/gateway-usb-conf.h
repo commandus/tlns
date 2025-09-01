@@ -11,7 +11,7 @@
  *       global_conf.eu_433.json global_conf.eu_863_870.json global_conf.in_865_867.json 
  *       global_conf.kr_920_923.json global_conf.ru_864_870.json global_conf.us_902_928.json 
  *       
- * on 2025-03-24T12:26:18+0900
+ * on 2025-08-02T19:25:55+0900
  *
  */
 
@@ -2611,7 +2611,7 @@ GatewaySettings lorawanGatewaySettings[] = {
 				// chan_multiSF_7
 				true, // enable
 				0, // rf_chain
-                    400000 // freq_hz
+				400000 // freq_hz
 			}
 		},
 		// Lora std 

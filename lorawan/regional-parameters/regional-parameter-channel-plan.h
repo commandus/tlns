@@ -9,6 +9,7 @@
 #include <vector>
 #include <cinttypes>
 #include "lorawan/lorawan-types.h"
+#include "lorawan/regional-parameters/regional-parameters.h"
 
 typedef struct RADIO_CHANNEL {
     int frequency;  // frequency in Hz
@@ -80,7 +81,8 @@ public:
 };
 
 typedef struct REGIONAL_PARAMETER_CHANNEL_PLAN {
-    uint8_t id;             // 1..14
+    uint8_t id;             // 1..14    corresponds to DEVICEID::region
+    uint8_t subRegion;      // 0-none, 1- 'CN470A20', 2- 'CN470A26', 3- 'CN470B20', 4- 'CN470B26' corresponds to DEVICEID::subRegion
     std::string name;       // channel plan name
     std::string cn;         // common name
     float maxUplinkEIRP;    // dBm default
@@ -90,10 +92,10 @@ typedef struct REGIONAL_PARAMETER_CHANNEL_PLAN {
     bool defaultRegion;     // true- default region
     bool supportsExtraChannels;
     BandDefaults bandDefaults;
-    DataRate dataRates[DATA_RATE_SIZE];
-    MaxPayloadSize maxPayloadSizePerDataRate[DATA_RATE_SIZE];
-    MaxPayloadSize maxPayloadSizePerDataRateRepeater[DATA_RATE_SIZE];    // if repeater is used
-    std::vector<uint8_t> rx1DataRateOffsets[DATA_RATE_SIZE];
+    std::vector<DataRate> dataRates; // DATA_RATE_SIZE
+    std::vector<MaxPayloadSize> maxPayloadSizePerDataRate; // DATA_RATE_SIZE
+    std::vector<MaxPayloadSize> maxPayloadSizePerDataRateRepeater; // DATA_RATE_SIZE if repeater is used
+    std::vector<std::vector<uint8_t> > rx1DataRateOffsets; // DATA_RATE_SIZE
     // Max EIRP - <offset> dB, 0..16
     std::vector<int8_t> txPowerOffsets;
     std::vector<Channel> uplinkChannels;

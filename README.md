@@ -283,9 +283,22 @@ Please note gateway-config2cpp is for gateway and regional-parameters2cpp is for
 
 ## MSVC
 
+Install sqlite3
+
+```
+vcpkg install --triplet x64-windows sqlite3
+vcpkg install --triplet x64-windows lmdb
+```
+
 Create solution by CMake:
 ```
 mkdir C:\git\tlns\cmake-build-debug-visual-studio
 cd C:\git\tlns\cmake-build-debug-visual-studio
 cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
 ```
+
+## License
+
+Copyright (C) 2024-2025 Andrei Ivanov MIT License(see LICENSE file). All rights reserved.
+
+

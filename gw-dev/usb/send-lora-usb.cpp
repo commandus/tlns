@@ -554,7 +554,7 @@ static void run() {
     } else {
         // get device address
         DEVADDR a;
-        int r = getDEVADDR(a, (const uint8_t *) localConfig.payload.c_str(), localConfig.payload.size());
+        int r = getDEVADDR(a, (const uint8_t *) localConfig.payload.c_str(), (uint16_t) localConfig.payload.size());
         if (r) {
             std::cerr << _("Invalid packet: no address found") << std::endl;
             return;

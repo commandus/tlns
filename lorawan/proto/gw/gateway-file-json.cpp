@@ -661,7 +661,7 @@ int GatewaySX130xConfig::parse(nlohmann::json &jsonValue) {
                                 size_t sz = jGainLut->size();
                                 if (sz > 16)
                                     sz = 16;
-                                value.txLut[radioIndex].size = sz;
+                                value.txLut[radioIndex].size = (uint8_t) sz;
 
                                 for (int i = 0; i < sz; i++) {
                                     nlohmann::json jGain = jGainLut->at(i);
@@ -1667,7 +1667,7 @@ int GatewayDebugConfig::parse(nlohmann::json &jsonValue)
     auto jRefPayloads = jsonValue.find("ref_payload");
     if (jRefPayloads != jsonValue.end()) {
         if (jRefPayloads->is_array()) {
-            value.nb_ref_payload = jRefPayloads->size();
+            value.nb_ref_payload = (uint8_t) jRefPayloads->size();
             if (value.nb_ref_payload > 16)
                 value.nb_ref_payload = 16;
             for (int i = 0; i < value.nb_ref_payload; i++) {
@@ -1677,7 +1677,7 @@ int GatewayDebugConfig::parse(nlohmann::json &jsonValue)
                     if (jrpId != jrp.end()) {
                         if (jrpId->is_string()) {
                             std::string s = *jrpId;
-                            value.ref_payload[i].id = std::stoull(s, nullptr, 0);
+                            value.ref_payload[i].id = (uint32_t) std::stoull(s, nullptr, 0);
                         }
                     }
                 }

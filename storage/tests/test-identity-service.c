@@ -47,7 +47,7 @@ static void testSqlite()
         { C_NILPO_AND, C_NIP_DEVICE_CLASS, C_NICO_EQ, 1, 1 }
     };
     c = c_filter(o, nis, filters, 3, 0, 2);
-    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %lu\n", c);
+    printf("Filter activation = ABP, DevEUI = 12345678, class = B. Found: %zu\n", c);
 
     char buffer[256];
     char *p[16];
@@ -60,7 +60,7 @@ static void testSqlite()
 
     const char *filterExpression = "activation = 'ABP' and deveui = '12345678' and class = 'B'";
     c = c_filterExpression(o, nis, filterExpression, strlen(filterExpression), 0, 2);
-    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %lu\n", c);
+    printf("Filter SQL expression activation = 'ABP' and deveui = '12345678' and class = 'B'. Found: %zu\n", c);
     c_networkidentity2text(buffer, sizeof(buffer), p, &nis[0]);
     for (int i = 0; i < 16; i++) {
         printf("%s ", p[i]);

@@ -171,13 +171,13 @@ bool MessageTaskDispatcher::openSockets()
 {
     bool r = true;
     for (auto s : sockets) {
-        if (s->lastError || s->openSocket() == INVALID_SOCKET) {
+        if (s->lastError || s->openTaskSocket() == INVALID_SOCKET) {
             r = false;
             break;
         }
     }
     if (timerSocket)
-        timerSocket->openSocket();
+        timerSocket->openTaskSocket();
     return r;
 }
 
@@ -185,10 +185,10 @@ void MessageTaskDispatcher::closeSockets()
 {
     // close all sockets
     for (auto s : sockets) {
-        s->closeSocket();
+        s->closeTaskSocket();
     }
     if (timerSocket) {
-        timerSocket->closeSocket();
+        timerSocket->closeTaskSocket();
         timerSocket = nullptr;
     }
 }

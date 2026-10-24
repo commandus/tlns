@@ -57,15 +57,15 @@ public:
         ENUM_SOCKET_ACCEPT accept
     );
     /**
-     * Inherited class must implement openSocket() and closeSocket()
+     * Inherited class must implement openTaskSocket() and closeTaskSocket()
      * @return socket number, -1 if fails
      */
-    virtual SOCKET openSocket() = 0;
+    virtual SOCKET openTaskSocket() = 0;
     /**
-     * Inherited class must implement openSocket() and closeSocket()
+     * Inherited class must implement openTaskSocket() and closeTaskSocket()
      * @return socket number, -1 if fails
      */
-    virtual void closeSocket() = 0;
+    virtual void closeTaskSocket() = 0;
     /**
      * Send downlink message to the end-device if customWrite == true
      * @param networkIdentity device identity

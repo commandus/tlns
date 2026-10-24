@@ -351,7 +351,7 @@ uint8_t string2region(
     const std::string& region
 )
 {
-    return strtoul(region.c_str(), nullptr, 10);
+    return (uint8_t) strtoul(region.c_str(), nullptr, 10);
 }
 
 std::string subRegion2string(
@@ -364,7 +364,7 @@ uint8_t string2subRegion(
     const std::string& subRegion
 )
 {
-    return strtoul(subRegion.c_str(), nullptr, 10);
+    return (uint8_t) strtoul(subRegion.c_str(), nullptr, 10);
 }
 
 DEVNONCE string2DEVNONCE(

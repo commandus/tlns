@@ -52,7 +52,7 @@ public:
     int col;
     int cursor;
     std::string value;
-    std::string cellValue() const;
+    const std::string& cellValue() const;
     void cellValue(const std::string &value);
     CellEditor();
     std::string hotCharValue(char ch) const;

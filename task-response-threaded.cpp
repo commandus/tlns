@@ -6,7 +6,9 @@
 #include "lorawan/task/task-platform.h"
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#ifndef sleep
 #define sleep Sleep
+#endif
 #endif
 
 void TaskResponseThreaded::onReceive(

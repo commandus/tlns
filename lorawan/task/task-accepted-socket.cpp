@@ -24,15 +24,15 @@ TaskAcceptedSocket::TaskAcceptedSocket(
 
 TaskAcceptedSocket::~TaskAcceptedSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }
 
-SOCKET TaskAcceptedSocket::openSocket()
+SOCKET TaskAcceptedSocket::openTaskSocket()
 {
     return sock;
 }
 
-void TaskAcceptedSocket::closeSocket()
+void TaskAcceptedSocket::closeTaskSocket()
 {
     if (sock >= 0)
         close(sock);

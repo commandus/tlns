@@ -26,8 +26,8 @@ public:
         bool enableBeacon,
         int verbosity
     );
-    SOCKET openSocket() override;
-    void closeSocket() override;
+    SOCKET openTaskSocket() override;
+    void closeTaskSocket() override;
     void customWriteSocket(
         const NetworkIdentity *networkIdentity,
         const void* data,

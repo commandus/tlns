@@ -32,21 +32,21 @@ int main(int argc, char **argv) {
 
     // test MIC
     s = hex2string("60E16A7E00000000026B69636B6173732D776F7A6E69616B");
-    uint32_t mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), s.size(), 0,
+    uint32_t mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), (unsigned char) s.size(), 0,
         LORAWAN_DOWNLINK, DEVADDR(0x007E6AE1), KEY128("15b1d0efa463dfbe3d11181e1ec7da85"));
     std::cout << MIC2String(mic) << std::endl;
     assert(mic == 0x9b1777c2);
 
     // test MIC
     s = hex2string("60e26a7e00000000026b69636b6173732d776f7a6e69616b");
-    mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), s.size(), 0,
+    mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), (unsigned char) s.size(), 0,
         LORAWAN_DOWNLINK, DEVADDR(0x007E6AE2), KEY128("15b1d0efa463dfbe3d11181e1ec7da85"));
     std::cout << MIC2String(mic) << std::endl;
     assert(mic == 0xc2a0490f);
 
     // test MIC, payload 607b950a00000000026b69636b6173732d776f7a6e69616bd0955d84
     s = hex2string("607b950a00000000026b69636b6173732d776f7a6e69616b");
-    mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), s.size(), 0,
+    mic = calculateMICFrmPayload((const unsigned char *) s.c_str(), (unsigned char) s.size(), 0,
         LORAWAN_DOWNLINK, DEVADDR(0x000A957B), KEY128("2b7e151628aed2a6abf7158809cf4f3c"));
     std::cout << MIC2String(mic) << std::endl;
     assert(mic == 0xd0955d84);

@@ -49,7 +49,7 @@ CellEditor::CellEditor()
 
 }
 
-std::string CellEditor::cellValue() const
+const std::string& CellEditor::cellValue() const
 {
     return value;
 }

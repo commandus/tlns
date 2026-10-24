@@ -555,7 +555,7 @@ void TcpUdpV4Bridge::onPayload(
                 << ", \"payloadMicMatched\": " << (micMatched ? "true" : "false")
                 << ", " << s;
             s = ss.str();
-            auto sz = s.size();
+            ssize_t sz = (ssize_t) s.size();
             // Invalid in WIndows- it does not work with sockets
             // ssize_t bytes = (ssize_t) write((SOCKET) onPayloadClientSocket, (const char *) s.c_str(), (int) sz);
             ssize_t bytes = (ssize_t) send(onPayloadClientSocket, (const char *) s.c_str(), (int) sz, 0);
@@ -599,7 +599,11 @@ void TcpUdpV4Bridge::onSend(
             ss << "{\"sendingResultCode\": " << code
                << ", " << s;
             s = ss.str();
+#if defined(_MSC_VER)
+            send((SOCKET) onPayloadClientSocket, (const char *) s.c_str(), (int) s.size(), 0);
+#else
             write((SOCKET) onPayloadClientSocket, (const char *) s.c_str(), (int) s.size());
+#endif
         }
     }
 

@@ -144,7 +144,7 @@ int WinComPort::closeHandle(){
 
 int WinComPort::readSerial(void *buffer, size_t count) {
     DWORD readCount;
-    int r = ReadFile(handle, buffer, count, &readCount, nullptr);
+    auto r = ReadFile(handle, buffer, (DWORD) count, &readCount, nullptr);
     if (!r)
         return -1;
     return readCount;
@@ -152,7 +152,7 @@ int WinComPort::readSerial(void *buffer, size_t count) {
 
 int WinComPort::writeSerial(const void *buffer, size_t count) {
     DWORD writeCount;
-    int r = WriteFile(handle, buffer, count, &writeCount, nullptr);
+    int r = WriteFile(handle, buffer, (DWORD)count, &writeCount, nullptr);
     if (!r)
         return -1;
     return writeCount;

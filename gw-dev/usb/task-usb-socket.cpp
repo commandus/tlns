@@ -89,7 +89,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
         aLog->log(LOG_INFO, "Settings " + listener.config->name);
 }
 
-SOCKET TaskUsbGatewaySocket::openSocket()
+SOCKET TaskUsbGatewaySocket::openTaskSocket()
 {
 #ifdef _MSC_VER
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -110,7 +110,12 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     // Allow socket descriptor to be reusable
     int r = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (r < 0) {
+        shutdown(sock, SD_SEND);
+#if defined(_MSC_VER)
+        closesocket(sock);
+#else
         close(sock);
+#endif
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
         return INVALID_SOCKET;
@@ -123,7 +128,12 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     r = ioctl(sock, FIONBIO, (char *)&on);
 #endif
     if (r < 0) {
+        shutdown(sock, SD_SEND);
+#if defined(_MSC_VER)
+        closesocket(sock);
+#else
         close(sock);
+#endif
         sock = INVALID_SOCKET;
         lastError = ERR_CODE_SOCKET_OPEN;
         return INVALID_SOCKET;
@@ -172,11 +182,15 @@ SOCKET TaskUsbGatewaySocket::openSocket()
     return sock;
 }
 
-void TaskUsbGatewaySocket::closeSocket()
+void TaskUsbGatewaySocket::closeTaskSocket()
 {
     listener.stop(0);   // default wait 60s
     if (sock > 0) {
+#if defined(_MSC_VER)
+        closesocket(sock);
+#else
         close(sock);
+#endif
         sock = -1;
     }
 #ifdef _MSC_VER
@@ -188,7 +202,7 @@ void TaskUsbGatewaySocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskUsbGatewaySocket::~TaskUsbGatewaySocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }
 
 void TaskUsbGatewaySocket::customWriteSocket(

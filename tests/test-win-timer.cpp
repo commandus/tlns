@@ -50,7 +50,7 @@ static void testSelect() {
     struct timeval timeout {};
 
     TaskTimerSocket taskTimerSocket;
-    SOCKET ts = taskTimerSocket.openSocket();
+    SOCKET ts = taskTimerSocket.openTaskSocket();
 
     TASK_TIME t = std::chrono::system_clock::now() + std::chrono::milliseconds(100);
     taskTimerSocket.setStartupTime(t);
@@ -86,7 +86,7 @@ static void testSelect() {
         running = cnt < 5;
     }
 
-    taskTimerSocket.closeSocket();
+    taskTimerSocket.closeTaskSocket();
 }
 
 int main(

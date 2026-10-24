@@ -25,8 +25,8 @@ public:
     * socket is already open and accepted, so it just return accepted socket
     * @return socket itself
     */
-    SOCKET openSocket() override;
-    void closeSocket() override;
+    SOCKET openTaskSocket() override;
+    void closeTaskSocket() override;
     virtual ~TaskAcceptedSocket();
     void customWriteSocket(
         const NetworkIdentity *networkIdentity,

@@ -41,10 +41,10 @@ TaskUDPControlSocket::TaskUDPControlSocket(
 
 TaskUDPControlSocket::~TaskUDPControlSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }
 
-SOCKET TaskUDPControlSocket::openSocket()
+SOCKET TaskUDPControlSocket::openTaskSocket()
 {
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == INVALID_SOCKET) {
@@ -97,7 +97,7 @@ SOCKET TaskUDPControlSocket::openSocket()
     return sock;
 }
 
-void TaskUDPControlSocket::closeSocket()
+void TaskUDPControlSocket::closeTaskSocket()
 {
     if (sock != INVALID_SOCKET)
         close(sock);

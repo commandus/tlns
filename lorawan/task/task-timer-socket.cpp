@@ -19,7 +19,7 @@ TaskTimerSocket::TaskTimerSocket()
 #endif
 }
 
-SOCKET TaskTimerSocket::openSocket()
+SOCKET TaskTimerSocket::openTaskSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -66,7 +66,7 @@ SOCKET TaskTimerSocket::openSocket()
     return sock;
 }
 
-void TaskTimerSocket::closeSocket()
+void TaskTimerSocket::closeTaskSocket()
 {
     if (sock != INVALID_SOCKET) {
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -81,7 +81,7 @@ void TaskTimerSocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskTimerSocket::~TaskTimerSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 #if defined(_MSC_VER) || defined(__MINGW32__)
     DeleteTimerQueue(hTimerQueue);
 #endif

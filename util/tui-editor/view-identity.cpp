@@ -1,6 +1,3 @@
-#include <db.h>
-#include "curses.h"
-
 #include "curses-identity-editor.h"
 
 int main() {

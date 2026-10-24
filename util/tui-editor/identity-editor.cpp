@@ -6,10 +6,10 @@ std::string &trim(std::string &s);
 
 static const std::string EMPTY_STR;
 
-#define COLUMN_COUNT 13
+#define COLUMN_COUNT 15
 
 static const int columnWidth[COLUMN_COUNT] {
-    8, 4, 1, 16, 32, 32, 5, 16, 32, 32, 4, 6,8
+    8, 4, 1, 16, 32, 32, 5, 16, 32, 32, 4, 6,8, 8, 8
 };
 
 IdentityRow::IdentityRow()
@@ -180,7 +180,7 @@ void IdentityTable::getRows(
         c -= chunkSize;
         auto cnt = c_list(storage, ls, offset, chunkSize);
         char buffer[512];
-        char *lines[COLUMN_COUNT];
+        char *lines[COLUMN_COUNT + 1];
         for (int i = 0; i < cnt; i++) {
             c_networkidentity2text(buffer, sizeof(buffer), lines, &ls[i]);
             IdentityRow row;
@@ -279,6 +279,8 @@ IdentityTableEditor::IdentityTableEditor(
 }
 
 size_t IdentityTableEditor::maxDataRowsVisible() const {
+    if (rows < 2)
+        return 0;
     return rows - 2;    // - header - status line
 }
 

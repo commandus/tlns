@@ -283,11 +283,12 @@ Please note gateway-config2cpp is for gateway and regional-parameters2cpp is for
 
 ## MSVC
 
-Install sqlite3
+Install sqlite3, lmdb, libmicrohttpd via vcpkg
 
 ```
 vcpkg install --triplet x64-windows sqlite3
 vcpkg install --triplet x64-windows lmdb
+vcpkg install --triplet x64-windows libmicrohttpd
 ```
 
 Create solution by CMake:

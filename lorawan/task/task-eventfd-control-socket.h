@@ -19,8 +19,8 @@ public:
      * Open eventfd socket
      * @return socket number, -1 if fails
      */
-    SOCKET openSocket() override;
-    void closeSocket() override;
+    SOCKET openTaskSocket() override;
+    void closeTaskSocket() override;
     virtual ~TaskEventFDControlSocket();
 };
 

@@ -11,11 +11,11 @@ include_directories(${VCPKG_INC})
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	find_package(unofficial-pdcurses CONFIG REQUIRED)
 else()
-	find_library(ncurses)
+	find_library(ncurses NAMES ncurses)
 endif()
 
 if(ENABLE_HTTP)
-	find_library(LIBMICROHTTPD NAMES microhttpd libmicrohttpd-dll.lib HINTS /usr/lib/x86_64-linux-gnu/ ${VCPKG_LIB}    )
+	find_library(LIBMICROHTTPD NAMES microhttpd libmicrohttpd-dll.lib HINTS /usr/lib/x86_64-linux-gnu/ ${VCPKG_LIB})
 	set(EXTRA_LIBS ${EXTRA_LIBS} ${LIBMICROHTTPD})
 endif()
 

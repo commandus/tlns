@@ -14,7 +14,7 @@ TaskEventFDControlSocket::TaskEventFDControlSocket()
 {
 }
 
-SOCKET TaskEventFDControlSocket::openSocket()
+SOCKET TaskEventFDControlSocket::openTaskSocket()
 {
     sock = eventfd(0, 0);
     if (sock == INVALID_SOCKET)
@@ -22,7 +22,7 @@ SOCKET TaskEventFDControlSocket::openSocket()
     return sock;
 }
 
-void TaskEventFDControlSocket::closeSocket()
+void TaskEventFDControlSocket::closeTaskSocket()
 {
     if (sock != INVALID_SOCKET) {
         close(sock);
@@ -33,5 +33,5 @@ void TaskEventFDControlSocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskEventFDControlSocket::~TaskEventFDControlSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }

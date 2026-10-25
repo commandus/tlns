@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 #include "identity-editor.h"
 
 std::string &trim(std::string &s);

@@ -12,6 +12,10 @@
 #include "platform-defs.h"
 #endif
 
+#ifdef ENABLE_LIBUV
+#include "storage/client/uv-client.h"
+#endif
+
 /*
 IdentityQueryTag
 QUERY_IDENTITY_ADDR = 'a',
@@ -255,7 +259,7 @@ int ClientUDPIdentityService::init(
     ResponseService onResp(this);
 
 #ifdef ENABLE_LIBUV
-    client = new UvClient(params.useTcp, params.address, params.port, &onResp);
+    client = new UvClient(false, addr, port, &onResp);
 #else
     client = new UDPClient(addr, port, &onResp);
 #endif

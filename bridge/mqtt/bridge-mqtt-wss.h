@@ -26,12 +26,19 @@ public:
             bool decoded,
             bool micMatch
     ) override;
-    void init(
+    int init(
         const std::string& wssUrl,
         const std::string& proxyUrl,
         const void *userPasswordTopic
     ) override;
     void done() override;
+    const char *name() override;
+    void onSend(
+        const void *dispatcher,
+        const MessageQueueItem *item,
+        int code
+    ) override;
+
 };
 
 EXPORT_SHARED_C_FUNC AppBridge* makeMqttWssBridge();

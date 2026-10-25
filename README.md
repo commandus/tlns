@@ -26,14 +26,26 @@ Network server collects metadata sent by gateways to choose gateway with the bes
 
 Options:
 
-- -DENABLE_GW_DEV_USB=off   build RAK2287 USB gateway backend
-- -DENABLE_LIBUV=off   		enable libuv UDP/TCP. Default UDP only
-- -DENABLE_DEBUG=off   		enable debugging output
-- -DENABLE_GEN=on   		enable key generator (default in memory storage)
-- -DENABLE_SQLITE=off  		enable sqlite3 backend
-- -DENABLE_JSON=off   	    enable JSON file backend
-- -DENABLE_MQTT=off			build with MQTT bridge
-- -DENABLE_IPV6=off   		enable IPv6 (reserved)
+- -DENABLE_GW_DEV_USB=on 	 build RAK2287 USB gateway backend
+- -DENABLE_LIBUV=on 	     enable libuv UDP/TCP
+- -DENABLE_DEBUG=on 	     enable debugging output
+- -DENABLE_EXAMPLES=on 	     build examples
+- -DENABLE_GEN=on 	         enable key generator (default in memory storage)
+- -DENABLE_SQLITE=on 	     enable SQLITE3 backend (reserved)
+- -DENABLE_LMDB=on 	         enable LMDB backend
+- -DENABLE_JSON=on 	         build with JSON file backend
+- -DENABLE_MQTT=on 	         build with MQTT bridge
+- -DENABLE_IPV6=on 	         enable IPv6 (reserved)
+ 
+storage:
+
+- -DENABLE_HTTP=on 	         enable HTTP service. libmicrohttpd dependency required
+- -DENABLE_QRCODE=on 	     enable HTTP QRCode URN service
+
+experimental:
+
+- -DENABLE_MINIZIP= 	     build with minizip.
+- -DENABLE_VIEW_IDENTITY=on  build identity viewer example. ncurses (pdcurses) dependency required.
 
 For example, build USB gateway:
 ```
@@ -281,6 +293,13 @@ Usage:
 
 Please note gateway-config2cpp is for gateway and regional-parameters2cpp is for network server. 
 
+## Linux
+
+Install dependencies (if required)
+```shell
+sudo apt install libmicrohttpd-dev liblmdb-dev libuv1-dev libpaho-mqtt-dev libpaho-mqttpp-dev 
+```
+
 ## MSVC
 
 Install sqlite3, lmdb, libmicrohttpd via vcpkg
@@ -301,5 +320,3 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -D
 ## License
 
 Copyright (C) 2024-2025 Andrei Ivanov MIT License(see LICENSE file). All rights reserved.
-
-

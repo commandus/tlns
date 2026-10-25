@@ -17,7 +17,7 @@ include_directories(${VCPKG_INC})
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(unofficial-pdcurses CONFIG REQUIRED)
 else()
-    find_library(ncurses)
+    find_library(ncurses NAMES ncurses)
 endif()
 
 if(ENABLE_HTTP)

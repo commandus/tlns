@@ -20,7 +20,7 @@ TaskUnixControlSocket::TaskUnixControlSocket(
     unlink(socketPath.c_str());
 }
 
-SOCKET TaskUnixControlSocket::openSocket()
+SOCKET TaskUnixControlSocket::openTaskSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
     return INVALID_SOCKET;
@@ -85,7 +85,7 @@ SOCKET TaskUnixControlSocket::openSocket()
 #endif
 }
 
-void TaskUnixControlSocket::closeSocket()
+void TaskUnixControlSocket::closeTaskSocket()
 {
     if (sock != INVALID_SOCKET) {
         close(sock);
@@ -97,5 +97,5 @@ void TaskUnixControlSocket::closeSocket()
 // virtual int onData(const char *buffer, size_t size) = 0;
 TaskUnixControlSocket::~TaskUnixControlSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }

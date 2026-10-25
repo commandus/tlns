@@ -13,7 +13,7 @@ static mqtt::connect_options makeWSSClientConnectionOptions(
     const std::string &password
 )
 {
-    auto connBuilder = mqtt::connect_options_builder::ws();
+    auto connBuilder = mqtt::connect_options_builder();
     if (!proxyUrl.empty())
         connBuilder.http_proxy(proxyUrl);
     auto sslopts = mqtt::ssl_options_builder()
@@ -67,7 +67,7 @@ MqttWssBridge::MqttWssBridge()
 {
 }
 
-void MqttWssBridge::init(
+int MqttWssBridge::init(
     const std::string& aWssUrl,
     const std::string& aProxyUrl,
     const void *userPasswordTopic
@@ -89,6 +89,7 @@ void MqttWssBridge::init(
         errorCode = -1;
     }
     errorCode = 0;
+    return errorCode;
 }
 
 void MqttWssBridge::done()
@@ -101,6 +102,18 @@ void MqttWssBridge::done()
     }
 }
 
+const char *MqttWssBridge::name()
+{
+    return "MQTT";
+}
+
+void MqttWssBridge::onSend(
+    const void *dispatcher,
+    const MessageQueueItem *item,
+    int code
+)
+{
+}
 
 EXPORT_SHARED_C_FUNC AppBridge* makeStdoutBridge()
 {

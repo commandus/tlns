@@ -1,3 +1,6 @@
+#ifndef LORAWAN_STRING_H
+#define LORAWAN_STRING_H
+
 #include <string>
 #include "lorawan/lorawan-types.h"
 #include "lorawan/lorawan-packet-storage.h"
@@ -268,3 +271,5 @@ std::string subRegion2string(
 uint8_t string2subRegion(
     const std::string& subRegion
 );
+
+#endif

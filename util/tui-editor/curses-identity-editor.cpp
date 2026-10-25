@@ -1,5 +1,8 @@
 #include <sstream>
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <Windows.h>
+#else
+#endif
 #include "curses-identity-editor.h"
 #include "curses.h"
 
@@ -208,5 +211,8 @@ void CursesIdentityTableEditor::notify(
     textOut(ss.str());
     attroff(COLOR_PAIR(1));
     flushScreen();
+#if defined(_MSC_VER) || defined(__MINGW32__)
     Sleep(1000);
+#else
+#endif
 }

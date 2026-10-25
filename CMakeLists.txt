@@ -36,8 +36,6 @@ else()
     set(VCPKG_INC "/git/vcpkg/installed/x64-windows/include")
     # ------------------------ CHANGE PATH ABOVE ON WINDOWS ------------------------
 	set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-	include_directories(${VCPKG_INC})
-
 	#
 	# Setting up i18l & l10n
 	# see https://stackoverflow.com/questions/10521635/using-intltool-with-cmake
@@ -121,9 +119,9 @@ else()
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 		set (OS_SPECIFIC_LIBS wsock32 ws2_32 Userenv)
 		add_subdirectory("third-party/libloragw-win")
-	else ()
+	else()
 		add_subdirectory("third-party/libloragw")
-	endif ()
+	endif()
 
 	set(SRC_LIBLORAWAN
 		lorawan/bridge/app-bridge.cpp
@@ -247,11 +245,10 @@ else()
 		if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			set(LIBUV LibUV)
 			set(LIBUVA $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,uv>)
+			find_package(${LIBUV})
 		else()
-			set(LIBUV LibUV)
-			set(LIBUVA LibUV::LibUV)
+			set(LIBUVA uv)
 		endif()
-		find_package(${LIBUV})
 	endif()
 
 	if (ENABLE_GEN)
@@ -298,12 +295,14 @@ else()
 		)
 	endif()
 
+	set (TLNS_INC "." ${tlns_SOURCE_DIR}/lorawan ${tlns_SOURCE_DIR}/third-party ${VCPKG_INC})
+
 	add_library(lorawan STATIC ${SRC_LIBLORAWAN})
 	# -fPIC
 	set_property(TARGET lorawan PROPERTY POSITION_INDEPENDENT_CODE ON)
 	target_compile_definitions(lorawan PRIVATE ${TLNS_DEF})
-	target_include_directories(lorawan PRIVATE "." "third-party" ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
-	target_link_libraries(lorawan PRIVATE ${OS_SPECIFIC_LIBS} )
+	target_include_directories(lorawan PRIVATE ${TLNS_INC} ${Intl_INCLUDE_DIRS})
+	target_link_libraries(lorawan PRIVATE ${OS_SPECIFIC_LIBS} ${LIBUVA})
 
 	#
 	# tlns-check
@@ -327,8 +326,8 @@ else()
 	)
 	target_link_libraries(tlns-check PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${BACKEND_DB_LIB} ${LIBINTL} ${LIBUVA} )
 	target_compile_definitions(tlns-check PRIVATE ${TLNS_DEF})
-	target_include_directories(tlns-check PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
-			${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+	target_include_directories(tlns-check PRIVATE ${TLNS_INC} "third-party/libloragw" "third-party/libloragw/inc" "gw-dev/usb"
+		${Intl_INCLUDE_DIRS})
 
 	#
 	# Semtech's gateway JSON config file to c++ source convert utility
@@ -339,9 +338,7 @@ else()
 	)
 	target_link_libraries(gateway-config2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(gateway-config2cpp PRIVATE ${TLNS_DEF})
-	target_include_directories(gateway-config2cpp PRIVATE "." "third-party" ${LIBLORAGW_INC}
-		${VCPKG_INC} ${Intl_INCLUDE_DIRS}
-	)
+	target_include_directories(gateway-config2cpp PRIVATE ${TLNS_INC} ${LIBLORAGW_INC} ${Intl_INCLUDE_DIRS})
 
 	#
 	# Regional parameters JSON file to c++ 11 source convert utility
@@ -353,9 +350,8 @@ else()
 	)
 	target_link_libraries(regional-parameters2cpp PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(regional-parameters2cpp PRIVATE ${TLNS_DEF})
-	target_include_directories(regional-parameters2cpp PRIVATE "." "third-party" "third-party/libloragw" "third-party/libloragw/inc"
-			${VCPKG_INC} ${Intl_INCLUDE_DIRS}
-	)
+	target_include_directories(regional-parameters2cpp PRIVATE ${TLNS_INC} "third-party/libloragw" "third-party/libloragw/inc"
+		${Intl_INCLUDE_DIRS})
 
 	#
 	#  LoRaWAN node device simulator
@@ -366,7 +362,7 @@ else()
 	)
 	target_link_libraries(wire-send PRIVATE lorawan ${OS_SPECIFIC_LIBS} ${LIBINTL})
 	target_compile_definitions(wire-send PRIVATE ${TLNS_DEF})
-	target_include_directories(wire-send PRIVATE "." "third-party" ${VCPKG_INC} ${Intl_INCLUDE_DIRS})
+	target_include_directories(wire-send PRIVATE ${TLNS_INC} ${Intl_INCLUDE_DIRS})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
@@ -457,7 +453,7 @@ message("	storage:")
 message("-DENABLE_HTTP=${ENABLE_HTTP} \t enable HTTP service. libmicrohttpd dependency required")
 message("-DENABLE_QRCODE=${ENABLE_QRCODE} \t enable HTTP QRCode URN service")
 message("	experimental:")
-message("-DENABLE_MINIZIP=${ENABLE_MINIZ} \t build with minizip.")
+message("-DENABLE_MINIZIP=${ENABLE_MINIZIP} \t build with minizip.")
 message("-DENABLE_VIEW_IDENTITY=${ENABLE_VIEW_IDENTITY} \t build identity viewer example. ncurses (pdcurses) dependency required.")
 message("")
 message(" Windows: with -DENABLE_SQLITE=on must provide VCPKG options like -DCMAKE_TOOLCHAIN_FILE=C:\\git\\vcpkg\\")

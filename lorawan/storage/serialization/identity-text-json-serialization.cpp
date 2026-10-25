@@ -13,6 +13,11 @@
 #include "platform-defs.h"
 #endif
 
+#ifdef ENABLE_DEBUG
+#include <iostream>
+#include "lorawan-msg.h"
+#endif
+
 IdentityTextJSONSerialization::IdentityTextJSONSerialization(
     IdentityService* aSvc,
     int32_t aCode,
@@ -35,7 +40,7 @@ size_t IdentityTextJSONSerialization::query(
     nlohmann::json js;
     try {
         js = nlohmann::json::parse(request, request + sz);
-    } catch (nlohmann::json::exception &) {
+    } catch (nlohmann::json::exception & exception) {
 #ifdef ENABLE_DEBUG
         std::cerr << ERR_ACCESS_DENIED << " " << exception.what() << std::endl;
 #endif

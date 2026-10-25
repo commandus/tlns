@@ -22,10 +22,10 @@ TaskUnixSocket::TaskUnixSocket(
 
 TaskUnixSocket::~TaskUnixSocket()
 {
-    closeSocket();
+    closeTaskSocket();
 }
 
-SOCKET TaskUnixSocket::openSocket()
+SOCKET TaskUnixSocket::openTaskSocket()
 {
 #if defined(_MSC_VER) || defined(__MINGW32__)
     return INVALID_SOCKET;
@@ -75,7 +75,7 @@ SOCKET TaskUnixSocket::openSocket()
 #endif
 }
 
-void TaskUnixSocket::closeSocket()
+void TaskUnixSocket::closeTaskSocket()
 {
     if (sock >= 0)
         close(sock);

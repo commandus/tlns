@@ -110,10 +110,11 @@ SOCKET TaskUsbGatewaySocket::openTaskSocket()
     // Allow socket descriptor to be reusable
     int r = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (r < 0) {
-        shutdown(sock, SD_SEND);
 #if defined(_MSC_VER)
+        shutdown(sock, SD_SEND);
         closesocket(sock);
 #else
+        shutdown(sock, SHUT_RDWR);
         close(sock);
 #endif
         sock = INVALID_SOCKET;
@@ -128,10 +129,11 @@ SOCKET TaskUsbGatewaySocket::openTaskSocket()
     r = ioctl(sock, FIONBIO, (char *)&on);
 #endif
     if (r < 0) {
-        shutdown(sock, SD_SEND);
 #if defined(_MSC_VER)
+        shutdown(sock, SD_SEND);
         closesocket(sock);
 #else
+        shutdown(sock, SHUT_RDWR);
         close(sock);
 #endif
         sock = INVALID_SOCKET;

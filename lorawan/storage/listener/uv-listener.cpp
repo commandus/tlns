@@ -16,11 +16,13 @@
 #else
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#define SOCKET int
+// #define SOCKET int
+typedef int SOCKET;
 #endif
 
 #include "lorawan/helper/uv-mem.h"
 #include "lorawan/helper/ip-helper.h"
+#include "lorawan/helper/ip-address.h"
 #include "lorawan/lorawan-string.h"
 #include "lorawan/lorawan-error.h"
 

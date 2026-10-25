@@ -318,7 +318,7 @@ static void run()
 	ResponseService onResp(params.query, params.verbose);
     QueryClient *client;
 #ifdef ENABLE_LIBUV
-    client = new UvClient(params.useTcp, params.address, params.port, &onResp);
+    client = new UvClient(params.useTcp, params.intf, params.port, &onResp);
 #else
     client = new UDPClient(params.intf, params.port, &onResp);
 #endif

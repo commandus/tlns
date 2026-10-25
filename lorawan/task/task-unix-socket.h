@@ -25,8 +25,8 @@ public:
     * Open UDP socket for listen
     * @return -1 if fail
     */
-    SOCKET openSocket() override;
-    void closeSocket() override;
+    SOCKET openTaskSocket() override;
+    void closeTaskSocket() override;
     // virtual int onData(const char *buffer, size_t size) = 0;
     virtual ~TaskUnixSocket();
 };

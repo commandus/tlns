@@ -175,6 +175,7 @@ else()
 		lorawan/storage/serialization/identity-binary-serialization.cpp
 		lorawan/storage/serialization/identity-serialization.cpp
 		lorawan/storage/serialization/identity-text-urn-serialization.cpp
+		lorawan/storage/serialization/identity-text-tab-serialization.cpp
 		lorawan/storage/serialization/serialization.cpp
 		lorawan/storage/serialization/service-serialization.cpp
 		lorawan/storage/serialization/urn-helper.cpp

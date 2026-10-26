@@ -4,7 +4,9 @@
 typedef enum SerializationKnownType {
     SKT_UNKNOWN = 0,
     SKT_BINARY = 1,
-    SKT_TEXT_JSON = 2
+    SKT_TEXT_JSON = 2,
+    SKT_TEXT_URN = 3,
+    SKT_TEXT_TAB = 4
 } SERIALIZATION_KNOWN_TYPE;
 
 class Serialization {

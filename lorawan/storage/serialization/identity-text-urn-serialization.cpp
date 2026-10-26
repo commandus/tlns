@@ -16,7 +16,7 @@ IdentityTextURNSerialization::IdentityTextURNSerialization(
     int32_t aCode,
     uint64_t aAccessCode
 )
-    : IdentitySerialization(SKT_TEXT_JSON, aSvc, aCode, aAccessCode)
+    : IdentitySerialization(SKT_TEXT_URN, aSvc, aCode, aAccessCode)
 {
 
 }

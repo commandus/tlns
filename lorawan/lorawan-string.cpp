@@ -89,6 +89,24 @@ bool isHex(
     return value.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos;
 }
 
+bool isDEVADDRString(
+    const std::string &value
+)
+{
+    if (!isHex)
+        return false;
+    return (value.length() <= 8);
+}
+
+bool isDEVEUIString(
+    const std::string &value
+)
+{
+    if (!isHex)
+        return false;
+    return (value.length() <= 16);
+}
+
 bool isDec(
     const std::string &value
 ) {

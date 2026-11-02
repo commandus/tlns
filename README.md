@@ -305,9 +305,7 @@ sudo apt install libmicrohttpd-dev liblmdb-dev libuv1-dev libpaho-mqtt-dev libpa
 Install sqlite3, lmdb, libmicrohttpd via vcpkg
 
 ```
-vcpkg install --triplet x64-windows sqlite3
-vcpkg install --triplet x64-windows lmdb
-vcpkg install --triplet x64-windows libmicrohttpd
+vcpkg install --triplet x64-windows sqlite3 lmdb libmicrohttpd pdcurses paho-mqtt
 ```
 
 Create solution by CMake:

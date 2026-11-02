@@ -93,7 +93,7 @@ bool isDEVADDRString(
     const std::string &value
 )
 {
-    if (!isHex)
+    if (!isHex(value))
         return false;
     return (value.length() <= 8);
 }
@@ -102,7 +102,7 @@ bool isDEVEUIString(
     const std::string &value
 )
 {
-    if (!isHex)
+    if (!isHex(value))
         return false;
     return (value.length() <= 16);
 }

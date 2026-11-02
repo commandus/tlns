@@ -16,4 +16,4 @@ typedef void * HINSTANCE;
 #define EXPORT_SHARED_C_FUNC extern "C"
 #endif
 
-#endif //TLNS_PLUGIN_HELPER_H
+#endif

@@ -14,7 +14,7 @@ static void printIdentity(
     std::cout << "Device count: " << c.size() << std::endl;
     std::vector<NETWORKIDENTITY> l;
     c.list(l, 0, c.size());
-    for (auto it: l) {
+    for (auto &it: l) {
         std::cout << it.toString() << std::endl;
     }
     // rewrite file
@@ -29,7 +29,7 @@ static void printGateway(
     std::cout << "Gateway count: " << c.size() << std::endl;
     std::vector<GatewayIdentity> l;
     c.list(l, 0, c.size());
-    for (auto it: l) {
+    for (auto &it: l) {
         std::cout << it.toString() << std::endl;
     }
     // rewrite file

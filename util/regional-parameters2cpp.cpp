@@ -16,17 +16,16 @@
 #include "lorawan/lorawan-msg.h"
 #include "lorawan/lorawan-date.h"
 
-// i18n
-#include <libintl.h>
-#define _(String) gettext (String)
-// #define _(String) (String)
-
 const std::string programName = "regional-parameters2cpp";
 
 #ifdef _MSC_VER
 #undef ENABLE_TERM_COLOR
+#define _(String) (String)
 #else
 #define ENABLE_TERM_COLOR	1
+// i18n
+#include <libintl.h>
+#define _(String) gettext (String)
 #endif
 
 class RegionalParameters2CppConfiguration {

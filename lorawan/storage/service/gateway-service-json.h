@@ -3,9 +3,7 @@
 
 #include <vector>
 #include <mutex>
-#include <map>
 #include "lorawan/storage/service/gateway-service-mem.h"
-#include "lorawan/helper/plugin-helper.h"
 
 class JsonGatewayService: public MemoryGatewayService {
 private:

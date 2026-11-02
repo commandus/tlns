@@ -7,8 +7,12 @@
  */
 #ifdef _MSC_VER
 #include <WinSock2.h>
+#define _(String) (String)
 #else
 #include <unistd.h>
+// i18n
+#include <libintl.h>
+#define _(String) gettext (String)
 #endif
 
 #include "argtable3/argtable3.h"
@@ -20,13 +24,9 @@
 #include "lorawan/storage/client/plugin-client.h"
 #include "lorawan/storage/service/identity-service-json.h"
 
-// i18n
-#include <libintl.h>
 #include <thread>
 #include <lorawan/helper/ip-address.h>
 #include <lorawan/proto/gw/json-wired-client.h>
-#define _(String) gettext (String)
-/// #define _(String) (String)
 
 const char *programName = "wire-send";
 

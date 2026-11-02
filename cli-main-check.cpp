@@ -14,15 +14,14 @@
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WinSock2.h>
+#define _(String) (String)
 #else
 #include "lorawan/task/task-unix-socket.h"
 #include "lorawan/task/task-unix-control-socket.h"
-#endif
-
 // i18n
 #include <libintl.h>
 #define _(String) gettext (String)
-/// #define _(String) (String)
+#endif
 
 const char *programName = "tlns-check";
 const char *FILE_NAME_UNIX_SOCKET = "/tmp/cli-main-check.socket";

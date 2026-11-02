@@ -21,7 +21,9 @@
 
 # Example:
 # cmake -DENABLE_LIBUV=on
-#
+# cmake -DENABLE_GW_DEV_USB=on -DENABLE_LIBUV=on -DENABLE_DEBUG=on -DENABLE_EXAMPLES=on -DENABLE_GEN=on -DENABLE_SQLITE=on -DENABLE_LMDB=on -DENABLE_JSON=on -DENABLE_MQTT=on -DENABLE_IPV6=on -DENABLE_HTTP=on -DENABLE_QRCODE=on -DENABLE_MINIZIP=on -DENABLE_VIEW_IDENTITY=on
+# cmake -DCMAKE_TOOLCHAIN_FILE=C:\git\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DENABLE_GW_DEV_USB=on -DENABLE_LIBUV=on -DENABLE_DEBUG=on -DENABLE_EXAMPLES=on -DENABLE_GEN=on -DENABLE_SQLITE=on -DENABLE_LMDB=on -DENABLE_JSON=on -DENABLE_MQTT=on -DENABLE_IPV6=on -DENABLE_HTTP=on -DENABLE_QRCODE=on -DENABLE_MINIZIP=on -DENABLE_VIEW_IDENTITY=on
+
 cmake_minimum_required(VERSION 3.9)
 set(VERSION_INFO 1.0.3)
 
@@ -114,6 +116,7 @@ else()
 	set(AES_SRC third-party/system/crypto/aes.c third-party/system/crypto/cmac.c)
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+		add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 		# avoid Error LNK2038 mismatch detected for 'RuntimeLibrary': value 'MT_StaticRelease' doesn't match value 'MD_DynamicRelease'
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 		# set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")

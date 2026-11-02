@@ -3,6 +3,7 @@
 
 #include <sstream>
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#include <winsock2.h>
 #else
 #include <sys/un.h>
 #include <arpa/inet.h>

@@ -1,5 +1,5 @@
-#ifndef LORAWAN_NETWORK_TYPES_H_
-#define LORAWAN_NETWORK_TYPES_H_	1
+#ifndef LORAWAN_TYPES_H_
+#define LORAWAN_TYPES_H_	1
 
 // #define PACK( __Declaration__ ) __Declaration__
 #ifdef __GNUC__

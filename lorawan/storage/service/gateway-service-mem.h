@@ -2,7 +2,6 @@
 #define GATEWAY_SERVICE_MEM_H_ 1
 
 #include <vector>
-#include <mutex>
 #include <map>
 #include "lorawan/storage/service/gateway-service.h"
 #include "lorawan/helper/plugin-helper.h"

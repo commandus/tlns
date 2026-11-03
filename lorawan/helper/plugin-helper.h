@@ -2,6 +2,7 @@
 #define TLNS_PLUGIN_HELPER_H
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#include <WinSock2.h>
 #include <Windows.h>
 #define dlopen(fileName, opt) LoadLibraryA(fileName)
 #define dlclose FreeLibrary

@@ -15,9 +15,11 @@
 #ifdef ESP_PLATFORM
     #include <arpa/inet.h>
 #endif
+
 #if defined(_MSC_VER) || defined(__MINGW32__)
-    #include <WinSock2.h>
+#include <WinSock2.h>
 #endif
+
 #if defined(_MSC_VER)
     #define SWAP_BYTES_2(x) htons(x)
     #define SWAP_BYTES_4(x) htonl(x)

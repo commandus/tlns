@@ -1,11 +1,9 @@
 #ifndef PLATFORM_WIN_H
 #define PLATFORM_WIN_H
-#pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include <WinSock2.h>
-
+#include <Windows.h>
 #ifdef __cplusplus
 #define C_CALL extern "C"
 extern "C" {

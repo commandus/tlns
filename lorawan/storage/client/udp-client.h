@@ -2,8 +2,8 @@
 #define UDP_CLIENT_H_	1
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+#include <WinSock2.h>
 #include <BaseTsd.h>
-#include <Winsock2.h>
 typedef SSIZE_T ssize_t;
 #else
 #include <netinet/in.h>

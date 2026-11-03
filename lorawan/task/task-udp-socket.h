@@ -4,7 +4,7 @@
 #include <cinttypes>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#include <Winsock2.h>
+#include <WinSock2.h>
 #define close closesocket
 #define write(sock, b, sz) ::send(sock, b, sz, 0)
 typedef in_addr in_addr_t;

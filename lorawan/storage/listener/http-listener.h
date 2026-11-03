@@ -6,6 +6,7 @@
 #define HTTP_LISTENER_H_	1
 
 #include <string>
+
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WinSock2.h>
 #else

@@ -4,7 +4,7 @@
 #include <cinttypes>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#include <Winsock2.h>
+#include <WinSock2.h>
 typedef in_addr in_addr_t;
 #else
 #include <netinet/in.h>

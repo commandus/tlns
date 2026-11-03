@@ -206,7 +206,7 @@ static void stop() {
 	}
 }
 
-#ifndef _MSC_VER
+#if !(defined(_MSC_VER) || defined(__MINGW32__))
 void signalHandler(int signal)
 {
 	if (signal == SIGINT) {
@@ -225,7 +225,7 @@ BOOL WINAPI winSignalHandler(DWORD signal) {
 
 void setSignalHandler()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     SetConsoleCtrlHandler(winSignalHandler,  true);
 #else
 	struct sigaction action = {};

@@ -112,7 +112,7 @@ static void stop()
 
 static void done()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     WSACleanup();
 #endif
 }
@@ -239,7 +239,7 @@ int parseCmd(
     return CODE_OK;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #undef ENABLE_TERM_COLOR
 #else
 #define ENABLE_TERM_COLOR	1
@@ -248,7 +248,7 @@ int parseCmd(
 #define TRACE_BUFFER_SIZE   256
 
 static void printTrace() {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     void *t[TRACE_BUFFER_SIZE];
     auto size = backtrace(t, TRACE_BUFFER_SIZE);
@@ -258,7 +258,7 @@ static void printTrace() {
 
 static void run();
 
-#ifndef _MSC_VER
+#if !(defined(_MSC_VER) || defined(__MINGW32__))
 void signalHandler(int signal)
 {
     switch (signal) {
@@ -305,7 +305,7 @@ BOOL WINAPI winSignalHandler(DWORD signal) {
 
 void setSignalHandler()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     SetConsoleCtrlHandler(winSignalHandler,  true);
 #else
     struct sigaction action {};
@@ -474,7 +474,7 @@ static void run()
 
     // control socket
     TaskSocket *taskControlSocket
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     = new TaskUDPControlSocket(localConfig.controlSocketFileNameOrAddressAndPort);
 #else
     = new TaskUnixControlSocket(localConfig.controlSocketFileNameOrAddressAndPort);
@@ -503,7 +503,7 @@ int main(
     int r = parseCmd(&localConfig, argc, argv);
     if (r)
         return r;
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     WSADATA wsaData;
     r = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (r)

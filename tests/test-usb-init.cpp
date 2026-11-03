@@ -151,7 +151,7 @@ void signalHandler(int signal) {
     }
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 BOOL WINAPI winSignalHandler(DWORD signal) {
     std::cerr << "Interrupted.." << std::endl;
     stopRequest = true;
@@ -160,7 +160,7 @@ BOOL WINAPI winSignalHandler(DWORD signal) {
 #endif
 
     void setSignalHandler() {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
         SetConsoleCtrlHandler(winSignalHandler,  true);
 #else
         struct sigaction action {};

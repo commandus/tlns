@@ -116,6 +116,17 @@ C_CALL int closeSerial(int fd) {
     return comPorts.closePort(fd);
 }
 
+#if defined(__MINGW32__)
+C_CALL int readSerial(int fd, void* buffer, unsigned int count)
+{
+    return comPorts.readPort(fd, buffer, count);
+}
+
+C_CALL int writeSerial(int fd, const void* buffer, unsigned int count)
+{
+    return comPorts.writePort(fd, buffer, count);
+}
+#else
 C_CALL int readSerial(int fd, void* buffer, size_t count)
 {
     return comPorts.readPort(fd, buffer, count);
@@ -125,6 +136,7 @@ C_CALL int writeSerial(int fd, const void* buffer, size_t count)
 {
     return comPorts.writePort(fd, buffer, count);
 }
+#endif
 
 C_CALL int setSerialSpeed(int fd, int baud)
 {

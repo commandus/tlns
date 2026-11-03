@@ -91,7 +91,7 @@ TaskUsbGatewaySocket::TaskUsbGatewaySocket(
 
 SOCKET TaskUsbGatewaySocket::openTaskSocket()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == INVALID_SOCKET)
         return sock;
@@ -110,7 +110,7 @@ SOCKET TaskUsbGatewaySocket::openTaskSocket()
     // Allow socket descriptor to be reusable
     int r = setsockopt(sock, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
     if (r < 0) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
         shutdown(sock, SD_SEND);
         closesocket(sock);
 #else
@@ -122,14 +122,14 @@ SOCKET TaskUsbGatewaySocket::openTaskSocket()
         return INVALID_SOCKET;
     }
     // Set socket to be nonblocking
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     u_long onw = 1;
     r = ioctlsocket(sock, FIONBIO, &onw);
 #else
     r = ioctl(sock, FIONBIO, (char *)&on);
 #endif
     if (r < 0) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
         shutdown(sock, SD_SEND);
         closesocket(sock);
 #else
@@ -141,7 +141,7 @@ SOCKET TaskUsbGatewaySocket::openTaskSocket()
         return INVALID_SOCKET;
     }
     // Bind socket to socket name
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     bool addressSpecified = string2sockaddr((struct sockaddr*) &sunAddr, socketNameOrAddress);
     if (!addressSpecified) {
         // if address is not assigned or invalid, assign loop-back interface and any random port number

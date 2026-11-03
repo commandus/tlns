@@ -8,7 +8,7 @@
 
 typedef std::chrono::time_point<std::chrono::system_clock> TASK_TIME;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
 typedef struct in_addr in_addr_t;

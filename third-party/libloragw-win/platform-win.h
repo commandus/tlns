@@ -1,3 +1,5 @@
+#ifndef PLATFORM_WIN_H
+#define PLATFORM_WIN_H
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
@@ -36,13 +38,22 @@ typedef struct termios {
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #if DEBUG_CRT == 1
+#if defined(__MINGW32__)
+    #define DEBUG_PRINTF(fmt, ...)    fprintf(stdout, fmt, ## __VA_ARGS__); fflush(stdout)
+#else
     #define DEBUG_PRINTF(fmt, ...)    fprintf(stdout, fmt, __VA_ARGS__); fflush(stdout)
+#endif
 #else
     #define DEBUG_PRINTF(fmt, ...)
 #endif
 
+#if defined(__MINGW32__)
+#define ERROR_PRINTF(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__); fflush(stderr)
+#define INFO_PRINTF(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__); fflush(stdout)
+#else
 #define ERROR_PRINTF(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__); fflush(stderr)
 #define INFO_PRINTF(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__); fflush(stdout)
+#endif
 
 #define CHECK_NULL(a)                if(a==NULL){return -1;}
 #define CHECK_ERR(a)                    if(a==-1){return LGW_REG_ERROR;}
@@ -90,9 +101,24 @@ typedef int64_t ssize_t;
 #define O_SYNC 0
 
 //
+#ifndef CLOCK_MONOTONIC
 #define CLOCK_MONOTONIC 0
+#endif
 #define clock_nanosleep(clock, flags, t, rem) nanosleep(t, rem)
 //
+
+int openSerial(const char* portName, int opt);
+int closeSerial(int fd);
+#if defined(__MINGW32__)
+int readSerial(int fd, void* buffer, unsigned int count);
+int writeSerial(int fd, const void* buffer, unsigned int  count);
+#else
+int readSerial(int fd, void* buffer, size_t count);
+int writeSerial(int fd, const void* buffer, size_t count);
+#endif
+int setSerialSpeed(int fd, int baud);
+int setSerialBlocking(int fd, BOOL blocking);
+int gettimeofday(struct timeval* tp, struct timezone* tzp);
 
 // Serial
 #define read readSerial
@@ -100,15 +126,7 @@ typedef int64_t ssize_t;
 #define close closeSerial
 #define select selectSerial
 
-int openSerial(const char* portName, int opt);
-int closeSerial(int fd);
-int readSerial(int fd, void* buffer, size_t count);
-int writeSerial(int fd, const void* buffer, size_t count);
-int setSerialSpeed(int fd, int baud);
-int setSerialBlocking(int fd, BOOL blocking);
-
-int gettimeofday(struct timeval* tp, struct timezone* tzp);
-
 #ifdef __cplusplus
 }
+#endif
 #endif

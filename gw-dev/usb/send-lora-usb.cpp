@@ -186,7 +186,7 @@ int parseCmd(
     return CODE_OK;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #undef ENABLE_TERM_COLOR
 #else
 #define ENABLE_TERM_COLOR	1
@@ -195,7 +195,7 @@ int parseCmd(
 #define TRACE_BUFFER_SIZE   256
 
 static void printTrace() {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #else
     void *t[TRACE_BUFFER_SIZE];
     auto size = backtrace(t, TRACE_BUFFER_SIZE);
@@ -203,7 +203,7 @@ static void printTrace() {
 #endif
 }
 
-#ifndef _MSC_VER
+#if !(defined(_MSC_VER) || defined(__MINGW32__))
 static void run();
 void signalHandler(int signal)
 {
@@ -251,7 +251,7 @@ BOOL WINAPI winSignalHandler(DWORD signal) {
 
 void setSignalHandler()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     SetConsoleCtrlHandler(winSignalHandler,  true);
 #else
     struct sigaction action {};

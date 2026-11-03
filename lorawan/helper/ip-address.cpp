@@ -30,7 +30,7 @@ std::string sockaddr2string(
             port = ntohs(((struct sockaddr_in6 *) value)->sin6_port);
             break;
         case AF_UNIX:
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
             buf[0] = '\0';
             port = 0;
             break;

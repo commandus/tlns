@@ -13,7 +13,7 @@
 #include <cmath>
 #include <fcntl.h>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #include <WinSock2.h>
 #else
 #include <sys/un.h>

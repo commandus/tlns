@@ -63,9 +63,13 @@ add_executable(test-usb-init ${TEST_USB_SRC})
 target_include_directories(test-usb-init PRIVATE .. ${INC_LIBLORAGW} ../third-party ../gw-dev/usb)
 target_link_libraries(test-usb-init PRIVATE lorawan loragw)
 
+add_executable(test-task-timeout test-task-timeout.cpp)
+target_include_directories(test-task-timeout PRIVATE ..)
+target_link_libraries(test-task-timeout PRIVATE lorawan)
+
 add_test(NAME test-decode-rxpk COMMAND "test-decode-rxpk")
 add_test(NAME test-decode-payload COMMAND "test-decode-payload")
 add_test(NAME test-mac-parse COMMAND "test-mac-parse")
 add_test(NAME test-payload2device-parser COMMAND "test-payload2device-parser")
 add_test(NAME test-usb-init COMMAND "test-usb-init")
-
+add_test(NAME test-task-timeout COMMAND "test-task-timeout")

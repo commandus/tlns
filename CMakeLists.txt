@@ -255,8 +255,9 @@ else()
 		endif()
 	endif()
 
-	if (ENABLE_GEN)
+	if(ENABLE_GEN)
 		set(TLNS_DEF ${TLNS_DEF} ENABLE_GEN)
+		set(SRC_LIBLORAWAN ${SRC_LIBLORAWAN} lorawan/storage/client/gen-client.cpp)
 	endif()
 
 	if (ENABLE_SQLITE)

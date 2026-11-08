@@ -22,14 +22,14 @@ private:
     int status;
 public:
     explicit UDPClient(
-            uint32_t ipv4,
-            uint16_t port,
-            ResponseClient *onResponse
+        uint32_t ipv4,
+        uint16_t port,
+        ResponseClient *onResponse
     );
     explicit UDPClient(
-            const std::string &aHost,
-            uint16_t port,
-            ResponseClient *onResponse
+        const std::string &aHost,
+        uint16_t port,
+        ResponseClient *onResponse
     );
     ~UDPClient() override;
 

@@ -498,6 +498,10 @@ uint32_t DEVADDR::getNwkId() const
  * 5    TTTTTTDD DDDDDDDD DDD00000 00000000
  * 6    TTTTTTTF FFFFFFFF FFFFFF00 00000000
  * 7    TTTTTTTT 11111111 11111111 10000000
+ * where
+ *      T - network type
+ *      0 - address
+ *      6, 9, A, B, D, F, 1- network id
  */
 uint32_t DEVADDR::getNwkId_1_0() const
 {
